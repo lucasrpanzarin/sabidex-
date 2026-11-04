@@ -1,33 +1,26 @@
 {
-  "quando": "2026-11-04T19:33:53.392Z",
+  "quando": "2026-11-04T20:05:49.706Z",
   "imagens": [
     {
-      "nome": "ara-feliz",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "ara-pensando",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "ara-comemorando",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "ara-triste",
+      "nome": "014-2",
+      "sabimon": "Conchaduna",
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
     }
   ],
   "pedido": {
-    "acao": "mascote"
+    "acao": "gerar",
+    "formas": [
+      2
+    ],
+    "refazer": true,
+    "numeros": [
+      "014"
+    ],
+    "so": [
+      "014-2"
+    ]
   },
   "ok": true
 }

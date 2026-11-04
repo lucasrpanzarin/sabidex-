@@ -100,7 +100,7 @@ describe('pacotes', () => {
   });
 
   it('garantia: depois de muitos pacotes repetidos, vem um Sabimon novo', () => {
-    const quase = Object.fromEntries(sabimons.slice(0, 9).map((s) => [s.id, 2]));
+    const quase = Object.fromEntries(sabimons.filter((s) => s.id !== 's010').map((s) => [s.id, 2]));
     let e = { ...estadoInicial(), cartas: quase, semNovo: GARANTIA - 1 };
     expect(garantiaAtiva(e)).toBe(true);
     for (let t = 0; t < 50; t++) {

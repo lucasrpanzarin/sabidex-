@@ -17,9 +17,12 @@ TAMANHO = 480
 CONTORNO = {
     '004': (250, 204, 21),   # Zapinho, Faiscaluz, Trovalume: dourado
     '010': (34, 211, 238),   # Estrelim, Constelão, Galaxiá: turquesa
+    '013': (34, 211, 238),   # Tucanuvem, Bicorrente, Tucaventania: turquesa
+    '017': (250, 204, 21),   # Antarocha, Pedranta, Montanta: dourado
+    '020': (34, 211, 238),   # Oncelestre, Onçastral, Constelonça: turquesa
 }
 # Desenhos com sombra cinza no chão: o recorte também tira o cinza claro (não usar em bicho branco).
-TIRAR_SOMBRA = {'004-1'}
+TIRAR_SOMBRA = {'004-1', '016-2'}
 
 def contorno(img: Image.Image, cor) -> Image.Image:
     """Desenha uma luz da cor dada em volta do bicho, por trás dele."""
