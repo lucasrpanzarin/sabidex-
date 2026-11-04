@@ -5,8 +5,8 @@ import { Ara } from '../components/Ara';
 import { CartaView } from '../components/CartaView';
 import { Icone } from '../components/Icone';
 import { Faixa, ItemCarta, ItemIcone, Moeda, Saldo } from '../components/Loja';
-import { sabimonPorId, sabimons } from '../data';
-import { ESPACOS, VITRINE, comprarItem, destaqueDoDia, formaDe, itemPorId, itensDe, premiosLivres, saldo, visualDe, type Item } from '../lib/loja';
+import { FIGURINHAS, figurinhaPorId } from '../lib/figurinhas';
+import { ESPACOS, VITRINE, comprarItem, destaqueDoDia, itemPorId, temItem, itensDe, premiosLivres, saldo, visualDe, type Item } from '../lib/loja';
 import { hoje } from '../lib/jogo';
 import { ir, voltar } from '../lib/rota';
 import { getEstado, setEstado, useEstado } from '../lib/store';
@@ -61,8 +61,8 @@ export function Loja({ sabimonId }: { sabimonId?: string }) {
   const tem = saldo(e);
   const livres = premiosLivres(e);
   const destaque = destaqueDoDia(hoje());
-  const meus = sabimons.filter((s) => e.cartas[s.id] > 0);
-  const alvo = sabimonPorId.get(sabimonId ?? '');
+  const meus = FIGURINHAS.filter((f) => e.cartas[f.id] > 0);
+  const alvo = figurinhaPorId.get(sabimonId ?? '');
 
   const comprar = (sId: string) => {
     if (!item) return;
@@ -74,13 +74,15 @@ export function Loja({ sabimonId }: { sabimonId?: string }) {
   };
 
   if (passo === 'feito' && item && escolhido) {
-    const s = sabimonPorId.get(escolhido)!;
+    const f = figurinhaPorId.get(escolhido)!;
+    const s = f.s;
+    const nomeForma = s.formas[f.forma - 1].nome;
     return (
       <main className="tela" style={{ alignItems: 'center', textAlign: 'center' }}>
         <div className="display titulo-premio pop" style={{ fontSize: 34 }}>{item.premio ? 'Coroa sua!' : 'Comprado!'}</div>
-        <div style={{ width: 'min(290px, 100%)' }}><CartaView carta={s} forma={formaDe(e, s.id)} itens={itensDe(e, s.id)} visual={visualDe(e, s.id)} grande animar={!!item.visual} /></div>
+        <div style={{ width: 'min(290px, 100%)' }}><CartaView carta={s} forma={f.forma} itens={itensDe(e, f.id)} visual={visualDe(e, f.id)} grande animar={!!item.visual} /></div>
         <div className="pop"><Faixa itens={itensDe(e, s.id)} /></div>
-        <p className="muted small" style={{ margin: 0 }}>{item.visual ? `A carta do ${s.formas[formaDe(e, s.id) - 1].nome} ganhou ${item.nome.toLowerCase()}!` : `${item.nome} agora está no ${s.formas[formaDe(e, s.id) - 1].nome}.`}</p>
+        <p className="muted small" style={{ margin: 0 }}>{item.visual ? `A carta do ${nomeForma} ganhou ${item.nome.toLowerCase()}!` : `${item.nome} agora está no ${nomeForma}.`}</p>
         <div className="coluna" style={{ width: '100%', marginTop: 'auto' }}>
           <button className="btn btn-amarelo btn-bloco" onClick={() => { setItem(null); setPasso('itens'); }}>Voltar para a lojinha</button>
           <button className="btn btn-escuro btn-bloco" onClick={() => ir('album', s.id)}>Ver no álbum</button>
@@ -100,16 +102,16 @@ export function Loja({ sabimonId }: { sabimonId?: string }) {
         <p className="muted small" style={{ margin: 0 }}>{explica(item)}</p>
         {erro && <div className="aviso aviso-erro">{erro}</div>}
         <div className="escolha-sabimon">
-          {meus.map((s) => {
-            const its = itensDe(e, s.id);
-            const ja = e.compras.some((c) => c.sabimon === s.id && c.item === item.id);
+          {meus.map((f) => {
+            const its = itensDe(e, f.id);
+            const ja = temItem(e, f.id, item.id);
             const cheio = !item.visual && its.length >= ESPACOS;
             const bloqueado = ja || cheio;
             return (
-              <div key={s.id} className="coluna" style={{ gap: 4 }}>
-                <CartaView carta={s} forma={formaDe(e, s.id)} visual={visualDe(e, s.id)} onClick={bloqueado ? undefined : () => setEscolhido(s.id)} />
-                <span className="small" style={{ fontWeight: 800, textAlign: 'center', color: bloqueado ? 'var(--muted)' : escolhido === s.id ? 'var(--t-green)' : 'var(--ink)' }}>
-                  {ja ? 'Já tem' : cheio ? 'Cheio' : escolhido === s.id ? 'Escolhido' : item.visual ? 'Pode' : `${ESPACOS - its.length} ${ESPACOS - its.length > 1 ? 'espaços' : 'espaço'}`}
+              <div key={f.id} className="coluna" style={{ gap: 4 }}>
+                <CartaView carta={f.s} forma={f.forma} visual={visualDe(e, f.id)} onClick={bloqueado ? undefined : () => setEscolhido(f.id)} />
+                <span className="small" style={{ fontWeight: 800, textAlign: 'center', color: bloqueado ? 'var(--muted)' : escolhido === f.id ? 'var(--t-green)' : 'var(--ink)' }}>
+                  {ja ? 'Já tem' : cheio ? 'Cheio' : escolhido === f.id ? 'Escolhido' : item.visual ? 'Pode' : `${ESPACOS - its.length} ${ESPACOS - its.length > 1 ? 'espaços' : 'espaço'}`}
                 </span>
               </div>
             );
@@ -133,7 +135,7 @@ export function Loja({ sabimonId }: { sabimonId?: string }) {
         <h1 className="display h2" style={{ fontSize: 27 }}>Lojinha</h1>
       </div>
       {alvo && escolhido ? (
-        <p className="muted small" style={{ margin: 0 }}>Escolha um item para o <strong style={{ color: 'var(--ink)' }}>{alvo.formas[formaDe(e, alvo.id) - 1].nome}</strong>.</p>
+        <p className="muted small" style={{ margin: 0 }}>Escolha um item para o <strong style={{ color: 'var(--ink)' }}>{alvo.s.formas[alvo.forma - 1].nome}</strong>.</p>
       ) : (
         <p className="muted small" style={{ margin: 0 }}>Cada Sabimon tem 3 espaços para itens. Toque num item para ver mais.</p>
       )}

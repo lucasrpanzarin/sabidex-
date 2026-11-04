@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Ara } from '../components/Ara';
 import { RasgarPacote } from '../components/RasgarPacote';
-import { CartaView, ROTULO } from '../components/CartaView';
+import { CartaView, ROTULO, VersoCarta } from '../components/CartaView';
 import { Icone } from '../components/Icone';
-import { sabimonPorId, sabimons, TOTAL_PLANEJADO } from '../data';
+import { sabimons } from '../data';
 import type { Raridade, Sabimon } from '../data/tipos';
 import { abrirPacote, garantiaAtiva, guardarCartas, GARANTIA } from '../lib/jogo';
 import { Faixa, Moeda, Saldo } from '../components/Loja';
-import { ESPACOS, PRECO_EVOLUCAO, copiasGastas, evoluir, formaDe, itensDe, podeEvoluir, saldo, visualDe } from '../lib/loja';
+import { ESPACOS, PRECO_EVOLUCAO, evoluir, itensDe, podeEvoluir, saldo, visualDe } from '../lib/loja';
+import { FIGURINHAS, figurinhaPorId, idCarta, proxima, type Figurinha } from '../lib/figurinhas';
+import { CARTAS_PARA_EVOLUIR, type Forma } from '../lib/sabimon';
 import { useConta, evoluirNaConta } from '../lib/conta';
 import { ir } from '../lib/rota';
 import { jogar } from './Inicio';
@@ -90,10 +92,7 @@ export function AbrirPacote() {
           <button className={`carta-flip fase-${fase}`} onClick={fase === 'verso' ? virar : undefined} disabled={fase !== 'verso'}
             aria-label={fase === 'verso' ? 'Toque na carta para virar' : `${melhor.formas[0].nome}, ${ROTULO[melhor.raridade]}`}>
             <span className="carta-flip-dentro">
-              <span className="carta-flip-verso" aria-hidden="true">
-                <span className="logo" style={{ fontSize: 30 }}>Sabidex</span>
-                <span className="pacote-palco"><Ara tamanho={86} /></span>
-              </span>
+              <span className="carta-flip-verso" aria-hidden="true"><VersoCarta /></span>
               <span className="carta-flip-frente">
                 <CartaView carta={melhor} grande animar={fase === 'revelado'} />
                 {novo && fase === 'revelado' && <span className="selo-novo" style={{ fontSize: 14, padding: '4px 10px', top: -10, right: -8 }}>NOVO</span>}
@@ -110,7 +109,7 @@ export function AbrirPacote() {
       {fase === 'revelado' && aberto && melhor && (
         <div className="coluna sobe" style={{ width: '100%', marginTop: 'auto', animationDelay: '.5s' }}>
           <p className="muted small" style={{ margin: 0 }}>
-            {nNovos ? (aberto.cartas.length > 1 ? `${nNovos} Sabimons novos no álbum!` : 'Novo no seu álbum!') : `Você tem ${e.cartas[melhor.id] ?? 1} cópias. Elas ajudam a evoluir e servem para trocar.`}
+            {nNovos ? (aberto.cartas.length > 1 ? `${nNovos} Sabimons novos no álbum!` : 'Novo no seu álbum!') : `Você tem ${e.cartas[melhor.id] ?? 1} cartas de ${melhor.formas[0].nome}. Junte 3 para evoluir, ou troque com os amigos.`}
           </p>
           {sobra > 0 ? (
             <button className="btn btn-amarelo btn-bloco" onClick={guardar}>Abrir o próximo</button>
@@ -144,86 +143,99 @@ function Confete() {
 
 const FILTROS: [Raridade | 'todas', string][] = [['todas', 'Todos'], ['comum', '★'], ['rara', '★★'], ['epica', '★★★'], ['lendaria', '★★★★']];
 
-/** Detalhe de um Sabimon: carta grande, itens, cópias e evolução. */
-function Detalhe({ s }: { s: Sabimon }) {
+/** Carta que acabou de nascer de uma evolução (para a tela dela comemorar). */
+let acabouDeEvoluir = '';
+
+/** Detalhe de uma figurinha: carta grande, itens, quantas tem e evolução. */
+function Detalhe({ f }: { f: Figurinha }) {
   const e = useEstado();
   const { conta } = useConta();
-  const [evoluiu, setEvoluiu] = useState(false);
+  const [evoluiu] = useState(() => { const v = acabouDeEvoluir === f.id; acabouDeEvoluir = ''; return v; });
   const [ocupado, setOcupado] = useState(false);
   const [erro, setErro] = useState('');
-  const n = e.cartas[s.id] ?? 0;
-  const forma = formaDe(e, s.id);
-  const itens = itensDe(e, s.id);
-  const p = podeEvoluir(e, s);
-  const prox = p.forma ? s.formas[p.forma - 1].nome : '';
-  const precisa = p.forma ? 1 + copiasGastas(p.forma) : 0;
+  const s = f.s;
+  const n = e.cartas[f.id] ?? 0;
+  const itens = itensDe(e, f.id);
+  const p = podeEvoluir(e, f.id);
+  const alvo = proxima(f);
+  const anterior = f.forma > 1 ? figurinhaPorId.get(idCarta(s.id, (f.forma - 1) as Forma)) : undefined;
+  const voltar = <button className="voltar" onClick={() => ir('album')}><Icone nome="voltar" tamanho={18} espessura={3} />Álbum</button>;
 
   const evoluirAgora = async () => {
+    if (!alvo) return;
     setErro('');
     if (conta) {
       setOcupado(true);
-      const msg = await evoluirNaConta(s.id);
+      const msg = await evoluirNaConta(f.id);
       setOcupado(false);
       if (msg) { setErro(msg); return; }
     } else {
-      const novo = evoluir(getEstado(), s);
+      const novo = evoluir(getEstado(), f.id);
       if (!novo) return;
       setEstado(novo);
     }
-    setEvoluiu(true);
+    acabouDeEvoluir = alvo.id;
+    ir('album', alvo.id);
   };
 
   if (n === 0) {
     return (
       <main className="tela" style={{ alignItems: 'center', textAlign: 'center' }}>
-        <button className="voltar" style={{ alignSelf: 'flex-start' }} onClick={() => ir('album')}><Icone nome="voltar" tamanho={18} espessura={3} />Álbum</button>
-        <CartaView carta={s} tem={false} grande />
-        <div className="muted">Você ainda não tem esse Sabimon. Continue jogando para ganhar pacotes!</div>
+        <div style={{ alignSelf: 'flex-start' }}>{voltar}</div>
+        <div style={{ width: 'min(290px, 100%)' }}><CartaView carta={s} forma={f.forma} tem={false} grande /></div>
+        <div className="painel" style={{ width: '100%' }}>
+          {f.forma === 1
+            ? <div className="muted">Você ainda não tem <strong style={{ color: 'var(--ink)' }}>{s.formas[0].nome}</strong>. Ele vem nos pacotes: continue jogando!</div>
+            : <div className="muted">Para ganhar <strong style={{ color: 'var(--ink)' }}>{s.formas[f.forma - 1].nome}</strong>, junte {CARTAS_PARA_EVOLUIR[f.forma as 2 | 3]} cartas de <strong style={{ color: 'var(--ink)' }}>{anterior?.s.formas[anterior.forma - 1].nome}</strong> e evolua.</div>}
+        </div>
+        {anterior && (e.cartas[anterior.id] ?? 0) > 0 && <button className="btn btn-escuro btn-bloco" onClick={() => ir('album', anterior.id)}>Ver {s.formas[anterior.forma - 1].nome}</button>}
       </main>
     );
   }
 
+  const precisa = p.gasta ?? 0;
   return (
     <main className="tela" style={{ alignItems: 'center', textAlign: 'center' }}>
       <div className="linha" style={{ alignSelf: 'stretch', justifyContent: 'space-between' }}>
-        <button className="voltar" onClick={() => ir('album')}><Icone nome="voltar" tamanho={18} espessura={3} />Álbum</button>
+        {voltar}
         <Saldo valor={saldo(e)} />
       </div>
       {evoluiu && <div className="display titulo-premio pop" style={{ fontSize: 30 }}>Evoluiu!</div>}
       <div style={{ position: 'relative', display: 'grid', placeItems: 'center', width: '100%', overflow: 'hidden', borderRadius: 24 }}>
         {evoluiu && <div className="raios" aria-hidden="true" />}
-        <div key={forma} className={evoluiu ? 'pop' : undefined} style={{ position: 'relative', width: 'min(290px, 100%)' }}>
-          <CartaView carta={s} forma={forma} itens={itens} visual={visualDe(e, s.id)} grande animar />
+        <div className={evoluiu ? 'pop' : undefined} style={{ position: 'relative', width: 'min(290px, 100%)' }}>
+          <CartaView carta={s} forma={f.forma} itens={itens} visual={visualDe(e, f.id)} grande animar />
         </div>
       </div>
-      <Faixa itens={itens} onLivre={() => ir('loja', s.id)} />
+      <Faixa itens={itens} onLivre={() => ir('loja', f.id)} />
 
       <div className="painel coluna" style={{ width: '100%', gap: 8 }}>
         <div className="display" style={{ fontSize: 18 }}>
-          {n > 1 ? `Você tem ${n} cópias` : 'Você tem 1 cópia'}
+          {n > 1 ? `Você tem ${n} cartas` : 'Você tem 1 carta'}
         </div>
         {p.ok ? (
           <>
-            <div className="muted small">Você pode evoluir para <strong style={{ color: 'var(--ink)' }}>{prox}</strong>! Gasta {copiasGastas(p.forma)} cópias e {PRECO_EVOLUCAO[p.forma]} Sabicoins.</div>
+            <div className="muted small">Troque <strong style={{ color: 'var(--ink)' }}>{p.gasta} cartas</strong> de {s.formas[f.forma - 1].nome} por 1 <strong style={{ color: 'var(--ink)' }}>{s.formas[p.forma - 1].nome}</strong>. As {p.gasta} cartas saem do seu álbum. Custa também {PRECO_EVOLUCAO[p.forma]} Sabicoins.</div>
             <button className="btn btn-amarelo btn-bloco" disabled={ocupado} onClick={() => void evoluirAgora()}>
               {ocupado ? 'Evoluindo…' : <>Evoluir por <Moeda /> {PRECO_EVOLUCAO[p.forma]}</>}
             </button>
           </>
         ) : p.motivo === 'final' ? (
-          <div className="muted small">Forma final! As cópias repetidas servem para trocar com os amigos.</div>
+          <div className="muted small">Forma final! As cartas repetidas servem para trocar com os amigos.</div>
         ) : p.motivo === 'desenho' ? (
-          <div className="muted small">A evolução para <strong style={{ color: 'var(--ink)' }}>{prox}</strong> ainda está sendo desenhada. Junte {precisa} cópias enquanto isso!</div>
+          <div className="muted small">A evolução para <strong style={{ color: 'var(--ink)' }}>{alvo?.s.formas[alvo.forma - 1].nome}</strong> ainda está sendo desenhada. Junte {precisa} cartas enquanto isso!</div>
         ) : p.motivo === 'copias' ? (
           <>
-            <div className="barra barra-verde" aria-hidden="true"><div style={{ width: `${Math.min(1, n / precisa) * 100}%` }} /></div>
-            <div className="muted small">Junte mais {p.faltam} {p.faltam! > 1 ? 'cópias' : 'cópia'} para evoluir para <strong style={{ color: 'var(--ink)' }}>{prox}</strong>.</div>
+            <div className="barra barra-verde" aria-hidden="true"><div style={{ width: `${Math.min(1, n / (n + p.faltam!)) * 100}%` }} /></div>
+            <div className="muted small">Junte {precisa} cartas de {s.formas[f.forma - 1].nome} para trocar por 1 <strong style={{ color: 'var(--ink)' }}>{alvo?.s.formas[alvo.forma - 1].nome}</strong>. Falta{p.faltam! > 1 ? 'm' : ''} {p.faltam}.{itens.length > 0 ? ' (A carta com itens fica com você.)' : ''}</div>
           </>
         ) : (
-          <div className="muted small">Você já tem as cópias! Faltam {p.faltam} Sabicoins para evoluir para <strong style={{ color: 'var(--ink)' }}>{prox}</strong>.</div>
+          <div className="muted small">Você já tem as cartas! Faltam {p.faltam} Sabicoins para evoluir para <strong style={{ color: 'var(--ink)' }}>{alvo?.s.formas[alvo.forma - 1].nome}</strong>.</div>
         )}
         {erro && <div className="aviso aviso-erro">{erro}</div>}
       </div>
-      {itens.length < ESPACOS && <button className="btn btn-escuro btn-bloco" onClick={() => ir('loja', s.id)}>Colocar item da lojinha</button>}
+      {alvo && (e.cartas[alvo.id] ?? 0) > 0 && <button className="btn btn-escuro btn-bloco" onClick={() => ir('album', alvo.id)}>Ver {alvo.s.formas[alvo.forma - 1].nome}</button>}
+      {itens.length < ESPACOS && <button className="btn btn-escuro btn-bloco" onClick={() => ir('loja', f.id)}>Colocar item da lojinha</button>}
     </main>
   );
 }
@@ -231,14 +243,13 @@ function Detalhe({ s }: { s: Sabimon }) {
 export function Album({ id }: { id?: string }) {
   const e = useEstado();
   const [filtro, setFiltro] = useState<Raridade | 'todas'>('todas');
-  const detalhe = id ? sabimonPorId.get(id) : undefined;
-  if (detalhe) return <Detalhe s={detalhe} />;
+  const detalhe = id ? figurinhaPorId.get(id) : undefined;
+  if (detalhe) return <Detalhe key={detalhe.id} f={detalhe} />;
 
-  const tem = sabimons.filter((c) => e.cartas[c.id] > 0).length;
-  // O objetivo do álbum são as 3 formas de cada Sabimon.
-  const formas = sabimons.reduce((s, c) => s + (e.cartas[c.id] > 0 ? formaDe(e, c.id) : 0), 0);
-  const totalFormas = sabimons.length * 3;
-  const lista = sabimons.filter((c) => filtro === 'todas' || c.raridade === filtro);
+  // O álbum tem 60 figurinhas: as 3 formas de cada Sabimon, cada uma com seu número.
+  const tem = FIGURINHAS.filter((f) => e.cartas[f.id] > 0).length;
+  const total = FIGURINHAS.length;
+  const lista = FIGURINHAS.filter((f) => filtro === 'todas' || f.s.raridade === filtro);
   return (
     <main className="tela">
       <div className="linha" style={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -247,12 +258,12 @@ export function Album({ id }: { id?: string }) {
           <h1 className="display h2" style={{ fontSize: 27 }}>Sabimons</h1>
         </div>
         <div className="display" style={{ fontSize: 28, color: 'var(--t-green)', fontVariantNumeric: 'tabular-nums', textAlign: 'right', lineHeight: 1 }}>
-          {formas}<span style={{ fontSize: 16, color: 'var(--muted)' }}>/{totalFormas}</span>
-          <div className="small" style={{ fontFamily: 'var(--body)', fontWeight: 800, color: 'var(--muted)' }}>formas</div>
+          {tem}<span style={{ fontSize: 16, color: 'var(--muted)' }}>/{total}</span>
+          <div className="small" style={{ fontFamily: 'var(--body)', fontWeight: 800, color: 'var(--muted)' }}>figurinhas</div>
         </div>
       </div>
-      <div className="barra barra-verde" role="progressbar" aria-valuenow={formas} aria-valuemax={totalFormas} aria-label="Formas no álbum"><div style={{ width: `${(formas / totalFormas) * 100}%` }} /></div>
-      <p className="muted small" style={{ margin: 0 }}>Complete as 3 formas de cada Sabimon. Você tem {tem} de {sabimons.length} Sabimons. Ao todo serão {TOTAL_PLANEJADO}!</p>
+      <div className="barra barra-verde" role="progressbar" aria-valuenow={tem} aria-valuemax={total} aria-label="Figurinhas no álbum"><div style={{ width: `${(tem / total) * 100}%` }} /></div>
+      <p className="muted small" style={{ margin: 0 }}>3 cartas iguais viram a forma 2. 2 cartas da forma 2 viram a forma 3.</p>
 
       {e.pacotes.length > 0 && <button className="btn btn-rosa btn-bloco" onClick={() => ir('pacote')}>Abrir {e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</button>}
       <button className="btn btn-escuro btn-bloco" onClick={() => ir('loja')}><Moeda /> Lojinha · {saldo(e).toLocaleString('pt-BR')} Sabicoins</button>
@@ -264,14 +275,14 @@ export function Album({ id }: { id?: string }) {
         ))}
       </div>
       <div className="grade-3">
-        {lista.map((c) => (
-          <div key={c.id} style={{ position: 'relative' }}>
-            <CartaView carta={c} forma={formaDe(e, c.id)} visual={visualDe(e, c.id)} tem={e.cartas[c.id] > 0} quantidade={e.cartas[c.id]} onClick={() => ir('album', c.id)} />
-            {podeEvoluir(e, c).ok && <span className="selo-novo" style={{ background: 'var(--green)' }}>EVOLUIR!</span>}
+        {lista.map((f) => (
+          <div key={f.id} style={{ position: 'relative' }}>
+            <CartaView carta={f.s} forma={f.forma} visual={visualDe(e, f.id)} tem={e.cartas[f.id] > 0} quantidade={e.cartas[f.id]} onClick={() => ir('album', f.id)} />
+            {podeEvoluir(e, f.id).ok && <span className="selo-novo" style={{ background: 'var(--green)' }}>EVOLUIR!</span>}
           </div>
         ))}
       </div>
-      {(e.semNovo ?? 0) > 0 && tem < sabimons.length && (
+      {(e.semNovo ?? 0) > 0 && sabimons.some((s) => !(e.cartas[s.id] > 0)) && (
         <p className="muted small" style={{ margin: 0, textAlign: 'center' }}>
           Garantia: no máximo mais {GARANTIA - e.semNovo} {GARANTIA - e.semNovo > 1 ? 'pacotes' : 'pacote'} até um Sabimon novo.
         </p>

@@ -1,13 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { estadoInicial, type Estado } from './jogo';
-import { bonus, comprarItem, destaqueDoDia, evoluir, formaDe, itensDe, mundosCompletos, paraTrocar, podeEvoluir, premiosLivres, saldo, visualDe, VITRINE } from './loja';
-import { sabimonPorId } from '../data/sabimons';
+import { bonus, comprarItem, destaqueDoDia, evoluir, itensDe, migrarFormas, migrarFormasLocal, mundosCompletos, paraTrocar, podeEvoluir, premiosLivres, saldo, visualDe, VITRINE } from './loja';
+import { FIGURINHAS, figurinhaPorId } from './figurinhas';
 import { mesclar, progressoVazio, sanitizar } from '../shared/sync';
 
-const estrelim = sabimonPorId.get('s010')!; // tem desenho das 3 formas
-const b0 = sabimonPorId.get('s001')!;
-// exemplo de Sabimon cuja forma 2 ainda não tem desenho
-const brasinho = { ...b0, formas: [b0.formas[0], { ...b0.formas[1], imagem: undefined }, b0.formas[2]] as typeof b0.formas };
 
 describe('Sabicoins', () => {
   it('o saldo é o XP menos o que foi gasto', () => {
@@ -85,30 +81,76 @@ describe('lojinha nova', () => {
   });
 });
 
+describe('álbum', () => {
+  it('tem 60 figurinhas numeradas de 1 a 60, com as 3 formas de cada Sabimon', () => {
+    expect(FIGURINHAS).toHaveLength(60);
+    expect(FIGURINHAS.map((f) => f.numero)).toEqual(Array.from({ length: 60 }, (_, i) => i + 1));
+    expect(figurinhaPorId.get('s001')).toMatchObject({ numero: 1, forma: 1 });
+    expect(figurinhaPorId.get('s001-3')).toMatchObject({ numero: 3, forma: 3 });
+    expect(figurinhaPorId.get('s002')).toMatchObject({ numero: 4, forma: 1 });
+  });
+});
+
 describe('evolução', () => {
-  it('forma 2 gasta 2 cópias, forma 3 gasta mais 3', () => {
-    let e = { ...estadoInicial(), xp: 1000, cartas: { s010: 6 } };
-    expect(podeEvoluir(e, estrelim)).toEqual({ ok: true, forma: 2 });
-    e = evoluir(e, estrelim)!;
-    expect(formaDe(e, 's010')).toBe(2);
-    expect(e.cartas.s010).toBe(4);
-    e = evoluir(e, estrelim)!;
-    expect(formaDe(e, 's010')).toBe(3);
-    expect(e.cartas.s010).toBe(1);
-    expect(saldo(e)).toBe(600);
-    expect(podeEvoluir(e, estrelim)).toEqual({ ok: false, motivo: 'final' });
+  it('3 cartas da forma 1 viram 1 da forma 2; 2 da forma 2 viram 1 da forma 3; as trocadas somem', () => {
+    let e = { ...estadoInicial(), xp: 1000, cartas: { s010: 6 } as Record<string, number> };
+    expect(podeEvoluir(e, 's010')).toEqual({ ok: true, forma: 2, gasta: 3 });
+    e = evoluir(e, 's010', 'a')!;
+    expect(e.cartas).toEqual({ s010: 3, 's010-2': 1 });
+    e = evoluir(e, 's010', 'b')!;
+    expect(e.cartas).toEqual({ s010: 0, 's010-2': 2 });
+    expect(podeEvoluir(e, 's010-2')).toEqual({ ok: true, forma: 3, gasta: 2 });
+    e = evoluir(e, 's010-2', 'c')!;
+    expect(e.cartas).toEqual({ s010: 0, 's010-2': 0, 's010-3': 1 });
+    expect(saldo(e)).toBe(1000 - 100 - 100 - 300);
+    expect(podeEvoluir(e, 's010-3')).toEqual({ ok: false, motivo: 'final' });
   });
 
   it('explica por que não pode evoluir', () => {
-    expect(podeEvoluir({ ...estadoInicial(), xp: 1000, cartas: { s010: 2 } }, estrelim)).toMatchObject({ motivo: 'copias', faltam: 1 });
-    expect(podeEvoluir({ ...estadoInicial(), xp: 50, cartas: { s010: 3 } }, estrelim)).toMatchObject({ motivo: 'moedas', faltam: 50 });
-    expect(podeEvoluir({ ...estadoInicial(), xp: 1000, cartas: { s001: 9 } }, brasinho)).toMatchObject({ motivo: 'desenho' });
+    expect(podeEvoluir({ ...estadoInicial(), xp: 1000, cartas: { s010: 2 } }, 's010')).toMatchObject({ motivo: 'copias', faltam: 1 });
+    expect(podeEvoluir({ ...estadoInicial(), xp: 1000, cartas: { 's010-2': 1 } }, 's010-2')).toMatchObject({ motivo: 'copias', faltam: 1 });
+    expect(podeEvoluir({ ...estadoInicial(), xp: 50, cartas: { s010: 3 } }, 's010')).toMatchObject({ motivo: 'moedas', faltam: 50 });
   });
 
-  it('Sabimon evoluído ou com itens fica com a criança nas trocas', () => {
-    const e = evoluir({ ...estadoInicial(), xp: 1000, cartas: { s010: 4, s002: 2 } }, estrelim)!;
-    expect(paraTrocar(e, 's010')).toBe(1);
-    expect(paraTrocar(e, 's002')).toBe(2);
+  it('a carta com itens fica com a criança: precisa de uma a mais para evoluir e não sai em troca', () => {
+    const r = comprarItem({ ...estadoInicial(), xp: 2000, cartas: { s010: 3, s002: 2 } }, 'caju', 's010');
+    if (typeof r === 'string') throw new Error(r);
+    expect(podeEvoluir(r, 's010')).toMatchObject({ ok: false, motivo: 'copias', faltam: 1 });
+    expect(paraTrocar(r, 's010')).toBe(2);
+    expect(paraTrocar(r, 's002')).toBe(2);
+    // o item é só da forma 1: a forma 2 nasce sem itens
+    const e = evoluir({ ...r, cartas: { ...r.cartas, s010: 4 } }, 's010')!;
+    expect(itensDe(e, 's010')).toEqual(['caju']);
+    expect(itensDe(e, 's010-2')).toEqual([]);
+  });
+});
+
+describe('mudança para "cada forma é uma carta"', () => {
+  const antigo = {
+    ...estadoInicial(), xp: 2000, cartas: { s010: 2, s002: 3 } as Record<string, number>,
+    compras: [
+      { id: 'evo-s010-2', sabimon: 's010', forma: 2 as const, preco: 100 },
+      { id: 'evo-s010-3', sabimon: 's010', forma: 3 as const, preco: 300 },
+      { id: 'c1', sabimon: 's010', item: 'caju', preco: 150 },
+    ],
+  };
+
+  it('quem evoluiu antes ganha a carta da forma que tinha, com os itens dela', () => {
+    const e = migrarFormasLocal(antigo);
+    expect(e.cartas).toEqual({ s010: 1, 's010-3': 1, s002: 3 });
+    expect(itensDe(e, 's010-3')).toEqual(['caju']);
+    expect(itensDe(e, 's010')).toEqual([]);
+    expect(saldo(e)).toBe(saldo(antigo));
+  });
+
+  it('acontece uma vez só', () => {
+    const e = migrarFormasLocal(antigo);
+    expect(migrarFormas(e)).toBeNull();
+    expect(migrarFormasLocal(e)).toBe(e);
+  });
+
+  it('quem nunca evoluiu não muda nada', () => {
+    expect(migrarFormas({ ...estadoInicial(), cartas: { s001: 4 } })).toBeNull();
   });
 });
 

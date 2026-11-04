@@ -190,7 +190,4 @@ export const sabimons: Sabimon[] = [
   },
 ];
 
-/** Quantos Sabimons a coleção completa vai ter. */
-export const TOTAL_PLANEJADO = 99;
-
 export const sabimonPorId = new Map(sabimons.map((s) => [s.id, s]));

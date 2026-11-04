@@ -3,11 +3,12 @@
 //
 // Como os preços foram pensados (cerca de 140 Sabicoins por dia de estudo):
 // 1ª compra no 1º dia · algo novo a cada 2 dias · prêmio da semana · item dos sonhos em ~3 semanas.
-// A evolução é barata em Sabicoins porque o difícil é juntar as cópias.
+// A evolução é barata em Sabicoins porque o difícil é juntar as cartas.
 
-import type { Raridade, Sabimon } from '../data/tipos';
+import type { Raridade } from '../data/tipos';
 import { FASES, type Estado } from './jogo';
-import { COPIAS_PARA, type Forma } from './sabimon';
+import { CARTAS_PARA_EVOLUIR, type Forma } from './sabimon';
+import { figurinhaPorId, idCarta } from './figurinhas';
 import type { Compra } from '../shared/sync';
 
 export type TipoItem = 'vida' | 'forca' | 'enfeite' | 'visual';
@@ -89,11 +90,8 @@ export function premiosLivres(e: Pick<Estado, 'feitas' | 'compras'>): number {
 /** Espaços para itens embaixo de cada carta. */
 export const ESPACOS = 3;
 
-/** Sabicoins para evoluir (além das cópias). */
+/** Sabicoins para evoluir (além das cartas). */
 export const PRECO_EVOLUCAO: Record<2 | 3, number> = { 2: 100, 3: 300 };
-
-/** Cópias gastas para chegar na forma (a carta evoluída continua no álbum). */
-export const copiasGastas = (forma: 2 | 3) => COPIAS_PARA[forma] - COPIAS_PARA[(forma - 1) as Forma];
 
 type ComCompras = Pick<Estado, 'xp' | 'compras'>;
 
@@ -101,73 +99,125 @@ export const gasto = (e: ComCompras) => e.compras.reduce((s, c) => s + c.preco, 
 /** Sabicoins disponíveis: tudo que a criança ganhou (igual ao XP) menos o que gastou. */
 export const saldo = (e: ComCompras) => Math.max(0, e.xp - gasto(e));
 
-export function formaDe(e: Pick<Estado, 'compras'>, id: string): Forma {
-  let f: Forma = 1;
-  for (const c of e.compras) if (c.sabimon === id && c.forma && c.forma > f) f = c.forma;
-  return f;
+/*
+ * Para qual carta vai cada compra (item ou moldura).
+ * Compras novas dizem a carta: "s001-1", "s001-2", "s001-3".
+ * Compras antigas dizem só o Sabimon ("s001"): vão para a forma que ele tinha quando a
+ * criança comprou (o marcador "migrou-s001" guarda essa forma), ou para a forma 1.
+ */
+export const refCompra = (cartaId: string) => (/-[23]$/.test(cartaId) ? cartaId : `${cartaId}-1`);
+const MIGROU = 'migrou-';
+function cartaDaCompra(compras: Compra[], c: Compra): string {
+  const m = /^(s\d{3})-([123])$/.exec(c.sabimon);
+  if (m) return idCarta(m[1], Number(m[2]) as Forma);
+  const marca = compras.find((x) => x.id === MIGROU + c.sabimon);
+  return idCarta(c.sabimon, (marca?.forma ?? 1) as Forma);
 }
+const comprasDaCarta = (compras: Compra[], cartaId: string) => compras.filter((c) => c.item && cartaDaCompra(compras, c) === cartaId);
 
-/** Itens colocados no Sabimon, na ordem da compra (no máximo 3, sem repetir). */
-export function itensDe(e: Pick<Estado, 'compras'>, id: string): string[] {
+/** Itens colocados na carta, na ordem da compra (no máximo 3, sem repetir). */
+export function itensDe(e: Pick<Estado, 'compras'>, cartaId: string): string[] {
   const out: string[] = [];
-  for (const c of e.compras) if (c.sabimon === id && c.item && !itemPorId.get(c.item)?.visual && !out.includes(c.item) && out.length < ESPACOS) out.push(c.item);
+  for (const c of comprasDaCarta(e.compras, cartaId)) if (!itemPorId.get(c.item!)?.visual && !out.includes(c.item!) && out.length < ESPACOS) out.push(c.item!);
   return out;
 }
 
 /** Moldura especial da carta (o último item visual colocado nela). */
-export function visualDe(e: Pick<Estado, 'compras'>, id: string): 'ouro' | 'holo' | undefined {
+export function visualDe(e: Pick<Estado, 'compras'>, cartaId: string): 'ouro' | 'holo' | undefined {
   let v: 'ouro' | 'holo' | undefined;
-  for (const c of e.compras) if (c.sabimon === id && c.item) v = itemPorId.get(c.item)?.visual ?? v;
+  for (const c of comprasDaCarta(e.compras, cartaId)) v = itemPorId.get(c.item!)?.visual ?? v;
   return v;
 }
 
-/** Sabimon evoluído ou com itens: a criança sempre fica com ele (não sai em troca). */
-export const protegido = (e: Pick<Estado, 'compras'>, id: string) => e.compras.some((c) => c.sabimon === id);
+/** A carta já tem esse item? */
+export const temItem = (e: Pick<Estado, 'compras'>, cartaId: string, itemId: string) => comprasDaCarta(e.compras, cartaId).some((c) => c.item === itemId);
 
-/** Quantas cópias do Sabimon a criança pode dar numa troca. */
-export const paraTrocar = (e: Pick<Estado, 'compras' | 'cartas'>, id: string) =>
-  Math.max(0, (e.cartas[id] ?? 0) - (protegido(e, id) ? 1 : 0));
+/** Carta com itens da lojinha: a criança sempre fica com uma (não sai em troca nem na evolução). */
+export const protegido = (e: Pick<Estado, 'compras'>, cartaId: string) => comprasDaCarta(e.compras, cartaId).length > 0;
 
-export const idEvolucao = (id: string, forma: 2 | 3) => `evo-${id}-${forma}`;
+/** Quantas cópias da carta a criança pode dar numa troca. */
+export const paraTrocar = (e: Pick<Estado, 'compras' | 'cartas'>, cartaId: string) =>
+  Math.max(0, (e.cartas[cartaId] ?? 0) - (protegido(e, cartaId) ? 1 : 0));
+
+/**
+ * Antes, o Sabimon subia de forma e continuava sendo uma carta só.
+ * Agora cada forma é uma carta. Quem já tinha evoluído ganha a carta da forma que tinha
+ * (no lugar de 1 cópia da forma 1). O marcador "migrou-<id>" garante que isso acontece uma vez só.
+ */
+export function migrarFormas(e: Pick<Estado, 'compras' | 'cartas'>): { compras: Compra[]; delta: Record<string, number> } | null {
+  const formaAntiga = new Map<string, number>();
+  for (const c of e.compras) {
+    if (c.forma && /^s\d{3}$/.test(c.sabimon) && !c.id.startsWith(MIGROU)) formaAntiga.set(c.sabimon, Math.max(c.forma, formaAntiga.get(c.sabimon) ?? 1));
+  }
+  const marcas: Compra[] = [];
+  const delta: Record<string, number> = {};
+  for (const [sid, forma] of formaAntiga) {
+    if (e.compras.some((c) => c.id === MIGROU + sid)) continue;
+    marcas.push({ id: MIGROU + sid, sabimon: sid, forma: forma as 2 | 3, preco: 0 });
+    if ((e.cartas[sid] ?? 0) > 0) {
+      delta[sid] = -1;
+      delta[idCarta(sid, forma as Forma)] = 1;
+    }
+  }
+  return marcas.length ? { compras: [...e.compras, ...marcas], delta } : null;
+}
+
+/** Aplica a mudança acima no aparelho. */
+export function migrarFormasLocal<E extends Pick<Estado, 'compras' | 'cartas'>>(e: E): E {
+  const m = migrarFormas(e);
+  if (!m) return e;
+  const cartas = { ...e.cartas };
+  for (const [id, n] of Object.entries(m.delta)) cartas[id] = Math.max(0, (cartas[id] ?? 0) + n);
+  return { ...e, compras: m.compras, cartas };
+}
 
 export type Bloqueio = 'final' | 'desenho' | 'copias' | 'moedas';
 
-/** Diz se o Sabimon pode evoluir agora e, se não, o motivo. */
-export function podeEvoluir(e: Pick<Estado, 'xp' | 'compras' | 'cartas'>, s: Sabimon):
-  { ok: true; forma: 2 | 3 } | { ok: false; motivo: Bloqueio; forma?: 2 | 3; faltam?: number } {
-  const atual = formaDe(e, s.id);
-  if (atual === 3) return { ok: false, motivo: 'final' };
-  const forma = (atual + 1) as 2 | 3;
-  if (!s.formas[forma - 1].imagem) return { ok: false, motivo: 'desenho', forma };
-  const precisa = 1 + copiasGastas(forma);
-  const tem = e.cartas[s.id] ?? 0;
-  if (tem < precisa) return { ok: false, motivo: 'copias', forma, faltam: precisa - tem };
+/**
+ * Diz se a carta pode evoluir agora e, se não, o motivo.
+ * Regra: 3 cartas da forma 1 viram 1 da forma 2; 2 da forma 2 viram 1 da forma 3. As trocadas somem.
+ */
+export function podeEvoluir(e: Pick<Estado, 'xp' | 'compras' | 'cartas'>, cartaId: string):
+  { ok: true; forma: 2 | 3; gasta: number } | { ok: false; motivo: Bloqueio; forma?: 2 | 3; faltam?: number; gasta?: number } {
+  const f = figurinhaPorId.get(cartaId);
+  if (!f || f.forma === 3) return { ok: false, motivo: 'final' };
+  const forma = (f.forma + 1) as 2 | 3;
+  const gasta = CARTAS_PARA_EVOLUIR[forma];
+  if (!f.s.formas[forma - 1].imagem) return { ok: false, motivo: 'desenho', forma, gasta };
+  // A carta com itens fica com a criança: precisa de uma a mais.
+  const precisa = gasta + (protegido(e, cartaId) ? 1 : 0);
+  const tem = e.cartas[cartaId] ?? 0;
+  if (tem < precisa) return { ok: false, motivo: 'copias', forma, faltam: precisa - tem, gasta };
   const falta = PRECO_EVOLUCAO[forma] - saldo(e);
-  if (falta > 0) return { ok: false, motivo: 'moedas', forma, faltam: falta };
-  return { ok: true, forma };
+  if (falta > 0) return { ok: false, motivo: 'moedas', forma, faltam: falta, gasta };
+  return { ok: true, forma, gasta };
 }
 
+export const idEvolucao = (sabimonId: string, forma: 2 | 3, sufixo = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`) =>
+  `evo-${sabimonId}-${forma}-${sufixo}`;
+
 /** Evolui no aparelho (quando a criança não está numa turma). Devolve null se não puder. */
-export function evoluir<E extends Pick<Estado, 'xp' | 'compras' | 'cartas'>>(e: E, s: Sabimon): E | null {
-  const p = podeEvoluir(e, s);
-  if (!p.ok) return null;
-  const compra: Compra = { id: idEvolucao(s.id, p.forma), sabimon: s.id, forma: p.forma, preco: PRECO_EVOLUCAO[p.forma] };
-  return { ...e, compras: [...e.compras, compra], cartas: { ...e.cartas, [s.id]: (e.cartas[s.id] ?? 0) - copiasGastas(p.forma) } };
+export function evoluir<E extends Pick<Estado, 'xp' | 'compras' | 'cartas'>>(e: E, cartaId: string, sufixo?: string): E | null {
+  const p = podeEvoluir(e, cartaId);
+  const f = figurinhaPorId.get(cartaId);
+  if (!p.ok || !f) return null;
+  const nova = idCarta(f.s.id, p.forma);
+  const compra: Compra = { id: idEvolucao(f.s.id, p.forma, sufixo), sabimon: refCompra(nova), forma: p.forma, preco: PRECO_EVOLUCAO[p.forma] };
+  return { ...e, compras: [...e.compras, compra], cartas: { ...e.cartas, [cartaId]: (e.cartas[cartaId] ?? 0) - p.gasta, [nova]: (e.cartas[nova] ?? 0) + 1 } };
 }
 
 export type ErroCompra = 'item' | 'sabimon' | 'repetido' | 'cheio' | 'moedas' | 'premio';
 
-/** Compra um item e coloca no Sabimon. */
-export function comprarItem(e: Estado, itemId: string, sabimonId: string, id = `c${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`): Estado | ErroCompra {
+/** Compra um item e coloca na carta. */
+export function comprarItem(e: Estado, itemId: string, cartaId: string, id = `c${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`): Estado | ErroCompra {
   const item = itemPorId.get(itemId);
   if (!item || item.antigo) return 'item';
-  if (!(e.cartas[sabimonId] > 0)) return 'sabimon';
-  const ja = e.compras.some((c) => c.sabimon === sabimonId && c.item === itemId);
-  if (ja) return 'repetido';
-  if (!item.visual && itensDe(e, sabimonId).length >= ESPACOS) return 'cheio';
+  if (!figurinhaPorId.has(cartaId) || !(e.cartas[cartaId] > 0)) return 'sabimon';
+  if (comprasDaCarta(e.compras, cartaId).some((c) => c.item === itemId)) return 'repetido';
+  if (!item.visual && itensDe(e, cartaId).length >= ESPACOS) return 'cheio';
   if (item.premio && premiosLivres(e) < 1) return 'premio';
   if (saldo(e) < item.preco) return 'moedas';
-  return { ...e, compras: [...e.compras, { id, sabimon: sabimonId, item: itemId, preco: item.preco }], desejo: e.desejo === itemId ? null : e.desejo };
+  return { ...e, compras: [...e.compras, { id, sabimon: refCompra(cartaId), item: itemId, preco: item.preco }], desejo: e.desejo === itemId ? null : e.desejo };
 }
 
 /** Bônus dos itens para a carta. */

@@ -3,8 +3,7 @@ import { Ara } from '../components/Ara';
 import { CartaView, ROTULO } from '../components/CartaView';
 import { Icone } from '../components/Icone';
 import { Pin } from '../components/Pin';
-import { sabimonPorId, sabimons } from '../data';
-import type { Sabimon } from '../data/tipos';
+import { FIGURINHAS, figurinhaPorId, type Figurinha } from '../lib/figurinhas';
 import { api, entrarNaConta, entrarNaTurma, entrarNaTurmaComConta, esquecerContaNova, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
 import { EscolherPerfil } from '../components/Perfis';
 import { ir } from '../lib/rota';
@@ -12,8 +11,9 @@ import { paraTrocar, protegido } from '../lib/loja';
 import { useEstado } from '../lib/store';
 import { CORES } from './Inicio';
 
-const cartaPorId = sabimonPorId;
-const nomeDe = (id: string) => cartaPorId.get(id)?.formas[0].nome;
+/** Para avisar quando a criança dá uma carta mais valiosa: a forma conta mais que a raridade. */
+const valorCarta = (id: string) => { const f = figurinhaPorId.get(id); return f ? f.forma * 10 + NIVEL[f.s.raridade] : 0; };
+const nomeDe = (id: string) => { const f = figurinhaPorId.get(id); return f?.s.formas[f.forma - 1].nome; };
 const NIVEL = { comum: 1, rara: 2, epica: 3, lendaria: 4 } as const;
 const campo: React.CSSProperties = { font: 'inherit', fontWeight: 800, fontSize: 18, padding: '14px 16px', borderRadius: 16, border: '3px solid var(--ink)', background: 'var(--surface)', color: 'var(--ink)', width: '100%' };
 
@@ -292,8 +292,8 @@ interface TrocaApi { id: string; de_id: string; para_id: string; carta_dar: stri
 interface Colega { id: string; apelido: string; cor: string; cartas: number }
 
 function Mini({ id }: { id: string }) {
-  const c = cartaPorId.get(id);
-  return c ? <div style={{ width: 88 }}><CartaView carta={c} /></div> : null;
+  const f = figurinhaPorId.get(id);
+  return f ? <div style={{ width: 88 }}><CartaView carta={f.s} forma={f.forma} /></div> : null;
 }
 
 export function Trocas() {
@@ -367,8 +367,8 @@ export function Trocas() {
                 <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você dá</span><Mini id={t.carta_receber} /></div>
               </div>
               {minhas === 1 && !protegido(e, t.carta_receber) && <div className="aviso" style={{ background: '#FEF3C7', border: '1.5px solid var(--yellow)' }}>Atenção: é a sua <strong>única</strong> {nomeDe(t.carta_receber)}. Ela vai sair do seu álbum.</div>}
-              {paraTrocar(e, t.carta_receber) < 1 && <div className="aviso aviso-erro">Seu {nomeDe(t.carta_receber)} tem evolução ou itens e fica com você. Só dá para trocar uma cópia repetida.</div>}
-              {NIVEL[cartaPorId.get(t.carta_receber)?.raridade ?? 'comum'] > NIVEL[cartaPorId.get(t.carta_dar)?.raridade ?? 'comum'] && <div className="aviso" style={{ background: '#FEF3C7', border: '1.5px solid var(--yellow)' }}>Pense bem: você dá uma carta <strong>mais rara</strong> do que recebe.</div>}
+              {paraTrocar(e, t.carta_receber) < 1 && <div className="aviso aviso-erro">Seu {nomeDe(t.carta_receber)} tem itens da lojinha e fica com você. Só dá para trocar uma cópia repetida.</div>}
+              {valorCarta(t.carta_receber) > valorCarta(t.carta_dar) && <div className="aviso" style={{ background: '#FEF3C7', border: '1.5px solid var(--yellow)' }}>Pense bem: você dá uma carta <strong>mais valiosa</strong> do que recebe.</div>}
               {!(e.cartas[t.carta_dar] > 0) && <div className="aviso aviso-ok">Essa carta é <strong>nova</strong> para você!</div>}
               <div className="linha" style={{ gap: 10 }}>
                 <button className="btn btn-escuro" style={{ flex: 1 }} disabled={!!ocupado} onClick={() => void agir(t, 'recusar')}>Recusar</button>
@@ -414,8 +414,8 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
   const [colegas, setColegas] = useState<Colega[] | null>(null);
   const [colega, setColega] = useState<Colega | null>(null);
   const [cartasDele, setCartasDele] = useState<Record<string, number> | null>(null);
-  const [quero, setQuero] = useState<Sabimon | null>(null);
-  const [dou, setDou] = useState<Sabimon | null>(null);
+  const [quero, setQuero] = useState<Figurinha | null>(null);
+  const [dou, setDou] = useState<Figurinha | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
 
@@ -426,8 +426,8 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
     void api<{ cartas: Record<string, number> }>(`/crianca/colega/${colega.id}`).then((r) => r.erro ? setErro(r.erro) : setCartasDele(r.cartas));
   }, [colega]);
 
-  const minhas = useMemo(() => sabimons.filter((c) => paraTrocar(e, c.id) > 0).sort((a, b) => (paraTrocar(e, b.id) - paraTrocar(e, a.id))), [e]);
-  const dele = useMemo(() => sabimons.filter((c) => (cartasDele?.[c.id] ?? 0) > 0).sort((a, b) => Number(e.cartas[a.id] > 0) - Number(e.cartas[b.id] > 0)), [cartasDele, e.cartas]);
+  const minhas = useMemo(() => FIGURINHAS.filter((c) => paraTrocar(e, c.id) > 0).sort((a, b) => (paraTrocar(e, b.id) - paraTrocar(e, a.id))), [e]);
+  const dele = useMemo(() => FIGURINHAS.filter((c) => (cartasDele?.[c.id] ?? 0) > 0).sort((a, b) => Number(e.cartas[a.id] > 0) - Number(e.cartas[b.id] > 0)), [cartasDele, e.cartas]);
 
   const enviar = async () => {
     if (!colega || !quero || !dou) return;
@@ -472,7 +472,7 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
           <div className="grade-3">
             {dele.map((c) => (
               <div key={c.id} style={{ position: 'relative' }}>
-                <CartaView carta={c} quantidade={cartasDele?.[c.id]} onClick={() => setQuero(c)} />
+                <CartaView carta={c.s} forma={c.forma} quantidade={cartasDele?.[c.id]} onClick={() => setQuero(c)} />
                 {!(e.cartas[c.id] > 0) && <span style={{ position: 'absolute', top: -6, right: -4, background: 'var(--yellow)', color: 'var(--ink)', fontSize: 10, fontWeight: 900, borderRadius: 999, padding: '2px 6px' }}>NOVA</span>}
               </div>
             ))}
@@ -483,10 +483,10 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
       {passo === 3 && (
         <>
           {minhas.length === 0 && <div className="balao">Você ainda não tem cartas para dar. Jogue as fases para ganhar pacotes!</div>}
-          <p className="muted small" style={{ margin: 0 }}>Sabimons evoluídos ou com itens ficam com você. Só as cópias repetidas deles aparecem aqui.</p>
+          <p className="muted small" style={{ margin: 0 }}>Cartas com itens da lojinha ficam com você. Só as cópias repetidas delas aparecem aqui.</p>
           <p className="muted small" style={{ margin: 0 }}>As repetidas aparecem primeiro.</p>
           <div className="grade-3">
-            {minhas.map((c) => <CartaView key={c.id} carta={c} quantidade={paraTrocar(e, c.id)} onClick={() => setDou(c)} />)}
+            {minhas.map((c) => <CartaView key={c.id} carta={c.s} forma={c.forma} quantidade={paraTrocar(e, c.id)} onClick={() => setDou(c)} />)}
           </div>
         </>
       )}
@@ -494,13 +494,13 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
       {passo === 4 && quero && dou && (
         <div className="coluna" style={{ alignItems: 'center' }}>
           <div className="linha" style={{ justifyContent: 'center', gap: 10 }}>
-            <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você dá</span><div style={{ width: 120 }}><CartaView carta={dou} /></div></div>
+            <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você dá</span><div style={{ width: 120 }}><CartaView carta={dou.s} forma={dou.forma} /></div></div>
             <span style={{ color: 'var(--t-pink)' }}><Icone nome="trocas" /></span>
-            <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você ganha</span><div style={{ width: 120 }}><CartaView carta={quero} /></div></div>
+            <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você ganha</span><div style={{ width: 120 }}><CartaView carta={quero.s} forma={quero.forma} /></div></div>
           </div>
-          {e.cartas[dou.id] === 1 && !protegido(e, dou.id) && <div className="aviso" style={{ background: '#FEF3C7', border: '1.5px solid var(--yellow)', width: '100%' }}>Atenção: é a sua <strong>única</strong> {dou.formas[0].nome}. Se {colega?.apelido} aceitar, ela sai do seu álbum.</div>}
+          {e.cartas[dou.id] === 1 && !protegido(e, dou.id) && <div className="aviso" style={{ background: '#FEF3C7', border: '1.5px solid var(--yellow)', width: '100%' }}>Atenção: é a sua <strong>única</strong> {dou.s.formas[dou.forma - 1].nome}. Se {colega?.apelido} aceitar, ela sai do seu álbum.</div>}
           {(e.cartas[dou.id] > 1 || protegido(e, dou.id)) && <div className="aviso aviso-ok" style={{ width: '100%' }}>Boa! Você vai dar uma carta <strong>repetida</strong>.</div>}
-          <p className="muted small" style={{ margin: 0, textAlign: 'center' }}>{ROTULO[dou.raridade]} por {ROTULO[quero.raridade]}. {colega?.apelido} pode aceitar ou recusar.</p>
+          <p className="muted small" style={{ margin: 0, textAlign: 'center' }}>{ROTULO[dou.s.raridade]} por {ROTULO[quero.s.raridade]}. {colega?.apelido} pode aceitar ou recusar.</p>
           <button className="btn btn-amarelo btn-bloco" disabled={ocupado} onClick={() => void enviar()}>{ocupado ? 'Enviando…' : 'Enviar proposta'}</button>
         </div>
       )}

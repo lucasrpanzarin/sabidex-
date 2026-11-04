@@ -42,8 +42,8 @@ export const vida = (s: Sabimon, forma: Forma) => VIDA_BASE[s.raridade] + VIDA_F
 export const forca = (s: Sabimon, forma: Forma, i: 0 | 1) =>
   Math.round(((FORCA_BASE[s.raridade] + i * 10) * FORCA_FORMA[forma]) / 10) * 10;
 
-/** Total de cópias necessárias para chegar em cada forma (a 1ª cópia já é a forma 1). */
-export const COPIAS_PARA: Record<Forma, number> = { 1: 1, 2: 3, 3: 6 };
+/** Cartas da forma anterior trocadas por 1 carta da forma nova (as trocadas somem). */
+export const CARTAS_PARA_EVOLUIR: Record<2 | 3, number> = { 2: 3, 3: 2 };
 
 /** Tipos que já têm cenário desenhado em public/cenarios/. Os outros usam o cenário feito só com cores. */
 export const CENARIOS = new Set<string>(['fogo', 'agua', 'planta', 'raio', 'pedra', 'vento', 'areia', 'gelo', 'som', 'estrela']);

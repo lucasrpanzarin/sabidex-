@@ -2,9 +2,10 @@
 // Roda na Cloudflare (Worker + banco D1). Tudo fora de /api/* é o app (arquivos estáticos).
 
 import { Hono, type Context } from 'hono';
-import { capitulos, sabimonPorId, sabimons } from '../data';
+import { capitulos } from '../data';
 import { FASES, chaveExtra, extrasDo } from '../lib/jogo';
-import { copiasGastas, formaDe, idEvolucao, itemPorId, podeEvoluir, premiosLivres, PRECO_EVOLUCAO, protegido } from '../lib/loja';
+import { idEvolucao, itemPorId, migrarFormas, podeEvoluir, premiosLivres, PRECO_EVOLUCAO, protegido, refCompra } from '../lib/loja';
+import { figurinhaPorId, idCarta, IDS_CARTAS, IDS_PACOTE } from '../lib/figurinhas';
 import {
   gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
@@ -27,7 +28,9 @@ type C = Context<{ Bindings: Env }>;
 
 const DIA = 86_400_000;
 const FASES_VALIDAS = new Set(capitulos.flatMap((c) => [...FASES.map((f) => `${c.id}:${f}`), ...extrasDo(c).map((x) => chaveExtra(c.id, x))]));
-const CARTAS_VALIDAS = new Set(sabimons.map((c) => c.id));
+// Todas as 60 cartas (trocas). Do aparelho só chegam cartas novas da forma 1 (as que vêm nos pacotes);
+// as formas 2 e 3 só nascem aqui no servidor, na evolução.
+const CARTAS_VALIDAS = IDS_CARTAS;
 const COR = /^#[0-9A-Fa-f]{6}$/;
 const MAX_FALHAS = 5;
 const BLOQUEIO_MS = 15 * 60_000;
@@ -179,14 +182,14 @@ app.post('/crianca/entrar-turma', async (c) => {
       c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)`)
         .bind(id, t.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semana, Date.now(), Date.now()),
-      ...upsertCartas(c.env.DB, id, sanitizarDelta(b.cartas, CARTAS_VALIDAS)),
+      ...upsertCartas(c.env.DB, id, sanitizarDelta(b.cartas, IDS_PACOTE)),
     ]);
   } catch (e) {
     if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já tem alguém com esse apelido na turma. Escolha outro, ou entre com o seu PIN se a conta for sua.');
     throw e;
   }
-  const k = await c.env.DB.prepare('SELECT * FROM criancas WHERE id = ?').bind(id).first<Crianca>();
-  return c.json({ token: await novaSessao(c.env.DB, 'crianca', id), ...(await respostaConta(c.env.DB, k!, progresso)) });
+  const k = await migrarCrianca(c.env.DB, (await c.env.DB.prepare('SELECT * FROM criancas WHERE id = ?').bind(id).first<Crianca>())!);
+  return c.json({ token: await novaSessao(c.env.DB, 'crianca', id), ...(await respostaConta(c.env.DB, k, sanitizar(JSON.parse(k.progresso), FASES_VALIDAS))) });
 });
 
 /** Criança entra na conta dela (em outro aparelho, por exemplo). */
@@ -201,7 +204,8 @@ app.post('/crianca/entrar', async (c) => {
   if (!k) return erro(c, 401, generico);
   const falha = await conferirPin(c.env.DB, k, b.pin, generico);
   if (falha) return erro(c, falha.status, falha.msg);
-  return c.json({ token: await novaSessao(c.env.DB, 'crianca', k.id), ...(await respostaConta(c.env.DB, k, sanitizar(JSON.parse(k.progresso), FASES_VALIDAS))) });
+  const km = await migrarCrianca(c.env.DB, k);
+  return c.json({ token: await novaSessao(c.env.DB, 'crianca', km.id), ...(await respostaConta(c.env.DB, km, sanitizar(JSON.parse(km.progresso), FASES_VALIDAS))) });
 });
 
 /** Criança da família escolhe o perfil dela num aparelho onde a família já entrou (só com o PIN). */
@@ -212,13 +216,37 @@ app.post('/crianca/entrar-perfil', async (c) => {
   if (!k) return erro(c, 404, 'Esse perfil não existe mais. Peça para um adulto entrar na conta da família.');
   const falha = await conferirPin(c.env.DB, k, b.pin, generico);
   if (falha) return erro(c, falha.status, falha.msg);
-  return c.json({ token: await novaSessao(c.env.DB, 'crianca', k.id), ...(await respostaConta(c.env.DB, k, sanitizar(JSON.parse(k.progresso), FASES_VALIDAS))) });
+  const km = await migrarCrianca(c.env.DB, k);
+  return c.json({ token: await novaSessao(c.env.DB, 'crianca', km.id), ...(await respostaConta(c.env.DB, km, sanitizar(JSON.parse(km.progresso), FASES_VALIDAS))) });
 });
 
 async function crianca(c: C) {
   const id = await sessao(c, 'crianca');
   if (!id) return null;
-  return c.env.DB.prepare('SELECT * FROM criancas WHERE id = ?').bind(id).first<Crianca>();
+  const k = await c.env.DB.prepare('SELECT * FROM criancas WHERE id = ?').bind(id).first<Crianca>();
+  return k && migrarCrianca(c.env.DB, k);
+}
+
+/**
+ * Cada forma agora é uma carta. Quem evoluiu antes ganha a carta da forma que tinha
+ * (no lugar de 1 cópia da forma 1). Acontece uma vez só, numa transação.
+ */
+async function migrarCrianca(db: D1Database, k: Crianca): Promise<Crianca> {
+  const prog = sanitizar(JSON.parse(k.progresso), FASES_VALIDAS);
+  const m = migrarFormas({ compras: prog.compras, cartas: await cartasDe(db, k.id) });
+  if (!m) return k;
+  const progresso = JSON.stringify({ ...prog, compras: m.compras });
+  const trava = `EXISTS (SELECT 1 FROM criancas WHERE id = '${k.id}' AND progresso = ?)`;
+  const ops = [db.prepare('UPDATE criancas SET progresso = ? WHERE id = ? AND progresso = ?').bind(progresso, k.id, k.progresso)];
+  // As cartas só mudam se o progresso acima mudou (assim duas abas ao mesmo tempo não migram duas vezes).
+  for (const [carta, n] of Object.entries(m.delta)) {
+    ops.push(n < 0
+      ? db.prepare(`UPDATE cartas SET qtd = MAX(0, qtd + ?) WHERE crianca_id = ? AND carta_id = ? AND ${trava}`).bind(n, k.id, carta, progresso)
+      : db.prepare(`INSERT INTO cartas (crianca_id, carta_id, qtd) SELECT ?, ?, ? WHERE ${trava}
+          ON CONFLICT (crianca_id, carta_id) DO UPDATE SET qtd = qtd + excluded.qtd`).bind(k.id, carta, n, progresso));
+  }
+  await db.batch(ops);
+  return (await db.prepare('SELECT * FROM criancas WHERE id = ?').bind(k.id).first<Crianca>()) ?? k;
 }
 
 /** Criança na turma (para ranking, colegas e trocas). Criança só da família recebe erro. */
@@ -260,7 +288,8 @@ function conferirCompras(antes: ProgressoSync, m: ProgressoSync): ProgressoSync 
   const compras: ProgressoSync['compras'] = [];
   for (const c of m.compras) {
     if (ja.has(c.id)) { compras.push(c); continue; }
-    if (!CARTAS_VALIDAS.has(c.sabimon) || c.forma) continue;
+    // Item novo vai sempre numa carta ("s001-1", "s001-2"...); evolução só pelo servidor.
+    if (c.forma || !/-[123]$/.test(c.sabimon) || !CARTAS_VALIDAS.has(c.sabimon.replace(/-1$/, ''))) continue;
     const item = c.item ? itemPorId.get(c.item) : undefined;
     if (!item || item.antigo) continue;
     // Prêmio de estudo: no máximo 1 por mundo completo.
@@ -283,36 +312,40 @@ app.post('/crianca/sync', async (c) => {
   await c.env.DB.batch([
     c.env.DB.prepare('UPDATE criancas SET progresso = ?, xp_semana = ?, semana = ?, visto = ? WHERE id = ?')
       .bind(JSON.stringify(m), xpSemana, semana, Date.now(), k.id),
-    ...upsertCartas(c.env.DB, k.id, sanitizarDelta(b.cartas, CARTAS_VALIDAS)),
+    ...upsertCartas(c.env.DB, k.id, sanitizarDelta(b.cartas, IDS_PACOTE)),
   ]);
   return c.json(await respostaConta(c.env.DB, k, m));
 });
 
-/** Evolui um Sabimon: gasta as cópias e as Sabicoins numa operação só. */
+/** Evolui uma carta: 3 da forma 1 viram 1 da forma 2; 2 da forma 2 viram 1 da forma 3. Gasta também as Sabicoins. */
 app.post('/crianca/evoluir', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
   const b = await corpo(c);
-  const s = sabimonPorId.get(String(b.sabimon ?? ''));
-  if (!s) return erro(c, 400, 'Sabimon inválido.');
+  const f = figurinhaPorId.get(String(b.carta ?? ''));
+  if (!f) return erro(c, 400, 'Carta inválida.');
   const db = c.env.DB;
   const prog = sanitizar(JSON.parse(k.progresso), FASES_VALIDAS);
   const cartas = await cartasDe(db, k.id);
-  const p = podeEvoluir({ xp: prog.xp, compras: prog.compras, cartas }, s);
+  const p = podeEvoluir({ xp: prog.xp, compras: prog.compras, cartas }, f.id);
   if (!p.ok) {
-    const msg = { final: 'Esse Sabimon já está na forma final.', desenho: 'Essa evolução ainda não tem desenho. Chega em breve!',
-      copias: 'Faltam cópias para evoluir. Abra mais pacotes!', moedas: 'Faltam Sabicoins para evoluir.' }[p.motivo];
+    const msg = { final: 'Essa carta já é a forma final.', desenho: 'Essa evolução ainda não tem desenho. Chega em breve!',
+      copias: 'Faltam cartas para evoluir. Abra mais pacotes!', moedas: 'Faltam Sabicoins para evoluir.' }[p.motivo];
     return erro(c, 409, msg);
   }
-  const n = copiasGastas(p.forma);
-  const tirou = await db.prepare('UPDATE cartas SET qtd = qtd - ? WHERE crianca_id = ? AND carta_id = ? AND qtd >= ?').bind(n, k.id, s.id, n + 1).run();
-  if (tirou.meta.changes !== 1) return erro(c, 409, 'Faltam cópias para evoluir. Abra mais pacotes!');
-  const novo: ProgressoSync = { ...prog, compras: [...prog.compras, { id: idEvolucao(s.id, p.forma), sabimon: s.id, forma: p.forma, preco: PRECO_EVOLUCAO[p.forma] }] };
-  await db.prepare('UPDATE criancas SET progresso = ?, visto = ? WHERE id = ?').bind(JSON.stringify(novo), Date.now(), k.id).run();
-  return c.json({ ...(await respostaConta(db, k, novo)), forma: formaDe(novo, s.id) });
+  const minimo = p.gasta + (protegido(prog, f.id) ? 1 : 0);
+  const tirou = await db.prepare('UPDATE cartas SET qtd = qtd - ? WHERE crianca_id = ? AND carta_id = ? AND qtd >= ?').bind(p.gasta, k.id, f.id, minimo).run();
+  if (tirou.meta.changes !== 1) return erro(c, 409, 'Faltam cartas para evoluir. Abra mais pacotes!');
+  const nova = idCarta(f.s.id, p.forma);
+  const novo: ProgressoSync = { ...prog, compras: [...prog.compras, { id: idEvolucao(f.s.id, p.forma), sabimon: refCompra(nova), forma: p.forma, preco: PRECO_EVOLUCAO[p.forma] }] };
+  await db.batch([
+    ...upsertCartas(db, k.id, { [nova]: 1 }),
+    db.prepare('UPDATE criancas SET progresso = ?, visto = ? WHERE id = ?').bind(JSON.stringify(novo), Date.now(), k.id),
+  ]);
+  return c.json({ ...(await respostaConta(db, k, novo)), carta: nova });
 });
 
-/** Quantas cópias a criança precisa manter: 1 se o Sabimon tem evolução ou itens (ele não sai em troca). */
+/** Quantas cópias a criança precisa manter: 1 se a carta tem itens da lojinha (ela não sai em troca). */
 async function minimoParaTrocar(db: D1Database, criancaId: string, carta: string) {
   const r = await db.prepare('SELECT progresso FROM criancas WHERE id = ?').bind(criancaId).first<{ progresso: string }>();
   const prog = sanitizar(JSON.parse(r?.progresso ?? '{}'), FASES_VALIDAS);
@@ -334,7 +367,7 @@ app.get('/crianca/colega/:id', async (c) => {
   if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
   const o = await c.env.DB.prepare('SELECT id, apelido, cor FROM criancas WHERE id = ? AND turma_id = ?').bind(c.req.param('id'), k.turma_id).first();
   if (!o) return erro(c, 404, 'Colega não encontrado.');
-  // Mostra só o que dá para trocar: Sabimon evoluído ou com itens fica com o dono.
+  // Mostra só o que dá para trocar: a carta com itens fica com o dono.
   const prog = sanitizar(JSON.parse(((await c.env.DB.prepare('SELECT progresso FROM criancas WHERE id = ?').bind(o.id).first<{ progresso: string }>())?.progresso) ?? '{}'), FASES_VALIDAS);
   const cartas = Object.fromEntries(Object.entries(await cartasDe(c.env.DB, o.id as string))
     .map(([id, n]) => [id, n - (protegido(prog, id) ? 1 : 0)] as const).filter(([, n]) => n > 0));
@@ -382,9 +415,9 @@ app.post('/crianca/trocas', async (c) => {
     c.env.DB.prepare('SELECT qtd FROM cartas WHERE crianca_id = ? AND carta_id = ?').bind(para, receber).first<{ qtd: number }>(),
   ]);
   if (!minha || minha.qtd < 1) return erro(c, 409, 'Você não tem essa carta.');
-  if (minha.qtd < await minimoParaTrocar(c.env.DB, k.id, dar)) return erro(c, 409, 'Esse Sabimon tem evolução ou itens e fica com você. Só as cópias repetidas podem ser trocadas.');
+  if (minha.qtd < await minimoParaTrocar(c.env.DB, k.id, dar)) return erro(c, 409, 'Essa carta tem itens da lojinha e fica com você. Só as cópias repetidas podem ser trocadas.');
   if (!dele || dele.qtd < 1) return erro(c, 409, 'Seu colega não tem mais essa carta.');
-  if (dele.qtd < await minimoParaTrocar(c.env.DB, para, receber)) return erro(c, 409, 'Esse Sabimon do seu colega tem evolução ou itens e fica com ele. Escolha outro.');
+  if (dele.qtd < await minimoParaTrocar(c.env.DB, para, receber)) return erro(c, 409, 'Essa carta do seu colega tem itens da lojinha e fica com ele. Escolha outra.');
   const pend = await c.env.DB.prepare(`SELECT COUNT(*) n FROM trocas WHERE de_id = ? AND status = 'pendente'`).bind(k.id).first<{ n: number }>();
   if ((pend?.n ?? 0) >= 5) return erro(c, 429, 'Você já tem 5 propostas esperando resposta. Espere ou cancele uma.');
   const id = aleatorio(8);
@@ -414,7 +447,7 @@ app.post('/crianca/trocas/:id/:acao', async (c) => {
   if (t.para_id !== k.id) return erro(c, 403, 'Essa proposta não é para você.');
 
   // Tudo numa transação: a troca só acontece se as duas crianças ainda têm as cartas.
-  // Sabimon evoluído ou com itens fica com o dono: precisa sobrar 1 cópia.
+  // Carta com itens fica com o dono: precisa sobrar 1 cópia.
   const [minDe, minPara] = await Promise.all([minimoParaTrocar(db, t.de_id, t.carta_dar), minimoParaTrocar(db, t.para_id, t.carta_receber)]);
   const trava = aleatorio(12);
   const travada = `EXISTS (SELECT 1 FROM trocas WHERE id = '${t.id}' AND trava = '${trava}')`;
@@ -434,7 +467,7 @@ app.post('/crianca/trocas/:id/:acao', async (c) => {
     const minha = await db.prepare('SELECT qtd FROM cartas WHERE crianca_id = ? AND carta_id = ?').bind(t.para_id, t.carta_receber).first<{ qtd: number }>();
     if ((minha?.qtd ?? 0) < 2) {
       await db.prepare(`UPDATE trocas SET status = 'invalida', resolvido = ? WHERE id = ? AND status = 'pendente'`).bind(agora, t.id).run();
-      return erro(c, 409, 'Seu Sabimon tem evolução ou itens e fica com você. Só dá para trocar uma cópia repetida.');
+      return erro(c, 409, 'Sua carta tem itens da lojinha e fica com você. Só dá para trocar uma cópia repetida.');
     }
   }
   if (res[0].meta.changes !== 1) {
@@ -702,7 +735,7 @@ app.post('/adulto/familia', async (c) => {
       c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, familia_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)`)
         .bind(id, turmaDaFamilia(a.id), a.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semanaDe(), Date.now(), Date.now()),
-      ...upsertCartas(c.env.DB, id, sanitizarDelta(b.cartas, CARTAS_VALIDAS)),
+      ...upsertCartas(c.env.DB, id, sanitizarDelta(b.cartas, IDS_PACOTE)),
     ]);
   } catch (e) {
     if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já tem uma criança com esse apelido na sua família.');
