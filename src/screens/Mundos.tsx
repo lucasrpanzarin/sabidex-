@@ -1,6 +1,6 @@
 import { Icone } from '../components/Icone';
 import { capitulos, capituloPorId } from '../data';
-import { FASES, FASE_INFO, chave, liberada } from '../lib/jogo';
+import { EXTRA_INFO, FASES, FASE_INFO, chave, chaveExtra, extrasDo, extrasLiberados, liberada } from '../lib/jogo';
 import { ir } from '../lib/rota';
 import { useEstado } from '../lib/store';
 
@@ -76,9 +76,38 @@ export function Mundo({ id }: { id: string }) {
         })}
       </ol>
 
+      {extrasDo(cap).length > 0 && (
+        <section aria-label="Jogos extras" className="coluna" style={{ gap: 8 }}>
+          <div>
+            <h2 className="display h3" style={{ margin: 0 }}>Jogos extras</h2>
+            <div className="muted small">
+              {extrasLiberados(e, cap.id) ? 'Termine todos para ganhar um pacote' : 'Abrem depois de ouvir os temas'}
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            {extrasDo(cap).map((x) => {
+              const livre = extrasLiberados(e, cap.id);
+              const feito = !!e.feitas[chaveExtra(cap.id, x)];
+              return (
+                <button key={x} disabled={!livre} onClick={() => ir('extra', cap.id, x)} className="painel"
+                  style={{ textAlign: 'left', color: 'inherit', padding: 12, display: 'flex', flexDirection: 'column', gap: 4,
+                    borderColor: feito ? '#22C55E' : livre ? 'var(--line-2)' : 'var(--line)', borderStyle: livre ? 'solid' : 'dashed', opacity: livre ? 1 : 0.6 }}
+                  aria-label={`${EXTRA_INFO[x].titulo}${feito ? ', completo' : livre ? '' : ', bloqueado'}`}>
+                  <span style={{ color: feito ? 'var(--green)' : livre ? 'var(--cyan-2)' : 'var(--muted)' }}>
+                    <Icone nome={feito ? 'check' : livre ? 'play' : 'cadeado'} tamanho={20} cheio={!feito && livre} espessura={3} />
+                  </span>
+                  <span className="display" style={{ fontSize: 17 }}>{EXTRA_INFO[x].titulo}</span>
+                  <span className="muted" style={{ fontSize: 12, fontWeight: 700 }}>+{EXTRA_INFO[x].xp} XP</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       <div className="painel-destaque linha" style={{ marginTop: 'auto' }}>
         <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="10" width="32" height="28" rx="8" fill="#F472B6" /><rect x="19" y="10" width="6" height="28" fill="#FACC15" /><circle cx="22" cy="10" r="5" fill="#FACC15" /></svg>
-        <div><div className="display" style={{ fontSize: 18 }}>Prêmios do mundo</div><div className="muted small">Pacote no jogo da memória, no quiz e um épico na prova</div></div>
+        <div><div className="display" style={{ fontSize: 18 }}>Prêmios do mundo</div><div className="muted small">Pacote no jogo da memória, no quiz, nos jogos extras e um épico na prova</div></div>
       </div>
     </main>
   );

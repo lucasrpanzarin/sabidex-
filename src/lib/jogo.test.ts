@@ -95,3 +95,28 @@ describe('conteúdo', () => {
     expect(notaDe(9, 20)).toBe(4.5);
   });
 });
+
+describe('jogos extras', () => {
+  it('os dois capítulos têm os 4 jogos extras', async () => {
+    const { extrasDo } = await import('./jogo');
+    expect(extrasDo(historia9)).toEqual(['lacunas', 'quemsou', 'grupos', 'causas']);
+    expect(extrasDo(historia10)).toHaveLength(4);
+  });
+
+  it('dá XP e um pacote quando termina todos', async () => {
+    const { concluirExtra, extrasLiberados, estadoInicial: ini } = await import('./jogo');
+    let e = ini();
+    expect(extrasLiberados(e, 'historia-9')).toBe(false);
+    const r1 = concluirExtra(e, historia9, 'lacunas');
+    expect(r1.xpGanho).toBe(40);
+    expect(r1.pacoteGanho).toBeNull();
+    e = r1.estado;
+    e = concluirExtra(e, historia9, 'quemsou').estado;
+    e = concluirExtra(e, historia9, 'grupos').estado;
+    const ultimo = concluirExtra(e, historia9, 'causas');
+    expect(ultimo.pacoteGanho).toBe('normal');
+    const repetido = concluirExtra(ultimo.estado, historia9, 'causas');
+    expect(repetido.xpGanho).toBe(20);
+    expect(repetido.pacoteGanho).toBeNull();
+  });
+});

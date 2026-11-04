@@ -49,6 +49,12 @@ Crie `src/data/<materia><numero>.ts` no formato de `src/data/tipos.ts` (veja `hi
    `id` e `numero` continuam a numeração da matéria (ex.: História vai até `h-024`, então começa em `h-025`).
    Nada de personagens ou marcas de outros jogos.
 
+7. **Jogos extras** (veja `historia9.ts` como modelo):
+   - `lacunas` (8): frase com `___` no lugar da palavra-chave, `resposta` e 3 `distratores` do mesmo tipo.
+   - `quemSou` (5): `resposta`, 3 `pistas` da mais difícil para a mais fácil (nenhuma pista diz o nome) e 3 `distratores` do mesmo tipo.
+   - `classificar` (2): uma `pergunta` ("Khoi-khoi ou san?") e 2 grupos com 3 itens curtos cada. Escolha coisas que a criança confunde.
+   - `causas` (5): causa e consequência que o livro liga de forma clara ("por isso", "em troca", "porque"). Nada de causa inventada.
+
 Guarde também, em `livro/<capitulo>/fontes.md`, uma lista curta de "item → página do livro" para conferência.
 
 Capítulo já publicado: não reordene nem apague perguntas do `quiz` e da `prova` (a Revisão do Ará guarda pela posição).

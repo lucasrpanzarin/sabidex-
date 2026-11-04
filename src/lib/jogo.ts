@@ -1,7 +1,7 @@
 // Regras do jogo: XP, níveis, fases, pacotes e sequência de dias.
 // Funções puras (sem tela), para poder testar.
 
-import type { Carta, Raridade } from '../data/tipos';
+import type { Capitulo, Carta, Raridade } from '../data/tipos';
 
 export type Fase = 'ouvir' | 'memoria' | 'linha' | 'quiz' | 'prova';
 export const FASES: Fase[] = ['ouvir', 'memoria', 'linha', 'quiz', 'prova'];
@@ -18,6 +18,54 @@ export const FASE_INFO: Record<Fase, { titulo: string; sub: string; xp: number }
 export const FASES_COM_PACOTE: Fase[] = ['memoria', 'quiz'];
 export const NOTA_MINIMA = 7;
 export const XP_POR_NIVEL = 300;
+
+/* ---------- Jogos extras ---------- */
+
+export type Extra = 'lacunas' | 'quemsou' | 'grupos' | 'causas';
+export const EXTRAS: Extra[] = ['lacunas', 'quemsou', 'grupos', 'causas'];
+export const EXTRA_INFO: Record<Extra, { titulo: string; sub: string; xp: number }> = {
+  lacunas: { titulo: 'Complete a frase', sub: 'Escolha a palavra que falta', xp: 40 },
+  quemsou: { titulo: 'Quem sou eu?', sub: 'Adivinhe com o menor número de pistas', xp: 40 },
+  grupos: { titulo: 'Separe nos grupos', sub: 'Cada coisa no seu lugar', xp: 40 },
+  causas: { titulo: 'Por que aconteceu?', sub: 'Ligue a causa ao que aconteceu depois', xp: 40 },
+};
+export const chaveExtra = (cap: string, x: Extra) => `${cap}:extra-${x}`;
+
+/** Jogos extras que o capítulo tem material para montar. */
+export function extrasDo(cap: Capitulo): Extra[] {
+  const tem: Record<Extra, boolean> = {
+    lacunas: (cap.lacunas?.length ?? 0) >= 5,
+    quemsou: (cap.quemSou?.length ?? 0) >= 3,
+    grupos: (cap.classificar?.length ?? 0) >= 1,
+    causas: (cap.causas?.length ?? 0) >= 4,
+  };
+  return EXTRAS.filter((x) => tem[x]);
+}
+
+/** Os extras abrem depois de ouvir os temas. */
+export const extrasLiberados = (e: Estado, cap: string) => !!e.feitas[chave(cap, 'ouvir')];
+
+/**
+ * Termina um jogo extra. 1ª vez: XP cheio; depois, metade.
+ * Quem termina todos os extras do capítulo pela 1ª vez ganha um pacote.
+ */
+export function concluirExtra(e: Estado, cap: Capitulo, x: Extra, agora = new Date()): Resultado {
+  const k = chaveExtra(cap.id, x);
+  const primeiraVez = !e.feitas[k];
+  const xpGanho = primeiraVez ? EXTRA_INFO[x].xp : Math.round(EXTRA_INFO[x].xp / 2);
+  const feitas = { ...e.feitas, [k]: true as const };
+  const todos = extrasDo(cap);
+  const pacoteGanho: TipoPacote | null = primeiraVez && todos.length > 0 && todos.every((y) => feitas[chaveExtra(cap.id, y)]) ? 'normal' : null;
+  const d = hoje(agora);
+  const estado: Estado = {
+    ...e,
+    xp: e.xp + xpGanho,
+    feitas,
+    pacotes: pacoteGanho ? [...e.pacotes, { id: novoId(), tipo: pacoteGanho, capitulo: cap.id }] : e.pacotes,
+    dias: e.dias.includes(d) ? e.dias : [...e.dias, d],
+  };
+  return { estado, xpGanho, subiuNivel: nivel(estado.xp).nivel > nivel(e.xp).nivel, pacoteGanho, primeiraVez };
+}
 
 export type TipoPacote = 'normal' | 'epico';
 export interface Pacote {

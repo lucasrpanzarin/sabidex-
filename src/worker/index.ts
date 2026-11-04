@@ -3,7 +3,7 @@
 
 import { Hono, type Context } from 'hono';
 import { capitulos, todasCartas } from '../data';
-import { FASES } from '../lib/jogo';
+import { FASES, chaveExtra, extrasDo } from '../lib/jogo';
 import {
   gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
@@ -15,7 +15,7 @@ interface Env { DB: D1Database; ASSETS: Fetcher; ADMIN_EMAILS?: string }
 type C = Context<{ Bindings: Env }>;
 
 const DIA = 86_400_000;
-const FASES_VALIDAS = new Set(capitulos.flatMap((c) => FASES.map((f) => `${c.id}:${f}`)));
+const FASES_VALIDAS = new Set(capitulos.flatMap((c) => [...FASES.map((f) => `${c.id}:${f}`), ...extrasDo(c).map((x) => chaveExtra(c.id, x))]));
 const CARTAS_VALIDAS = new Set(todasCartas.map((c) => c.id));
 const COR = /^#[0-9A-Fa-f]{6}$/;
 const MAX_FALHAS = 5;

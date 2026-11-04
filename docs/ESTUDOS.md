@@ -80,10 +80,13 @@ bantos x diáspora). Nenhum fato novo entrou. Além disso, a prova agora **embar
    Dá 10 XP por acerto e, uma vez por dia (com 5 perguntas ou mais), um pacote de cartas. Aparece no Início quando
    tem pergunta para hoje. Código: `src/lib/revisao.ts` e `src/screens/Revisao.tsx`.
    Por enquanto a agenda da revisão fica só no aparelho (não vai para o servidor da turma).
-2. **Complete a frase.** Frase do livro com uma lacuna e 4 palavras para escolher. Treina lembrar a palavra exata.
-3. **Quem sou eu?** 3 pistas, uma de cada vez. Acertar na 1ª pista vale mais XP.
-4. **Separe nos grupos.** Arrastar itens para 2 ou 3 caixas (ex.: "khoi-khoi" x "san"). Ótimo para coisas que a criança confunde.
-5. **Causa e consequência.** Ligar cada causa ao que aconteceu depois.
+2. **Jogos extras — FEITOS** (`src/screens/Extras.tsx`). Ficam no mapa de cada mundo, abrem depois de "Ouvir os temas",
+   valem 40 XP cada e, quem termina os quatro, ganha um pacote. Só aparecem se o capítulo tiver o material
+   (campos `lacunas`, `quemSou`, `classificar` e `causas` em `tipos.ts`):
+   - **Complete a frase:** frase com uma lacuna e 4 palavras. Treina lembrar a palavra exata.
+   - **Quem sou eu?:** 3 pistas, da mais difícil para a mais fácil. Acertar com 1 pista vale 3 pontos; errar abre a próxima pista.
+   - **Separe nos grupos:** cada frase vai para o grupo certo (ex.: khoi-khoi x san). Ótimo para o que a criança confunde.
+   - **Por que aconteceu?:** ligar cada causa ao que aconteceu depois. Treina o "porquê", não só o "quando".
 6. **Chefão misto.** Prova com perguntas de todos os capítulos já feitos, perto da prova da escola.
 
 ---
@@ -153,5 +156,5 @@ Por último, o Lucas confere datas e nomes principais no livro (`fontes.md` diz 
 1. Criar o próximo capítulo mandando as fotos na conversa.
 2. Levar a agenda da Revisão do Ará para o servidor (para não perder ao trocar de aparelho).
 3. Opção "sem relógio" no quiz relâmpago.
-4. Criar "Complete a frase" e "Quem sou eu?" (precisa acrescentar esses campos em `tipos.ts`).
+4. Levar os erros dos jogos extras para a Revisão do Ará.
 5. Painel do professor: mostrar quais perguntas a turma mais erra.

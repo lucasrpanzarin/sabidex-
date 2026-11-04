@@ -443,5 +443,212 @@ export const historia9: Capitulo = {
       "simbolo": "B",
       "fato": "Objetos levados em 1897 e devolvidos à Nigéria em 2022."
     }
+  ],
+  "lacunas": [
+    {
+      "frase": "A África tem ___ países.",
+      "resposta": "54",
+      "distratores": [
+        "24",
+        "104",
+        "12"
+      ]
+    },
+    {
+      "frase": "Os san eram ___: mudavam de lugar e não moravam fixo.",
+      "resposta": "nômades",
+      "distratores": [
+        "sedentários",
+        "iorubás",
+        "griôs"
+      ]
+    },
+    {
+      "frase": "Os khoi-khoi e os san deixaram ___ nas rochas.",
+      "resposta": "pinturas rupestres",
+      "distratores": [
+        "hieróglifos",
+        "livros escritos",
+        "bronzes"
+      ]
+    },
+    {
+      "frase": "O rei núbio ___ conquistou o Egito.",
+      "resposta": "Piye",
+      "distratores": [
+        "Oni",
+        "Obá",
+        "Kaang"
+      ]
+    },
+    {
+      "frase": "Passar o conhecimento pela fala se chama ___.",
+      "resposta": "oralidade",
+      "distratores": [
+        "diáspora",
+        "migração",
+        "escrita"
+      ]
+    },
+    {
+      "frase": "Cafuné, quitanda e minhoca são palavras dos ___.",
+      "resposta": "bantos",
+      "distratores": [
+        "iorubás",
+        "assírios",
+        "san"
+      ]
+    },
+    {
+      "frase": "Diáspora é quando muitas pessoas são ___ a sair de onde vivem.",
+      "resposta": "forçadas",
+      "distratores": [
+        "convidadas",
+        "pagas",
+        "ensinadas"
+      ]
+    },
+    {
+      "frase": "Em 2022, a Alemanha devolveu os Bronzes de Benin para a ___.",
+      "resposta": "Nigéria",
+      "distratores": [
+        "Núbia",
+        "Angola",
+        "Mali"
+      ]
+    }
+  ],
+  "quemSou": [
+    {
+      "resposta": "Griô",
+      "pistas": [
+        "Vivo no Mali, na Gâmbia, no Senegal e na Guiné.",
+        "Quando eu morria, era colocado perto de um baobá.",
+        "Sou o mais velho da aldeia e conto as histórias pela fala."
+      ],
+      "distratores": [
+        "Oni",
+        "Obá",
+        "Rei Piye"
+      ]
+    },
+    {
+      "resposta": "Baobá",
+      "pistas": [
+        "Eu e os griôs preservamos a tradição.",
+        "Vivo centenas de anos.",
+        "Sou uma árvore africana."
+      ],
+      "distratores": [
+        "Pirâmide",
+        "Berimbau",
+        "Hieróglifo"
+      ]
+    },
+    {
+      "resposta": "Rei Piye",
+      "pistas": [
+        "Meu reino ficava onde hoje é o Sudão.",
+        "Comecei a era dos faraós negros.",
+        "Sou o rei núbio que conquistou o Egito."
+      ],
+      "distratores": [
+        "Oni",
+        "Obá",
+        "Rubem Confete"
+      ]
+    },
+    {
+      "resposta": "Berimbau",
+      "pistas": [
+        "Vim da cultura africana e estou na música.",
+        "Toco junto com o reco-reco e os tambores.",
+        "Sou o instrumento da capoeira."
+      ],
+      "distratores": [
+        "Reco-reco",
+        "Tambor",
+        "Frevo"
+      ]
+    },
+    {
+      "resposta": "Pintura rupestre",
+      "pistas": [
+        "Os khoi-khoi e os san me deixaram.",
+        "Estou em rochas e cavernas.",
+        "Sou um desenho feito por quem não escrevia."
+      ],
+      "distratores": [
+        "Hieróglifo",
+        "Bronzes de Benin",
+        "Pirâmide"
+      ]
+    }
+  ],
+  "classificar": [
+    {
+      "pergunta": "Khoi-khoi ou san?",
+      "grupos": [
+        {
+          "nome": "Khoi-khoi",
+          "itens": [
+            "Eram sedentários",
+            "Moravam em cabanas",
+            "Criavam carneiros e cabras"
+          ]
+        },
+        {
+          "nome": "San",
+          "itens": [
+            "Eram nômades",
+            "Viviam em cavernas",
+            "Caçavam e coletavam frutos"
+          ]
+        }
+      ]
+    },
+    {
+      "pergunta": "Iorubás ou bantos?",
+      "grupos": [
+        {
+          "nome": "Iorubás",
+          "itens": [
+            "Viviam onde hoje é a Nigéria",
+            "Cada cidade tinha um Obá",
+            "Obedeciam ao rei, o Oni"
+          ]
+        },
+        {
+          "nome": "Bantos",
+          "itens": [
+            "Fizeram uma grande migração",
+            "Vivem em Angola, Congo e Moçambique",
+            "Deram a palavra cafuné"
+          ]
+        }
+      ]
+    }
+  ],
+  "causas": [
+    {
+      "causa": "A África era rica em recursos",
+      "consequencia": "Foi muito explorada por outros povos"
+    },
+    {
+      "causa": "Na lenda de Kaang, os humanos fizeram fogo",
+      "consequencia": "Os animais fugiram com medo"
+    },
+    {
+      "causa": "O rei Piye conquistou o Egito",
+      "consequencia": "Começou a era dos faraós negros"
+    },
+    {
+      "causa": "Os assírios invadiram o Egito",
+      "consequencia": "Acabou a era dos faraós negros"
+    },
+    {
+      "causa": "Países europeus dominaram a África",
+      "consequencia": "Levaram ouro, diamante e látex"
+    }
   ]
 };

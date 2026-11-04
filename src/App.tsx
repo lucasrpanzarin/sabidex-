@@ -8,6 +8,8 @@ import { TelaFase } from './screens/Fases';
 import { BoasVindas, Inicio } from './screens/Inicio';
 import { Mundo, Mundos } from './screens/Mundos';
 import { Revisao } from './screens/Revisao';
+import { TelaExtra } from './screens/Extras';
+import { EXTRAS, type Extra } from './lib/jogo';
 import { EntrarConta, MinhaConta, Ranking, Trocas } from './screens/Turma';
 
 export function App() {
@@ -29,6 +31,9 @@ export function App() {
       tela = FASES.includes(b as Fase) ? <TelaFase capId={a} fase={b as Fase} /> : <Mundos />;
       comNav = false; break;
     case 'pacote': tela = <AbrirPacote />; comNav = false; break;
+    case 'extra':
+      tela = EXTRAS.includes(b as Extra) ? <TelaExtra capId={a} x={b as Extra} /> : <Mundos />;
+      comNav = false; break;
     case 'revisao': tela = <Revisao />; comNav = false; break;
     case 'album': tela = <Album />; break;
     case 'trocas': tela = <Trocas />; break;

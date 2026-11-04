@@ -108,6 +108,31 @@ export function validarCapitulo(cap: Capitulo, ano = 4): string[] {
     if (maior > p.palavrasPorFrase) aviso(`tema ${i + 1}, ponto ${j + 1}: frase com ${maior} palavras (máximo ${p.palavrasPorFrase})`);
   }));
 
+  // Jogos extras (opcionais)
+  const opcoesOk = (n: string, certa: string, outras: string[]) => {
+    const todas = [certa, ...outras].map((o) => o.trim().toLowerCase());
+    if (todas.some((o) => !o) || new Set(todas).size !== todas.length) erro(`${n}: opções vazias ou repetidas`);
+  };
+  cap.lacunas?.forEach((l, i) => {
+    if ((l.frase.match(/___/g) ?? []).length !== 1) erro(`lacuna ${i + 1}: a frase precisa ter um ___`);
+    opcoesOk(`lacuna ${i + 1}`, l.resposta, l.distratores);
+  });
+  cap.quemSou?.forEach((q, i) => {
+    if (q.pistas.length !== 3) erro(`quem sou eu ${i + 1}: precisa de 3 pistas`);
+    opcoesOk(`quem sou eu ${i + 1}`, q.resposta, q.distratores);
+    if (q.pistas.some((p) => p.toLowerCase().includes(q.resposta.toLowerCase()))) aviso(`quem sou eu ${i + 1}: a pista entrega o nome da resposta`);
+  });
+  cap.classificar?.forEach((c, i) => {
+    if (c.grupos.length < 2 || c.grupos.length > 3) erro(`grupos ${i + 1}: use 2 ou 3 grupos`);
+    const itens = c.grupos.flatMap((g) => g.itens);
+    if (new Set(itens).size !== itens.length) erro(`grupos ${i + 1}: item repetido`);
+    if (c.grupos.some((g) => g.itens.length < 2)) aviso(`grupos ${i + 1}: grupo com menos de 2 itens`);
+  });
+  if (cap.causas) {
+    const efeitos = cap.causas.map((c) => c.consequencia);
+    if (new Set(efeitos).size !== efeitos.length) erro('causas: consequência repetida');
+  }
+
   const contagem: Record<string, number> = {};
   cap.cartas.forEach((c) => { contagem[c.raridade] = (contagem[c.raridade] ?? 0) + 1; });
   for (const [r, n] of Object.entries(RARIDADES_DO_ALBUM)) {

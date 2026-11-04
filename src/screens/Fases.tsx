@@ -30,7 +30,7 @@ function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: ReactNo
 }
 
 /** Tela de resultado com XP, nível e pacote ganhos. */
-function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { cap: Capitulo; r: Resultado; titulo: string; detalhe?: ReactNode; aprovado?: boolean; onDeNovo: () => void }) {
+export function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { cap: Capitulo; r: Resultado; titulo: string; detalhe?: ReactNode; aprovado?: boolean; onDeNovo: () => void }) {
   const nv = nivel(r.estado.xp);
   return (
     <main className="tela" style={{ alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
