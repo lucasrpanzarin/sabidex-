@@ -2,22 +2,22 @@
 
 App de estudo para crianças: a matéria da escola vira fases de jogo, e cada fase vale XP e pacotes de cartas colecionáveis para completar o álbum.
 
-## O que já tem (etapa 1)
+## O que já tem
 
-- **Mundos** por capítulo (História · Cap. 9 e Cap. 10), cada um com 5 fases:
-  1. Ouvir os temas (narração em áudio)
-  2. Jogo da memória (ligar palavra e significado)
-  3. Linha do tempo (pôr os fatos em ordem)
-  4. Quiz relâmpago (verdadeiro ou falso em 60 segundos)
-  5. Chefão: prova de 10 questões, com correção. Nota 7 libera o pacote épico.
-- XP, níveis, dias seguidos estudando e o mascote Ará.
+**Jogo (funciona até sem internet)**
+- **Mundos** por capítulo (História · Cap. 9 e Cap. 10), cada um com 5 fases: ouvir os temas (áudio), jogo da memória, linha do tempo, quiz relâmpago e o chefão (prova de 10 questões com correção; nota 7 libera o pacote épico).
+- XP, níveis, dias seguidos e o mascote Ará.
 - Pacotes de 3 cartas (comum, rara, épica e lendária) e álbum com 12 cartas por capítulo.
-- Funciona como app no celular (dá para instalar na tela inicial) e sem internet depois de aberto uma vez.
-- O progresso fica salvo no próprio aparelho.
 
-## Próxima etapa
+**Turma (precisa de internet)**
+- Adultos (pais e professores) criam conta em "Área dos pais e professores", criam turmas e recebem um código (ex.: ARARA-4821).
+- A criança entra na turma com o código, um apelido e cria um PIN de 4 números. O progresso que ela já tinha vai junto.
+- Em outro aparelho, ela entra com código + apelido + PIN e recupera tudo. 5 PINs errados bloqueiam por 15 minutos.
+- **Trocas:** a criança propõe trocar qualquer carta com um colega da turma; o colega aceita ou recusa. O app avisa quando é a única cópia ou quando a troca é desigual. Não existe chat.
+- **Ranking da semana** por XP e por cartas (zera toda segunda).
+- O adulto vê as crianças da turma, gera PIN novo e remove crianças. O administrador geral (e-mails em `ADMIN_EMAILS` no `wrangler.jsonc`) vê todas as turmas.
 
-Turmas com código de convite, trocas de cartas repetidas entre amigos e ranking da semana. Para isso entra um servidor na Cloudflare (Worker + banco D1).
+**Privacidade:** das crianças o Sabidex guarda só apelido, cor e progresso no jogo. PINs e senhas ficam embaralhados (hash), nunca em texto.
 
 ## Como adicionar um capítulo
 
@@ -30,7 +30,8 @@ Turmas com código de convite, trocas de cartas repetidas entre amigos e ranking
 
 ```bash
 npm install      # instala tudo
-npm run dev      # abre o app no computador para testar
+npm run dev      # abre o app no computador (sem servidor)
+npm run build && npm run dev:api   # app + servidor + banco local
 npm test         # testes das regras do jogo e do conteúdo
 npm run build    # gera a versão para publicar (pasta dist/)
 ```

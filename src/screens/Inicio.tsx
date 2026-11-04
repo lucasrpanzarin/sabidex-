@@ -5,6 +5,7 @@ import { capitulos } from '../data';
 import { FASES, FASE_INFO, chave, nivel, sequencia } from '../lib/jogo';
 import { ir } from '../lib/rota';
 import { setEstado, useEstado } from '../lib/store';
+import { useConta } from '../lib/conta';
 
 export const CORES = ['#22D3EE', '#F472B6', '#FACC15', '#4ADE80', '#FB923C', '#A78BFA'];
 
@@ -35,6 +36,8 @@ export function BoasVindas() {
         </fieldset>
         <button className="btn btn-amarelo btn-bloco" disabled={!ok} style={{ marginTop: 8 }}>Começar</button>
       </form>
+      <button type="button" className="btn btn-escuro btn-bloco" style={{ maxWidth: 340 }} onClick={() => ir('entrar')}>Já tenho conta na turma</button>
+      <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => ir('adulto')}>Sou pai, mãe ou professor</button>
     </main>
   );
 }
@@ -47,6 +50,7 @@ export function proximaFase(feitas: Record<string, true>) {
 
 export function Inicio() {
   const e = useEstado();
+  const { conta, propostasNovas } = useConta();
   const nv = nivel(e.xp);
   const dias = sequencia(e.dias);
   const prox = proximaFase(e.feitas);
@@ -54,7 +58,9 @@ export function Inicio() {
   const faltamPacote = prox ? (['memoria', 'quiz', 'prova'] as const).find((f) => !e.feitas[chave(prox.cap.id, f)]) : undefined;
   const fasesAte = faltamPacote && prox ? FASES.indexOf(faltamPacote) - FASES.indexOf(prox.fase) + 1 : 0;
 
-  const fala = e.pacotes.length > 0
+  const fala = propostasNovas > 0
+    ? <>Você tem <strong>{propostasNovas} {propostasNovas > 1 ? 'propostas' : 'proposta'} de troca</strong>! Veja em Trocas.</>
+    : e.pacotes.length > 0
     ? <>Você tem <strong>{e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</strong> esperando. Vamos abrir?</>
     : prox && fasesAte > 0
       ? <>Mais <strong>{fasesAte} {fasesAte > 1 ? 'fases' : 'fase'}</strong> e você ganha um pacote de cartas!</>
@@ -72,7 +78,7 @@ export function Inicio() {
         </span>
       </div>
 
-      <section className="painel linha" aria-label="Seu nível">
+      <button className="painel linha" aria-label="Minha conta e nível" onClick={() => ir('conta')} style={{ textAlign: 'left', color: 'inherit', width: '100%' }}>
         <div style={{ width: 60, height: 60, flex: 'none', borderRadius: '50%', background: e.perfil!.cor, display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: 26, color: 'var(--bg)', boxShadow: 'inset 0 -3px 0 #00000033, inset 0 2px 0 #FFFFFF88' }}>
           {e.perfil!.nome[0].toUpperCase()}
         </div>
@@ -82,9 +88,9 @@ export function Inicio() {
             <span className="display" style={{ color: 'var(--cyan-2)', fontSize: 16 }}>Nível {nv.nivel}</span>
           </div>
           <div className="barra barra-ciano" role="progressbar" aria-valuenow={nv.noNivel} aria-valuemax={nv.total} aria-label="XP do nível"><div style={{ width: `${(nv.noNivel / nv.total) * 100}%` }} /></div>
-          <span className="muted small" style={{ fontVariantNumeric: 'tabular-nums' }}>{nv.noNivel} / {nv.total} XP para o nível {nv.nivel + 1}</span>
+          <span className="muted small" style={{ fontVariantNumeric: 'tabular-nums' }}>{nv.noNivel} / {nv.total} XP para o nível {nv.nivel + 1}{conta ? ` · ${conta.turma}` : ''}</span>
         </div>
-      </section>
+      </button>
 
       <div className="linha" style={{ alignItems: 'flex-end' }}>
         <div style={{ flex: 'none' }}><Ara tamanho={76} /></div>
@@ -129,6 +135,7 @@ export function Inicio() {
           ))}
         </div>
       </section>
+      <button className="voltar" style={{ alignSelf: 'center', marginTop: 8 }} onClick={() => ir('adulto')}>Área dos pais e professores</button>
     </main>
   );
 }

@@ -1,5 +1,5 @@
 // Sabidex: guarda o app e os áudios para funcionar sem internet.
-const CACHE = 'sabidex-v1';
+const CACHE = 'sabidex-v2';
 self.addEventListener('install', (e) => { self.skipWaiting(); });
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
@@ -8,6 +8,8 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+  // Servidor (turma, trocas, ranking): sempre direto da internet, nunca da cópia salva.
+  if (url.pathname.startsWith('/api/')) return;
   // Páginas: tenta a internet primeiro (para pegar atualizações), senão usa a cópia salva.
   if (req.mode === 'navigate') {
     e.respondWith(fetch(req).then((r) => { const c = r.clone(); caches.open(CACHE).then((k) => k.put('./', c)); return r; }).catch(() => caches.match('./')));

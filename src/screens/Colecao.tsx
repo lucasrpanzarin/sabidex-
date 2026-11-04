@@ -127,34 +127,3 @@ export function Album() {
     </main>
   );
 }
-
-export function EmBreve({ tipo }: { tipo: 'trocas' | 'ranking' }) {
-  const e = useEstado();
-  const repetidas = Object.values(e.cartas).reduce((s, n) => s + Math.max(0, n - 1), 0);
-  const trocas = tipo === 'trocas';
-  return (
-    <main className="tela">
-      <div>
-        <div className="eyebrow">{trocas ? 'Trocas' : 'Ranking da turma'}</div>
-        <h1 className="display h1">{trocas ? 'Troque com os amigos' : 'Quem estudou mais?'}</h1>
-      </div>
-      <div className="linha" style={{ alignItems: 'flex-end' }}>
-        <Ara tamanho={90} />
-        <div className="balao" style={{ flex: 1, marginBottom: 14 }}>
-          {trocas
-            ? <>As trocas vão chegar quando sua <strong>turma</strong> entrar no Sabidex. Você já tem <strong>{repetidas}</strong> {repetidas === 1 ? 'carta repetida' : 'cartas repetidas'} para trocar!</>
-            : <>O placar da turma chega junto com as trocas. Enquanto isso, junte XP: você tem <strong>{e.xp} XP</strong>.</>}
-        </div>
-      </div>
-      <div className="painel coluna" style={{ gap: 10 }}>
-        <div className="display h3">Como vai funcionar</div>
-        {(trocas
-          ? ['Só dá para trocar cartas repetidas.', 'Trocas só entre amigos da mesma turma.', 'Não tem chat: só propostas de cartas.']
-          : ['Placar da semana, por XP e por cartas.', 'Zera toda segunda-feira.', 'Só aparece o apelido, nunca o nome completo.']
-        ).map((t) => (
-          <div key={t} className="linha" style={{ gap: 10, fontWeight: 700 }}><span style={{ color: 'var(--cyan-2)' }}><Icone nome="escudo" tamanho={20} /></span>{t}</div>
-        ))}
-      </div>
-    </main>
-  );
-}

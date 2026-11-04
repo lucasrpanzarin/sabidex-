@@ -38,10 +38,12 @@ export interface Estado {
   cartas: Record<string, number>;
   /** dias em que estudou, no formato AAAA-MM-DD */
   dias: string[];
+  /** ids dos pacotes já abertos (para não voltarem ao sincronizar) */
+  abertos: string[];
 }
 
 export const estadoInicial = (): Estado => ({
-  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [],
+  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [],
 });
 
 export function nivel(xp: number) {
@@ -138,7 +140,7 @@ export function abrirPacote(cartas: Carta[], tipo: TipoPacote, rng: () => number
 export function guardarCartas(e: Estado, pacoteId: string, novas: Carta[]): Estado {
   const cartas = { ...e.cartas };
   for (const c of novas) cartas[c.id] = (cartas[c.id] ?? 0) + 1;
-  return { ...e, cartas, pacotes: e.pacotes.filter((p) => p.id !== pacoteId) };
+  return { ...e, cartas, pacotes: e.pacotes.filter((p) => p.id !== pacoteId), abertos: [...e.abertos, pacoteId].slice(-500) };
 }
 
 export function embaralhar<T>(lista: T[], rng: () => number = Math.random): T[] {

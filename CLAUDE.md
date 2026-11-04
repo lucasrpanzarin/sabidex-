@@ -24,7 +24,10 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 ## Técnica
 
 - Vite + React + TypeScript. Hospedagem na Cloudflare (`wrangler.jsonc`, conta do Lucas, projeto separado dos painéis dele).
-- Etapa 1 (atual): progresso salvo no aparelho (`src/lib/store.ts`, localStorage).
-- Etapa 2 (próxima): Worker + D1 para turmas com código, trocas e ranking.
+- Progresso salvo no aparelho (`src/lib/store.ts`) e sincronizado com o servidor quando a criança está numa turma (`src/lib/conta.ts`).
+- Servidor: `src/worker/index.ts` (Hono) + banco D1 `sabidex` (tabelas em `src/worker/esquema.ts`, criadas sozinhas). Regras de mesclagem em `src/shared/sync.ts`.
+- Cartas ficam numa tabela à parte no servidor; trocas são uma transação única (nunca duplica nem some carta).
+- O service worker (`public/sw.js`) nunca guarda respostas de `/api/`.
+- Login da criança: código da turma + apelido + PIN de 4 números. Adultos: e-mail + senha.
 - Áudios de narração em `public/audio/<capitulo>-<tema>.mp3` (voz Kokoro pm_alex).
 - Antes de publicar: `npm test` e `npm run build` precisam passar.

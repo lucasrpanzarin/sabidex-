@@ -74,6 +74,7 @@ describe('pacotes', () => {
     const novas = abrirPacote(historia9.cartas, p.tipo, seq([0.1, 0.5, 0.9]));
     const e = guardarCartas(r.estado, p.id, novas);
     expect(e.pacotes).toHaveLength(0);
+    expect(e.abertos).toContain(p.id);
     expect(Object.values(e.cartas).reduce((a, b) => a + b, 0)).toBe(3);
   });
 });

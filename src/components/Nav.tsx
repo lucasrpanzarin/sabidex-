@@ -1,6 +1,7 @@
 import { Icone, type NomeIcone } from './Icone';
 import { ir } from '../lib/rota';
 import { useEstado } from '../lib/store';
+import { useConta } from '../lib/conta';
 
 const itens: { id: string; rotulo: string; icone: NomeIcone }[] = [
   { id: '', rotulo: 'Início', icone: 'inicio' },
@@ -12,6 +13,7 @@ const itens: { id: string; rotulo: string; icone: NomeIcone }[] = [
 
 export function Nav({ ativo }: { ativo: string }) {
   const e = useEstado();
+  const { propostasNovas } = useConta();
   return (
     <nav className="nav" aria-label="Menu principal">
       {itens.map((i) => (
@@ -19,6 +21,7 @@ export function Nav({ ativo }: { ativo: string }) {
           <Icone nome={i.icone} />
           {i.rotulo}
           {i.id === 'album' && e.pacotes.length > 0 && <span className="badge" aria-label={`${e.pacotes.length} pacotes`}>{e.pacotes.length}</span>}
+          {i.id === 'trocas' && propostasNovas > 0 && <span className="badge" aria-label={`${propostasNovas} propostas de troca`}>{propostasNovas}</span>}
         </button>
       ))}
     </nav>
