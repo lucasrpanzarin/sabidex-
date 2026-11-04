@@ -7,13 +7,14 @@ import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } fr
 import { Pacote } from './Pacote';
 
 /** Altura do corte, em % da altura do pacote. */
-const CORTE = 10;
+const CORTE = 8;
 const DENTES = 14;
 
 // Serrilhado do rasgo: o mesmo desenho na aba e no resto do pacote, para encaixarem.
-const pontos = Array.from({ length: DENTES + 1 }, (_, i) => `${(i / DENTES) * 100}% ${CORTE + (i % 2 ? 1.6 : -1.2)}%`);
-const CLIP_ABA = `polygon(0 0, 100% 0, ${[...pontos].reverse().join(', ')})`;
-const CLIP_CORPO = `polygon(${pontos.join(', ')}, 100% 100%, 0 100%)`;
+// Vai um pouco além das bordas (-12% a 112%) para não cortar o selo "1 Sabimon" nem a sombra.
+const pontos = Array.from({ length: DENTES + 1 }, (_, i) => `${-12 + (i / DENTES) * 124}% ${CORTE + (i % 2 ? 1.4 : -1)}%`);
+const CLIP_ABA = `polygon(-12% -12%, 112% -12%, ${[...pontos].reverse().join(', ')})`;
+const CLIP_CORPO = `polygon(${pontos.join(', ')}, 112% 112%, -12% 112%)`;
 
 interface Props {
   epico: boolean;
