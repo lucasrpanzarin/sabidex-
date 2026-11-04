@@ -4,10 +4,10 @@
 // Com movimento reduzido no aparelho, um toque abre.
 
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
-import { Pacote } from './Pacote';
+import { ALTURA_PACOTE, Pacote, larguraPacote } from './Pacote';
 
 /** Altura do corte, em % da altura do pacote. */
-const CORTE = 8;
+const CORTE = 6;
 const DENTES = 14;
 
 // Serrilhado do rasgo: o mesmo desenho na aba e no resto do pacote, para encaixarem.
@@ -31,6 +31,7 @@ export function RasgarPacote({ epico, texto, abrindo, aoRasgar }: Props) {
   const [arrastando, setArrastando] = useState(false);
   const [dica, setDica] = useState(0);
   const caixa = useRef<HTMLDivElement>(null);
+  const [inclina, setInclina] = useState<{ rx: number; ry: number } | null>(null);
   const inicio = useRef<{ x: number; y: number; moveu: boolean } | null>(null);
   const feito = useRef(false);
 
@@ -63,6 +64,12 @@ export function RasgarPacote({ epico, texto, abrindo, aoRasgar }: Props) {
   };
   const mover = (ev: PointerEvent<HTMLDivElement>) => {
     const i = inicio.current;
+    // Mouse passando por cima (sem apertar): o pacote inclina para o lado do mouse.
+    if (!i && ev.pointerType === 'mouse' && !feito.current) {
+      const r = ev.currentTarget.getBoundingClientRect();
+      setInclina({ rx: ((ev.clientY - r.top) / r.height - 0.5) * -16, ry: ((ev.clientX - r.left) / r.width - 0.5) * 22 });
+      return;
+    }
     if (!i || feito.current) return;
     const dx = ev.clientX - i.x;
     if (!i.moveu && Math.abs(dx) < 6) return;
@@ -108,10 +115,17 @@ export function RasgarPacote({ epico, texto, abrindo, aoRasgar }: Props) {
     transition: arrastando || abrindo ? 'none' : 'transform .25s ease-out',
   };
 
+  const parado = p > 0 || arrastando || abrindo || !!inclina;
+  const giro3d = inclina ? { '--rx': `${inclina.rx}deg`, '--ry': `${inclina.ry}deg` } : p > 0 || abrindo ? { '--rx': '0deg', '--ry': '0deg' } : undefined;
+
   return (
     <div className="rasgar-area">
+      <div className={`pacote-3d${parado ? '' : ' balanca'}`}>
+      <div className="pacote-3d-gira" style={giro3d as React.CSSProperties}>
       <div
         ref={caixa}
+        style={{ width: larguraPacote(epico), height: ALTURA_PACOTE }}
+        onPointerLeave={() => setInclina(null)}
         className={`rasgar${abrindo ? ' abrindo' : ''}${balanca ? ' dica' : ''}`}
         role="button"
         tabIndex={0}
@@ -132,6 +146,8 @@ export function RasgarPacote({ epico, texto, abrindo, aoRasgar }: Props) {
             {p === 0 && <span className="rasgar-etiqueta" style={{ top: `calc(${CORTE}% - 30px)` }} aria-hidden="true">✂ Rasgue aqui</span>}
           </>
         )}
+      </div>
+      </div>
       </div>
       <p className="rasgar-ajuda" aria-live="polite">
         {abrindo ? '' : dica ? 'Arraste o dedo pela linha, de um lado até o outro!' : 'Arraste o dedo na linha para rasgar o pacote'}

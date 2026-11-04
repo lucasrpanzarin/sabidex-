@@ -1,5 +1,6 @@
-// O pacote de Sabimons, no jeito de um pacote de figurinhas: embalagem metálica que brilha,
-// bordas serrilhadas e amassadas em cima e embaixo, e a Ará na frente.
+// O pacote de Sabimons, como um pacote de figurinha de verdade: a embalagem metálica é um desenho
+// em 3D (public/pacote/normal.webp e epico.webp, gerados sem letras), e o app coloca por cima
+// o logo na faixa de cima, a Ará dentro da explosão, o texto e o selo "1 Sabimon".
 // "grande" na tela de abrir; "mini" nos avisos (início, prêmios do mundo).
 
 import type { CSSProperties } from 'react';
@@ -11,41 +12,29 @@ interface Props {
   texto?: string;
 }
 
-/** Contorno da embalagem: serrilhado em cima e embaixo, como pacote selado. */
-function serrilhado(dentes: number, fundo: number) {
-  const topo = Array.from({ length: dentes * 2 + 1 }, (_, i) => `${(i / (dentes * 2)) * 100}% ${i % 2 ? fundo : 0}px`);
-  const base = Array.from({ length: dentes * 2 + 1 }, (_, i) => `${100 - (i / (dentes * 2)) * 100}% calc(100% - ${i % 2 ? fundo : 0}px)`);
-  return `polygon(${[...topo, ...base].join(', ')})`;
-}
-const FORMA_GRANDE = serrilhado(16, 7);
-const FORMA_MINI = serrilhado(6, 3);
+/** Proporção (largura ÷ altura) de cada desenho, para o pacote não ficar esticado. */
+export const PROPORCAO = { normal: 413 / 700, epico: 366 / 700 };
+export const ALTURA_PACOTE = 340;
+export const larguraPacote = (epico: boolean) => Math.round(ALTURA_PACOTE * (epico ? PROPORCAO.epico : PROPORCAO.normal));
 
 export function Pacote({ tamanho = 'grande', epico = false, texto }: Props) {
-  const classe = `pacote${tamanho === 'mini' ? ' mini' : ''}${epico ? ' epico' : ''}`;
+  const img = `/pacote/${epico ? 'epico' : 'normal'}.webp`;
   if (tamanho === 'mini') {
     return (
-      <span className={classe} aria-hidden="true">
-        <span className="pacote-foil" style={{ clipPath: FORMA_MINI } as CSSProperties}>
-          <span className="pacote-selo">S</span>
-        </span>
+      <span className={`pacote mini${epico ? ' epico' : ''}`} aria-hidden="true">
+        <img src={img} alt="" draggable={false} />
       </span>
     );
   }
+  const estilo = { width: larguraPacote(epico), height: ALTURA_PACOTE, '--mascara': `url(${img})` } as CSSProperties;
   return (
-    <span className={classe}>
-      <span className="pacote-foil" style={{ clipPath: FORMA_GRANDE } as CSSProperties}>
-        <span className="pacote-solda topo" aria-hidden="true" />
-        <span className="pacote-solda base" aria-hidden="true" />
-        <span className="pacote-amassado" aria-hidden="true" />
-        <span className="pacote-logo">Sabidex</span>
-        <span className="pacote-sub">{epico ? 'Pacote épico' : 'Pacote de Sabimons'}</span>
-        <span className="pacote-arte">
-          <span className="pacote-explosao" aria-hidden="true" />
-          <Ara tamanho={96} />
-        </span>
-        {texto && <span className="pacote-chip">{texto}</span>}
-        <span className="pacote-brilho" aria-hidden="true" />
-      </span>
+    <span className={`pacote${epico ? ' epico' : ''}`} style={estilo}>
+      <img className="pacote-foto" src={img} alt="" draggable={false} />
+      <span className="pacote-brilho" aria-hidden="true" />
+      <span className="pacote-logo">Sabidex</span>
+      <span className="pacote-arte"><Ara tamanho={epico ? 92 : 100} /></span>
+      <span className="pacote-sub">{epico ? 'Pacote épico' : 'Pacote de Sabimons'}</span>
+      {texto && <span className="pacote-chip">{texto}</span>}
       <span className="pacote-qtd" aria-hidden="true">1<small>Sabimon</small></span>
     </span>
   );

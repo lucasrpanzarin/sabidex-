@@ -80,7 +80,7 @@ export function AbrirPacote() {
 
       <div className="palco-abrir">
         {(fase === 'fechado' || fase === 'abrindo') && (
-          <RasgarPacote key={pacote?.id ?? 'x'} epico={epico} texto={epico ? '1 Sabimon épico ou lendário' : '1 Sabimon surpresa'}
+          <RasgarPacote key={pacote?.id ?? 'x'} epico={epico} texto={epico ? 'Vem épico ou lendário!' : '1 Sabimon surpresa'}
             abrindo={fase === 'abrindo'} aoRasgar={sortear} />
         )}
         {fase === 'abrindo' && <span className="luz-pacote" aria-hidden="true" />}

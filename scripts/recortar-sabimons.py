@@ -96,3 +96,34 @@ for src in sorted(CEN_ORIGEM.glob('*.png')):
         continue
     Image.open(src).convert('RGB').resize((520, 520), Image.LANCZOS).save(dst, 'WEBP', quality=76)
     print('ok', dst)
+
+# Desenho do pacote (gerado pelo Higgsfield, sem letras): tira o fundo branco e deixa leve.
+# O app usa public/pacote/normal.webp e public/pacote/epico.webp.
+PAC_ESCOLHIDOS = {'normal': 'pacote-normal-b', 'epico': 'pacote-epico-b'}
+PAC_DESTINO = Path('public/pacote')
+PAC_DESTINO.mkdir(parents=True, exist_ok=True)
+for nome, arquivo in PAC_ESCOLHIDOS.items():
+    src = Path('arte/pacote/originais') / f'{arquivo}.png'
+    dst = PAC_DESTINO / f'{nome}.webp'
+    if not src.exists() or ('--tudo' not in sys.argv and dst.exists() and dst.stat().st_mtime >= src.stat().st_mtime):
+        continue
+    im = Image.open(src).convert('RGB')
+    im = im.resize((im.width // 2, im.height // 2), Image.LANCZOS)
+    a = np.asarray(im).astype(int)
+    h, w, _ = a.shape
+    claro = (a.min(axis=2) > 232) & ((a.max(axis=2) - a.min(axis=2)) < 16)
+    fundo = np.zeros((h, w), bool)
+    fila = deque([(y, x) for y in range(h) for x in (0, w - 1)] + [(y, x) for x in range(w) for y in (0, h - 1)])
+    while fila:
+        y, x = fila.popleft()
+        if fundo[y, x] or not claro[y, x]:
+            continue
+        fundo[y, x] = True
+        fila.extend(p for p in ((y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)) if 0 <= p[0] < h and 0 <= p[1] < w)
+    alpha = Image.fromarray(np.where(fundo, 0, 255).astype('uint8')).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(0.8))
+    out = im.convert('RGBA')
+    out.putalpha(alpha)
+    out = out.crop(out.getbbox())
+    out.thumbnail((460, 700), Image.LANCZOS)
+    out.save(dst, 'WEBP', quality=84)
+    print('ok', dst, out.size)
