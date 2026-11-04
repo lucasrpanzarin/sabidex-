@@ -9,8 +9,8 @@
     "tipo": "Fogo",
     "formas": [
       "small young capybara with warm brown fur, a crest of real flickering flames on its head, tiny embers swirling around it, brave grin, crouched ready to pounce",
-      "teenage capybara warrior twice as big standing on its hind legs, muscular, a blazing flame mane on its head and shoulders, glowing ember markings on its arms, fists on fire, confident battle stance",
-      "huge mighty capybara titan standing tall, a crown of roaring fire, cracked volcanic rock armor on its shoulders and back with glowing lava seams, glowing lava-orange belly, flames trailing from its fists, heroic powerful pose"
+      "CHANGE: now standing upright on its hind legs, twice as big and athletic, fur turns reddish-brown, a blazing flame mane on its head and shoulders, both fists on fire, confident battle stance. KEEP: the wide capybara snout, small round ears and the same face",
+      "CHANGE: a huge mighty fire beast back on all four legs, strong like a bull, fur turns deep red, wearing black volcanic rock armor on its back and shoulders with glowing lava cracks, a roaring crown of fire, glowing lava-orange belly, flames trailing from its feet. KEEP: the wide capybara snout, small round ears, the same face and the flame mane"
     ]
   },
   {
@@ -23,8 +23,8 @@
     "tipo": "Água",
     "formas": [
       "small young pink Amazon river dolphin (boto) with a long slender beak and no legs, leaping out of a spiraling water splash, a water orb forming at its fin, fearless playful eyes",
-      "teenage pink river dolphin twice as big, sleeker and stronger, large fin-blades on its sides shaped like water swirls, a glowing turquoise wave pattern along its back, riding a big curling wave, dynamic leaping attack",
-      "huge majestic pink river dolphin king with long flowing fin-wings, a crown-shaped dorsal fin, glowing turquoise markings, wise powerful eyes, surrounded by a giant spinning ring of flowing water with a waterspout behind it"
+      "CHANGE: twice as big, sleeker and stronger, skin turns a stronger hot pink with turquoise stripes, its fins become curved blades of water, surfing on a big curling wave, dynamic attack pose. KEEP: the long slender boto beak, the same eyes and face",
+      "CHANGE: a huge majestic river king, coral-pink body with a turquoise belly, a crown-shaped dorsal fin, long flowing fin-wings, a giant spinning ring of water around it and a waterspout behind it, wise powerful eyes. KEEP: the long slender boto beak, the same face and the turquoise stripes"
     ]
   },
   {
@@ -37,8 +37,8 @@
     "tipo": "Planta",
     "formas": [
       "small young armadillo with a banded shell made of green leaves, glowing vine whips sprouting from its back, a little flower on its head, standing ready to fight",
-      "teenage armadillo twice as big standing on its hind legs, leafy shell plates with blooming flowers, vine whips coiled around its arms, a big flower on its head, ready to fight",
-      "huge armadillo guardian on all fours, its shell is a small living forest with real trees and hanging vines, mossy armor plates, glowing green eyes, giant claws, calm but powerful"
+      "CHANGE: now standing upright on its hind legs, twice as big, its leaf shell plates bloom with pink flowers, vine whips coiled around both arms, a big flower on its head, ready to fight. KEEP: the banded armadillo shell shape, long ears and the same face",
+      "CHANGE: a huge forest guardian standing upright, armor of thick tree bark covered in moss, glowing pink blossoms, branches growing from its head like a crown of antlers, giant claws, vines swirling around it, dark green and brown colors, calm but powerful. KEEP: the banded armadillo armor shape, long ears and the same face"
     ]
   },
   {
@@ -51,8 +51,8 @@
     "tipo": "Raio",
     "formas": [
       "small round firefly insect with six tiny legs, antennae and translucent wings, black and yellow body, its glowing abdomen crackling with bright yellow lightning sparks, hovering in a heroic pose",
-      "teenage firefly warrior twice as big with a longer body, lightning-bolt shaped wings, glowing yellow armor stripes, antennae crackling with electricity, electric aura, flying punch pose",
-      "huge firefly knight with black and gold lightning armor, a helmet with antennae like lightning rods, four big crackling wings, a brilliant lantern abdomen, holding a lance made of lightning, commanding pose"
+      "CHANGE: twice as big with a longer slimmer body, its wings become lightning-bolt shaped, glowing yellow armor stripes on its black body, antennae crackling with electricity, electric aura, flying punch pose, a thin golden rim light around its body. KEEP: the bright yellow glowing lantern abdomen, the same blue eyes and face",
+      "CHANGE: a huge firefly knight standing upright, black and gold lightning armor, a helmet with antennae like lightning rods, four big crackling wings, holding a lance made of lightning, commanding heroic pose, a golden rim light around its body. KEEP: the brilliant yellow lantern abdomen, the same blue eyes and face"
     ]
   },
   {
@@ -65,8 +65,8 @@
     "tipo": "Pedra",
     "formas": [
       "small young Brazilian land tortoise (jabuti) walking on all four legs like a real tortoise, never standing upright, earthy brown and stone-grey scaly skin, a high domed shell covered in jagged pastel crystals, a glowing gem on its forehead, stomping forward kicking up small rocks, determined eyes",
-      "teenage land tortoise twice as big walking on all four legs, sturdy, its shell now has tall shiny amethyst crystal spikes, stone armor plates on its legs, a bigger glowing gem on its forehead, earthy brown and stone-grey skin, charging forward",
-      "huge land tortoise titan on all four legs, its shell is a whole crystal mountain with glowing gem peaks, rocky boulder armor on its legs and head, a glowing gem horn on its forehead, earthy brown and stone-grey skin, the ground cracking under its feet"
+      "CHANGE: twice as big, still walking on all four legs, its shell now grows tall shiny pink and turquoise crystal spikes, stone armor plates on its legs, charging forward with rocks flying. KEEP: the earthy brown and stone-grey tortoise skin, the glowing gem on its forehead and the same face",
+      "CHANGE: a huge titan tortoise on all four legs, its shell is a giant cracked-open geode full of glowing pink and turquoise crystals, rocky boulder armor on its legs and head, the forehead gem grown into a crystal horn, the ground cracking under its feet. KEEP: the earthy brown and stone-grey skin and the same face"
     ]
   },
   {
@@ -79,8 +79,8 @@
     "tipo": "Vento",
     "formas": [
       "small hummingbird with a long thin needle beak and turquoise iridescent feathers, wings blurred mid-flight, a sharp swirling wind blade around it, focused eyes",
-      "teenage hummingbird warrior twice as big, sleek aerodynamic body, a long swept-back crest like a blade, two pairs of long ribbon tail feathers trailing wind streams, wing edges sharp like cutting wind blades, diving attack pose",
-      "huge majestic hummingbird lord with four large wings, armored chest feathers in turquoise and white, a crown-like crest, a long glowing needle beak like a lance, a roaring tornado wrapped around its body, hovering in a commanding pose"
+      "CHANGE: twice as big, a longer sharper body, a swept-back crest shaped like a blade, two long ribbon tail feathers trailing wind streams, feather tips turn white, wings sharp like cutting wind blades, fast diving attack. KEEP: the long thin needle beak, turquoise feathers and the same eyes",
+      "CHANGE: a huge majestic hummingbird lord hovering facing the viewer, symmetrical heroic pose with four very large wings spread wide filling the image, silver-white armored chest feathers, a crown-like crest, the needle beak glowing like a lance, a roaring tornado wrapped around its body. KEEP: turquoise feathers, the ribbon tail feathers and the same eyes"
     ]
   },
   {
@@ -93,8 +93,8 @@
     "tipo": "Areia",
     "formas": [
       "small beach crab with a sandy beige armored shell and big raised pincers, a little sand tornado spinning between its claws, battle stance",
-      "teenage crab warrior twice as big, sandstone armor with ridged plates, one giant pincer bigger than the other, sand whirlwinds spinning at its claws, standing tall on its legs, battle stance",
-      "huge crab titan with a dune-shaped shell crowned with sandstone spikes, two massive armored pincers like hammers, glowing amber eyes, a giant sandstorm swirling behind it"
+      "CHANGE: now standing up on its back legs, twice as big, one giant pincer much bigger than the other, ridged sandstone armor in golden beige, sand whirlwinds spinning at its claws, battle stance. KEEP: the big angry-cute eyes on stalks and the same face",
+      "CHANGE: a huge crab titan, dark gold and terracotta colors, a dune-shaped shell crowned with sandstone spikes, two massive armored pincers like hammers, glowing amber eyes, a giant sandstorm swirling behind it. KEEP: the big eyes on stalks, the same face and the giant-pincer look"
     ]
   },
   {
@@ -107,8 +107,8 @@
     "tipo": "Gelo",
     "formas": [
       "small young three-toed sloth with fluffy snow-white fur and an icy blue face mask, long hooked claws glowing with frost, breathing a puff of snowflakes, brave look",
-      "teenage sloth twice as big with icy blue fur, frost crystal armor on its arms and long ice claws, hanging from an icicle by one arm while throwing a snowball blast with the other",
-      "huge majestic ice sloth giant standing upright, a glacier crown of ice spikes, ice armor plates on its chest and shoulders, enormous glowing ice claws, a blizzard of snowflakes swirling around it"
+      "CHANGE: twice as big, its fur turns icy blue, frost crystal armor on its arms, long ice claws, hanging from an icicle by one arm while throwing a snowball blast with the other. KEEP: the dark blue face mask and the same face",
+      "CHANGE: a huge majestic ice giant standing upright, white and crystal-blue colors, a glacier crown of ice spikes, ice armor plates on its chest and shoulders, enormous glowing ice claws, a blizzard of snowflakes swirling around it. KEEP: the dark blue face mask, the same face and the long claws"
     ]
   },
   {
@@ -121,8 +121,8 @@
     "tipo": "Som",
     "formas": [
       "small brown uirapuru songbird with a musical-note shaped crest, wings spread, singing a visible glowing sound-wave blast from its beak",
-      "teenage songbird twice as big with long elegant tail feathers shaped like a musical staff, a larger musical-note crest, glowing musical notes floating around it, singing a powerful sound blast",
-      "huge elegant songbird maestro with wide wings, a crest like a golden musical-note crown, long flowing tail feathers, rainbow sound waves coming from its beak, conductor pose with one wing raised"
+      "CHANGE: twice as big, long elegant tail feathers shaped like a musical staff, a bigger musical-note crest, feather tips turn golden, glowing musical notes floating around it, singing a powerful sound blast. KEEP: the brown and cream feathers, the musical-note crest and the same face",
+      "CHANGE: a huge elegant songbird maestro with very wide wings, its crest becomes a golden crown shaped like musical notes, long flowing golden tail feathers, rainbow sound waves coming from its beak, conductor pose with one wing raised. KEEP: the brown and cream feathers and the same face"
     ]
   },
   {
@@ -136,7 +136,7 @@
     "formas": [
       "small young giant anteater with a long tubular snout and a big bushy tail, dark navy fur with glowing constellation lines, tiny stars orbiting around it, confident stance",
       "teenage giant anteater now standing on its hind legs, taller and athletic, long claws glowing with starlight, a crescent moon emblem on its forehead, its bushy tail now a flowing cape of night sky with constellations, martial-arts fighting stance",
-      "huge cosmic anteater guardian, evolved from the reference: keeps the crescent moon emblem on its forehead, the night-sky cape and the glowing starlight claws, now much bigger and more muscular and wearing star armor: star-shaped shoulder pauldrons, a glowing chest plate with constellations, the cape grown into a swirling galaxy, a small crown of orbiting planets and shooting stars, epic powerful pose"
+      "CHANGE: much bigger and more powerful, now floating in the air with arms wide open in an epic pose, star armor with star-shaped shoulder pauldrons and a glowing chest plate, the night-sky cape grown into a huge swirling turquoise and blue galaxy, a crown of small orbiting planets, its fur gains a turquoise glow, a bright turquoise rim light around its body. KEEP: the crescent moon emblem on its forehead, the long anteater snout, the glowing starlight claws and the same face"
     ]
   }
 ]
