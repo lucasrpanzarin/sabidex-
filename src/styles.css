@@ -426,6 +426,10 @@ button.painel:active, button.painel-destaque:active, .item-carta:active, .aviso-
 .carta-flip.fase-revelado .carta-flip-dentro { transform: rotateY(0); }
 .carta-flip-frente, .carta-flip-verso { backface-visibility: hidden; -webkit-backface-visibility: hidden; display: block; }
 .carta-flip-frente { position: relative; }
+/* Antes de virar, a frente fica escondida de verdade: no iPhone, segurar o dedo na carta
+   abria o desenho do Sabimon em zoom e estragava a surpresa. */
+.carta-flip:not(.fase-revelado) .carta-flip-frente { visibility: hidden; }
+.carta-flip img { pointer-events: none; }
 .carta-flip-verso { position: absolute; inset: 0; transform: rotateY(180deg); border-radius: 22px; border: 7px solid var(--luz); background: var(--verso);
   box-shadow: 0 0 0 3px var(--ink), 6px 6px 0 3px var(--ink), 0 0 34px var(--luz);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
@@ -438,3 +442,6 @@ button.painel:active, button.painel-destaque:active, .item-carta:active, .aviso-
 .confete { position: absolute; inset: -40px 0 0; pointer-events: none; z-index: 4; overflow: hidden; }
 .confete span { position: absolute; top: -16px; width: 9px; height: 14px; border-radius: 2px; border: 1.5px solid var(--ink); animation: confete 1.4s ease-in both; }
 @keyframes confete { from { transform: translateY(0) rotate(0); opacity: 1; } to { transform: translateY(520px) rotate(var(--giro)); opacity: 0; } }
+
+/* Segurar o dedo num desenho não abre o menu "Salvar no App Fotos" nem dá zoom. */
+img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
