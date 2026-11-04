@@ -1,1 +1,1 @@
-{ "acao": "gerar", "formas": [2, 3], "refazer": true, "numeros": ["013", "014", "017"], "so": ["013-3", "014-2", "017-3"] }
+{ "acao": "gerar", "formas": [2], "refazer": true, "numeros": ["014"], "so": ["014-2"] }
