@@ -16,6 +16,22 @@ function podeGuardar(url, r) {
   return true;
 }
 
+// O celular (principalmente iPhone) pede o áudio "em pedaços" e não toca se receber o arquivo inteiro.
+// Sem internet, entrega da cópia salva só o pedaço pedido.
+async function emPedaco(req, salvo) {
+  const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.get('range') || '');
+  if (!m) return salvo;
+  const dados = await salvo.arrayBuffer();
+  const total = dados.byteLength;
+  const ini = m[1] ? Number(m[1]) : Math.max(0, total - Number(m[2]));
+  const fim = m[1] && m[2] ? Math.min(Number(m[2]), total - 1) : total - 1;
+  if (ini >= total || ini > fim) return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${total}` } });
+  return new Response(dados.slice(ini, fim + 1), {
+    status: 206,
+    headers: { 'Content-Type': salvo.headers.get('content-type') || 'audio/mpeg', 'Content-Range': `bytes ${ini}-${fim}/${total}`, 'Content-Length': String(fim - ini + 1), 'Accept-Ranges': 'bytes' },
+  });
+}
+
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
@@ -38,7 +54,10 @@ self.addEventListener('fetch', (e) => {
         if (podeGuardar(url, inteiro)) await k.put(url.href, inteiro);
       }).catch(() => {});
       return r;
-    }).catch(async () => (await caches.match(url.href)) || Response.error()));
+    }).catch(async () => {
+      const salvo = await caches.match(url.href);
+      return salvo ? emPedaco(req, salvo) : Response.error();
+    }));
     return;
   }
   // Arquivos do app e fontes: usa a cópia salva e atualiza por trás.
