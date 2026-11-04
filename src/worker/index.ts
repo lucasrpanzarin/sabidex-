@@ -10,9 +10,19 @@ import {
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
 } from '../shared/sync';
 import { ESQUEMA, MIGRACOES, temTurma, turmaDaFamilia } from './esquema';
+import { APPLE, conferirCracha, GOOGLE } from './jwt';
 import { aleatorio, hashSegredo, iguais, pinAleatorio, sha256 } from './seguranca';
 
-interface Env { DB: D1Database; ASSETS: Fetcher; ADMIN_EMAILS?: string }
+interface Env {
+  DB: D1Database; ASSETS: Fetcher; ADMIN_EMAILS?: string;
+  /** Entrar com Google: ID do cliente OAuth (Google Cloud). Sem ele, o botão não aparece. */
+  GOOGLE_CLIENT_ID?: string;
+  /** Entrar com Apple: Services ID (Apple Developer). Sem ele, o botão não aparece. */
+  APPLE_CLIENT_ID?: string;
+  /** Esqueci minha senha: chave do Resend (segredo) e remetente. Sem elas, a opção não aparece. */
+  RESEND_API_KEY?: string;
+  EMAIL_REMETENTE?: string;
+}
 type C = Context<{ Bindings: Env }>;
 
 const DIA = 86_400_000;
@@ -431,7 +441,7 @@ app.post('/crianca/trocas/:id/:acao', async (c) => {
 
 /* ============================ Adultos ============================ */
 
-interface Adulto { id: string; nome: string; email: string; senha_hash: string; senha_sal: string; falhas: number; bloqueado_ate: number }
+interface Adulto { id: string; nome: string; email: string; senha_hash: string; senha_sal: string; falhas: number; bloqueado_ate: number; aceite_versao: string; tem_senha: number }
 
 /** Versão da política de privacidade aceita no cadastro (mudar quando o texto mudar). */
 const VERSAO_PRIVACIDADE = '2026-11';
@@ -457,7 +467,7 @@ app.post('/adulto/cadastro', async (c) => {
     if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já existe uma conta com esse e-mail. Use "Entrar".');
     throw e;
   }
-  return c.json({ token: await novaSessao(c.env.DB, 'adulto', id), adulto: { nome, email, admin: ehAdmin(c.env, email) } });
+  return c.json({ token: await novaSessao(c.env.DB, 'adulto', id), adulto: { nome, email, admin: ehAdmin(c.env, email), precisaAceite: false, temSenha: true } });
 });
 
 app.post('/adulto/entrar', async (c) => {
@@ -474,22 +484,112 @@ app.post('/adulto/entrar', async (c) => {
     return erro(c, 401, generico);
   }
   await c.env.DB.prepare('UPDATE adultos SET falhas = 0, bloqueado_ate = 0 WHERE id = ?').bind(a.id).run();
-  return c.json({ token: await novaSessao(c.env.DB, 'adulto', a.id), adulto: { nome: a.nome, email: a.email, admin: ehAdmin(c.env, a.email) } });
+  return c.json({ token: await novaSessao(c.env.DB, 'adulto', a.id), adulto: dadosAdulto(c.env, a) });
 });
+
+const dadosAdulto = (env: Env, a: Pick<Adulto, 'nome' | 'email' | 'aceite_versao' | 'tem_senha'>) =>
+  ({ nome: a.nome, email: a.email, admin: ehAdmin(env, a.email), precisaAceite: a.aceite_versao !== VERSAO_PRIVACIDADE, temSenha: !!a.tem_senha });
 
 async function adulto(c: C) {
   const id = await sessao(c, 'adulto');
   if (!id) return null;
-  const a = await c.env.DB.prepare('SELECT id, nome, email FROM adultos WHERE id = ?').bind(id).first<{ id: string; nome: string; email: string }>();
+  const a = await c.env.DB.prepare('SELECT id, nome, email, aceite_versao, tem_senha FROM adultos WHERE id = ?').bind(id)
+    .first<{ id: string; nome: string; email: string; aceite_versao: string; tem_senha: number }>();
   return a ? { ...a, admin: ehAdmin(c.env, a.email) } : null;
 }
+
+/** O que está ligado neste servidor (o app só mostra os botões que funcionam). */
+app.get('/config', (c) => c.json({
+  google: c.env.GOOGLE_CLIENT_ID || null,
+  apple: c.env.APPLE_CLIENT_ID || null,
+  recuperarSenha: !!(c.env.RESEND_API_KEY && c.env.EMAIL_REMETENTE),
+}));
+
+/** Adulto que já tinha conta aceita a política de privacidade (versão nova). */
+app.post('/adulto/aceite', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  if ((await corpo(c)).aceite !== true) return erro(c, 400, 'Marque que você aceita a política de privacidade.');
+  await c.env.DB.prepare('UPDATE adultos SET aceite = ?, aceite_versao = ? WHERE id = ?').bind(Date.now(), VERSAO_PRIVACIDADE, a.id).run();
+  return c.json({ ok: true });
+});
+
+/**
+ * Entrar com Google ou Apple. Se já existe conta com o mesmo e-mail, entra nela.
+ * Se não existe, cria — mas só depois do aceite (a primeira resposta pede o aceite).
+ */
+app.post('/adulto/social', async (c) => {
+  const b = await corpo(c);
+  const p = b.provedor === 'google' ? GOOGLE : b.provedor === 'apple' ? APPLE : null;
+  const cliente = p === GOOGLE ? c.env.GOOGLE_CLIENT_ID : p === APPLE ? c.env.APPLE_CLIENT_ID : undefined;
+  if (!p || !cliente) return erro(c, 400, 'Esse jeito de entrar não está disponível.');
+  let cracha;
+  try { cracha = await conferirCracha(String(b.token ?? ''), p, cliente); } catch { return erro(c, 400, 'Não consegui falar com o ' + (p === GOOGLE ? 'Google' : 'Apple') + '. Tente de novo.'); }
+  if (!cracha) return erro(c, 401, 'Não deu para confirmar sua conta. Tente de novo.');
+  if (!cracha.emailVerificado || !emailValido(cracha.email)) return erro(c, 401, 'Sua conta precisa ter um e-mail confirmado.');
+  const db = c.env.DB;
+  const a = await db.prepare('SELECT * FROM adultos WHERE email = ?').bind(cracha.email).first<Adulto>();
+  if (a) return c.json({ token: await novaSessao(db, 'adulto', a.id), adulto: dadosAdulto(c.env, a) });
+  const nome = (String(b.nome ?? '').trim() || cracha.nome || cracha.email.split('@')[0]).slice(0, 60);
+  if (b.aceite !== true) return c.json({ precisaAceite: true, nome, email: cracha.email });
+  const id = aleatorio(8), sal = aleatorio(16);
+  // Sem senha: guarda um segredo sorteado que ninguém conhece. Dá para criar senha depois em "Esqueci minha senha".
+  await db.prepare('INSERT INTO adultos (id, nome, email, senha_hash, senha_sal, criado, aceite, aceite_versao, tem_senha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)')
+    .bind(id, nome, cracha.email, await hashSegredo(aleatorio(32), sal), sal, Date.now(), Date.now(), VERSAO_PRIVACIDADE).run();
+  return c.json({ token: await novaSessao(db, 'adulto', id), adulto: { nome, email: cracha.email, admin: ehAdmin(c.env, cracha.email), precisaAceite: false, temSenha: false } });
+});
+
+/** Esqueci minha senha: manda um link por e-mail. Responde igual exista ou não a conta. */
+app.post('/adulto/esqueci', async (c) => {
+  if (!c.env.RESEND_API_KEY || !c.env.EMAIL_REMETENTE) return erro(c, 400, 'Essa opção ainda não está disponível.');
+  const email = String((await corpo(c)).email ?? '').trim().toLowerCase();
+  if (!emailValido(email)) return erro(c, 400, 'E-mail inválido.');
+  const resposta = c.json({ ok: true });
+  const a = await c.env.DB.prepare('SELECT id, nome FROM adultos WHERE email = ?').bind(email).first<{ id: string; nome: string }>();
+  if (!a) return resposta;
+  const recentes = await c.env.DB.prepare('SELECT COUNT(*) n FROM recuperacoes WHERE adulto_id = ? AND criado > ?').bind(a.id, Date.now() - 3_600_000).first<{ n: number }>();
+  if ((recentes?.n ?? 0) >= 3) return resposta;
+  const token = aleatorio(32);
+  await c.env.DB.prepare('INSERT INTO recuperacoes (token_hash, adulto_id, expira, criado) VALUES (?, ?, ?, ?)')
+    .bind(await sha256(token), a.id, Date.now() + 3_600_000, Date.now()).run();
+  const link = `${new URL(c.req.url).origin}/#/nova-senha/${token}`;
+  const r = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${c.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: c.env.EMAIL_REMETENTE, to: [email], subject: 'Sabidex: criar uma senha nova',
+      text: `Olá, ${a.nome}!\n\nPara criar uma senha nova no Sabidex, abra este link (vale por 1 hora):\n${link}\n\nSe não foi você que pediu, ignore este e-mail.`,
+      html: `<p>Olá, ${a.nome.replace(/[<>&"]/g, '')}!</p><p>Para criar uma senha nova no Sabidex, toque no link abaixo. Ele vale por 1 hora.</p><p><a href="${link}">Criar senha nova</a></p><p>Se não foi você que pediu, ignore este e-mail.</p>`,
+    }),
+  }).catch((e) => { console.error('resend', e); return null; });
+  if (r && !r.ok) console.error('resend', r.status, await r.text());
+  return resposta;
+});
+
+/** Cria a senha nova a partir do link do e-mail. Encerra as outras sessões do adulto. */
+app.post('/adulto/nova-senha', async (c) => {
+  const b = await corpo(c);
+  const senha = String(b.senha ?? '');
+  if (senha.length < 8) return erro(c, 400, 'A senha precisa ter pelo menos 8 caracteres.');
+  const h = await sha256(String(b.token ?? ''));
+  const rec = await c.env.DB.prepare('SELECT adulto_id, expira, usado FROM recuperacoes WHERE token_hash = ?').bind(h).first<{ adulto_id: string; expira: number; usado: number }>();
+  if (!rec || rec.usado || rec.expira < Date.now()) return erro(c, 400, 'Esse link não vale mais. Peça outro em "Esqueci minha senha".');
+  const sal = aleatorio(16);
+  await c.env.DB.batch([
+    c.env.DB.prepare('UPDATE recuperacoes SET usado = 1 WHERE token_hash = ?').bind(h),
+    c.env.DB.prepare('UPDATE adultos SET senha_hash = ?, senha_sal = ?, tem_senha = 1, falhas = 0, bloqueado_ate = 0 WHERE id = ?').bind(await hashSegredo(senha, sal), sal, rec.adulto_id),
+    c.env.DB.prepare(`DELETE FROM sessoes WHERE tipo = 'adulto' AND ref_id = ?`).bind(rec.adulto_id),
+  ]);
+  const a = await c.env.DB.prepare('SELECT * FROM adultos WHERE id = ?').bind(rec.adulto_id).first<Adulto>();
+  return c.json({ token: await novaSessao(c.env.DB, 'adulto', rec.adulto_id), adulto: dadosAdulto(c.env, a!) });
+});
 
 app.post('/adulto/sair', sairSessao);
 
 app.get('/adulto/eu', async (c) => {
   const a = await adulto(c);
   if (!a) return erro(c, 401, 'Entre de novo.');
-  return c.json({ adulto: { nome: a.nome, email: a.email, admin: a.admin } });
+  return c.json({ adulto: dadosAdulto(c.env, a) });
 });
 
 app.get('/adulto/turmas', async (c) => {
@@ -677,7 +777,9 @@ app.post('/adulto/apagar-conta', async (c) => {
   const a = await c.env.DB.prepare('SELECT * FROM adultos WHERE id = ?').bind(id).first<Adulto>();
   if (!a) return erro(c, 401, 'Entre de novo.');
   const b = await corpo(c);
-  if (!iguais(await hashSegredo(String(b.senha ?? ''), a.senha_sal), a.senha_hash)) return erro(c, 401, 'Senha errada.');
+  if (a.tem_senha) {
+    if (!iguais(await hashSegredo(String(b.senha ?? ''), a.senha_sal), a.senha_hash)) return erro(c, 401, 'Senha errada.');
+  } else if (String(b.confirmar ?? '').trim().toUpperCase() !== 'APAGAR') return erro(c, 400, 'Escreva APAGAR para confirmar.');
   const db = c.env.DB;
   const turmas = (await db.prepare('SELECT id FROM turmas WHERE dono_id = ?').bind(a.id).all<{ id: string }>()).results.map((t) => t.id);
   const nasTurmas = turmas.length

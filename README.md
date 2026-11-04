@@ -27,6 +27,17 @@ App de estudo para crianças: a matéria da escola vira fases de jogo, e cada fa
 
 **Privacidade:** das crianças o Sabidex guarda só apelido, cor e progresso no jogo. PINs e senhas ficam embaralhados (hash), nunca em texto.
 
+## Ligar "Entrar com Google", "Entrar com Apple" e "Esqueci minha senha"
+
+O código já está pronto. Cada opção só aparece no app depois de configurada no painel da Cloudflare
+(**Workers & Pages → sabidex → Settings → Variables and Secrets**):
+
+| Opção | O que criar | Nome no painel |
+|---|---|---|
+| Google | Em console.cloud.google.com: "Credenciais" → "ID do cliente OAuth" do tipo **Aplicativo da Web**, com `https://sabidex.com.br` em "Origens JavaScript autorizadas" | `GOOGLE_CLIENT_ID` (texto) |
+| Apple | Em developer.apple.com (conta paga): um **Services ID** com "Sign in with Apple", domínio `sabidex.com.br` e retorno `https://sabidex.com.br/` | `APPLE_CLIENT_ID` (texto, o Services ID) |
+| Esqueci minha senha | Conta no resend.com, com o domínio `sabidex.com.br` verificado, e uma chave de API | `RESEND_API_KEY` (**segredo**) e `EMAIL_REMETENTE` (texto, ex.: `Sabidex <nao-responda@sabidex.com.br>`) |
+
 ## Como adicionar um capítulo
 
 1. Crie `src/data/<materia><numero>.ts` no formato de `src/data/tipos.ts`.

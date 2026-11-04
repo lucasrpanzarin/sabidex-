@@ -1,9 +1,10 @@
 // Área dos adultos: conta da família (perfis dos filhos), turmas e apagar a conta.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icone } from '../components/Icone';
 import { Bolinha } from '../components/Perfis';
 import { api, esquecerContas, getConta, usarPerfilDoAdulto } from '../lib/conta';
 import { ir } from '../lib/rota';
+import { botaoGoogle, entrarApple, lerConfig, type ConfigServidor } from '../lib/social';
 import { getEstado, progressoDe, temProgressoSolto } from '../lib/store';
 import { CORES } from './Inicio';
 
@@ -43,20 +44,23 @@ function Portao({ aoPassar }: { aoPassar: () => void }) {
   );
 }
 
+interface Eu { nome: string; email: string; admin: boolean; precisaAceite: boolean; temSenha: boolean }
+const guardarToken = (t: string) => { try { localStorage.setItem(K, t); } catch { /* */ } };
+
 export function Adulto({ turmaId }: { turmaId?: string }) {
   const [token, setToken] = useState(lerToken());
-  const [eu, setEu] = useState<{ nome: string; email: string; admin: boolean } | null>(null);
+  const [eu, setEu] = useState<Eu | null>(null);
   const [passou, setPassou] = useState(portaoAberto || !!token);
 
   useEffect(() => {
     if (!token) return;
-    void api<{ adulto: { nome: string; email: string; admin: boolean } }>('/adulto/eu', { tokenProprio: token }).then((r) => {
+    void api<{ adulto: Eu }>('/adulto/eu', { tokenProprio: token }).then((r) => {
       if (r.erro) { if (r.status === 401) { tirarToken(); setToken(null); } }
       else setEu(r.adulto);
     });
   }, [token]);
 
-  const entrou = (t: string) => { try { localStorage.setItem(K, t); } catch { /* */ } setToken(t); };
+  const entrou = (t: string) => { guardarToken(t); setEu(null); setToken(t); };
   const saiu = () => { tirarToken(); setToken(null); setEu(null); };
   const sair = async () => { await api('/adulto/sair', { corpo: {}, tokenProprio: token }); saiu(); };
 
@@ -68,26 +72,190 @@ export function Adulto({ turmaId }: { turmaId?: string }) {
       </div>
       {!passou ? <Portao aoPassar={() => setPassou(true)} />
         : !token ? <Acesso aoEntrar={entrou} /> : !eu ? <p className="muted">Carregando…</p>
+        : eu.precisaAceite ? <AceitePendente token={token} aoAceitar={() => setEu({ ...eu, precisaAceite: false })} aoSair={sair} />
         : turmaId ? <DetalheTurma token={token} id={turmaId} />
         : <Painel token={token} eu={eu} aoSair={sair} aoApagar={saiu} />}
     </main>
   );
 }
 
+function CaixaAceite({ marcado, aoMudar }: { marcado: boolean; aoMudar: (v: boolean) => void }) {
+  return (
+    <label className="linha small" style={{ gap: 10, alignItems: 'flex-start', fontWeight: 700 }}>
+      <input type="checkbox" checked={marcado} onChange={(ev) => aoMudar(ev.target.checked)} style={{ width: 22, height: 22, flex: 'none', marginTop: 2 }} />
+      <span>Sou maior de idade, sou o responsável pelas crianças que vou cadastrar (ou o professor delas) e li e aceito a <a href="#/privacidade" style={{ color: 'var(--cyan-2)' }}>política de privacidade</a>.</span>
+    </label>
+  );
+}
+
+/** Quem já tinha conta antes da política de privacidade aceita uma vez. */
+function AceitePendente({ token, aoAceitar, aoSair }: { token: string; aoAceitar: () => void; aoSair: () => Promise<void> }) {
+  const [aceite, setAceite] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const enviar = async () => {
+    const r = await api('/adulto/aceite', { corpo: { aceite }, tokenProprio: token });
+    if (r.erro) setErro(r.erro); else aoAceitar();
+  };
+  return (
+    <form className="coluna" onSubmit={(ev) => { ev.preventDefault(); void enviar(); }}>
+      <div>
+        <div className="eyebrow">Área dos adultos</div>
+        <h1 className="display h1">Política de privacidade</h1>
+        <p className="muted" style={{ margin: '6px 0 0' }}>Agora o Sabidex tem uma política de privacidade. Para continuar usando a área dos adultos, leia e confirme.</p>
+      </div>
+      <CaixaAceite marcado={aceite} aoMudar={setAceite} />
+      {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+      <button className="btn btn-amarelo btn-bloco" disabled={!aceite}>Continuar</button>
+      <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => void aoSair()}>Sair</button>
+    </form>
+  );
+}
+
+/** Botões "Continuar com Google" e "Continuar com Apple" (só aparecem se o servidor estiver configurado). */
+function EntrarSocial({ aoEntrar, aoPendente }: { aoEntrar: (t: string) => void; aoPendente: (v: boolean) => void }) {
+  const [cfg, setCfg] = useState<ConfigServidor | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [pendente, setPendente] = useState<{ provedor: 'google' | 'apple'; token: string; nome: string; email: string } | null>(null);
+  const [aceite, setAceite] = useState(false);
+  const caixaGoogle = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { void lerConfig().then(setCfg); }, []);
+  useEffect(() => { aoPendente(!!pendente); }, [pendente]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const enviar = async (provedor: 'google' | 'apple', token: string, extra: { nome?: string; aceite?: boolean } = {}) => {
+    setErro(null);
+    const r = await api<{ token?: string; precisaAceite?: boolean; nome?: string; email?: string }>('/adulto/social', { corpo: { provedor, token, ...extra }, tokenProprio: null });
+    if (r.erro) return setErro(r.erro);
+    if (r.precisaAceite) return setPendente({ provedor, token, nome: r.nome ?? '', email: r.email ?? '' });
+    if (r.token) aoEntrar(r.token);
+  };
+
+  useEffect(() => {
+    if (!cfg?.google || !caixaGoogle.current) return;
+    botaoGoogle(caixaGoogle.current, cfg.google, (t) => void enviar('google', t)).catch(() => setErro('Não consegui carregar o botão do Google.'));
+  }, [cfg?.google]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const apple = async () => {
+    if (!cfg?.apple) return;
+    try { const r = await entrarApple(cfg.apple); await enviar('apple', r.token, { nome: r.nome }); }
+    catch { /* janela fechada */ }
+  };
+
+  if (!cfg || (!cfg.google && !cfg.apple)) return null;
+  if (pendente) {
+    return (
+      <form className="painel coluna" onSubmit={(ev) => { ev.preventDefault(); void enviar(pendente.provedor, pendente.token, { nome: pendente.nome, aceite }); }}>
+        <div className="display h3">Criar conta com {pendente.email}</div>
+        <label htmlFor="s-nome" className="small" style={rotulo}>Seu nome</label>
+        <input id="s-nome" style={campo} value={pendente.nome} maxLength={60} onChange={(ev) => setPendente({ ...pendente, nome: ev.target.value })} autoComplete="name" />
+        <CaixaAceite marcado={aceite} aoMudar={setAceite} />
+        {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+        <div className="linha" style={{ gap: 8 }}>
+          <button type="button" className="btn btn-escuro" style={{ flex: 1 }} onClick={() => setPendente(null)}>Cancelar</button>
+          <button className="btn btn-amarelo" style={{ flex: 1 }} disabled={!aceite || pendente.nome.trim().length < 2}>Criar conta</button>
+        </div>
+      </form>
+    );
+  }
+  return (
+    <div className="coluna" style={{ gap: 10, alignItems: 'stretch' }}>
+      {cfg.google && <div ref={caixaGoogle} style={{ minHeight: 44, display: 'flex', justifyContent: 'center' }} />}
+      {cfg.apple && (
+        <button type="button" onClick={() => void apple()} style={{ minHeight: 44, borderRadius: 999, border: '1px solid #fff4', background: '#000', color: '#fff', font: '600 16px -apple-system, system-ui, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <svg width="16" height="19" viewBox="0 0 16 19" aria-hidden="true"><path fill="#fff" d="M13.2 10.1c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.9-.9-3.1-.8C3.6 4.9 2.1 5.8 1.3 7.3c-1.7 2.9-.4 7.2 1.2 9.6.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8s1.9.8 3.1.8c1.3 0 2.1-1.2 2.9-2.4.9-1.3 1.3-2.6 1.3-2.7 0 0-2.6-1-2.7-4.1zM10.9 3.2c.7-.8 1.1-1.9 1-3-.9 0-2.1.6-2.8 1.4-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z"/></svg>
+          Continuar com Apple
+        </button>
+      )}
+      {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+      <div className="linha muted small" style={{ gap: 10 }}><span style={{ flex: 1, height: 1, background: 'var(--line-2)' }} />ou com e-mail<span style={{ flex: 1, height: 1, background: 'var(--line-2)' }} /></div>
+    </div>
+  );
+}
+
+function Esqueci({ emailInicial, aoVoltar }: { emailInicial: string; aoVoltar: () => void }) {
+  const [email, setEmail] = useState(emailInicial);
+  const [enviado, setEnviado] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+  const enviar = async () => {
+    setOcupado(true); setErro(null);
+    const r = await api('/adulto/esqueci', { corpo: { email }, tokenProprio: null });
+    setOcupado(false);
+    if (r.erro) setErro(r.erro); else setEnviado(true);
+  };
+  return (
+    <form className="coluna" onSubmit={(ev) => { ev.preventDefault(); void enviar(); }}>
+      <div>
+        <div className="eyebrow">Área dos adultos</div>
+        <h1 className="display h1">Esqueci minha senha</h1>
+      </div>
+      {enviado ? (
+        <div className="aviso aviso-ok" role="status">Se esse e-mail tiver conta no Sabidex, mandamos um link para criar uma senha nova. Ele vale por 1 hora. Olhe também a caixa de spam.</div>
+      ) : (
+        <>
+          <label htmlFor="e-email" className="small" style={rotulo}>Seu e-mail</label>
+          <input id="e-email" style={campo} type="email" value={email} onChange={(ev) => setEmail(ev.target.value)} autoComplete="email" />
+          {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+          <button className="btn btn-amarelo btn-bloco" disabled={ocupado || !email.includes('@')}>{ocupado ? 'Enviando…' : 'Mandar link'}</button>
+        </>
+      )}
+      <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={aoVoltar}>Voltar para entrar</button>
+    </form>
+  );
+}
+
+/** Tela aberta pelo link do e-mail: cria a senha nova e já entra. */
+export function NovaSenha({ token }: { token: string }) {
+  const [senha, setSenha] = useState('');
+  const [senha2, setSenha2] = useState('');
+  const [erro, setErro] = useState<string | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+  const enviar = async () => {
+    if (senha !== senha2) return setErro('As duas senhas não são iguais.');
+    setOcupado(true); setErro(null);
+    const r = await api<{ token: string }>('/adulto/nova-senha', { corpo: { token, senha }, tokenProprio: null });
+    setOcupado(false);
+    if (r.erro) return setErro(r.erro);
+    guardarToken(r.token);
+    portaoAberto = true;
+    ir('adulto');
+  };
+  return (
+    <main className="tela" style={{ maxWidth: 640, margin: '0 auto', width: '100%' }}>
+      <form className="coluna" onSubmit={(ev) => { ev.preventDefault(); void enviar(); }}>
+        <div>
+          <div className="eyebrow">Área dos adultos</div>
+          <h1 className="display h1">Senha nova</h1>
+        </div>
+        <label htmlFor="n-senha" className="small" style={rotulo}>Senha nova <span className="muted">(pelo menos 8 caracteres)</span></label>
+        <input id="n-senha" style={campo} type="password" value={senha} onChange={(ev) => setSenha(ev.target.value)} autoComplete="new-password" />
+        <label htmlFor="n-senha2" className="small" style={rotulo}>Digite de novo</label>
+        <input id="n-senha2" style={campo} type="password" value={senha2} onChange={(ev) => setSenha2(ev.target.value)} autoComplete="new-password" />
+        {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+        <button className="btn btn-amarelo btn-bloco" disabled={ocupado || senha.length < 8 || !senha2}>{ocupado ? 'Salvando…' : 'Salvar e entrar'}</button>
+      </form>
+    </main>
+  );
+}
+
 function Acesso({ aoEntrar }: { aoEntrar: (t: string) => void }) {
-  const [modo, setModo] = useState<'entrar' | 'cadastro'>('cadastro');
+  const [modo, setModo] = useState<'entrar' | 'cadastro' | 'esqueci'>('cadastro');
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [aceite, setAceite] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
+  const [recuperar, setRecuperar] = useState(false);
+  const [socialPendente, setSocialPendente] = useState(false);
+  useEffect(() => { void lerConfig().then((c) => setRecuperar(c.recuperarSenha)); }, []);
   const enviar = async () => {
     setOcupado(true); setErro(null);
     const r = await api<{ token: string }>(`/adulto/${modo}`, { corpo: { nome, email, senha, aceite }, tokenProprio: null });
     setOcupado(false);
     if (r.erro) setErro(r.erro); else aoEntrar(r.token);
   };
+  if (modo === 'esqueci') return <Esqueci emailInicial={email} aoVoltar={() => setModo('entrar')} />;
   return (
     <>
       <div>
@@ -95,6 +263,8 @@ function Acesso({ aoEntrar }: { aoEntrar: (t: string) => void }) {
         <h1 className="display h1">Pais e professores</h1>
         <p className="muted" style={{ margin: '6px 0 0' }}>Crie a conta da família para guardar o progresso dos seus filhos em qualquer aparelho. Professores também criam turmas aqui.</p>
       </div>
+      <EntrarSocial aoEntrar={aoEntrar} aoPendente={setSocialPendente} />
+      {!socialPendente && <>
       <div className="linha" role="tablist" style={{ gap: 8 }}>
         {(['cadastro', 'entrar'] as const).map((m) => <button key={m} role="tab" aria-selected={modo === m} className={`btn ${modo === m ? 'btn-ciano' : 'btn-escuro'}`} style={{ flex: 1, fontSize: 17, minHeight: 46 }} onClick={() => { setModo(m); setErro(null); }}>{m === 'entrar' ? 'Entrar' : 'Criar conta'}</button>)}
       </div>
@@ -104,21 +274,18 @@ function Acesso({ aoEntrar }: { aoEntrar: (t: string) => void }) {
         <input id="a-email" style={campo} type="email" value={email} onChange={(ev) => setEmail(ev.target.value)} autoComplete="email" />
         <label htmlFor="a-senha" className="small" style={rotulo}>Senha {modo === 'cadastro' && <span className="muted">(pelo menos 8 caracteres)</span>}</label>
         <input id="a-senha" style={campo} type="password" value={senha} onChange={(ev) => setSenha(ev.target.value)} autoComplete={modo === 'entrar' ? 'current-password' : 'new-password'} />
-        {modo === 'cadastro' && (
-          <label className="linha small" style={{ gap: 10, alignItems: 'flex-start', fontWeight: 700 }}>
-            <input type="checkbox" checked={aceite} onChange={(ev) => setAceite(ev.target.checked)} style={{ width: 22, height: 22, flex: 'none', marginTop: 2 }} />
-            <span>Sou maior de idade, sou o responsável pelas crianças que vou cadastrar (ou o professor delas) e li e aceito a <a href="#/privacidade" style={{ color: 'var(--cyan-2)' }}>política de privacidade</a>.</span>
-          </label>
-        )}
+        {modo === 'cadastro' && <CaixaAceite marcado={aceite} aoMudar={setAceite} />}
         {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
         <button className="btn btn-amarelo btn-bloco" disabled={ocupado || (modo === 'cadastro' && !aceite)}>{ocupado ? 'Aguarde…' : modo === 'entrar' ? 'Entrar' : 'Criar conta'}</button>
+        {modo === 'entrar' && recuperar && <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => { setModo('esqueci'); setErro(null); }}>Esqueci minha senha</button>}
         <p className="muted small" style={{ margin: 0 }}>Seu e-mail serve só para entrar na conta. Das crianças, o Sabidex guarda apenas apelido, cor e progresso no jogo.</p>
       </form>
+      </>}
     </>
   );
 }
 
-function Painel({ token, eu, aoSair, aoApagar }: { token: string; eu: { nome: string; admin: boolean }; aoSair: () => Promise<void>; aoApagar: () => void }) {
+function Painel({ token, eu, aoSair, aoApagar }: { token: string; eu: Eu; aoSair: () => Promise<void>; aoApagar: () => void }) {
   return (
     <>
       <div>
@@ -127,7 +294,7 @@ function Painel({ token, eu, aoSair, aoApagar }: { token: string; eu: { nome: st
       </div>
       <Familia token={token} aoSair={aoSair} />
       <Turmas token={token} admin={eu.admin} />
-      <ApagarConta token={token} aoApagar={aoApagar} />
+      <ApagarConta token={token} temSenha={eu.temSenha} aoApagar={aoApagar} />
     </>
   );
 }
@@ -353,7 +520,7 @@ function Turmas({ token, admin }: { token: string; admin: boolean }) {
 
 /* ---------------- Apagar a conta ---------------- */
 
-function ApagarConta({ token, aoApagar }: { token: string; aoApagar: () => void }) {
+function ApagarConta({ token, temSenha, aoApagar }: { token: string; temSenha: boolean; aoApagar: () => void }) {
   const [aberto, setAberto] = useState(false);
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState<string | null>(null);
@@ -361,7 +528,7 @@ function ApagarConta({ token, aoApagar }: { token: string; aoApagar: () => void 
   const apagar = async () => {
     setOcupado(true); setErro(null);
     const filhos = await api<{ filhos: Filho[] }>('/adulto/familia', { tokenProprio: token });
-    const r = await api('/adulto/apagar-conta', { corpo: { senha }, tokenProprio: token });
+    const r = await api('/adulto/apagar-conta', { corpo: temSenha ? { senha } : { confirmar: senha }, tokenProprio: token });
     setOcupado(false);
     if (r.erro) return setErro(r.erro);
     esquecerContas((filhos.filhos ?? []).map((f) => f.id));
@@ -380,8 +547,8 @@ function ApagarConta({ token, aoApagar }: { token: string; aoApagar: () => void 
             <li>os perfis das crianças da sua família, com cartas e progresso;</li>
             <li>as turmas que você criou. Crianças de outras famílias só saem da turma; as que não têm conta da família são apagadas.</li>
           </ul>
-          <label htmlFor="ap-senha" className="small" style={rotulo}>Digite sua senha para confirmar</label>
-          <input id="ap-senha" style={campo} type="password" value={senha} onChange={(ev) => setSenha(ev.target.value)} autoComplete="current-password" />
+          <label htmlFor="ap-senha" className="small" style={rotulo}>{temSenha ? 'Digite sua senha para confirmar' : 'Escreva APAGAR para confirmar'}</label>
+          <input id="ap-senha" style={campo} type={temSenha ? 'password' : 'text'} value={senha} onChange={(ev) => setSenha(ev.target.value)} autoComplete={temSenha ? 'current-password' : 'off'} />
           {erro && <div role="alert" style={{ fontWeight: 800 }}>{erro}</div>}
           <div className="linha" style={{ gap: 8 }}>
             <button type="button" className="btn btn-escuro" style={{ flex: 1 }} onClick={() => { setAberto(false); setSenha(''); setErro(null); }}>Cancelar</button>

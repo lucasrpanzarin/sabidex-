@@ -5,8 +5,8 @@ import type { ReactNode } from 'react';
 import { Icone } from '../components/Icone';
 import { voltar } from '../lib/rota';
 
-/** E-mail para pedidos sobre dados. Preencher antes de publicar nas lojas. */
-const EMAIL_CONTATO = '';
+/** E-mail para pedidos sobre dados. */
+const EMAIL_CONTATO = 'lucas@fastgsa.com';
 const ATUALIZADA = 'novembro de 2026';
 
 function Parte({ titulo, children }: { titulo: string; children: ReactNode }) {
@@ -34,6 +34,8 @@ export function Privacidade() {
       </Parte>
       <Parte titulo="O que guardamos do adulto">
         Nome, e-mail e senha (a senha fica embaralhada, nunca em texto). Guardamos também a data em que você aceitou esta política.
+        Se você entrar com Google ou Apple, recebemos deles só o seu nome e o seu e-mail.
+        Se pedir "Esqueci minha senha", o e-mail com o link é enviado pelo serviço Resend.
       </Parte>
       <Parte titulo="O que guardamos da criança">
         Só um <strong>apelido</strong>, uma <strong>cor</strong>, um <strong>PIN</strong> de 4 números (embaralhado) e o <strong>progresso no jogo</strong>:
