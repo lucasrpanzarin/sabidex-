@@ -44,12 +44,7 @@ Crie `src/data/<materia><numero>.ts` no formato de `src/data/tipos.ts` (veja `hi
    - As erradas são do mesmo tipo da certa (povo com povo, data com data) e com **tamanho parecido**.
    - A certa **não** pode ser a mais comprida.
    - Proibido: "todas/nenhuma das anteriores", "NÃO", "EXCETO", "incorreta", pegadinha.
-6. **cartas** (exatamente 12): pessoas, lugares, objetos e ideias marcantes, com um fato curioso de uma frase.
-   5 comum, 3 rara, 2 epica, 2 lendaria (as lendárias são as 2 coisas mais importantes). `simbolo`: 1–2 letras.
-   `id` e `numero` continuam a numeração da matéria (ex.: História vai até `h-024`, então começa em `h-025`).
-   Nada de personagens ou marcas de outros jogos.
-
-7. **Jogos extras** (veja `historia9.ts` como modelo):
+6. **Jogos extras** (veja `historia9.ts` como modelo):
    - `lacunas` (8): frase com `___` no lugar da palavra-chave, `resposta` e 3 `distratores` do mesmo tipo.
    - `quemSou` (5): `resposta`, 3 `pistas` da mais difícil para a mais fácil (nenhuma pista diz o nome) e 3 `distratores` do mesmo tipo.
    - `classificar` (2): uma `pergunta` ("Khoi-khoi ou san?") e 2 grupos com 3 itens curtos cada. Escolha coisas que a criança confunde.

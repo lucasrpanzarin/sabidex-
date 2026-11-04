@@ -34,4 +34,5 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add -A arte
           git diff --cached --quiet || git commit -m "Arte: resultado do pedido"
-          git pull --rebase origin main && git push
+          # salva no mesmo ramo em que rodou (main, ou um ramo de trabalho pelo botão "Run workflow")
+          git pull --rebase origin "$GITHUB_REF_NAME" && git push origin HEAD:"$GITHUB_REF_NAME"

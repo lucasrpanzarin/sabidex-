@@ -64,14 +64,26 @@ export interface CausaEfeito {
   consequencia: string;
 }
 
-export interface Carta {
+export type TipoSabimon = 'Fogo' | 'Água' | 'Planta' | 'Raio' | 'Pedra' | 'Vento' | 'Areia' | 'Gelo' | 'Som' | 'Estrela';
+
+export interface FormaSabimon {
+  nome: string;
+  /** nomes dos dois poderes (a força é calculada em src/lib/sabimon.ts). Por enquanto são só enfeite. */
+  poderes: [string, string];
+  /** caminho do desenho em public/; sem desenho a forma aparece como "Em breve" */
+  imagem?: string;
+}
+
+/** Um Sabimon: bicho colecionável que vem nos pacotes e evolui em 3 formas. */
+export interface Sabimon {
+  /** ex.: "s001" */
   id: string;
   numero: number;
-  nome: string;
+  tipo: TipoSabimon;
   raridade: Raridade;
-  /** letra ou símbolo curto mostrado no centro da carta */
-  simbolo: string;
+  /** fato verdadeiro sobre o bicho brasileiro que inspirou o Sabimon */
   fato: string;
+  formas: [FormaSabimon, FormaSabimon, FormaSabimon];
 }
 
 export interface Capitulo {
@@ -86,7 +98,6 @@ export interface Capitulo {
   /** Não reordene nem apague itens de um capítulo publicado: a Revisão do Ará guarda as perguntas pela posição. Acrescente no fim. */
   quiz: Afirmacao[];
   prova: Questao[];
-  cartas: Carta[];
   /** Jogos extras (opcionais). Só aparecem no app quando o capítulo tem material suficiente. */
   lacunas?: Lacuna[];
   quemSou?: QuemSouEu[];

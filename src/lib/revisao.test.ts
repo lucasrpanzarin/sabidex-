@@ -45,15 +45,14 @@ describe('revisão do Ará', () => {
     expect(proximaData(r, D)).toBe(amanha);
   });
 
-  it('dá XP sempre e pacote só uma vez por dia', () => {
+  it('dá XP e segue o pacote do dia das fases', () => {
+    const agora = new Date(2026, 10, 4);
     const e = estadoInicial();
-    const a = concluirRevisao(e, 4, 5, ['historia-9'], D);
+    const a = concluirRevisao(e, 4, 5, ['historia-9'], agora);
     expect(a.xpGanho).toBe(50);
-    expect(a.pacote).toBe(true);
-    expect(a.estado.pacotes).toHaveLength(1);
+    expect(a.pacotesGanhos).toEqual([{ tipo: 'normal', motivo: 'dia' }]);
     expect(a.estado.dias).toContain(D);
-    const b = concluirRevisao(a.estado, 5, 5, ['historia-9'], D);
-    expect(b.pacote).toBe(false);
-    expect(concluirRevisao(e, 3, 3, ['historia-9'], D).pacote).toBe(false);
+    const b = concluirRevisao(a.estado, 5, 5, ['historia-9'], agora);
+    expect(b.pacotesGanhos).toEqual([]);
   });
 });

@@ -1,7 +1,7 @@
 // Regras de qualidade do conteúdo de estudo, por idade.
 // Usadas por `npm run conferir` (scripts/conferir.ts) e pelos testes. Explicação completa em docs/ESTUDOS.md.
 
-import type { Capitulo, Questao, Raridade } from '../data/tipos';
+import type { Capitulo, Questao } from '../data/tipos';
 
 export interface PerfilIdade {
   idade: string;
@@ -55,7 +55,6 @@ ${p.regras.map((r) => '- ' + r).join('\n')}`;
 const palavras = (s: string) => s.replace(/\*\*/g, '').split(/\s+/).filter(Boolean).length;
 const frases = (s: string) => s.split(/(?<=[.!?])\s+/).filter(Boolean);
 const PROIBIDAS = [/todas as (alternativas|anteriores)/i, /nenhuma das (alternativas|anteriores)/i, /\bNÃO\b/, /\bincorret[ao]\b/i, /\bEXCETO\b/i];
-export const RARIDADES_DO_ALBUM: Record<Raridade, number> = { comum: 5, rara: 3, epica: 2, lendaria: 2 };
 
 /**
  * Confere um capítulo e devolve a lista de problemas.
@@ -71,7 +70,6 @@ export function validarCapitulo(cap: Capitulo, ano = 4): string[] {
   if (cap.pares.length < 6) erro(`só ${cap.pares.length} pares (mínimo 6)`);
   if (cap.linha.length < 6) erro(`só ${cap.linha.length} fatos na linha do tempo (mínimo 6)`);
   if (cap.prova.length !== 10) erro(`a prova tem ${cap.prova.length} questões (precisa de 10)`);
-  if (cap.cartas.length !== 12) erro(`${cap.cartas.length} cartas (precisa de 12)`);
   if (cap.quiz.length < 8) aviso(`só ${cap.quiz.length} frases no quiz (ideal: 10 ou mais)`);
 
   const ordens = cap.linha.map((e) => e.ordem);
@@ -133,11 +131,6 @@ export function validarCapitulo(cap: Capitulo, ano = 4): string[] {
     if (new Set(efeitos).size !== efeitos.length) erro('causas: consequência repetida');
   }
 
-  const contagem: Record<string, number> = {};
-  cap.cartas.forEach((c) => { contagem[c.raridade] = (contagem[c.raridade] ?? 0) + 1; });
-  for (const [r, n] of Object.entries(RARIDADES_DO_ALBUM)) {
-    if ((contagem[r] ?? 0) !== n) aviso(`cartas ${r}: ${contagem[r] ?? 0} (o padrão do álbum é ${n})`);
-  }
   return out;
 }
 

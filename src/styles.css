@@ -130,25 +130,48 @@ strong { color: var(--yellow); font-weight: 900; }
 .nav-jogar:active .nav-jogar-bola { transform: translateY(2px) scale(.97); }
 .nav .badge { position: absolute; top: 0; right: calc(50% - 22px); background: var(--pink); color: var(--bg); font-size: 11px; font-weight: 900; min-width: 18px; height: 18px; border-radius: 999px; display: grid; place-items: center; padding: 0 4px; }
 
-/* Cartas */
-.carta { border-radius: 16px; padding: 2px; aspect-ratio: 3 / 4; }
-.carta > .dentro { width: 100%; height: 100%; border-radius: 14px; padding: 8px; display: flex; flex-direction: column; background: linear-gradient(170deg, var(--surface-2), var(--surface)); }
-.carta .num { display: flex; justify-content: space-between; font-size: 10px; font-weight: 900; color: var(--muted); }
-.carta .orbe { margin: auto; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); color: var(--bg); box-shadow: inset 0 -3px 0 #00000033, inset 0 2px 0 #FFFFFF88; }
-.carta .nome { font-family: var(--display); line-height: 1.1; }
-.carta .rar { font-size: 10px; font-weight: 900; }
+/* Cartas dos Sabimons (--tipo vem do tipo do Sabimon) */
+.carta { --tipo: var(--cyan); border-radius: 16px; padding: 2px; border: 0; text-align: left; width: 100%; font: inherit; color: inherit; }
+.carta > .dentro { border-radius: 14px; padding: 7px; display: flex; flex-direction: column; gap: 4px; background: linear-gradient(175deg, var(--surface-2), var(--surface) 55%); }
+.carta .num { display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 900; color: var(--muted); }
+.carta .qtd { color: var(--bg); background: var(--green); border-radius: 999px; padding: 0 6px; }
+.carta .nome { font-family: var(--display); font-size: 13px; line-height: 1.1; overflow-wrap: anywhere; }
+.carta .rar { font-size: 10px; font-weight: 900; color: var(--muted); }
+.carta .palco { position: relative; aspect-ratio: 1 / 1; border-radius: 10px; display: grid; place-items: center; overflow: hidden;
+  background: radial-gradient(circle at 50% 58%, color-mix(in srgb, var(--tipo) 50%, transparent) 0%, transparent 64%), linear-gradient(180deg, #0E1433, var(--bg));
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tipo) 40%, transparent); }
+.carta .palco img { width: 86%; height: 86%; object-fit: contain; filter: drop-shadow(0 6px 8px #00000080); user-select: none; }
+.palco-vazio { font-family: var(--display); font-size: 30px; color: var(--line-2); text-align: center; line-height: 1.1; }
 .carta.comum { background: var(--r-comum); }
 .carta.rara { background: var(--r-rara); }
 .carta.epica { background: var(--r-epica); }
-.carta.lendaria { background: linear-gradient(135deg, #F472B6, #A78BFA, #22D3EE, #FACC15); }
-.carta.vazia { background: none; border: 1.5px dashed var(--line); padding: 0; }
+.carta.lendaria { background: linear-gradient(135deg, #F472B6, #22D3EE, #FACC15); }
+.carta.vazia { background: none; box-shadow: inset 0 0 0 1.5px var(--line); }
 .carta.vazia > .dentro { background: #0E1433; }
-.orbe.comum { background: linear-gradient(180deg, #CBD5E1, #64748B); }
-.orbe.rara { background: linear-gradient(180deg, #67E8F9, #0891B2); }
-.orbe.epica { background: linear-gradient(180deg, #F9A8D4, #DB2777); }
-.orbe.lendaria { background: linear-gradient(180deg, #FDE68A, #EAB308); }
-.orbe.vazia { background: #1C2552; color: var(--line-2); box-shadow: none; }
+.carta.vazia .palco { background: #121A40; box-shadow: none; }
 .rar.comum { color: var(--r-comum); } .rar.rara { color: var(--r-rara); } .rar.epica { color: var(--r-epica); } .rar.lendaria { color: var(--r-lendaria); }
+
+/* Carta grande */
+.carta.grande { width: min(290px, 100%); border-radius: 20px; padding: 3px; }
+.carta.grande > .dentro { border-radius: 17px; padding: 10px; gap: 8px; }
+.carta.grande .nome { font-size: 22px; flex: 1; min-width: 0; }
+.topo-carta { display: flex; align-items: center; gap: 8px; }
+.vida { display: flex; align-items: baseline; gap: 3px; font-family: var(--display); font-size: 22px; color: #FCA5A5; }
+.vida small { font-family: var(--body); font-size: 10px; font-weight: 900; color: var(--muted); letter-spacing: .6px; }
+.vida svg { width: 15px; height: 15px; align-self: center; }
+.formas-carta { display: flex; gap: 4px; align-items: center; font-size: 11px; font-weight: 900; color: var(--muted); }
+.formas-carta i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: block; }
+.formas-carta i.on { background: var(--tipo); box-shadow: 0 0 6px var(--tipo); }
+.chip-tipo { margin-left: auto; font-size: 11px; font-weight: 900; padding: 2px 9px; border-radius: 999px; color: var(--bg); background: var(--tipo); }
+.carta.grande .palco { border-radius: 13px; }
+.poder { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 10px; background: #0B102680; }
+.poder .ic { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--tipo); color: var(--bg); font-size: 12px; font-weight: 900; }
+.poder b { font-family: var(--display); font-weight: 400; font-size: 16px; line-height: 1.1; }
+.poder > span:last-child { font-family: var(--display); font-size: 20px; color: var(--yellow); font-variant-numeric: tabular-nums; }
+.fato { margin: 0; font-size: 12px; font-weight: 700; color: #C7D0F5; line-height: 1.35; padding: 0 2px; }
+.fato strong { color: var(--cyan); }
+.rodape-carta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 900; color: var(--muted); border-top: 1.5px dashed var(--line); padding-top: 7px; }
+.carta.grande .rar { font-size: 11px; }
 
 .grade-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .linha { display: flex; align-items: center; gap: 12px; }
@@ -173,3 +196,79 @@ strong { color: var(--yellow); font-weight: 900; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+.selo-novo { position: absolute; top: -6px; right: -4px; background: var(--yellow); color: var(--bg); font-size: 10px; font-weight: 900; border-radius: 999px; padding: 2px 6px; }
+
+/* Lojinha */
+.moeda { display: inline-block; flex: none; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FEF08A, #EAB308 60%, #A16207); box-shadow: inset 0 -2px 0 #00000040, inset 0 1px 0 #FFFBEB; }
+.faixa { width: min(290px, 100%); display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.faixa > * { min-height: 58px; border-radius: 12px; display: grid; place-items: center; align-content: center; gap: 2px; font: inherit; font-size: 11px; font-weight: 900; text-align: center; }
+.faixa .livre { border: 1.5px dashed var(--line); background: none; color: #5B678F; }
+.faixa button.livre { color: var(--cyan); border-color: var(--line-2); cursor: pointer; }
+.faixa .cheio { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--line); color: var(--ink); }
+.loja-grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.item-loja { position: relative; background: var(--surface); border: 0; border-radius: 18px; padding: 14px 10px 12px; color: var(--ink); font: inherit; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; box-shadow: inset 0 0 0 1.5px var(--line); }
+.item-loja b { font-family: var(--display); font-weight: 400; font-size: 17px; line-height: 1.1; }
+.item-loja small { font-size: 12px; font-weight: 800; color: var(--muted); }
+.preco { font-family: var(--display); font-size: 17px; color: var(--yellow); display: flex; align-items: center; gap: 5px; }
+.item-loja .desejo-selo { position: absolute; top: 8px; right: 8px; font-size: 10px; font-weight: 900; color: var(--bg); background: var(--pink); border-radius: 999px; padding: 2px 6px; }
+.escolha-sabimon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.escolha-sabimon .carta[aria-pressed="true"] { outline: 3px solid var(--green); outline-offset: 2px; }
+.escolha-sabimon .carta:disabled { opacity: .4; }
+
+/* ===== Carta colorida pelo tipo (corpo na cor do tipo, cenário atrás do bicho, borda grossa da raridade) ===== */
+.carta:not(.vazia) { padding: 4px; box-shadow: 0 6px 16px #00000055, inset 0 1px 0 #FFFFFF66; }
+.carta.grande:not(.vazia) { padding: 7px; border-radius: 22px; }
+.carta:not(.vazia) > .dentro {
+  background: linear-gradient(170deg, var(--tipo-claro) 0%, var(--tipo) 34%, var(--tipo-escuro) 100%);
+  box-shadow: inset 0 0 0 1.5px #FFFFFF55, inset 0 -6px 14px #00000033;
+}
+.carta:not(.vazia) .nome, .carta:not(.vazia) .num, .carta:not(.vazia) .formas-carta { color: #0B1026; }
+.carta:not(.vazia) .nome { text-shadow: 0 1px 0 #FFFFFF66; }
+.carta:not(.vazia) .vida { color: #7F1D1D; }
+.carta:not(.vazia) .vida small { color: #0B1026B3; }
+.carta:not(.vazia) .formas-carta i { background: #0B102640; }
+.carta:not(.vazia) .formas-carta i.on { background: #0B1026; box-shadow: 0 0 0 2px #FFFFFF99; }
+.carta:not(.vazia) .chip-tipo { background: #0B1026; color: var(--tipo-claro); }
+.carta:not(.vazia) .rar { color: #0B1026; font-weight: 900; }
+.carta:not(.vazia) .qtd { box-shadow: 0 0 0 1.5px #0B1026; }
+.carta:not(.vazia) .poder { background: #0B1026C7; }
+.carta:not(.vazia) .poder .ic { background: var(--tipo-claro); }
+.carta:not(.vazia) .fato { background: #0B1026B3; border-radius: 10px; padding: 7px 9px; }
+.carta:not(.vazia) .rodape-carta { color: #0B1026; border-top-color: #0B102640; }
+.carta:not(.vazia).grande .rar { background: #0B1026; color: var(--rcor, var(--ink)); padding: 2px 8px; border-radius: 999px; }
+.carta.comum { --rcor: #D1D5DB; } .carta.rara { --rcor: var(--r-rara); } .carta.epica { --rcor: var(--r-epica); } .carta.lendaria { --rcor: var(--r-lendaria); }
+.carta.comum:not(.vazia) { background: linear-gradient(160deg, #F3F4F6, #9CA3AF 55%, #E5E7EB); }
+.carta.rara:not(.vazia) { background: linear-gradient(160deg, #A5F3FC, #0891B2 55%, #67E8F9); }
+.carta.epica:not(.vazia) { background: linear-gradient(160deg, #FBCFE8, #DB2777 55%, #F9A8D4); }
+
+/* Cenário atrás do bicho, um lugar do Brasil para cada tipo (feito só com cores) */
+.carta:not(.vazia) .palco { box-shadow: inset 0 0 0 2px #FFFFFFAA, inset 0 0 0 4px #0B102633, inset 0 -18px 30px #00000033; }
+.carta .palco::before { content: ''; position: absolute; inset: 0; pointer-events: none; }
+.carta .palco img { position: relative; }
+.t-fogo .palco { background: radial-gradient(ellipse 70% 30% at 50% 100%, #7C2D12 60%, transparent 61%), radial-gradient(circle at 50% 55%, #FEF3C7 0%, #FDBA74 30%, transparent 60%), linear-gradient(180deg, #F97316, #FB923C 55%, #9A3412); }
+.t-fogo .palco::before { background: radial-gradient(circle at 15% 30%, #FDE68A 1.5px, transparent 2.5px), radial-gradient(circle at 80% 22%, #FEF3C7 1.5px, transparent 2.5px), radial-gradient(circle at 70% 45%, #FDE68A 1px, transparent 2px), radial-gradient(circle at 28% 52%, #FEF3C7 1px, transparent 2px); }
+.t-agua .palco { background: linear-gradient(180deg, #E0F2FE 0%, #7DD3FC 45%, #0EA5E9 46%, #0369A1 100%); }
+.t-agua .palco::before { background: radial-gradient(ellipse 30% 6% at 25% 62%, #FFFFFF66 50%, transparent 51%), radial-gradient(ellipse 25% 5% at 75% 78%, #FFFFFF55 50%, transparent 51%), radial-gradient(ellipse 60% 12% at 50% 46%, #166534 60%, transparent 61%); }
+.t-planta .palco { background: radial-gradient(circle at 50% 40%, #FEF9C3 0%, #BBF7D0 25%, transparent 55%), linear-gradient(180deg, #A7F3D0, #4ADE80 50%, #166534); }
+.t-planta .palco::before { background: radial-gradient(circle at 8% 20%, #15803D 18%, transparent 19%), radial-gradient(circle at 92% 25%, #15803D 20%, transparent 21%), radial-gradient(circle at 0% 60%, #166534 22%, transparent 23%), radial-gradient(circle at 100% 70%, #166534 24%, transparent 25%), radial-gradient(ellipse 80% 22% at 50% 100%, #14532D 60%, transparent 61%); }
+.t-raio .palco { background: radial-gradient(circle at 50% 50%, #FFFBEB 0%, #FDE68A 30%, transparent 65%), linear-gradient(180deg, #334155, #64748B 45%, #A16207); }
+.t-raio .palco::before { background: radial-gradient(ellipse 40% 12% at 18% 6%, #94A3B8AA 60%, transparent 61%), radial-gradient(ellipse 45% 13% at 82% 4%, #94A3B8AA 60%, transparent 61%), radial-gradient(ellipse 80% 18% at 50% 100%, #713F12 60%, transparent 61%); }
+.t-pedra .palco { background: radial-gradient(circle at 50% 50%, #FCE7F3 0%, #F9A8D4 18%, transparent 50%), linear-gradient(180deg, #57351E, #8B5E3C 50%, #3F2716); }
+.t-pedra .palco::before { background: conic-gradient(from 200deg at 12% 100%, #67E8F9 0 12deg, transparent 12deg), conic-gradient(from 150deg at 88% 100%, #F472B6 0 14deg, transparent 14deg), conic-gradient(from 175deg at 30% 100%, #A5F3FC 0 8deg, transparent 8deg); opacity: .85; }
+.t-vento .palco { background: radial-gradient(ellipse 30% 10% at 22% 25%, #FFFFFF 60%, transparent 61%), radial-gradient(ellipse 35% 11% at 78% 18%, #FFFFFFE6 60%, transparent 61%), linear-gradient(180deg, #CCFBF1, #5EEAD4 60%, #0F766E); }
+.t-vento .palco::before { background: radial-gradient(ellipse 28% 8% at 70% 75%, #FFFFFFAA 60%, transparent 61%), radial-gradient(ellipse 90% 20% at 50% 105%, #115E59 60%, transparent 61%); }
+.t-areia .palco { background: radial-gradient(circle at 78% 22%, #FFFBEB 0 10%, transparent 11%), linear-gradient(180deg, #7DD3FC 0%, #BAE6FD 40%, #FDE68A 41%, #D4A55A 100%); }
+.t-areia .palco::before { background: radial-gradient(ellipse 60% 18% at 15% 70%, #E7C89A 60%, transparent 61%), radial-gradient(ellipse 70% 20% at 90% 82%, #C9A36A 60%, transparent 61%), radial-gradient(ellipse 30% 4% at 60% 55%, #38BDF8AA 60%, transparent 61%); }
+.t-gelo .palco { background: linear-gradient(180deg, #DBEAFE, #93C5FD 55%, #F8FAFC 56%, #CBD5E1); }
+.t-gelo .palco::before { background: conic-gradient(from 150deg at 25% 55%, #FFFFFF 0 60deg, transparent 60deg), conic-gradient(from 150deg at 72% 55%, #E2E8F0 0 60deg, transparent 60deg); clip-path: inset(20% 0 44% 0); }
+.t-som .palco { background: radial-gradient(circle at 50% 75%, #FDE68A 0 14%, transparent 15%), linear-gradient(180deg, #FDE68A 0%, #F9A8D4 40%, #DB2777 75%, #500724); }
+.t-som .palco::before { background: radial-gradient(circle at 5% 30%, #831843 20%, transparent 21%), radial-gradient(circle at 95% 35%, #831843 22%, transparent 23%), radial-gradient(ellipse 90% 20% at 50% 102%, #500724 60%, transparent 61%); }
+.t-estrela .palco { background: radial-gradient(circle at 50% 50%, #67E8F955 0%, transparent 55%), linear-gradient(180deg, #0B1026, #1E1B6B 60%, #312E81); }
+.t-estrela .palco::before { background-image: radial-gradient(circle, #FFFFFF 1.2px, transparent 1.6px), radial-gradient(circle, #FDE68A 1px, transparent 1.4px); background-size: 37px 41px, 23px 29px; background-position: 3px 5px, 11px 17px; opacity: .9; }
+.carta.grande.t-estrela .palco::before { background-size: 47px 53px, 31px 37px; }
+
+/* Cenário desenhado (public/cenarios/<tipo>.webp) no lugar do feito só com cores */
+.carta.com-cenario .palco { background: var(--cenario) center / cover no-repeat, var(--tipo-escuro); }
+.carta.com-cenario .palco::before { background: radial-gradient(circle at 50% 55%, transparent 35%, #0B102633 100%); }
+.carta.com-cenario .palco img { filter: drop-shadow(0 0 2px #0B102699) drop-shadow(0 8px 10px #00000080); }

@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react';
 import { Ara } from '../components/Ara';
 import { Icone } from '../components/Icone';
 import { capitulos } from '../data';
-import { embaralhar, hoje, nivel } from '../lib/jogo';
-import { concluirRevisao, paraHoje, proximaData, registrarResposta, MIN_PARA_PACOTE, type FimRevisao, type ItemRevisao } from '../lib/revisao';
+import { embaralhar, hoje, nivel, type Resultado } from '../lib/jogo';
+import { concluirRevisao, paraHoje, proximaData, registrarResposta, type ItemRevisao } from '../lib/revisao';
+import { Moeda } from '../components/Loja';
 import { ir } from '../lib/rota';
 import { getEstado, setEstado } from '../lib/store';
 
@@ -25,7 +26,7 @@ export function Revisao() {
   const [i, setI] = useState(0);
   const [acertos, setAcertos] = useState(0);
   const [retorno, setRetorno] = useState<{ ok: boolean; certa: string; explicacao: string } | null>(null);
-  const [fim, setFim] = useState<FimRevisao | null>(null);
+  const [fim, setFim] = useState<Resultado | null>(null);
 
   if (!itens.length || fim) {
     const e = getEstado();
@@ -38,14 +39,17 @@ export function Revisao() {
         {fim && <div className="display" style={{ fontSize: 26 }}>{acertos} de {itens.length} certas</div>}
         {fim && (
           <div className="painel coluna sobe" style={{ width: '100%', gap: 8 }}>
-            <div className="display" style={{ fontSize: 30, color: 'var(--cyan-2)' }}>+{fim.xpGanho} XP</div>
+            <div className="linha" style={{ justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
+              <span className="display" style={{ fontSize: 30, color: 'var(--cyan-2)' }}>+{fim.xpGanho} XP</span>
+              <span className="display linha" style={{ fontSize: 30, color: 'var(--yellow)', gap: 6 }}><Moeda tamanho={26} />+{fim.xpGanho}</span>
+            </div>
             {fim.subiuNivel && <div className="display pop" style={{ fontSize: 22, color: 'var(--green)' }}>Subiu para o nível {nivel(fim.estado.xp).nivel}!</div>}
           </div>
         )}
-        {fim?.pacote && (
+        {fim && fim.pacotesGanhos.length > 0 && (
           <div className="painel-destaque sobe" style={{ width: '100%', borderColor: 'var(--pink)' }}>
-            <div className="display" style={{ fontSize: 22 }}>Você ganhou o pacote do dia!</div>
-            <div className="muted small">Um pacote por dia para quem revisa</div>
+            <div className="display" style={{ fontSize: 22 }}>{fim.pacotesGanhos.length > 1 ? `Você ganhou ${fim.pacotesGanhos.length} pacotes!` : 'Você ganhou um pacote!'}</div>
+            <div className="muted small">{fim.pacotesGanhos.some((p) => p.motivo === 'dia') ? 'Pacote do dia, por estudar hoje' : 'Pacote de presente pelo nível novo'}</div>
           </div>
         )}
         <div className="balao">
@@ -53,7 +57,7 @@ export function Revisao() {
           {quandoVolta(proximaData(e.revisao, dia))}
         </div>
         <div className="coluna" style={{ width: '100%' }}>
-          {fim?.pacote
+          {fim && fim.pacotesGanhos.length > 0
             ? <button className="btn btn-amarelo btn-bloco" onClick={() => ir('pacote')}>Abrir pacote</button>
             : <button className="btn btn-amarelo btn-bloco" onClick={() => ir()}>Voltar ao início</button>}
         </div>
@@ -72,7 +76,7 @@ export function Revisao() {
     setRetorno(null);
     if (i + 1 < itens.length) { setI(i + 1); return; }
     const caps = [...new Set(itens.map((x) => x.cap.id))];
-    const r = concluirRevisao(getEstado(), acertos, itens.length, caps, dia);
+    const r = concluirRevisao(getEstado(), acertos, itens.length, caps);
     setEstado(r.estado);
     setFim(r);
   };
@@ -86,7 +90,7 @@ export function Revisao() {
         </div>
         <h1 className="display h2">Revisão do Ará</h1>
         <div className="muted small">
-          {itens.length >= MIN_PARA_PACOTE && getEstado().ultimaRevisao !== dia ? 'Termine para ganhar o pacote do dia' : 'Lembrar de novo deixa a memória forte'}
+          {getEstado().pacoteDia !== dia ? 'Termine para ganhar o pacote do dia' : 'Lembrar de novo deixa a memória forte'}
         </div>
       </div>
       <div className="barra barra-rosa"><div style={{ width: `${(i / itens.length) * 100}%` }} /></div>

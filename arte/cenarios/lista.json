@@ -1,0 +1,52 @@
+[
+  {
+    "tipo": "Fogo",
+    "arquivo": "fogo",
+    "prompt": "Stylized 3D game background illustration for a collectible creature card, cute vibrant toy-like style matching soft vinyl toy characters, bright saturated colors, soft lighting, gentle depth of field. A dormant volcano landscape at golden hour: warm orange and red sky, glowing lava rivers in the distance, dark rocky ground with glowing embers floating in the air. Leave an empty open area in the center foreground for a creature to stand. Absolutely no characters, no animals, no birds, no people, no text, no logo, no frame, no border. Original artwork, not based on any existing game or franchise."
+  },
+  {
+    "tipo": "Água",
+    "arquivo": "agua",
+    "prompt": "Stylized 3D game background illustration for a collectible creature card, cute vibrant toy-like style matching soft vinyl toy characters, bright saturated colors, soft lighting, gentle depth of field. A wide Amazon river in Brazil: calm blue-turquoise water with gentle ripples and sparkles, lush green rainforest on both banks, bright blue sky with puffy white clouds. Leave an empty open area in the center foreground for a creature to stand. Absolutely no characters, no animals, no birds, no people, no text, no logo, no frame, no border. Original artwork, not based on any existing game or franchise."
+  },
+  {
+    "tipo": "Planta",
+    "arquivo": "planta",
+    "prompt": "Stylized 3D game background illustration for a collectible creature card, cute vibrant toy-like style matching soft vinyl toy characters, bright saturated colors, soft lighting, gentle depth of field. Inside the Brazilian Atlantic Forest (Mata Atlântica): giant green ferns, bromeliads, tall trees with hanging vines, warm sun rays filtering through the leaves, small colorful flowers, a soft mossy clearing. Leave an empty open area in the center foreground for a creature to stand. Absolutely no characters, no animals, no birds, no people, no text, no logo, no frame, no border. Original artwork, not based on any existing game or franchise."
+  },
+  {
+    "tipo": "Raio",
+    "arquivo": "raio",
+    "prompt": "Stylized 3D game background illustration for a collectible creature card, cute vibrant toy-like style matching soft vinyl toy characters, bright saturated colors, soft lighting, gentle depth of field. A thunderstorm over the Brazilian Pantanal wetlands at dusk: dark grey-blue storm clouds, bright yellow lightning bolts in the sky, flat green wetland with shallow water reflecting the lightning, warm golden glow on the horizon. Leave an empty open area in the center foreground for a creature to stand. Absolutely no characters, no animals, no birds, no people, no text, no logo, no frame, no border. Original artwork, not based on any existing game or franchise."
+  },
+  {
+    "tipo": "Pedra",
+    "arquivo": "pedra",
+    "prompt": "Stylized 3D game background illustration for a collectible creature card, cute vibrant toy-like style matching soft vinyl toy characters, bright saturated colors, soft lighting, gentle depth of field. Inside a big crystal cave: brown and grey rock walls covered with large glowing pink and turquoise crystals, tiny sparkles in the air, smooth stone floor. Leave an empty open area in the center foreground for a creature to stand. Absolutely no characters, no animals, no birds, no people, no text, no logo, no frame, no border. Original artwork, not based on any existing game or franchise."
+  },
+  {
+    "tipo": "Vento",
+    "arquivo": "vento",
+    "prompt": "Stylized 3D game background illustration for a collectible creature card, cute vibrant toy-like style matching soft vinyl toy characters, bright saturated colors, soft lighting, gentle depth of field. High in the sky above the Chapada dos Veadeiros plateau in Brazil: bright light blue sky, big fluffy white clouds, soft swirling wind streaks, green plateau cliffs and a small waterfall far below. Leave an empty open area in the center foreground for a creature to stand. Absolutely no characters, no animals, no birds, no people, no text, no logo, no frame, no border. Original artwork, not based on any existing game or franchise."
+  },
+  {
+    "tipo": "Areia",
+    "arquivo": "areia",
+    "prompt": "Stylized 3D game background illustration for a collectible creature card, cute vibrant toy-like style matching soft vinyl toy characters, bright saturated colors, soft lighting, gentle depth of field. The Lençóis Maranhenses in Brazil: rolling white and golden sand dunes with clear blue-green lagoons between them, bright blue sky, warm sunshine. Leave an empty open area in the center foreground for a creature to stand. Absolutely no characters, no animals, no birds, no people, no text, no logo, no frame, no border. Original artwork, not based on any existing game or franchise."
+  },
+  {
+    "tipo": "Gelo",
+    "arquivo": "gelo",
+    "prompt": "Stylized 3D game background illustration for a collectible creature card, cute vibrant toy-like style matching soft vinyl toy characters, bright saturated colors, soft lighting, gentle depth of field. A snowy mountain landscape: soft white snow ground, blue ice crystals and icicles, snow-covered pine trees, pale blue sky with gently falling snowflakes, icy peaks in the distance. Leave an empty open area in the center foreground for a creature to stand. Absolutely no characters, no animals, no birds, no people, no text, no logo, no frame, no border. Original artwork, not based on any existing game or franchise."
+  },
+  {
+    "tipo": "Som",
+    "arquivo": "som",
+    "prompt": "Stylized 3D game background illustration for a collectible creature card, cute vibrant toy-like style matching soft vinyl toy characters, bright saturated colors, soft lighting, gentle depth of field. The Amazon rainforest at sunset: pink, magenta and golden sky, silhouettes of tall tropical trees and vines, glowing dots of light and soft sparkly swirls floating in the air. Leave an empty open area in the center foreground for a creature to stand. Absolutely no characters, no animals, no birds, no people, no text, no logo, no frame, no border. Original artwork, not based on any existing game or franchise."
+  },
+  {
+    "tipo": "Estrela",
+    "arquivo": "estrela",
+    "prompt": "Stylized 3D game background illustration for a collectible creature card, cute vibrant toy-like style matching soft vinyl toy characters, bright saturated colors, soft lighting, gentle depth of field. A starry night sky over the Brazilian sertão: deep navy and indigo sky full of bright stars, the Milky Way glowing turquoise and gold, a few shooting stars, silhouettes of cacti and low dry hills on the horizon. Leave an empty open area in the center foreground for a creature to stand. Absolutely no characters, no animals, no birds, no people, no text, no logo, no frame, no border. Original artwork, not based on any existing game or franchise."
+  }
+]

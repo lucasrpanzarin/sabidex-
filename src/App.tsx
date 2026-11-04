@@ -10,6 +10,7 @@ import { Mundo, Mundos } from './screens/Mundos';
 import { Revisao } from './screens/Revisao';
 import { TelaExtra } from './screens/Extras';
 import { EXTRAS, type Extra } from './lib/jogo';
+import { Loja } from './screens/Loja';
 import { EntrarConta, MinhaConta, Ranking, Trocas } from './screens/Turma';
 
 export function App() {
@@ -35,7 +36,8 @@ export function App() {
       tela = EXTRAS.includes(b as Extra) ? <TelaExtra capId={a} x={b as Extra} /> : <Mundos />;
       comNav = false; break;
     case 'revisao': tela = <Revisao />; comNav = false; break;
-    case 'album': tela = <Album />; break;
+    case 'album': tela = <Album id={a} />; break;
+    case 'loja': tela = <Loja key={a ?? ''} sabimonId={a} />; aba = 'album'; break;
     case 'trocas': tela = <Trocas />; break;
     case 'ranking': tela = <Ranking />; break;
     case 'conta': tela = <MinhaConta />; aba = ''; break;

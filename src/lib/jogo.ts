@@ -1,7 +1,8 @@
 // Regras do jogo: XP, níveis, fases, pacotes e sequência de dias.
 // Funções puras (sem tela), para poder testar.
 
-import type { Capitulo, Carta, Raridade } from '../data/tipos';
+import type { Capitulo, Raridade, Sabimon } from '../data/tipos';
+import type { Compra } from '../shared/sync';
 
 export type Fase = 'ouvir' | 'memoria' | 'linha' | 'quiz' | 'prova';
 export const FASES: Fase[] = ['ouvir', 'memoria', 'linha', 'quiz', 'prova'];
@@ -46,6 +47,31 @@ export function extrasDo(cap: Capitulo): Extra[] {
 export const extrasLiberados = (e: Estado, cap: string) => !!e.feitas[chave(cap, 'ouvir')];
 
 /**
+ * Fecha uma atividade que não é fase (jogo extra, revisão) com as mesmas regras de prêmio das fases:
+ * XP, dia de estudo, o pacote do dia (1ª atividade do dia) e o pacote de nível novo.
+ */
+export function premiar(
+  e: Estado, cap: string, xpGanho: number, extras: Resultado['pacotesGanhos'], primeiraVez: boolean,
+  feitas: Estado['feitas'] = e.feitas, agora = new Date(),
+): Resultado {
+  const d = hoje(agora);
+  const pacotesGanhos = [...extras];
+  const ganhaDoDia = e.pacoteDia !== d;
+  if (ganhaDoDia) pacotesGanhos.push({ tipo: 'normal', motivo: 'dia' });
+  const subiuNivel = nivel(e.xp + xpGanho).nivel > nivel(e.xp).nivel;
+  if (subiuNivel) pacotesGanhos.push({ tipo: 'normal', motivo: 'nivel' });
+  const estado: Estado = {
+    ...e,
+    xp: e.xp + xpGanho,
+    feitas,
+    pacotes: [...e.pacotes, ...pacotesGanhos.map((p) => ({ id: novoId(), tipo: p.tipo, capitulo: cap }))],
+    dias: e.dias.includes(d) ? e.dias : [...e.dias, d],
+    pacoteDia: ganhaDoDia ? d : e.pacoteDia,
+  };
+  return { estado, xpGanho, subiuNivel, pacotesGanhos, primeiraVez };
+}
+
+/**
  * Termina um jogo extra. 1ª vez: XP cheio; depois, metade.
  * Quem termina todos os extras do capítulo pela 1ª vez ganha um pacote.
  */
@@ -55,16 +81,8 @@ export function concluirExtra(e: Estado, cap: Capitulo, x: Extra, agora = new Da
   const xpGanho = primeiraVez ? EXTRA_INFO[x].xp : Math.round(EXTRA_INFO[x].xp / 2);
   const feitas = { ...e.feitas, [k]: true as const };
   const todos = extrasDo(cap);
-  const pacoteGanho: TipoPacote | null = primeiraVez && todos.length > 0 && todos.every((y) => feitas[chaveExtra(cap.id, y)]) ? 'normal' : null;
-  const d = hoje(agora);
-  const estado: Estado = {
-    ...e,
-    xp: e.xp + xpGanho,
-    feitas,
-    pacotes: pacoteGanho ? [...e.pacotes, { id: novoId(), tipo: pacoteGanho, capitulo: cap.id }] : e.pacotes,
-    dias: e.dias.includes(d) ? e.dias : [...e.dias, d],
-  };
-  return { estado, xpGanho, subiuNivel: nivel(estado.xp).nivel > nivel(e.xp).nivel, pacoteGanho, primeiraVez };
+  const completou = primeiraVez && todos.length > 0 && todos.every((y) => feitas[chaveExtra(cap.id, y)]);
+  return premiar(e, cap.id, xpGanho, completou ? [{ tipo: 'normal', motivo: 'extras' }] : [], primeiraVez, feitas, agora);
 }
 
 export type TipoPacote = 'normal' | 'epico';
@@ -88,14 +106,20 @@ export interface Estado {
   dias: string[];
   /** ids dos pacotes já abertos (para não voltarem ao sincronizar) */
   abertos: string[];
+  /** pacotes seguidos sem nenhum Sabimon novo (para a garantia) */
+  semNovo: number;
+  /** dia (AAAA-MM-DD) em que a criança já ganhou o pacote do dia */
+  pacoteDia: string;
+  /** compras da lojinha (itens e evoluções); o saldo é XP − soma dos preços */
+  compras: Compra[];
+  /** item da loja que a criança escolheu como "meu desejo" */
+  desejo: string | null;
   /** Revisão do Ará: id da pergunta → caixa (0–4) e dia em que ela volta. Fica só no aparelho. */
   revisao: Record<string, { caixa: number; proxima: string }>;
-  /** último dia em que a revisão deu pacote (no máximo um por dia) */
-  ultimaRevisao: string;
 }
 
 export const estadoInicial = (): Estado => ({
-  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [], revisao: {}, ultimaRevisao: '',
+  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [], semNovo: 0, pacoteDia: '', compras: [], desejo: null, revisao: {},
 });
 
 export function nivel(xp: number) {
@@ -125,11 +149,15 @@ export function sequencia(dias: string[], agora = new Date()) {
   return n;
 }
 
+/** Por que a criança ganhou o pacote. */
+export type MotivoPacote = 'fase' | 'prova' | 'dia' | 'nivel' | 'extras';
+
 export interface Resultado {
   estado: Estado;
   xpGanho: number;
   subiuNivel: boolean;
-  pacoteGanho: TipoPacote | null;
+  /** pacotes ganhos nesta fase (pode ser mais de um) */
+  pacotesGanhos: { tipo: TipoPacote; motivo: MotivoPacote }[];
   primeiraVez: boolean;
 }
 
@@ -138,7 +166,9 @@ export const novoId = () => `p${Date.now().toString(36)}${(contador++).toString(
 
 /**
  * Registra uma fase terminada. Na primeira vez dá XP cheio (e pacote, se for o caso);
- * repetir a fase dá metade do XP e nenhum pacote. A prova só conta como feita com nota ≥ 7.
+ * repetir a fase dá metade do XP. A prova só conta como feita com nota ≥ 7.
+ * Pacotes: memória e quiz na 1ª vez (normal), prova aprovada na 1ª vez (épico),
+ * a 1ª fase terminada de cada dia (normal) e cada nível novo (normal).
  */
 export function concluirFase(e: Estado, cap: string, f: Fase, nota?: number, agora = new Date()): Resultado {
   const k = chave(cap, f);
@@ -146,20 +176,25 @@ export function concluirFase(e: Estado, cap: string, f: Fase, nota?: number, ago
   const primeiraVez = aprovado && !e.feitas[k];
   const base = FASE_INFO[f].xp;
   const xpGanho = aprovado ? (primeiraVez ? base : Math.round(base / 2)) : Math.round(base / 4);
-  let pacoteGanho: TipoPacote | null = null;
-  if (primeiraVez && FASES_COM_PACOTE.includes(f)) pacoteGanho = 'normal';
-  if (primeiraVez && f === 'prova') pacoteGanho = 'epico';
-
   const d = hoje(agora);
+  const pacotesGanhos: Resultado['pacotesGanhos'] = [];
+  if (primeiraVez && FASES_COM_PACOTE.includes(f)) pacotesGanhos.push({ tipo: 'normal', motivo: 'fase' });
+  if (primeiraVez && f === 'prova') pacotesGanhos.push({ tipo: 'epico', motivo: 'prova' });
+  const ganhaDoDia = aprovado && e.pacoteDia !== d;
+  if (ganhaDoDia) pacotesGanhos.push({ tipo: 'normal', motivo: 'dia' });
+  const subiuNivel = nivel(e.xp + xpGanho).nivel > nivel(e.xp).nivel;
+  if (subiuNivel) pacotesGanhos.push({ tipo: 'normal', motivo: 'nivel' });
+
   const estado: Estado = {
     ...e,
     xp: e.xp + xpGanho,
     feitas: aprovado ? { ...e.feitas, [k]: true } : e.feitas,
     notas: f === 'prova' && nota !== undefined ? { ...e.notas, [cap]: Math.max(nota, e.notas[cap] ?? 0) } : e.notas,
-    pacotes: pacoteGanho ? [...e.pacotes, { id: novoId(), tipo: pacoteGanho, capitulo: cap }] : e.pacotes,
+    pacotes: [...e.pacotes, ...pacotesGanhos.map((p) => ({ id: novoId(), tipo: p.tipo, capitulo: cap }))],
     dias: e.dias.includes(d) ? e.dias : [...e.dias, d],
+    pacoteDia: ganhaDoDia ? d : e.pacoteDia,
   };
-  return { estado, xpGanho, subiuNivel: nivel(estado.xp).nivel > nivel(e.xp).nivel, pacoteGanho, primeiraVez };
+  return { estado, xpGanho, subiuNivel, pacotesGanhos, primeiraVez };
 }
 
 export const PESOS: Record<Raridade, number> = { comum: 62, rara: 26, epica: 9, lendaria: 3 };
@@ -172,27 +207,68 @@ function sortearRaridade(rng: () => number, pesos: Partial<Record<Raridade, numb
   return lista[lista.length - 1][0];
 }
 
+/** Depois de tantos pacotes seguidos sem Sabimon novo, o próximo traz um que a criança não tem. */
+export const GARANTIA = 10;
+
+const ORDEM: Raridade[] = ['comum', 'rara', 'epica', 'lendaria'];
+
 /**
- * Sorteia 3 cartas do capítulo. No pacote épico a última carta é épica ou lendária.
- * Não repete a mesma carta dentro de um pacote.
+ * Sorteia 3 Sabimons diferentes. No pacote épico o último é épico ou lendário.
+ * Com `garantia`, se nenhum dos 3 for novo, troca um deles por um Sabimon que a criança ainda não tem.
  */
-export function abrirPacote(cartas: Carta[], tipo: TipoPacote, rng: () => number = Math.random): Carta[] {
-  const saida: Carta[] = [];
+export function abrirPacote(
+  lista: Sabimon[], tipo: TipoPacote, rng: () => number = Math.random,
+  opcoes: { tem?: Record<string, number>; garantia?: boolean } = {},
+): Sabimon[] {
+  const saida: Sabimon[] = [];
   for (let i = 0; i < 3; i++) {
     const especial = tipo === 'epico' && i === 2;
-    let rar = sortearRaridade(rng, especial ? { epica: 80, lendaria: 20 } : PESOS);
-    let opcoes = cartas.filter((c) => c.raridade === rar && !saida.includes(c));
-    if (!opcoes.length) opcoes = cartas.filter((c) => !saida.includes(c));
-    saida.push(opcoes[Math.floor(rng() * opcoes.length)]);
+    const rar = sortearRaridade(rng, especial ? { epica: 80, lendaria: 20 } : PESOS);
+    let escolha = lista.filter((c) => c.raridade === rar && !saida.includes(c));
+    if (!escolha.length) escolha = lista.filter((c) => !saida.includes(c));
+    saida.push(escolha[Math.floor(rng() * escolha.length)]);
   }
-  const ordem: Raridade[] = ['comum', 'rara', 'epica', 'lendaria'];
-  return saida.sort((a, b) => ordem.indexOf(a.raridade) - ordem.indexOf(b.raridade));
+  const tem = opcoes.tem ?? {};
+  const faltam = lista.filter((c) => !(tem[c.id] > 0) && !saida.includes(c));
+  if (opcoes.garantia && faltam.length && saida.every((c) => tem[c.id] > 0)) {
+    // troca o mais comum do pacote, para não tirar o épico garantido
+    const idx = saida.reduce((m, c, i) => (ORDEM.indexOf(c.raridade) < ORDEM.indexOf(saida[m].raridade) ? i : m), 0);
+    saida[idx] = faltam[Math.floor(rng() * faltam.length)];
+  }
+  return saida.sort((a, b) => ORDEM.indexOf(a.raridade) - ORDEM.indexOf(b.raridade));
 }
 
-export function guardarCartas(e: Estado, pacoteId: string, novas: Carta[]): Estado {
+/** Guarda os Sabimons do pacote e atualiza a contagem da garantia. */
+export function guardarCartas(e: Estado, pacoteId: string, novas: Sabimon[]): Estado {
   const cartas = { ...e.cartas };
+  const algumNovo = novas.some((c) => !(cartas[c.id] > 0));
   for (const c of novas) cartas[c.id] = (cartas[c.id] ?? 0) + 1;
-  return { ...e, cartas, pacotes: e.pacotes.filter((p) => p.id !== pacoteId), abertos: [...e.abertos, pacoteId].slice(-500) };
+  return {
+    ...e, cartas, semNovo: algumNovo ? 0 : (e.semNovo ?? 0) + 1,
+    pacotes: e.pacotes.filter((p) => p.id !== pacoteId), abertos: [...e.abertos, pacoteId].slice(-500),
+  };
+}
+
+/** A garantia vale para o próximo pacote? */
+export const garantiaAtiva = (e: Estado) => (e.semNovo ?? 0) >= GARANTIA - 1;
+
+/**
+ * As cartas antigas dos capítulos (ids "h-…") deixaram de existir.
+ * Quem tinha cartas antigas ganha pacotes de Sabimons no lugar: 1 pacote para cada 3 cartas.
+ * Os ids dos pacotes são fixos, então isso nunca dá pacote em dobro (nem em dois aparelhos).
+ */
+export function migrarCartasAntigas(e: Estado, validos: Set<string>): Estado {
+  const antigas = Object.entries(e.cartas).filter(([id]) => !validos.has(id));
+  if (!antigas.length) return e;
+  const total = antigas.reduce((s, [, n]) => s + Math.max(0, n), 0);
+  const ja = new Set([...e.abertos, ...e.pacotes.map((p) => p.id)]);
+  const extras: Pacote[] = [];
+  for (let i = 1; i <= Math.min(Math.ceil(total / 3), 20); i++) {
+    const id = `antigas-${i}`;
+    if (!ja.has(id)) extras.push({ id, tipo: 'normal', capitulo: 'antigas' });
+  }
+  const cartas = Object.fromEntries(Object.entries(e.cartas).filter(([id]) => validos.has(id)));
+  return { ...e, cartas, pacotes: [...e.pacotes, ...extras] };
 }
 
 export function embaralhar<T>(lista: T[], rng: () => number = Math.random): T[] {

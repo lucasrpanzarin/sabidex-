@@ -1,72 +1,49 @@
 {
-  "quando": "2026-11-04T17:41:50.220Z",
+  "quando": "2026-11-04T18:44:48.795Z",
   "imagens": [
     {
-      "nome": "005-2",
-      "sabimon": "Cristabuti",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "006-2",
+      "nome": "fogo",
       "pulado": "já existe"
     },
     {
-      "nome": "007-2",
-      "sabimon": "Dunasiri",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
+      "nome": "agua",
+      "pulado": "já existe"
     },
     {
-      "nome": "009-2",
-      "sabimon": "Melodiru",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
+      "nome": "planta",
+      "pulado": "já existe"
     },
     {
-      "nome": "005-3",
-      "sabimon": "Montabuti",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
+      "nome": "raio",
+      "pulado": "já existe"
     },
     {
-      "nome": "006-3",
-      "sabimon": "Furacolibri",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
+      "nome": "pedra",
+      "pulado": "já existe"
     },
     {
-      "nome": "007-3",
-      "sabimon": "Tempestasiri",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
+      "nome": "vento",
+      "pulado": "já existe"
     },
     {
-      "nome": "009-3",
-      "sabimon": "Sinfonuru",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
+      "nome": "areia",
+      "pulado": "já existe"
+    },
+    {
+      "nome": "gelo",
+      "pulado": "já existe"
+    },
+    {
+      "nome": "som",
+      "pulado": "já existe"
+    },
+    {
+      "nome": "estrela",
+      "pulado": "já existe"
     }
   ],
   "pedido": {
-    "acao": "gerar",
-    "formas": [
-      2,
-      3
-    ],
-    "numeros": [
-      "005",
-      "006",
-      "007",
-      "009"
-    ]
+    "acao": "cenarios"
   },
   "ok": true
 }

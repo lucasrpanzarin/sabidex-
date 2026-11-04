@@ -3,13 +3,11 @@
 // Errou → volta para a caixa 0 e aparece de novo amanhã. Funções puras, para poder testar.
 
 import type { Capitulo, Afirmacao, Questao } from '../data/tipos';
-import { embaralhar, hoje as hojeStr, novoId, nivel, type Estado, type Pacote } from './jogo';
+import { hoje as hojeStr, premiar, type Estado, type Resultado } from './jogo';
 
 /** Dias até a pergunta voltar, para cada caixa. */
 export const INTERVALOS = [1, 3, 7, 21, 60];
 export const MAX_POR_REVISAO = 8;
-/** Mínimo de perguntas numa revisão para ganhar o pacote do dia. */
-export const MIN_PARA_PACOTE = 5;
 export const XP_POR_ACERTO = 10;
 
 export type Revisao = Estado['revisao'];
@@ -79,19 +77,11 @@ export function proximaData(rev: Revisao, dia: string): string | null {
   return futuras[0] ?? null;
 }
 
-export interface FimRevisao { estado: Estado; xpGanho: number; pacote: boolean; subiuNivel: boolean }
-
-/** Fecha uma sessão de revisão: dá XP, conta o dia e, uma vez por dia, um pacote. */
-export function concluirRevisao(e: Estado, acertos: number, total: number, caps: string[], dia: string, rng = Math.random): FimRevisao {
+/**
+ * Fecha uma sessão de revisão: 10 XP por acerto (+10 por terminar), conta o dia de estudo
+ * e segue as regras de prêmio das fases (pacote do dia e pacote de nível novo).
+ */
+export function concluirRevisao(e: Estado, acertos: number, total: number, caps: string[], agora = new Date()): Resultado {
   const xpGanho = acertos * XP_POR_ACERTO + (total ? 10 : 0);
-  const pacote = total >= MIN_PARA_PACOTE && e.ultimaRevisao !== dia && caps.length > 0;
-  const novo: Pacote | null = pacote ? { id: novoId(), tipo: 'normal', capitulo: embaralhar(caps, rng)[0] } : null;
-  const estado: Estado = {
-    ...e,
-    xp: e.xp + xpGanho,
-    dias: e.dias.includes(dia) ? e.dias : [...e.dias, dia],
-    pacotes: novo ? [...e.pacotes, novo] : e.pacotes,
-    ultimaRevisao: pacote ? dia : e.ultimaRevisao,
-  };
-  return { estado, xpGanho, pacote, subiuNivel: nivel(estado.xp).nivel > nivel(e.xp).nivel };
+  return premiar(e, caps[0] ?? 'revisao', xpGanho, [], false, e.feitas, agora);
 }

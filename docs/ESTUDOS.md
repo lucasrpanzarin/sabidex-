@@ -17,7 +17,7 @@ São os resultados mais firmes da pesquisa sobre aprendizagem. Cada um vira uma 
 | **Misturar assuntos** na revisão ajuda a diferenciar coisas parecidas (khoi-khoi x san). | A revisão e o "chefão misto" sorteiam perguntas de vários temas e capítulos. |
 | **Correção na hora, explicando o porquê.** Só "errado" não ensina. | Toda pergunta tem `explicacao`. Depois de errar, a criança vê a certa e tenta de novo mais tarde. |
 | **Pouca coisa de cada vez.** Com 10 anos, a memória de curto prazo segura 4 a 6 itens. | Rodadas de 5 a 6 itens; frases curtas; uma ideia por frase. |
-| **Palavra + imagem + som** juntos lembram melhor que só texto. | Narração dos temas, símbolo nas cartas, linha do tempo visual. |
+| **Palavra + imagem + som** juntos lembram melhor que só texto. | Narração dos temas, desenhos dos Sabimons, linha do tempo visual. |
 | **Explicar o porquê** (causa, consequência, comparação) cria memória mais forte que decorar. | Perguntas de "entender" e jogos de causa e consequência, não só "quem/quando". |
 | **Desafio na medida:** acertar uns 80% mantém motivado; 100% entedia, 50% desanima. | Começa fácil e vai subindo; se errar muito, o jogo dá pistas antes de dar a resposta. |
 | **Saber o que sabe** (metacognição): marcar "tenho certeza" ou "acho que" melhora o estudo. | Ideia futura: botão de confiança na prova; erro com "tenho certeza" volta mais vezes na revisão. |
@@ -77,7 +77,7 @@ bantos x diáspora). Nenhum fato novo entrou. Além disso, a prova agora **embar
 1. **Revisão do Ará (repetição espaçada) — FEITO.** Toda pergunta do quiz e da prova entra na revisão.
    Errou: volta amanhã. Acertou: volta em 3 dias, depois 7, 21 e 60 (só sobe se acertar no dia certo, então repetir a
    fase no mesmo dia não "engana"). A revisão tem até 8 perguntas, mistura capítulos e mostra a explicação na hora.
-   Dá 10 XP por acerto e, uma vez por dia (com 5 perguntas ou mais), um pacote de cartas. Aparece no Início quando
+   Dá 10 XP (e Sabicoins) por acerto e segue as mesmas regras de pacote das fases: conta como a atividade que dá o pacote do dia. Aparece no Início quando
    tem pergunta para hoje. Código: `src/lib/revisao.ts` e `src/screens/Revisao.tsx`.
    Por enquanto a agenda da revisão fica só no aparelho (não vai para o servidor da turma).
 2. **Jogos extras — FEITOS** (`src/screens/Extras.tsx`). Ficam no mapa de cada mundo, abrem depois de "Ouvir os temas",
@@ -98,7 +98,7 @@ bantos x diáspora). Nenhum fato novo entrou. Além disso, a prova agora **embar
 - **Meta clara do dia:** "Hoje: 1 revisão + 1 fase". Barra de progresso sempre visível.
 - **Trocar de atividade** a cada 2–3 minutos (ouvir → ligar → ordenar → responder).
 - **Prêmio por aprender, não por tempo de tela:** XP e pacotes vêm de acertar e terminar fases, nunca de ficar mais tempo.
-- **Surpresa boa:** o pacote de cartas e a carta lendária são o "momento uau"; animação só nesses momentos.
+- **Surpresa boa:** o pacote de Sabimons e o lendário são o "momento uau"; animação só nesses momentos.
 - **O Ará reage** ao acerto, ao erro ("quase! olha a dica") e ao recorde; fala na 2ª pessoa e chama pelo apelido.
 - **Começar fácil:** a primeira pergunta de cada fase é a mais fácil, para entrar no ritmo.
 - **Erro sem castigo:** errar dá menos XP, mas nunca tira o que já ganhou.
@@ -144,8 +144,8 @@ o que se repete, as atividades do fim do capítulo e o resumo. E todos os subtí
 | 6º–9º | 11–14 | até 25 palavras, termos técnicos definidos | analisar, pontos de vista, fontes |
 
 **4. Como os textos são gerados.** No formato do app (`src/data/tipos.ts`), com as regras da seção 2:
-mistura de níveis na prova, erradas plausíveis, quiz com metade verdadeira, 12 cartas (5 comuns, 3 raras,
-2 épicas, 2 lendárias).
+mistura de níveis na prova, erradas plausíveis, quiz com metade verdadeira e o material dos jogos extras.
+(Os capítulos não têm mais cartas próprias: os pacotes trazem Sabimons.)
 
 **5. Como é conferido.** `npm run conferir -- <capitulo> --espalhar` espalha as respostas certas entre A, B, C e D
 e aponta tamanhos, quantidades e pegadinhas. Depois o Claude relê cada item contra o livro como revisor.
