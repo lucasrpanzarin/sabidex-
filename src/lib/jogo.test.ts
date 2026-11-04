@@ -73,11 +73,10 @@ describe('sequência de dias', () => {
 });
 
 describe('pacotes', () => {
-  it('sempre traz 3 Sabimons diferentes', () => {
+  it('traz 1 Sabimon por pacote', () => {
     for (let t = 0; t < 200; t++) {
       const c = abrirPacote(sabimons, 'normal');
-      expect(c).toHaveLength(3);
-      expect(new Set(c.map((x) => x.id)).size).toBe(3);
+      expect(c).toHaveLength(1);
       c.forEach((x) => expect(sabimons).toContain(x));
     }
   });
@@ -96,7 +95,7 @@ describe('pacotes', () => {
     const e = guardarCartas(r.estado, p.id, novas);
     expect(e.pacotes).toHaveLength(r.estado.pacotes.length - 1);
     expect(e.abertos).toContain(p.id);
-    expect(Object.values(e.cartas).reduce((a, b) => a + b, 0)).toBe(3);
+    expect(Object.values(e.cartas).reduce((a, b) => a + b, 0)).toBe(1);
     expect(e.semNovo).toBe(0);
   });
 
@@ -117,10 +116,10 @@ describe('pacotes', () => {
     const e = { ...estadoInicial(), cartas: { 'h-001': 2, 'h-020': 5, s001: 1 } };
     const m = migrarCartasAntigas(e, validos);
     expect(m.cartas).toEqual({ s001: 1 });
-    expect(m.pacotes.map((p) => p.id)).toEqual(['antigas-1', 'antigas-2', 'antigas-3']);
+    expect(m.pacotes.map((p) => p.id)).toEqual(['antigas-1', 'antigas-2', 'antigas-3', 'antigas-4', 'antigas-5', 'antigas-6', 'antigas-7']);
     // abrir um e migrar de novo (outro aparelho com cartas antigas) não dá pacote em dobro
     const outra = migrarCartasAntigas({ ...m, cartas: { 'h-001': 7 }, pacotes: m.pacotes.slice(1), abertos: ['antigas-1'] }, validos);
-    expect(outra.pacotes.map((p) => p.id)).toEqual(['antigas-2', 'antigas-3']);
+    expect(outra.pacotes.map((p) => p.id)).toEqual(m.pacotes.slice(1).map((p) => p.id));
   });
 });
 
@@ -144,5 +143,30 @@ describe('conteúdo', () => {
   it('nota vai de 0 a 10 com meio ponto', () => {
     expect(notaDe(7, 10)).toBe(7);
     expect(notaDe(9, 20)).toBe(4.5);
+  });
+});
+
+describe('jogos extras', () => {
+  it('os dois capítulos têm os 4 jogos extras', async () => {
+    const { extrasDo } = await import('./jogo');
+    expect(extrasDo(historia9)).toEqual(['lacunas', 'quemsou', 'grupos', 'causas']);
+    expect(extrasDo(historia10)).toHaveLength(4);
+  });
+
+  it('dá XP e um pacote quando termina todos', async () => {
+    const { concluirExtra, extrasLiberados, estadoInicial: ini } = await import('./jogo');
+    let e = ini();
+    expect(extrasLiberados(e, 'historia-9')).toBe(false);
+    const r1 = concluirExtra(e, historia9, 'lacunas');
+    expect(r1.xpGanho).toBe(40);
+    expect(r1.pacotesGanhos.map((p) => p.motivo)).not.toContain('extras');
+    e = r1.estado;
+    e = concluirExtra(e, historia9, 'quemsou').estado;
+    e = concluirExtra(e, historia9, 'grupos').estado;
+    const ultimo = concluirExtra(e, historia9, 'causas');
+    expect(ultimo.pacotesGanhos.map((p) => p.motivo)).toContain('extras');
+    const repetido = concluirExtra(ultimo.estado, historia9, 'causas');
+    expect(repetido.xpGanho).toBe(20);
+    expect(repetido.pacotesGanhos.map((p) => p.motivo)).not.toContain('extras');
   });
 });

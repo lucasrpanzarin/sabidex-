@@ -73,7 +73,10 @@ export function destaqueDoDia(dia: string): Item {
 /** Mundos (capítulos) com as 5 fases feitas. */
 export function mundosCompletos(feitas: Record<string, true>): number {
   const por = new Map<string, number>();
-  for (const k of Object.keys(feitas)) { const cap = k.split(':')[0]; por.set(cap, (por.get(cap) ?? 0) + 1); }
+  for (const k of Object.keys(feitas)) {
+    const [cap, fase] = k.split(':');
+    if ((FASES as string[]).includes(fase)) por.set(cap, (por.get(cap) ?? 0) + 1); // jogos extras não contam
+  }
   return [...por.values()].filter((n) => n >= FASES.length).length;
 }
 

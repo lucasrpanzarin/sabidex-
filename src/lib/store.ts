@@ -83,6 +83,18 @@ export function aplicarServidor(
 
 export function limparPendente() { pendente = {}; gravar(CHAVE_PENDENTE, pendente); }
 
+/** Limpa o aparelho (ao sair da conta: o progresso continua guardado na conta). */
+export function zerarAparelho() {
+  estado = estadoInicial();
+  pendente = {};
+  gravar(CHAVE, estado);
+  gravar(CHAVE_PENDENTE, pendente);
+  avisar();
+}
+
+/** O aparelho tem progresso que ainda não está em nenhuma conta? */
+export const temProgressoSolto = (e: Estado) => e.xp > 0 || Object.keys(e.cartas).length > 0 || e.pacotes.length > 0;
+
 export function useEstado() {
   return useSyncExternalStore((f) => { ouvintes.add(f); return () => ouvintes.delete(f); }, () => estado);
 }

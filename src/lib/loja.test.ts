@@ -60,6 +60,8 @@ describe('lojinha nova', () => {
 
   it('a coroa não se compra: ganha 1 por mundo completo, de graça', () => {
     expect(comprarItem(base, 'coroa', 's001')).toBe('premio');
+    // jogos extras não contam como fase do mundo
+    expect(mundosCompletos({ 'historia-9:ouvir': true, 'historia-9:extra-lacunas': true, 'historia-9:extra-a': true, 'historia-9:extra-b': true, 'historia-9:extra-c': true })).toBe(0);
     const feitas = Object.fromEntries(['ouvir', 'memoria', 'linha', 'quiz', 'prova'].map((f) => [`historia-9:${f}`, true as const]));
     const e = { ...base, feitas };
     expect(mundosCompletos(feitas)).toBe(1);

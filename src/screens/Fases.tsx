@@ -4,7 +4,8 @@ import { Icone } from '../components/Icone';
 import { Moeda } from '../components/Loja';
 import { capituloPorId } from '../data';
 import type { Capitulo } from '../data/tipos';
-import { FASE_INFO, NOTA_MINIMA, concluirFase, embaralhar, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
+import { FASE_INFO, NOTA_MINIMA, concluirFase, embaralhar, hoje, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
+import { idProva, idQuiz, registrarResposta } from '../lib/revisao';
 import { ir } from '../lib/rota';
 import { jogar, proximaFase } from './Inicio';
 import { getEstado, setEstado } from '../lib/store';
@@ -31,13 +32,14 @@ function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: ReactNo
 
 const MOTIVO: Record<MotivoPacote, string> = {
   fase: 'Pacote por terminar uma fase nova',
-  prova: 'Pacote épico por passar na prova: 1 épico ou lendário',
+  prova: 'Pacote épico por passar na prova: vem um épico ou lendário',
   dia: 'Pacote do dia, por estudar hoje',
   nivel: 'Pacote de presente pelo nível novo',
+  extras: 'Pacote por terminar todos os jogos extras do mundo',
 };
 
 /** Tela de resultado com XP, nível e pacote ganhos. */
-function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { cap: Capitulo; r: Resultado; titulo: string; detalhe?: ReactNode; aprovado?: boolean; onDeNovo: () => void }) {
+export function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { cap: Capitulo; r: Resultado; titulo: string; detalhe?: ReactNode; aprovado?: boolean; onDeNovo: () => void }) {
   const nv = nivel(r.estado.xp);
   return (
     <main className="tela" style={{ alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
@@ -73,6 +75,14 @@ function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { cap: Capi
     </main>
   );
 }
+
+/** Guarda a resposta na Revisão do Ará (erros voltam amanhã; acertos em alguns dias). */
+function lembrar(ids: [string, boolean][]) {
+  const dia = hoje();
+  setEstado((e) => ({ ...e, revisao: ids.reduce((rev, [id, ok]) => registrarResposta(rev, id, ok, dia), e.revisao) }));
+}
+
+const AVISO_REVISAO = <div className="balao small" style={{ marginTop: 4 }}>As perguntas que você errou voltam na <strong>Revisão do Ará</strong> amanhã.</div>;
 
 function useFinalizar(cap: Capitulo, fase: Fase) {
   const [res, setRes] = useState<Resultado | null>(null);
@@ -148,15 +158,23 @@ function Ouvir({ cap }: { cap: Capitulo }) {
               </button>
             </div>
             {aberto === i && (
-              <ul style={{ margin: '10px 0 0', paddingLeft: 20, display: 'grid', gap: 6, fontWeight: 600 }}>
-                {t.pontos.map((p, j) => <li key={j}><Texto t={p} /></li>)}
-              </ul>
+              <>
+                <ul style={{ margin: '10px 0 0', paddingLeft: 20, display: 'grid', gap: 6, fontWeight: 600 }}>
+                  {t.pontos.map((p, j) => <li key={j}><Texto t={p} /></li>)}
+                </ul>
+                {!ouvidos.has(i) && (
+                  <button className="btn btn-escuro" style={{ minHeight: 44, padding: '6px 16px', fontSize: 15, marginTop: 10 }}
+                    onClick={() => { setOuvidos((s) => new Set(s).add(i)); setAberto(i + 1 < total ? i + 1 : null); }}>
+                    Já li este tema
+                  </button>
+                )}
+              </>
             )}
           </article>
         ))}
       </div>
       <button className="btn btn-amarelo btn-bloco" disabled={ouvidos.size < total} onClick={() => { audio.current?.pause(); finalizar(); }}>
-        {ouvidos.size < total ? `Ouça todos os temas (${total - ouvidos.size} faltando)` : 'Terminar fase'}
+        {ouvidos.size < total ? (total - ouvidos.size === 1 ? "Falta 1 tema" : `Faltam ${total - ouvidos.size} temas`) : 'Terminar fase'}
       </button>
     </main>
   );
@@ -295,13 +313,15 @@ function Quiz({ cap }: { cap: Capitulo }) {
   const [acertos, setAcertos] = useState(0);
   const [resto, setResto] = useState(TEMPO);
   const [retorno, setRetorno] = useState<{ ok: boolean; texto: string } | null>(null);
+  const [errou, setErrou] = useState(false);
+  const [respondidas, setRespondidas] = useState(0);
   const fim = useRef(false);
 
   useEffect(() => {
-    if (!comecou || res) return;
+    if (!comecou || res || retorno) return; // o relógio para enquanto a criança lê a explicação
     const t = setInterval(() => setResto((s) => s - 1), 1000);
     return () => clearInterval(t);
-  }, [comecou, res]);
+  }, [comecou, res, retorno]);
 
   useEffect(() => {
     if (comecou && resto <= 0 && !fim.current) { fim.current = true; finalizar(); }
@@ -311,7 +331,9 @@ function Quiz({ cap }: { cap: Capitulo }) {
     if (retorno) return;
     const q = lista[i];
     const ok = q.verdadeira === v;
-    if (ok) setAcertos((a) => a + 1);
+    if (ok) setAcertos((a) => a + 1); else setErrou(true);
+    setRespondidas((n) => n + 1);
+    lembrar([[idQuiz(cap.id, cap.quiz.indexOf(q)), ok]]);
     setRetorno({ ok, texto: q.explicacao });
   };
   const proxima = () => {
@@ -320,15 +342,15 @@ function Quiz({ cap }: { cap: Capitulo }) {
   };
 
   if (res) return <Fim cap={cap} r={res} titulo={acertos >= lista.length * 0.8 ? 'Relâmpago!' : 'Bom jogo!'}
-    detalhe={<div className="display" style={{ fontSize: 26 }}>{acertos} de {lista.length} certas</div>}
-    onDeNovo={() => { setRodada((r) => r + 1); setI(0); setAcertos(0); setResto(TEMPO); setComecou(false); setRetorno(null); fim.current = false; limpar(); }} />;
+    detalhe={<><div className="display" style={{ fontSize: 26 }}>{acertos} de {respondidas} certas{respondidas < lista.length ? ` · deu tempo de ${respondidas} de ${lista.length}` : ''}</div>{errou && AVISO_REVISAO}</>}
+    onDeNovo={() => { setRodada((r) => r + 1); setI(0); setAcertos(0); setErrou(false); setRespondidas(0); setResto(TEMPO); setComecou(false); setRetorno(null); fim.current = false; limpar(); }} />;
 
   if (!comecou) return (
     <main className="tela">
       <Topo cap={cap} fase="quiz" />
       <div className="coluna" style={{ alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'center' }}>
         <Ara tamanho={110} />
-        <div className="balao">Você tem <strong>{TEMPO} segundos</strong>. Diga se cada frase é verdadeira ou falsa!</div>
+        <div className="balao">Você tem <strong>{TEMPO} segundos</strong>. Diga se cada frase é verdadeira ou falsa! O relógio para enquanto você lê a explicação.</div>
         <button className="btn btn-amarelo btn-bloco" onClick={() => setComecou(true)}>Valendo!</button>
       </div>
     </main>
@@ -365,13 +387,19 @@ function Prova({ cap }: { cap: Capitulo }) {
   const [i, setI] = useState(0);
   const [respostas, setRespostas] = useState<number[]>([]);
   const [escolha, setEscolha] = useState<number | null>(null);
+  const [tentativa, setTentativa] = useState(0);
   const qs = cap.prova;
+  // A ordem das opções muda a cada tentativa, para ninguém decorar "a certa é a B".
+  const ordens = useMemo(() => qs.map(() => embaralhar([0, 1, 2, 3])), [qs, tentativa]);
 
   const confirmar = () => {
     if (escolha === null) return;
     const r = [...respostas, escolha];
     setRespostas(r); setEscolha(null);
-    if (r.length === qs.length) finalizar(notaDe(r.filter((x, k) => x === qs[k].certa).length, qs.length));
+    if (r.length === qs.length) {
+      lembrar(qs.map((q, k) => [idProva(cap.id, k), r[k] === q.certa]));
+      finalizar(notaDe(r.filter((x, k) => x === qs[k].certa).length, qs.length));
+    }
     else setI(i + 1);
   };
 
@@ -385,8 +413,9 @@ function Prova({ cap }: { cap: Capitulo }) {
           detalhe={<div className="coluna" style={{ alignItems: 'center', gap: 0 }}>
             <div className="display" style={{ fontSize: 64, lineHeight: 1, color: passou ? 'var(--t-green)' : 'var(--t-pink)' }}>{nota.toLocaleString('pt-BR')}</div>
             <div className="muted">{acertos} de {qs.length} certas{passou ? '' : ` · precisa de nota ${NOTA_MINIMA} para o pacote`}</div>
+            {acertos < qs.length && AVISO_REVISAO}
           </div>}
-          onDeNovo={() => { setI(0); setRespostas([]); limpar(); }} />
+          onDeNovo={() => { setI(0); setRespostas([]); setTentativa((t) => t + 1); limpar(); }} />
         <section className="tela" style={{ paddingTop: 0 }} aria-label="Correção">
           <h2 className="display h2">Correção</h2>
           {qs.map((q, k) => {
@@ -394,8 +423,8 @@ function Prova({ cap }: { cap: Capitulo }) {
             return (
               <div key={k} className={`aviso ${ok ? 'aviso-ok' : 'aviso-erro'}`}>
                 <div className="display" style={{ fontSize: 16 }}>{k + 1}. {q.pergunta}</div>
-                {!ok && <div className="small" style={{ color: 'var(--t-red)' }}>Você marcou: {LETRAS[respostas[k]]}) {q.opcoes[respostas[k]]}</div>}
-                <div className="small">Certa: <strong>{LETRAS[q.certa]}) {q.opcoes[q.certa]}</strong></div>
+                {!ok && <div className="small" style={{ color: 'var(--t-red)' }}>Você marcou: {q.opcoes[respostas[k]]}</div>}
+                <div className="small">Certa: <strong>{q.opcoes[q.certa]}</strong></div>
                 <div className="small muted">{q.explicacao}</div>
               </div>
             );
@@ -412,12 +441,12 @@ function Prova({ cap }: { cap: Capitulo }) {
       <div className="barra barra-ciano"><div style={{ width: `${(i / qs.length) * 100}%` }} /></div>
       <fieldset style={{ border: 0, padding: 0, margin: 0 }} className="coluna">
         <legend className="display" style={{ fontSize: 22, marginBottom: 12 }}>{q.pergunta}</legend>
-        {q.opcoes.map((o, k) => (
+        {ordens[i].map((orig, k) => ({ o: q.opcoes[orig], orig, k })).map(({ o, orig, k }) => (
           <label key={k} className="linha" style={{ minHeight: 60, borderRadius: 16, padding: '10px 12px', cursor: 'pointer', fontWeight: 700,
-            background: escolha === k ? '#CFFAFE' : 'var(--surface)', border: `3px solid ${escolha === k ? 'var(--cyan)' : 'var(--line)'}` }}>
-            <input type="radio" name={`q${i}`} checked={escolha === k} onChange={() => setEscolha(k)} style={{ position: 'absolute', opacity: 0 }} />
+            background: escolha === orig ? '#CFFAFE' : 'var(--surface)', border: `3px solid ${escolha === orig ? 'var(--cyan)' : 'var(--line)'}` }}>
+            <input type="radio" name={`q${i}`} checked={escolha === orig} onChange={() => setEscolha(orig)} style={{ position: 'absolute', opacity: 0 }} />
             <span style={{ width: 32, height: 32, flex: 'none', borderRadius: '50%', display: 'grid', placeItems: 'center', fontFamily: 'var(--display)',
-              background: escolha === k ? 'var(--cyan)' : 'var(--bg)', color: escolha === k ? 'var(--ink)' : 'var(--ink)' }}>{LETRAS[k]}</span>
+              background: escolha === orig ? 'var(--cyan)' : 'var(--bg)', color: 'var(--ink)' }}>{LETRAS[k]}</span>
             {o}
           </label>
         ))}

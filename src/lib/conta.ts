@@ -1,18 +1,23 @@
 // Conta da criança na turma: entrar, sair e sincronizar com o servidor.
 
 import { useSyncExternalStore } from 'react';
-import { aplicarServidor, getEstado, getPendente, limparPendente, progressoDe, setRegistrarCartas } from './store';
+import { aplicarServidor, getEstado, getPendente, limparPendente, progressoDe, setRegistrarCartas, zerarAparelho } from './store';
 import type { ProgressoSync } from '../shared/sync';
 
-export interface Conta { id: string; apelido: string; cor: string; turma: string; codigo: string }
+/** `codigo` vazio = ainda não está numa turma. `familia` = tem um adulto responsável ligado à conta. */
+export interface Conta { id: string; apelido: string; cor: string; turma: string; codigo: string; familia?: boolean }
+/** Perfis da família que já entraram neste aparelho (para irmãos trocarem só com o PIN). */
+export interface PerfilAparelho { id: string; apelido: string; cor: string }
 interface RespostaConta { conta: Conta; progresso: ProgressoSync; cartas: Record<string, number> }
 
 const K_TOKEN = 'sabidex:token';
 const K_CONTA = 'sabidex:conta';
+const K_PERFIS = 'sabidex:perfis';
 
 const ler = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
 let token = ler(K_TOKEN);
 let conta: Conta | null = (() => { try { return JSON.parse(ler(K_CONTA) ?? 'null'); } catch { return null; } })();
+let perfis: PerfilAparelho[] = (() => { try { const p = JSON.parse(ler(K_PERFIS) ?? '[]'); return Array.isArray(p) ? p : []; } catch { return []; } })();
 let propostasNovas = 0;
 /** Dados mostrados uma vez logo depois de criar a conta (para anotar o PIN). */
 let contaNova: { codigo: string; apelido: string; pin: string } | null = null;
@@ -25,7 +30,7 @@ const mudou = () => { versao++; avisar(); };
 
 export function useConta() {
   useSyncExternalStore((f) => { ouvintes.add(f); return () => ouvintes.delete(f); }, () => versao);
-  return { conta, propostasNovas, contaNova };
+  return { conta, propostasNovas, contaNova, perfis };
 }
 export function esquecerContaNova() { contaNova = null; mudou(); }
 export const getConta = () => conta;
@@ -49,8 +54,21 @@ export async function api<T = Record<string, unknown>>(caminho: string, opcoes: 
 
 function guardar(t: string, r: RespostaConta) {
   token = t; conta = r.conta;
+  lembrarPerfil(r.conta);
   try { localStorage.setItem(K_TOKEN, t); localStorage.setItem(K_CONTA, JSON.stringify(r.conta)); } catch { /* ignora */ }
   setRegistrarCartas(true);
+  mudou();
+}
+
+function lembrarPerfil(c: Conta) {
+  if (!c.familia) return;
+  perfis = [...perfis.filter((p) => p.id !== c.id), { id: c.id, apelido: c.apelido, cor: c.cor }].slice(-6);
+  try { localStorage.setItem(K_PERFIS, JSON.stringify(perfis)); } catch { /* ignora */ }
+}
+
+export function esquecerPerfil(id: string) {
+  perfis = perfis.filter((p) => p.id !== id);
+  try { localStorage.setItem(K_PERFIS, JSON.stringify(perfis)); } catch { /* ignora */ }
   mudou();
 }
 
@@ -86,9 +104,65 @@ export async function entrarNaConta(codigo: string, apelido: string, pin: string
   return null;
 }
 
+/**
+ * Entra numa conta com um token já pronto (o adulto abriu o perfil, ou a criança digitou o PIN).
+ * O progresso deste aparelho é trocado pelo da conta; antes, o que estava pendente vai para a conta antiga.
+ */
+async function entrarCom(r: RespostaConta & { token: string }) {
+  if (token) { await sincronizar(); await api('/crianca/sair', { corpo: {} }); }
+  limparPendente();
+  aplicarServidor(r, {}, true);
+  guardar(r.token, r);
+}
+
+/** A conta da família foi apagada: esquece esses perfis e limpa o aparelho se um deles estava aberto. */
+export function esquecerContas(ids: string[]) {
+  perfis = perfis.filter((p) => !ids.includes(p.id));
+  try { localStorage.setItem(K_PERFIS, JSON.stringify(perfis)); } catch { /* ignora */ }
+  if (conta && ids.includes(conta.id)) { desconectar(); zerarAparelho(); }
+  mudou();
+}
+
+/** O adulto abriu o perfil do filho neste aparelho. */
+export async function usarPerfilDoAdulto(tokenAdulto: string, criancaId: string) {
+  const r = await api<RespostaConta & { token: string }>(`/adulto/familia/${criancaId}/aparelho`, { corpo: {}, tokenProprio: tokenAdulto });
+  if (r.erro) return r.erro;
+  await entrarCom(r);
+  return null;
+}
+
+/** Irmão escolhe o próprio perfil neste aparelho e digita o PIN. */
+export async function entrarNoPerfil(id: string, pin: string) {
+  const r = await api<RespostaConta & { token: string }>('/crianca/entrar-perfil', { corpo: { id, pin }, tokenProprio: null });
+  if (r.status === 404) esquecerPerfil(id);
+  if (r.erro) return r.erro;
+  await entrarCom(r);
+  return null;
+}
+
+/** Criança que já tem conta (da família) entra numa turma: a conta continua a mesma. */
+export async function entrarNaTurmaComConta(codigo: string, apelido: string) {
+  await sincronizar();
+  const r = await api<RespostaConta>('/crianca/turma', { corpo: { codigo, apelido } });
+  if (r.erro) return r.erro;
+  aplicarServidor(r, {});
+  conta = r.conta;
+  try { localStorage.setItem(K_CONTA, JSON.stringify(r.conta)); } catch { /* ignora */ }
+  mudou();
+  return null;
+}
+
+/**
+ * Sai da conta neste aparelho. Antes, manda para a conta o que ainda não foi;
+ * sem internet, não sai (para nenhuma carta se perder). Depois limpa o aparelho.
+ */
 export async function sair() {
+  await sincronizar();
+  if (Object.keys(getPendente()).length > 0) return 'Sem internet agora. Conecte para não perder nenhuma carta e tente de novo.';
   await api('/crianca/sair', { corpo: {} });
   desconectar();
+  zerarAparelho();
+  return null;
 }
 
 let sincronizando = false;
@@ -123,7 +197,7 @@ export async function evoluirNaConta(sabimon: string) {
 }
 
 export async function verPropostas() {
-  if (!token) return;
+  if (!token || !conta?.codigo) return;
   const r = await api<{ eu: string; trocas: { para_id: string; status: string }[] }>('/crianca/trocas');
   if (r.erro) return;
   const n = r.trocas.filter((t) => t.para_id === r.eu && t.status === 'pendente').length;

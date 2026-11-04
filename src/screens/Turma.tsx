@@ -5,7 +5,8 @@ import { Icone } from '../components/Icone';
 import { Pin } from '../components/Pin';
 import { sabimonPorId, sabimons } from '../data';
 import type { Sabimon } from '../data/tipos';
-import { api, entrarNaConta, entrarNaTurma, esquecerContaNova, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
+import { api, entrarNaConta, entrarNaTurma, entrarNaTurmaComConta, esquecerContaNova, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
+import { EscolherPerfil } from '../components/Perfis';
 import { ir } from '../lib/rota';
 import { paraTrocar, protegido } from '../lib/loja';
 import { useEstado } from '../lib/store';
@@ -46,10 +47,11 @@ export function ContaCriada() {
 
 export function EntrarTurma() {
   const e = useEstado();
+  const { conta } = useConta();
   const [passo, setPasso] = useState<'codigo' | 'apelido' | 'pin' | 'pin2'>('codigo');
   const [codigo, setCodigo] = useState('');
   const [turma, setTurma] = useState('');
-  const [apelido, setApelido] = useState(e.perfil?.nome ?? '');
+  const [apelido, setApelido] = useState(conta?.apelido ?? e.perfil?.nome ?? '');
   const [pin, setPin] = useState('');
   const [pin2, setPin2] = useState('');
   const [erro, setErro] = useState<string | null>(null);
@@ -61,6 +63,13 @@ export function EntrarTurma() {
     setOcupado(false);
     if (r.erro) return setErro(r.erro);
     setTurma(r.nome); setCodigo(r.codigo); setPasso('apelido');
+  };
+
+  const entrarComConta = async () => {
+    setOcupado(true); setErro(null);
+    const msg = await entrarNaTurmaComConta(codigo, apelido);
+    setOcupado(false);
+    if (msg) setErro(msg);
   };
 
   useEffect(() => {
@@ -90,12 +99,13 @@ export function EntrarTurma() {
         </form>
       )}
       {passo === 'apelido' && (
-        <form className="coluna" onSubmit={(ev) => { ev.preventDefault(); if (apelido.trim().length >= 2) { setErro(null); setPasso('pin'); } }}>
+        <form className="coluna" onSubmit={(ev) => { ev.preventDefault(); if (apelido.trim().length >= 2) { setErro(null); if (conta) void entrarComConta(); else setPasso('pin'); } }}>
           <div className="aviso aviso-ok">Turma encontrada: <strong>{turma}</strong></div>
           <label htmlFor="apelido-turma" className="display h3">Seu apelido na turma</label>
           <input id="apelido-turma" value={apelido} maxLength={14} onChange={(ev) => setApelido(ev.target.value)} autoComplete="off" style={{ ...campo, textAlign: 'center' }} />
           <p className="muted small" style={{ margin: 0 }}>Os colegas vão ver esse apelido no ranking e nas trocas.</p>
-          <button className="btn btn-amarelo btn-bloco" disabled={apelido.trim().length < 2}>Continuar</button>
+          <button className="btn btn-amarelo btn-bloco" disabled={apelido.trim().length < 2 || ocupado}>{conta ? (ocupado ? 'Entrando…' : 'Entrar na turma') : 'Continuar'}</button>
+          {conta && <p className="muted small" style={{ margin: 0 }}>Você continua com a mesma conta, as mesmas cartas e o mesmo PIN.</p>}
         </form>
       )}
       {passo === 'pin' && <Pin valor={pin} onChange={setPin} rotulo="Crie um PIN de 4 números" />}
@@ -152,6 +162,7 @@ export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; 
 /* ---------------- Quando ainda não tem turma ---------------- */
 function SemTurma({ titulo, texto }: { titulo: string; texto: ReactNode }) {
   const [entrando, setEntrando] = useState(false);
+  const { conta } = useConta();
   return (
     <main className="tela">
       <div>
@@ -165,7 +176,7 @@ function SemTurma({ titulo, texto }: { titulo: string; texto: ReactNode }) {
             <div className="balao" style={{ flex: 1, marginBottom: 14 }}>{texto}</div>
           </div>
           <button className="btn btn-amarelo btn-bloco" onClick={() => setEntrando(true)}>Entrar na minha turma</button>
-          <button className="btn btn-escuro btn-bloco" onClick={() => ir('entrar')}>Já tenho conta em outro aparelho</button>
+          {!conta && <button className="btn btn-escuro btn-bloco" onClick={() => ir('entrar')}>Já tenho conta em outro aparelho</button>}
           <div className="painel coluna" style={{ gap: 10 }}>
             {['Você precisa do código da turma, que o professor ou um adulto passa.', 'Só aparece seu apelido, nunca o nome completo.', 'Não tem chat: só propostas de troca de cartas.'].map((t) => (
               <div key={t} className="linha" style={{ gap: 10, fontWeight: 700 }}><span style={{ color: 'var(--t-cyan)' }}><Icone nome="escudo" tamanho={20} /></span>{t}</div>
@@ -188,16 +199,16 @@ export function Ranking() {
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!conta) return;
+    if (!conta?.codigo) return;
     (async () => {
       await sincronizar();
       const r = await api<{ eu: string; participantes: Participante[] }>('/crianca/ranking');
       if (r.erro) setErro(r.erro); else { setDados(r); setErro(null); }
     })();
-  }, [conta?.id, e.xp]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [conta?.codigo, e.xp]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (contaNovaR) return <ContaCriada />;
-  if (!conta) return <SemTurma titulo="Quem estudou mais?" texto={<>Entre na sua <strong>turma</strong> para ver o placar da semana com os colegas!</>} />;
+  if (!conta?.codigo) return <SemTurma titulo="Quem estudou mais?" texto={<>Entre na sua <strong>turma</strong> para ver o placar da semana com os colegas!</>} />;
 
   const lista = (dados?.participantes ?? []).slice().sort((a, b) => (aba === 'xp' ? b.xp - a.xp : b.cartas - a.cartas) || a.apelido.localeCompare(b.apelido));
   const valor = (p: Participante) => aba === 'xp' ? `${p.xp} XP` : `${p.cartas} ${p.cartas === 1 ? 'carta' : 'cartas'}`;
@@ -282,14 +293,14 @@ export function Trocas() {
     void verPropostas();
   };
   useEffect(() => {
-    if (!conta || modo !== 'lista') return;
+    if (!conta?.codigo || modo !== 'lista') return;
     void carregar();
     const t = setInterval(() => void carregar(), 20_000);
     return () => clearInterval(t);
-  }, [conta?.id, modo]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [conta?.codigo, modo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (contaNovaT) return <ContaCriada />;
-  if (!conta) {
+  if (!conta?.codigo) {
     const repetidas = Object.values(e.cartas).reduce((s, n) => s + Math.max(0, n - 1), 0);
     return <SemTurma titulo="Troque com os amigos" texto={<>Entre na sua <strong>turma</strong> para trocar cartas. Você já tem <strong>{repetidas}</strong> {repetidas === 1 ? 'carta repetida' : 'cartas repetidas'}!</>} />;
   }
@@ -481,37 +492,66 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
 
 /* ---------------- Minha conta ---------------- */
 export function MinhaConta() {
-  const { conta } = useConta();
+  const { conta, perfis } = useConta();
   const e = useEstado();
   const [confirmar, setConfirmar] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const outros = perfis.filter((p) => p.id !== conta?.id);
+  const sub = conta ? (conta.codigo ? `Turma ${conta.turma}` : 'Conta da família') : 'Salvo só neste aparelho';
+  const sairAgora = async () => {
+    setErro(null);
+    const msg = await sair();
+    if (msg) setErro(msg); else ir();
+  };
   return (
     <main className="tela">
       <button className="voltar" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Início</button>
       <h1 className="display h1">Minha conta</h1>
       <div className="painel linha">
         <Avatar nome={e.perfil?.nome ?? '?'} cor={e.perfil?.cor ?? CORES[0]} tamanho={56} />
-        <div><div className="display" style={{ fontSize: 22 }}>{e.perfil?.nome}</div><div className="muted small">{conta ? `Turma ${conta.turma}` : 'Ainda sem turma'}</div></div>
+        <div><div className="display" style={{ fontSize: 22 }}>{e.perfil?.nome}</div><div className="muted small">{sub}</div></div>
       </div>
-      {conta ? (
+      {!conta && (
         <>
-          <div className="painel coluna" style={{ gap: 4 }}>
-            <div className="muted small">Para entrar em outro aparelho:</div>
-            <div className="display" style={{ fontSize: 19 }}>Código: {conta.codigo}</div>
-            <div className="display" style={{ fontSize: 19 }}>Apelido: {conta.apelido}</div>
-            <div className="muted small">e o seu PIN secreto.</div>
+          <div className="linha" style={{ alignItems: 'flex-end' }}>
+            <Ara tamanho={80} />
+            <div className="balao" style={{ flex: 1, marginBottom: 14 }}>Suas cartas estão guardadas <strong>só neste aparelho</strong>. Se ele quebrar, elas somem! Peça para um adulto da sua casa criar a <strong>conta da família</strong>.</div>
           </div>
+          <button className="btn btn-amarelo btn-bloco" onClick={() => ir('adulto')}>Chamar um adulto</button>
+          <button className="btn btn-escuro btn-bloco" onClick={() => ir('trocas')}>Entrar na minha turma</button>
+          <button className="btn btn-escuro btn-bloco" onClick={() => ir('entrar')}>Já tenho conta na turma</button>
+        </>
+      )}
+      {conta && (
+        <>
+          {conta.codigo ? (
+            <div className="painel coluna" style={{ gap: 4 }}>
+              <div className="muted small">Para entrar em outro aparelho:</div>
+              <div className="display" style={{ fontSize: 19 }}>Código: {conta.codigo}</div>
+              <div className="display" style={{ fontSize: 19 }}>Apelido: {conta.apelido}</div>
+              <div className="muted small">e o seu PIN secreto.{conta.familia ? ' Ou peça para o adulto da sua família abrir seu perfil.' : ''}</div>
+            </div>
+          ) : (
+            <>
+              <div className="painel coluna" style={{ gap: 4 }}>
+                <div style={{ fontWeight: 800 }}>Suas cartas estão guardadas na conta da família.</div>
+                <div className="muted small">Em outro aparelho, peça para o adulto entrar na conta da família e abrir seu perfil.</div>
+              </div>
+              <button className="btn btn-amarelo btn-bloco" onClick={() => ir('trocas')}>Entrar na minha turma</button>
+            </>
+          )}
+          {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
           {!confirmar
             ? <button className="btn btn-escuro btn-bloco" onClick={() => setConfirmar(true)}>Sair da conta neste aparelho</button>
             : (
               <div className="aviso aviso-erro coluna">
-                <div>Seu progresso continua salvo na conta. Para voltar, use o código, o apelido e o PIN. Quer mesmo sair?</div>
-                <div className="linha"><button className="btn btn-escuro" style={{ flex: 1 }} onClick={() => setConfirmar(false)}>Não</button><button className="btn btn-vermelho" style={{ flex: 1 }} onClick={() => void sair().then(() => ir())}>Sair</button></div>
+                <div>Seu progresso continua salvo na conta. Este aparelho fica limpo até alguém entrar de novo. Quer mesmo sair?</div>
+                <div className="linha"><button className="btn btn-escuro" style={{ flex: 1 }} onClick={() => setConfirmar(false)}>Não</button><button className="btn btn-vermelho" style={{ flex: 1 }} onClick={() => void sairAgora()}>Sair</button></div>
               </div>
             )}
         </>
-      ) : (
-        <button className="btn btn-amarelo btn-bloco" onClick={() => ir('trocas')}>Entrar na minha turma</button>
       )}
+      {outros.length > 0 && <div className="painel"><EscolherPerfil perfis={outros} titulo="Trocar de perfil" aoEntrar={() => ir()} /></div>}
     </main>
   );
 }

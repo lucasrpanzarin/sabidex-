@@ -127,6 +127,7 @@ strong { color: var(--t-coral); font-weight: 900; }
 .barra-ciano > div { background: var(--cyan); }
 .barra-verde > div { background: var(--green); }
 .barra-amarela > div, .barra-amarela > span { background: var(--yellow); }
+.barra-rosa > div { background: var(--pink); }
 
 /* Barra de navegação */
 .nav {

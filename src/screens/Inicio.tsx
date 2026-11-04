@@ -3,7 +3,8 @@ import { Ara } from '../components/Ara';
 import { Pacote } from '../components/Pacote';
 import { Icone } from '../components/Icone';
 import { capitulos } from '../data';
-import { FASES, FASE_INFO, chave, nivel, sequencia } from '../lib/jogo';
+import { FASES, FASE_INFO, chave, hoje, nivel, sequencia } from '../lib/jogo';
+import { quantasHoje, MAX_POR_REVISAO } from '../lib/revisao';
 import { ir } from '../lib/rota';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import { useConta } from '../lib/conta';
@@ -11,10 +12,13 @@ import { Moeda, Saldo } from '../components/Loja';
 import { sabimons } from '../data';
 import { formaDe, podeEvoluir, saldo } from '../lib/loja';
 import { Desejo } from './Loja';
+import { EscolherPerfil } from '../components/Perfis';
 
 export const CORES = ['#22D3EE', '#F472B6', '#FACC15', '#4ADE80', '#FB923C', '#A78BFA'];
 
 export function BoasVindas() {
+  const { perfis } = useConta();
+  const [novo, setNovo] = useState(false);
   const [nome, setNome] = useState('');
   const [cor, setCor] = useState(CORES[0]);
   const ok = nome.trim().length >= 2;
@@ -23,6 +27,13 @@ export function BoasVindas() {
       <div className="logo" style={{ fontSize: 44 }}>Sabidex</div>
       <Ara tamanho={130} />
       <div className="balao" style={{ maxWidth: 320 }}>Oi! Eu sou o <strong>Ará</strong>. Vamos estudar, ganhar Sabimons e completar o álbum?</div>
+      {perfis.length > 0 && !novo && (
+        <div className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}>
+          <EscolherPerfil perfis={perfis} titulo="Quem vai jogar?" />
+          <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => setNovo(true)}>Sou outra criança</button>
+        </div>
+      )}
+      {(perfis.length === 0 || novo) && <>
       <form className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}
         onSubmit={(ev) => { ev.preventDefault(); if (ok) setEstado((e) => ({ ...e, perfil: { nome: nome.trim(), cor } })); }}>
         <label htmlFor="apelido" className="display h3">Como você quer ser chamado?</label>
@@ -42,6 +53,7 @@ export function BoasVindas() {
         <button className="btn btn-amarelo btn-bloco" disabled={!ok} style={{ marginTop: 8 }}>Começar</button>
       </form>
       <button type="button" className="btn btn-escuro btn-bloco" style={{ maxWidth: 340 }} onClick={() => ir('entrar')}>Já tenho conta na turma</button>
+      </>}
       <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => ir('adulto')}>Sou pai, mãe ou professor</button>
     </main>
   );
@@ -68,6 +80,8 @@ export function Inicio() {
   const feitasCap = prox ? FASES.filter((f) => e.feitas[chave(prox.cap.id, f)]).length : 5;
   const faltamPacote = prox ? (['memoria', 'quiz', 'prova'] as const).find((f) => !e.feitas[chave(prox.cap.id, f)]) : undefined;
   const fasesAte = faltamPacote && prox ? FASES.indexOf(faltamPacote) - FASES.indexOf(prox.fase) + 1 : 0;
+  const revisar = Math.min(quantasHoje(e.revisao, capitulos, hoje()), MAX_POR_REVISAO);
+  const pacoteDaRevisao = e.pacoteDia !== hoje();
 
   const evolui = sabimons.find((s) => podeEvoluir(e, s).ok);
   const fala = propostasNovas > 0
@@ -76,6 +90,8 @@ export function Inicio() {
     ? <>Você tem <strong>{e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</strong> esperando. Vamos abrir?</>
     : evolui
     ? <>Seu <strong>{evolui.formas[formaDe(e, evolui.id) - 1].nome}</strong> pode evoluir! Veja no álbum.</>
+    : revisar > 0
+    ? <>Tenho <strong>{revisar} {revisar > 1 ? 'perguntas' : 'pergunta'}</strong> para você lembrar hoje. Bora revisar?</>
     : prox && fasesAte > 0
       ? <>Mais <strong>{fasesAte} {fasesAte > 1 ? 'fases' : 'fase'}</strong> e você ganha um pacote de Sabimons!</>
       : <>Você terminou tudo! Repita as fases para ganhar mais XP.</>;
@@ -119,6 +135,17 @@ export function Inicio() {
           <Pacote tamanho="mini" epico={e.pacotes.some((p) => p.tipo === 'epico')} />
           <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 19, display: 'block' }}>{e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'} para abrir</span><span className="small" style={{ fontWeight: 800 }}>{e.pacotes.some((p) => p.tipo === 'epico') ? 'Tem pacote épico!' : 'Toque para abrir'}</span></span>
           <Icone nome="seguir" espessura={3} />
+        </button>
+      )}
+
+      {revisar > 0 && (
+        <button className="painel-destaque linha" onClick={() => ir('revisao')} style={{ textAlign: 'left', color: 'inherit', borderColor: 'var(--pink)' }}>
+          <span style={{ flex: 1 }}>
+            <span className="eyebrow" style={{ color: 'var(--t-pink)' }}>Revisão do Ará</span>
+            <span className="display" style={{ fontSize: 22, display: 'block', marginTop: 4 }}>{revisar} {revisar > 1 ? 'perguntas' : 'pergunta'} para lembrar</span>
+            <span className="muted small" style={{ display: 'block' }}>{pacoteDaRevisao ? 'Vale o pacote do dia!' : 'Lembrar de novo deixa a memória forte'}</span>
+          </span>
+          <span className="btn btn-rosa" style={{ minHeight: 44, padding: '8px 18px' }}>Revisar</span>
         </button>
       )}
 
