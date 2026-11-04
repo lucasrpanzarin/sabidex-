@@ -44,16 +44,16 @@ export function Privacidade() {
         Nunca pedimos nome completo, e-mail, telefone, foto, endereço ou localização da criança.
       </Parte>
       <Parte titulo="Quem vê o quê">
-        O adulto responsável vê o progresso dos filhos. O professor vê o apelido e o progresso dos alunos da turma dele.
+        O adulto responsável vê o progresso dos filhos. Os administradores da turma (quem criou a turma e os adultos que ele convidar, como o professor ou outro responsável) veem o apelido e o progresso dos alunos da turma.
         Colegas da mesma turma veem só o apelido, a cor, as cartas, o XP da semana e, se os adultos deixarem, se a criança está estudando agora.
       </Parte>
       <Parte titulo="Chat da turma">
         Existe um chat escrito só entre colegas da <strong>mesma turma da escola</strong>, num grupo único (não há mensagem privada).
-        Ele começa desligado: só funciona se o <strong>professor</strong> ligar para a turma <strong>e</strong> o <strong>responsável</strong> autorizar o filho.
-        O professor escolhe o horário (o padrão é das 7h às 21h).
-        O responsável e o professor podem <strong>ler todas as mensagens</strong>, e a criança é avisada disso na tela do chat.
+        Ele começa desligado: só funciona se um <strong>administrador da turma</strong> (como o professor) ligar o chat <strong>e</strong> o <strong>responsável</strong> autorizar o filho.
+        O administrador escolhe o horário (o padrão é das 7h às 21h).
+        O responsável e os administradores da turma (como o professor) podem <strong>ler todas as mensagens</strong>, e a criança é avisada disso na tela do chat.
         O app bloqueia palavrões, telefones, endereços, links, e-mails e nomes de redes sociais, e não aceita fotos nem áudios.
-        A criança pode tocar em "Avisar o professor" numa mensagem. O professor pode apagar mensagens e pausar as mensagens de um aluno.
+        A criança pode tocar em "Avisar um adulto" numa mensagem. Os administradores da turma podem apagar mensagens e pausar as mensagens de um aluno.
         As mensagens são apagadas sozinhas depois de 60 dias, ou na hora, junto com o perfil da criança.
       </Parte>
       <Parte titulo="Autorização dos pais">

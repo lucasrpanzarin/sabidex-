@@ -673,10 +673,10 @@ app.get('/adulto/eu', async (c) => {
 app.get('/adulto/turmas', async (c) => {
   const a = await adulto(c);
   if (!a) return erro(c, 401, 'Entre de novo.');
-  const sql = `SELECT t.id, t.nome, t.codigo, t.criado, d.nome AS dono, (SELECT COUNT(*) FROM criancas WHERE turma_id = t.id) AS criancas
-    FROM turmas t JOIN adultos d ON d.id = t.dono_id ${a.admin ? '' : 'WHERE t.dono_id = ?'} ORDER BY t.criado DESC`;
-  const st = c.env.DB.prepare(sql);
-  const r = await (a.admin ? st : st.bind(a.id)).all();
+  const sql = `SELECT t.id, t.nome, t.codigo, t.criado, d.nome AS dono, t.dono_id = ?1 AS sou_dono, (SELECT COUNT(*) FROM criancas WHERE turma_id = t.id) AS criancas
+    FROM turmas t JOIN adultos d ON d.id = t.dono_id
+    ${a.admin ? '' : 'WHERE t.dono_id = ?1 OR EXISTS (SELECT 1 FROM turma_admins WHERE turma_id = t.id AND adulto_id = ?1)'} ORDER BY t.criado DESC`;
+  const r = await c.env.DB.prepare(sql).bind(a.id).all();
   return c.json({ turmas: r.results });
 });
 
@@ -698,9 +698,12 @@ app.post('/adulto/turmas', async (c) => {
   return erro(c, 409, 'Não consegui gerar um código. Tente de novo.');
 });
 
+/** A turma, se o adulto é o dono, um administrador convidado ou o administrador geral. `dono` diz se pode mexer nos administradores. */
 async function turmaDoAdulto(c: C, a: { id: string; admin: boolean }) {
-  return c.env.DB.prepare(`SELECT id, nome, codigo FROM turmas WHERE id = ? ${a.admin ? '' : 'AND dono_id = ?'}`)
-    .bind(...(a.admin ? [c.req.param('id')] : [c.req.param('id'), a.id])).first<{ id: string; nome: string; codigo: string }>();
+  const t = await c.env.DB.prepare(`SELECT id, nome, codigo, dono_id FROM turmas WHERE id = ?1 AND (?2 = 1 OR dono_id = ?3
+      OR EXISTS (SELECT 1 FROM turma_admins WHERE turma_id = turmas.id AND adulto_id = ?3))`)
+    .bind(c.req.param('id'), a.admin ? 1 : 0, a.id).first<{ id: string; nome: string; codigo: string; dono_id: string }>();
+  return t ? { id: t.id, nome: t.nome, codigo: t.codigo, dono: t.dono_id === a.id || a.admin } : null;
 }
 
 app.get('/adulto/turmas/:id', async (c) => {
@@ -877,7 +880,11 @@ app.post('/adulto/apagar-conta', async (c) => {
     if (!iguais(await hashSegredo(String(b.senha ?? ''), a.senha_sal), a.senha_hash)) return erro(c, 401, 'Senha errada.');
   } else if (String(b.confirmar ?? '').trim().toUpperCase() !== 'APAGAR') return erro(c, 400, 'Escreva APAGAR para confirmar.');
   const db = c.env.DB;
-  const turmas = (await db.prepare('SELECT id FROM turmas WHERE dono_id = ?').bind(a.id).all<{ id: string }>()).results.map((t) => t.id);
+  // Turma com outro administrador passa para ele (o mais antigo) em vez de sumir.
+  const minhas = (await db.prepare(`SELECT t.id, (SELECT adulto_id FROM turma_admins WHERE turma_id = t.id AND adulto_id != ?1 ORDER BY criado LIMIT 1) AS herdeiro
+    FROM turmas t WHERE t.dono_id = ?1`).bind(a.id).all<{ id: string; herdeiro: string | null }>()).results;
+  const passar = minhas.filter((t) => t.herdeiro);
+  const turmas = minhas.filter((t) => !t.herdeiro).map((t) => t.id);
   const nasTurmas = turmas.length
     ? (await db.prepare(`SELECT id, familia_id FROM criancas WHERE turma_id IN (${turmas.map(() => '?').join(',')})`).bind(...turmas).all<{ id: string; familia_id: string | null }>()).results
     : [];
@@ -890,6 +897,12 @@ app.post('/adulto/apagar-conta', async (c) => {
     ...turmas.map((t) => db.prepare('DELETE FROM turmas WHERE id = ?').bind(t)),
     ...turmas.flatMap((t) => [db.prepare('DELETE FROM mensagens WHERE turma_id = ?').bind(t), db.prepare('DELETE FROM avisos_chat WHERE turma_id = ?').bind(t)]),
     ...[...turmas, turmaDaFamilia(a.id)].map((t) => db.prepare('DELETE FROM datas_prova WHERE turma_id = ?').bind(t)),
+    ...passar.flatMap((t) => [
+      db.prepare('UPDATE turmas SET dono_id = ? WHERE id = ?').bind(t.herdeiro, t.id),
+      db.prepare('DELETE FROM turma_admins WHERE turma_id = ? AND adulto_id = ?').bind(t.id, t.herdeiro),
+    ]),
+    ...turmas.flatMap((t) => [db.prepare('DELETE FROM turma_admins WHERE turma_id = ?').bind(t), db.prepare('DELETE FROM convites_admin WHERE turma_id = ?').bind(t)]),
+    db.prepare('DELETE FROM turma_admins WHERE adulto_id = ?').bind(a.id),
     db.prepare(`DELETE FROM sessoes WHERE tipo = 'adulto' AND ref_id = ?`).bind(a.id),
     db.prepare('DELETE FROM adultos WHERE id = ?').bind(a.id),
   ]);
@@ -933,10 +946,10 @@ const turmaChat = (db: D1Database, id: string) =>
 /** Por que a criança não pode escrever agora (ou null se pode). */
 function bloqueioChat(t: TurmaChat | null, k: Crianca): { motivo: string; texto: string } | null {
   if (!t) return { motivo: 'sem-turma', texto: 'Entre numa turma para conversar com os colegas.' };
-  if (!t.chat) return { motivo: 'desligado', texto: 'O chat da turma ainda não foi ligado pelo professor.' };
+  if (!t.chat) return { motivo: 'desligado', texto: 'O chat da turma ainda não foi ligado pelo professor ou pelos adultos da turma.' };
   if (!k.familia_id) return { motivo: 'sem-familia', texto: 'Para usar o chat, peça para seu responsável criar a conta da família no Sabidex e liberar o chat para você.' };
   if (!k.chat_ok) return { motivo: 'sem-autorizacao', texto: 'Peça para seu responsável liberar o chat na área dos adultos.' };
-  if (k.mudo_ate > Date.now()) return { motivo: 'silenciado', texto: 'O professor pausou suas mensagens por um tempo. Você ainda pode ler.' };
+  if (k.mudo_ate > Date.now()) return { motivo: 'silenciado', texto: 'Um adulto da turma pausou suas mensagens por um tempo. Você ainda pode ler.' };
   if (!dentroDoHorario(t.chat_inicio, t.chat_fim)) return { motivo: 'horario', texto: `O chat abre das ${t.chat_inicio}h às ${t.chat_fim}h.` };
   return null;
 }
@@ -992,7 +1005,7 @@ app.post('/crianca/chat', async (c) => {
   return c.json({ id: m.id, de: k.id, apelido: k.apelido, cor: k.cor, texto: conf.texto, criado: m.criado, minha: true });
 });
 
-/** "Avisar o professor" sobre uma mensagem. */
+/** "Avisar um adulto" sobre uma mensagem (vai para os administradores da turma). */
 app.post('/crianca/chat/:mid/avisar', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
@@ -1107,6 +1120,76 @@ app.get('/adulto/familia/:cid/chat', async (c) => {
   const t = await turmaChat(c.env.DB, k.turma_id);
   const mensagens = (await mensagensDa(c.env.DB, k.turma_id, { limite: 500, comApagadas: true })).map((m) => ({ ...m, doFilho: m.crianca_id === k.id }));
   return c.json({ turma: t ? { nome: t.nome, chat: t.chat, inicio: t.chat_inicio, fim: t.chat_fim } : null, mensagens });
+});
+
+
+/* ============================ Administradores da turma ============================ */
+// O dono (quem criou) convida outros adultos com um código. Eles podem quase tudo na turma;
+// só o dono convida e remove administradores.
+
+const LETRAS_CONVITE = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function codigoConvite() {
+  const b = crypto.getRandomValues(new Uint8Array(8));
+  const x = [...b].map((n) => LETRAS_CONVITE[n % LETRAS_CONVITE.length]).join('');
+  return `ADM-${x.slice(0, 4)}-${x.slice(4)}`;
+}
+const normalizarConvite = (s: string) => s.toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/^ADM(?=.{8}$)/, '');
+
+app.get('/adulto/turmas/:id/admins', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const t = await turmaDoAdulto(c, a);
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  const r = await c.env.DB.prepare(`SELECT d.id, d.nome, 1 AS dono FROM turmas t JOIN adultos d ON d.id = t.dono_id WHERE t.id = ?1
+    UNION ALL SELECT d.id, d.nome, 0 AS dono FROM turma_admins x JOIN adultos d ON d.id = x.adulto_id WHERE x.turma_id = ?1`).bind(t.id).all();
+  return c.json({ admins: r.results, eu: a.id, souDono: t.dono });
+});
+
+/** O dono gera um código de convite (vale 7 dias, uma vez só). */
+app.post('/adulto/turmas/:id/convite', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const t = await turmaDoAdulto(c, a);
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  if (!t.dono) return erro(c, 403, 'Só quem criou a turma pode convidar administradores.');
+  const db = c.env.DB;
+  await db.prepare('DELETE FROM convites_admin WHERE expira < ? OR usado = 1').bind(Date.now()).run();
+  const ativos = await db.prepare('SELECT COUNT(*) n FROM convites_admin WHERE turma_id = ?').bind(t.id).first<{ n: number }>();
+  if ((ativos?.n ?? 0) >= 5) return erro(c, 429, 'Já tem 5 convites esperando. Espere usarem ou vencerem (7 dias).');
+  const codigo = codigoConvite();
+  const expira = Date.now() + 7 * DIA;
+  await db.prepare('INSERT INTO convites_admin (codigo_hash, turma_id, criado, expira) VALUES (?, ?, ?, ?)').bind(await sha256(normalizarConvite(codigo)), t.id, Date.now(), expira).run();
+  return c.json({ codigo, expira });
+});
+
+/** Um adulto usa o código e vira administrador da turma. */
+app.post('/adulto/convite', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const db = c.env.DB;
+  const h = await sha256(normalizarConvite(String((await corpo(c)).codigo ?? '')));
+  const v = await db.prepare('SELECT turma_id, expira, usado FROM convites_admin WHERE codigo_hash = ?').bind(h).first<{ turma_id: string; expira: number; usado: number }>();
+  if (!v || v.usado || v.expira < Date.now()) return erro(c, 404, 'Esse convite não vale (já foi usado ou passou de 7 dias). Peça um novo para quem criou a turma.');
+  const t = await db.prepare('SELECT id, nome, dono_id FROM turmas WHERE id = ?').bind(v.turma_id).first<{ id: string; nome: string; dono_id: string }>();
+  if (!t) return erro(c, 404, 'Essa turma não existe mais.');
+  if (t.dono_id === a.id) return erro(c, 409, 'Você já é o dono dessa turma.');
+  const usar = await db.prepare('UPDATE convites_admin SET usado = 1 WHERE codigo_hash = ? AND usado = 0').bind(h).run();
+  if (!usar.meta.changes) return erro(c, 404, 'Esse convite já foi usado.');
+  await db.prepare('INSERT OR IGNORE INTO turma_admins (turma_id, adulto_id, criado) VALUES (?, ?, ?)').bind(t.id, a.id, Date.now()).run();
+  return c.json({ turma: { id: t.id, nome: t.nome } });
+});
+
+/** O dono remove um administrador, ou o próprio administrador sai. */
+app.delete('/adulto/turmas/:id/admins/:aid', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const t = await turmaDoAdulto(c, a);
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  const aid = c.req.param('aid');
+  if (!t.dono && aid !== a.id) return erro(c, 403, 'Só quem criou a turma pode remover administradores.');
+  const r = await c.env.DB.prepare('DELETE FROM turma_admins WHERE turma_id = ? AND adulto_id = ?').bind(t.id, aid).run();
+  if (!r.meta.changes) return erro(c, 404, 'Administrador não encontrado.');
+  return c.json({ ok: true });
 });
 
 export default {

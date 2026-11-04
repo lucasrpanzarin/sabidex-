@@ -121,7 +121,7 @@ export const MIGRACOES = [
   )`,
   `CREATE INDEX IF NOT EXISTS mensagens_turma ON mensagens (turma_id, criado)`,
   `CREATE INDEX IF NOT EXISTS mensagens_crianca ON mensagens (crianca_id, criado)`,
-  // "Avisar o professor" numa mensagem.
+  // "Avisar um adulto" numa mensagem (vai para os administradores da turma).
   `CREATE TABLE IF NOT EXISTS avisos_chat (
     id TEXT PRIMARY KEY,
     turma_id TEXT NOT NULL,
@@ -130,6 +130,23 @@ export const MIGRACOES = [
     criado INTEGER NOT NULL,
     resolvido INTEGER NOT NULL DEFAULT 0,
     UNIQUE (mensagem_id, por_id)
+  )`,
+  // Administradores da turma além do dono (ex.: o pai criou a turma e convidou o professor).
+  // Podem quase tudo; só o dono convida e remove administradores.
+  `CREATE TABLE IF NOT EXISTS turma_admins (
+    turma_id TEXT NOT NULL,
+    adulto_id TEXT NOT NULL,
+    criado INTEGER NOT NULL,
+    PRIMARY KEY (turma_id, adulto_id)
+  )`,
+  `CREATE INDEX IF NOT EXISTS turma_admins_adulto ON turma_admins (adulto_id)`,
+  // Convite para administrar: o código fica embaralhado (hash). Vale 7 dias e uma vez só.
+  `CREATE TABLE IF NOT EXISTS convites_admin (
+    codigo_hash TEXT PRIMARY KEY,
+    turma_id TEXT NOT NULL,
+    criado INTEGER NOT NULL,
+    expira INTEGER NOT NULL,
+    usado INTEGER NOT NULL DEFAULT 0
   )`,
 ];
 

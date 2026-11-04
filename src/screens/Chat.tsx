@@ -98,7 +98,7 @@ export function Chat() {
 
       <div className="chat-vigia" role="note">
         <span aria-hidden="true">👀</span>
-        <span>Seu <strong>responsável</strong> e seu <strong>professor</strong> podem ler tudo o que você escreve aqui. Seja gentil!</span>
+        <span>Seu <strong>responsável</strong> e os <strong>adultos da turma</strong> (como o professor) podem ler tudo o que você escreve aqui. Seja gentil!</span>
       </div>
 
       {dados && dados.online.length > 0 && (
@@ -135,12 +135,12 @@ export function Chat() {
                     <div className="chat-rodape">
                       <span>{hora(m.criado)}</span>
                       {!m.minha && (avisados.has(m.id)
-                        ? <span>Professor avisado</span>
-                        : <button className="chat-avisar" onClick={() => setAvisar(m.id)}>Avisar o professor</button>)}
+                        ? <span>Adulto avisado</span>
+                        : <button className="chat-avisar" onClick={() => setAvisar(m.id)}>Avisar um adulto</button>)}
                     </div>
                     {avisar === m.id && (
                       <div className="chat-confirma">
-                        <span>Essa mensagem foi chata ou ruim? O professor vai ver.</span>
+                        <span>Essa mensagem foi chata ou ruim? Os adultos da turma vão ver.</span>
                         <div className="linha" style={{ gap: 6 }}>
                           <button className="btn btn-coral" style={{ minHeight: 38, fontSize: 14, flex: 1 }} onClick={() => void confirmarAviso(m.id)}>Avisar</button>
                           <button className="btn btn-escuro" style={{ minHeight: 38, fontSize: 14, flex: 1 }} onClick={() => setAvisar(null)}>Cancelar</button>

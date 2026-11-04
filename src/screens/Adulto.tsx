@@ -18,7 +18,7 @@ const campo: React.CSSProperties = { font: 'inherit', fontWeight: 700, fontSize:
 const rotulo: React.CSSProperties = { fontWeight: 800 };
 const botaoPequeno: React.CSSProperties = { flex: 1, minHeight: 40, fontSize: 15 };
 
-interface Turma { id: string; nome: string; codigo: string; criancas: number; dono: string }
+interface Turma { id: string; nome: string; codigo: string; criancas: number; dono: string; sou_dono?: number }
 interface Kid { id: string; apelido: string; cor: string; xp: number | null; xp_semana: number; cartas: number; visto: number; bloqueado_ate: number; familia: number; chat_ok: number; mudo_ate: number; online: number }
 interface Filho { id: string; apelido: string; cor: string; xp: number | null; cartas: number; visto: number; bloqueado_ate: number; turma: string | null; codigo: string | null; chat_ok: number; mostrar_online: number; turma_chat: number | null }
 
@@ -584,6 +584,7 @@ function LigarConta({ token, aoFechar, aoLigar }: { token: string; aoFechar: () 
 function Turmas({ token, admin }: { token: string; admin: boolean }) {
   const [turmas, setTurmas] = useState<Turma[] | null>(null);
   const [aberto, setAberto] = useState(false);
+  const [convite, setConvite] = useState<string | null>(null);
   const [nome, setNome] = useState('');
   const [erro, setErro] = useState<string | null>(null);
   const carregar = () => api<{ turmas: Turma[] }>('/adulto/turmas', { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : setTurmas(r.turmas)));
@@ -595,6 +596,13 @@ function Turmas({ token, admin }: { token: string; admin: boolean }) {
     setNome('');
     ir('adulto', r.turma.id);
   };
+  const usarConvite = async () => {
+    setErro(null);
+    const r = await api<{ turma: { id: string } }>('/adulto/convite', { corpo: { codigo: convite }, tokenProprio: token });
+    if (r.erro) return setErro(r.erro);
+    setConvite(null);
+    ir('adulto', r.turma.id);
+  };
   return (
     <section className="coluna" aria-label="Turmas">
       <h2 className="display h2" style={{ marginTop: 12 }}>Turmas</h2>
@@ -604,7 +612,7 @@ function Turmas({ token, admin }: { token: string; admin: boolean }) {
         <button key={t.id} className="painel-destaque linha" onClick={() => ir('adulto', t.id)} style={{ textAlign: 'left', color: 'inherit' }}>
           <span style={{ flex: 1 }}>
             <span className="display" style={{ fontSize: 20, display: 'block' }}>{t.nome}</span>
-            <span className="muted small">Código {t.codigo} · {t.criancas} {t.criancas === 1 ? 'criança' : 'crianças'}{admin ? ` · de ${t.dono}` : ''}</span>
+            <span className="muted small">Código {t.codigo} · {t.criancas} {t.criancas === 1 ? 'criança' : 'crianças'}{admin || !t.sou_dono ? ` · criada por ${t.dono}` : ''}{!t.sou_dono && !admin ? ' · você é administrador' : ''}</span>
           </span>
           <Icone nome="seguir" />
         </button>
@@ -616,6 +624,19 @@ function Turmas({ token, admin }: { token: string; admin: boolean }) {
           <button className="btn btn-amarelo btn-bloco" disabled={nome.trim().length < 2}>Criar e gerar código</button>
         </form>
       ) : <button className="btn btn-escuro btn-bloco" onClick={() => setAberto(true)}>Criar turma</button>}
+      {convite === null ? (
+        <button className="btn btn-escuro btn-bloco" onClick={() => setConvite('')}>Tenho um convite para administrar uma turma</button>
+      ) : (
+        <form className="painel coluna" onSubmit={(ev) => { ev.preventDefault(); void usarConvite(); }}>
+          <label htmlFor="t-convite" className="display h3">Convite de administrador</label>
+          <span className="muted small">Quem criou a turma gera esse código e manda para você. Ele vale 7 dias e uma vez só.</span>
+          <input id="t-convite" style={{ ...campo, textTransform: 'uppercase', letterSpacing: '.06em' }} placeholder="ADM-XXXX-XXXX" value={convite} maxLength={20} autoComplete="off" onChange={(ev) => setConvite(ev.target.value)} />
+          <div className="linha" style={{ gap: 8 }}>
+            <button type="button" className="btn btn-escuro" style={{ flex: 1 }} onClick={() => setConvite(null)}>Cancelar</button>
+            <button className="btn btn-amarelo" style={{ flex: 1 }} disabled={convite.replace(/[^a-z0-9]/gi, '').length < 8}>Entrar</button>
+          </div>
+        </form>
+      )}
     </section>
   );
 }
@@ -658,6 +679,58 @@ function ApagarConta({ token, temSenha, aoApagar }: { token: string; temSenha: b
           </div>
         </form>
       )}
+    </section>
+  );
+}
+
+/** Quem administra a turma. O dono convida (código) e remove; os outros podem sair. */
+function Administradores({ token, id, nomeTurma }: { token: string; id: string; nomeTurma: string }) {
+  const [dados, setDados] = useState<{ admins: { id: string; nome: string; dono: number }[]; eu: string; souDono: boolean } | null>(null);
+  const [codigo, setCodigo] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [copiado, setCopiado] = useState(false);
+  const [tirar, setTirar] = useState<string | null>(null);
+  const carregar = () => api<{ admins: { id: string; nome: string; dono: number }[]; eu: string; souDono: boolean }>(`/adulto/turmas/${id}/admins`, { tokenProprio: token })
+    .then((r) => (r.erro ? setErro(r.erro) : setDados(r)));
+  useEffect(() => { void carregar(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!dados) return null;
+  const texto = codigo ? `Você foi convidado para ajudar a administrar a turma "${nomeTurma}" no Sabidex. Entre em ${location.origin}/, vá na área dos adultos, crie sua conta (se ainda não tiver) e, em Turmas, toque em "Tenho um convite" e digite o código ${codigo}. Vale 7 dias.` : '';
+  const gerar = async () => {
+    setErro(null);
+    const r = await api<{ codigo: string }>(`/adulto/turmas/${id}/convite`, { corpo: {}, tokenProprio: token });
+    if (r.erro) setErro(r.erro); else setCodigo(r.codigo);
+  };
+  const remover = async (aid: string) => {
+    const r = await api(`/adulto/turmas/${id}/admins/${aid}`, { metodo: 'DELETE', tokenProprio: token });
+    setTirar(null);
+    if (r.erro) return setErro(r.erro);
+    if (aid === dados.eu) ir('adulto'); else void carregar();
+  };
+  const copiar = async () => { try { await navigator.clipboard.writeText(texto); setCopiado(true); setTimeout(() => setCopiado(false), 2500); } catch { /* */ } };
+  return (
+    <section className="painel coluna" style={{ gap: 8 }} aria-label="Administradores">
+      <h2 className="display h3" style={{ margin: 0 }}>Administradores</h2>
+      <p className="muted small" style={{ margin: 0 }}>Podem ver as crianças, trocar PIN, marcar provas e cuidar do chat. Só quem criou a turma convida e remove administradores.</p>
+      {dados.admins.map((x) => (
+        <div key={x.id} className="linha" style={{ gap: 8 }}>
+          <span style={{ flex: 1, fontWeight: 800 }}>{x.nome}{x.id === dados.eu ? ' (você)' : ''} <span className="muted small">· {x.dono ? 'criou a turma' : 'administrador'}</span></span>
+          {!x.dono && (dados.souDono || x.id === dados.eu) && (tirar === x.id ? (
+            <>
+              <button className="btn btn-vermelho" style={{ minHeight: 34, fontSize: 13, padding: '0 10px' }} onClick={() => void remover(x.id)}>{x.id === dados.eu ? 'Sair' : 'Remover'}</button>
+              <button className="btn btn-escuro" style={{ minHeight: 34, fontSize: 13, padding: '0 10px' }} onClick={() => setTirar(null)}>Não</button>
+            </>
+          ) : <button className="chat-avisar" onClick={() => setTirar(x.id)}>{x.id === dados.eu ? 'Sair da administração' : 'Remover'}</button>)}
+        </div>
+      ))}
+      {dados.souDono && (codigo ? (
+        <div className="aviso aviso-ok coluna" style={{ gap: 6 }}>
+          <span className="small">Código de convite (vale 7 dias, uma vez só):</span>
+          <span className="display" style={{ fontSize: 24, color: 'var(--t-yellow)', letterSpacing: '.04em', userSelect: 'all' }}>{codigo}</span>
+          <span className="small" style={{ userSelect: 'all' }}>{texto}</span>
+          <button className="btn btn-ciano" style={{ minHeight: 40, fontSize: 15 }} onClick={() => void copiar()}>{copiado ? 'Copiado!' : 'Copiar convite'}</button>
+        </div>
+      ) : <button className="btn btn-escuro" style={{ minHeight: 42, fontSize: 15 }} onClick={() => void gerar()}>Convidar administrador (professor ou outro responsável)</button>)}
+      {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
     </section>
   );
 }
@@ -791,6 +864,7 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
       )}
       <DatasDasProvas token={token} rota={`/adulto/turmas/${id}/provas`} provas={dados.provas ?? {}} aoMudar={(p) => setDados({ ...dados, provas: p })}
         ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque para as crianças. Depois, continua aberto e valendo para quem chegou depois ou quer revisar." />
+      <Administradores token={token} id={id} nomeTurma={turma.nome} />
       {dados.chat && <ChatDaTurma token={token} id={id} chat={dados.chat} avisos={dados.avisos ?? 0} criancas={criancas} aoMudar={() => void carregar()} />}
       <h2 className="display h3">{criancas.length} {criancas.length === 1 ? 'criança' : 'crianças'}</h2>
       {criancas.length === 0 && <p className="muted">Ninguém entrou ainda. Mande o convite acima.</p>}
