@@ -1,49 +1,33 @@
 {
-  "quando": "2026-11-04T18:44:48.795Z",
+  "quando": "2026-11-04T19:33:53.392Z",
   "imagens": [
     {
-      "nome": "fogo",
-      "pulado": "já existe"
+      "nome": "ara-feliz",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "agua",
-      "pulado": "já existe"
+      "nome": "ara-pensando",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "planta",
-      "pulado": "já existe"
+      "nome": "ara-comemorando",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "raio",
-      "pulado": "já existe"
-    },
-    {
-      "nome": "pedra",
-      "pulado": "já existe"
-    },
-    {
-      "nome": "vento",
-      "pulado": "já existe"
-    },
-    {
-      "nome": "areia",
-      "pulado": "já existe"
-    },
-    {
-      "nome": "gelo",
-      "pulado": "já existe"
-    },
-    {
-      "nome": "som",
-      "pulado": "já existe"
-    },
-    {
-      "nome": "estrela",
-      "pulado": "já existe"
+      "nome": "ara-triste",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
     }
   ],
   "pedido": {
-    "acao": "cenarios"
+    "acao": "mascote"
   },
   "ok": true
 }
