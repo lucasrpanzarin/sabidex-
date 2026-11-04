@@ -1,1 +1,1 @@
-{ "acao": "cenarios" }
+{ "acao": "gerar", "formas": [2], "refazer": true, "numeros": ["014"], "so": ["014-2"] }
