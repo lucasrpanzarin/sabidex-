@@ -1,0 +1,141 @@
+// Gera a arte dos Sabimons com o Higgsfield. Lê arte/pedido.json e grava em arte/sabimons/originais/.
+// A chave fica no GitHub (Settings → Secrets and variables → Actions):
+//   HIGGSFIELD_API_KEY = "<key id>:<key secret>"   (ou HF_API_KEY e HF_API_SECRET separados)
+//
+// Pedido (arte/pedido.json):
+//   { "acao": "gerar", "formas": [1], "numeros": ["001", ...] }
+//   - forma 1 nasce só do texto; formas 2 e 3 usam a forma 1 como imagem de referência.
+//   - imagens que já existem não são refeitas, a não ser com "refazer": true.
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+
+const BASE = process.env.HIGGSFIELD_BASE ?? 'https://platform.higgsfield.ai';
+const PASTA = 'arte/sabimons/originais';
+const REFS = 'arte/sabimons/referencias.json';
+
+const chave = process.env.HIGGSFIELD_API_KEY
+  ?? (process.env.HF_API_KEY && process.env.HF_API_SECRET ? `${process.env.HF_API_KEY}:${process.env.HF_API_SECRET}` : undefined);
+
+interface Sabimon { numero: string; nomes: string[]; tipo: string; formas: string[] }
+interface Pedido {
+  acao: 'gerar';
+  formas: number[];
+  numeros?: string[];
+  refazer?: boolean;
+  /** modelo para a forma 1 (só texto) */
+  modelo?: string;
+  /** modelo para as formas 2 e 3 (texto + imagem de referência) */
+  modeloRef?: string;
+  /** campos extras mandados em todo pedido ao Higgsfield */
+  extra?: Record<string, unknown>;
+}
+
+const ESTILO = 'Cute collectible creature character, 3D vinyl toy style, soft rounded shapes, big shiny expressive eyes, friendly face, vibrant saturated colors, smooth soft studio lighting, full body, front three-quarter view, centered, plain white background, no text, no logo, no frame. Original design, not based on any existing franchise.';
+const MESMO_BICHO = 'This is the evolved form of the creature in the reference image: keep the exact same species, face, eye shape, color palette and markings so it is clearly the same character, only older and bigger.';
+
+const resultado: Record<string, unknown> = { quando: new Date().toISOString(), imagens: [] as unknown[] };
+const salvar = () => writeFileSync('arte/resultado.json', JSON.stringify(resultado, null, 2) + '\n');
+const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function api(caminho: string, init: RequestInit = {}) {
+  const url = caminho.startsWith('http') ? caminho : BASE + caminho;
+  const r = await fetch(url, {
+    ...init,
+    headers: { Authorization: `Key ${chave}`, 'Content-Type': 'application/json', Accept: 'application/json', ...(init.headers ?? {}) },
+  });
+  const texto = await r.text();
+  if (!r.ok) throw new Error(`${init.method ?? 'GET'} ${url}: HTTP ${r.status} ${texto.slice(0, 600)}`);
+  try { return JSON.parse(texto) as Record<string, any>; } catch { throw new Error(`${url}: resposta não é JSON: ${texto.slice(0, 300)}`); }
+}
+
+function urlDaImagem(j: Record<string, any>): string | undefined {
+  return j.images?.[0]?.url ?? j.image?.url ?? j.output?.images?.[0]?.url ?? j.results?.[0]?.url ?? j.jobs?.[0]?.results?.raw?.url;
+}
+
+/** Manda o pedido e espera a imagem ficar pronta. Devolve o endereço da imagem. */
+async function gerarImagem(modelo: string, corpo: Record<string, unknown>) {
+  const envio = await api(`/${modelo}`, { method: 'POST', body: JSON.stringify(corpo) });
+  const pronta = urlDaImagem(envio);
+  if (pronta) return pronta;
+  const id = envio.request_id ?? envio.id;
+  const statusUrl: string = envio.status_url ?? `/requests/${id}/status`;
+  if (!id && !envio.status_url) throw new Error(`Resposta sem id: ${JSON.stringify(envio).slice(0, 400)}`);
+  const limite = Date.now() + 8 * 60_000;
+  while (Date.now() < limite) {
+    await espera(4000);
+    const s = await api(statusUrl);
+    const st = String(s.status ?? '').toLowerCase();
+    if (st === 'completed' || st === 'succeeded') {
+      const u = urlDaImagem(s);
+      if (!u) throw new Error(`Pronto mas sem imagem: ${JSON.stringify(s).slice(0, 400)}`);
+      return u;
+    }
+    if (['failed', 'nsfw', 'canceled', 'cancelled', 'error'].includes(st)) throw new Error(`Higgsfield recusou (${st}): ${JSON.stringify(s).slice(0, 400)}`);
+  }
+  throw new Error(`Demorou demais (pedido ${id}).`);
+}
+
+async function baixarPng(url: string, destino: string) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`baixar ${url}: HTTP ${r.status}`);
+  const bytes = Buffer.from(await r.arrayBuffer());
+  const sharp = (await import('sharp')).default;
+  const img = sharp(bytes);
+  const { width = 0, height = 0 } = await img.metadata();
+  await img.png().toFile(destino);
+  return { largura: width, altura: height };
+}
+
+/** Endereço público da forma 1 para servir de referência. */
+async function referencia(numero: string, refs: Record<string, string>) {
+  const salva = refs[`${numero}-1`];
+  if (salva) {
+    const r = await fetch(salva, { method: 'HEAD' }).catch(() => undefined);
+    if (r?.ok) return salva;
+  }
+  const repo = process.env.GITHUB_REPOSITORY;
+  if (repo) {
+    const raw = `https://raw.githubusercontent.com/${repo}/main/${PASTA}/${numero}-1.png`;
+    const r = await fetch(raw, { method: 'HEAD' }).catch(() => undefined);
+    if (r?.ok) return raw;
+  }
+  throw new Error(`Não achei um endereço público da forma 1 do ${numero}. Gere a forma 1 de novo.`);
+}
+
+async function main() {
+  const p: Pedido = JSON.parse(readFileSync('arte/pedido.json', 'utf8'));
+  resultado.pedido = p;
+  if (!chave) throw new Error('Falta o segredo HIGGSFIELD_API_KEY no GitHub.');
+  const lista: Sabimon[] = JSON.parse(readFileSync('arte/sabimons/lista.json', 'utf8'));
+  const refs: Record<string, string> = existsSync(REFS) ? JSON.parse(readFileSync(REFS, 'utf8')) : {};
+  const modelo = p.modelo ?? 'bytedance/seedream/v4/text-to-image';
+  const modeloRef = p.modeloRef ?? 'bytedance/seedream/v4/edit';
+  mkdirSync(PASTA, { recursive: true });
+
+  const feitos = resultado.imagens as unknown[];
+  for (const forma of [...p.formas].sort()) {
+    for (const s of lista.filter((x) => !p.numeros || p.numeros.includes(x.numero))) {
+      const nome = `${s.numero}-${forma}`;
+      const destino = `${PASTA}/${nome}.png`;
+      if (existsSync(destino) && !p.refazer) { feitos.push({ nome, pulado: 'já existe' }); continue; }
+      const prompt = `${ESTILO} ${s.formas[forma - 1]}`;
+      const corpo: Record<string, unknown> = { prompt, aspect_ratio: '1:1', resolution: '2K', ...(p.extra ?? {}) };
+      let usado = modelo;
+      if (forma > 1) {
+        corpo.prompt = `${prompt} ${MESMO_BICHO}`;
+        corpo.image_urls = [await referencia(s.numero, refs)];
+        usado = modeloRef;
+      }
+      const url = await gerarImagem(usado, corpo);
+      const tamanho = await baixarPng(url, destino);
+      refs[nome] = url;
+      writeFileSync(REFS, JSON.stringify(refs, null, 2) + '\n');
+      feitos.push({ nome, sabimon: s.nomes[forma - 1], modelo: usado, ...tamanho });
+      salvar();
+    }
+  }
+  resultado.ok = true;
+}
+
+main()
+  .catch((e) => { resultado.ok = false; resultado.erro = String(e).slice(0, 1500); console.error(e); })
+  .finally(salvar);

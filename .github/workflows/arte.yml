@@ -1,0 +1,37 @@
+# Gera a arte dos Sabimons com o Higgsfield.
+# Dispara quando o arquivo arte/pedido.json muda. A chave fica em
+# Settings → Secrets and variables → Actions → HIGGSFIELD_API_KEY (formato "key_id:key_secret").
+name: Arte (Higgsfield)
+on:
+  push:
+    branches: [main]
+    paths: ['arte/pedido.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: arte
+jobs:
+  arte:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Gerar
+        env:
+          HIGGSFIELD_API_KEY: ${{ secrets.HIGGSFIELD_API_KEY }}
+          HF_API_KEY: ${{ secrets.HF_API_KEY }}
+          HF_API_SECRET: ${{ secrets.HF_API_SECRET }}
+        run: |
+          npm ci
+          npm install --no-save sharp
+          [ -n "$HIGGSFIELD_API_KEY" ] || unset HIGGSFIELD_API_KEY
+          npx tsx scripts/arte.ts
+      - name: Salvar no repositório
+        run: |
+          git config user.name "sabidex-arte"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A arte
+          git diff --cached --quiet || git commit -m "Arte: resultado do pedido"
+          git pull --rebase origin main && git push
