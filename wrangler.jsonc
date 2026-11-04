@@ -19,5 +19,12 @@
     // Quem vê todas as turmas (administrador geral).
     "ADMIN_EMAILS": "lucasrpanzarin@gmail.com,lucas@fastgsa.com"
   },
+  // Versões de teste (cada ramo do GitHub ganha um endereço de prévia).
+  // A Cloudflare exige que as variáveis sejam repetidas aqui.
+  "previews": {
+    "vars": {
+      "ADMIN_EMAILS": "lucasrpanzarin@gmail.com,lucas@fastgsa.com"
+    }
+  },
   "observability": { "enabled": true }
 }
