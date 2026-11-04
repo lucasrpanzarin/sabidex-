@@ -6,54 +6,54 @@ import { capitulos } from '../data';
 import { FASES, FASE_INFO, chave, hoje, nivel, sequencia } from '../lib/jogo';
 import { quantasHoje, MAX_POR_REVISAO } from '../lib/revisao';
 import { ir } from '../lib/rota';
-import { getEstado, setEstado, useEstado } from '../lib/store';
+import { getEstado, useEstado } from '../lib/store';
 import { useConta } from '../lib/conta';
 import { Moeda, Saldo } from '../components/Loja';
 import { sabimons } from '../data';
 import { formaDe, podeEvoluir, saldo } from '../lib/loja';
 import { Desejo } from './Loja';
 import { EscolherPerfil } from '../components/Perfis';
+import { EntrarTurma } from './Turma';
 
 export const CORES = ['#22D3EE', '#F472B6', '#FACC15', '#4ADE80', '#FB923C', '#A78BFA'];
 
+/**
+ * Primeira tela. Só entra quem tem turma (código do professor) ou conta da família
+ * (o adulto abre o perfil). Não existe mais "jogar sem turma": cada turma estuda o livro dela.
+ */
 export function BoasVindas() {
   const { perfis } = useConta();
-  const [novo, setNovo] = useState(false);
-  const [nome, setNome] = useState('');
-  const [cor, setCor] = useState(CORES[0]);
-  const ok = nome.trim().length >= 2;
+  const [outra, setOutra] = useState(false);
+  const [entrando, setEntrando] = useState(false);
+  const escolherPerfil = perfis.length > 0 && !outra && !entrando;
   return (
     <main className="tela" style={{ justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
       <div className="logo" style={{ fontSize: 44 }}>Sabidex</div>
       <Ara tamanho={130} />
-      <div className="balao" style={{ maxWidth: 320 }}>Oi! Eu sou o <strong>Ará</strong>. Vamos estudar, ganhar Sabimons e completar o álbum?</div>
-      {perfis.length > 0 && !novo && (
+      <div className="balao" style={{ maxWidth: 320 }}>
+        {entrando
+          ? <>Que bom! Vamos achar a sua turma.</>
+          : <>Oi! Eu sou o <strong>Ará</strong>. Vamos estudar, ganhar Sabimons e completar o álbum?</>}
+      </div>
+      {escolherPerfil && (
         <div className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}>
           <EscolherPerfil perfis={perfis} titulo="Quem vai jogar?" />
-          <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => setNovo(true)}>Sou outra criança</button>
+          <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => setOutra(true)}>Sou outra criança</button>
         </div>
       )}
-      {(perfis.length === 0 || novo) && <>
-      <form className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}
-        onSubmit={(ev) => { ev.preventDefault(); if (ok) setEstado((e) => ({ ...e, perfil: { nome: nome.trim(), cor } })); }}>
-        <label htmlFor="apelido" className="display h3">Como você quer ser chamado?</label>
-        <input id="apelido" value={nome} maxLength={14} autoComplete="off" placeholder="Seu apelido"
-          onChange={(ev) => setNome(ev.target.value)}
-          style={{ font: 'inherit', fontWeight: 800, fontSize: 18, padding: '14px 16px', borderRadius: 16, border: '3px solid var(--ink)', background: 'var(--surface)', color: 'var(--ink)', textAlign: 'center' }} />
-        <p className="muted small" style={{ margin: 0 }}>Só o apelido. Não precisa do nome completo.</p>
-        <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
-          <legend className="muted small" style={{ marginBottom: 8 }}>Escolha sua cor</legend>
-          <div className="linha" style={{ justifyContent: 'center', gap: 10 }}>
-            {CORES.map((c) => (
-              <button key={c} type="button" aria-label={`Cor ${c}`} aria-pressed={cor === c} onClick={() => setCor(c)}
-                style={{ width: 44, height: 44, borderRadius: '50%', border: 0, background: c, boxShadow: cor === c ? '0 0 0 3px var(--bg), 0 0 0 6px var(--ink)' : 'inset 0 -3px 0 #00000033' }} />
-            ))}
-          </div>
-        </fieldset>
-        <button className="btn btn-amarelo btn-bloco" disabled={!ok} style={{ marginTop: 8 }}>Começar</button>
-      </form>
-      <button type="button" className="btn btn-escuro btn-bloco" style={{ maxWidth: 340 }} onClick={() => ir('entrar')}>Já tenho conta na turma</button>
-      </>}
+      {!escolherPerfil && entrando && (
+        <div className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}>
+          <EntrarTurma />
+          <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => setEntrando(false)}>Voltar</button>
+        </div>
+      )}
+      {!escolherPerfil && !entrando && (
+        <div className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}>
+          <button type="button" className="btn btn-amarelo btn-bloco" onClick={() => setEntrando(true)}>Entrar na minha turma</button>
+          <button type="button" className="btn btn-escuro btn-bloco" onClick={() => ir('entrar')}>Já tenho conta</button>
+          <p className="muted small" style={{ margin: 0 }}>Sem código da turma? Peça para o professor ou para um adulto da sua casa.</p>
+        </div>
+      )}
       <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => ir('adulto')}>Sou pai, mãe ou professor</button>
     </main>
   );
