@@ -28,6 +28,11 @@ interface Pedido {
   tipos?: string[];
   numeros?: string[];
   refazer?: boolean;
+  /** só para "cenarios": outra lista e outra pasta (ex.: o desenho do pacote) */
+  lista?: string;
+  pasta?: string;
+  /** formato da imagem (padrão 1:1) */
+  formato?: string;
   /** só estas imagens, ex.: ["013-3", "014-2"] */
   so?: string[];
   /** modelo para a forma 1 (só texto) */
@@ -186,14 +191,14 @@ async function main() {
     return;
   }
   if (p.acao === 'cenarios') {
-    const cenarios: { tipo: string; arquivo: string; prompt: string }[] = JSON.parse(readFileSync('arte/cenarios/lista.json', 'utf8'));
-    const pasta = 'arte/cenarios/originais';
+    const cenarios: { tipo: string; arquivo: string; prompt: string }[] = JSON.parse(readFileSync(p.lista ?? 'arte/cenarios/lista.json', 'utf8'));
+    const pasta = p.pasta ?? 'arte/cenarios/originais';
     mkdirSync(pasta, { recursive: true });
     const feitos = resultado.imagens as unknown[];
     for (const c of cenarios.filter((x) => !p.tipos || p.tipos.includes(x.arquivo))) {
       const destino = `${pasta}/${c.arquivo}.png`;
       if (existsSync(destino) && !p.refazer) { feitos.push({ nome: c.arquivo, pulado: 'já existe' }); continue; }
-      const corpo: Record<string, unknown> = { prompt: c.prompt, aspect_ratio: '1:1', resolution: '2k', ...(p.extra ?? {}) };
+      const corpo: Record<string, unknown> = { prompt: c.prompt, aspect_ratio: p.formato ?? '1:1', resolution: '2k', ...(p.extra ?? {}) };
       let gerado: { url: string; modelo: string } | undefined;
       for (let tentativa = 1; !gerado; tentativa++) {
         try { gerado = await gerarComCandidatos('texto', texto, corpo); } catch (e) {
