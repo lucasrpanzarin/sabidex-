@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx=".5" cy=".2" r=".9"><stop offset="0" stop-color="#26357A"/><stop offset="1" stop-color="#0B1026"/></radialGradient>
+    <linearGradient id="c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF6B6B"/><stop offset="1" stop-color="#DC2626"/></linearGradient>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67E8F9"/><stop offset="1" stop-color="#0891B2"/></linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M120 330c-40 30-40 90-10 120 40-10 70-60 60-110z" fill="url(#a)"/>
+  <circle cx="256" cy="250" r="150" fill="url(#c)"/>
+  <path d="M170 120c20-60 90-80 120-40-40 0-70 20-80 50z" fill="#FF6B6B"/>
+  <ellipse cx="200" cy="230" rx="52" ry="58" fill="#fff"/><ellipse cx="312" cy="230" rx="52" ry="58" fill="#fff"/>
+  <circle cx="210" cy="240" r="28" fill="#0B1026"/><circle cx="322" cy="240" r="28" fill="#0B1026"/>
+  <circle cx="220" cy="226" r="10" fill="#fff"/><circle cx="332" cy="226" r="10" fill="#fff"/>
+  <path d="M206 300c20-20 80-20 100 0 0 50-30 90-50 100-20-10-50-50-50-100z" fill="#334155"/>
+  <path d="M216 304c20-10 60-10 80 0-10 20-70 20-80 0z" fill="#94A3B8"/>
+</svg>

@@ -1,0 +1,9 @@
+{
+  // Sabidex — hospedado na Cloudflare (Workers com arquivos estáticos).
+  // Etapa 1: só o app (o progresso fica salvo no aparelho da criança).
+  // Etapa 2: entra um Worker com banco D1 para turmas, trocas e ranking.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sabidex",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./dist", "not_found_handling": "single-page-application" }
+}

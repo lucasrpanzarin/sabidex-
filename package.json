@@ -1,0 +1,29 @@
+{
+  "name": "sabidex",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Sabidex — app de estudo gamificado: estude, ganhe pacotes de cartas e complete o álbum.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "deploy": "npm test && npm run build && wrangler deploy"
+  },
+  "dependencies": {
+    "@fontsource/lilita-one": "^5.3.0",
+    "@fontsource/nunito": "^5.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.1.0",
+    "wrangler": "^4.157.0"
+  }
+}
