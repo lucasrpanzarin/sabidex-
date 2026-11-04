@@ -1,5 +1,5 @@
 {
-  "quando": "2026-11-04T15:29:02.152Z",
+  "quando": "2026-11-04T15:37:26.362Z",
   "imagens": [],
   "pedido": {
     "acao": "gerar",
@@ -8,5 +8,5 @@
     ]
   },
   "ok": false,
-  "erro": "Error: Falta o segredo HIGGSFIELD_API_KEY no GitHub."
+  "erro": "Error: POST https://platform.higgsfield.ai/bytedance/seedream/v4/text-to-image: HTTP 404 {\"detail\":\"model_not_found\"}"
 }
