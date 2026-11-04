@@ -7,6 +7,9 @@ import { ir } from '../lib/rota';
 import { botaoGoogle, entrarApple, lerConfig, type ConfigServidor } from '../lib/social';
 import { getEstado, progressoDe, temProgressoSolto } from '../lib/store';
 import { CORES } from './Inicio';
+import { capitulos } from '../data';
+import { hoje } from '../lib/jogo';
+import { diaMes, situacao, textoProva, type DatasProva } from '../lib/provas';
 
 const K = 'sabidex:adulto';
 const lerToken = () => { try { return localStorage.getItem(K); } catch { return null; } };
@@ -22,6 +25,41 @@ interface Filho { id: string; apelido: string; cor: string; xp: number | null; c
 function quando(ms: number) {
   const d = Math.floor((Date.now() - ms) / 86_400_000);
   return d <= 0 ? 'hoje' : d === 1 ? 'ontem' : `há ${d} dias`;
+}
+
+/**
+ * Datas das provas da escola. Antes da data, o capítulo aparece em destaque para a criança;
+ * depois, vai para "Já teve prova" e continua valendo XP e pacotes (para quem chegou depois ou quer revisar).
+ */
+function DatasDasProvas({ token, rota, provas, aoMudar, ajuda }: { token: string; rota: string; provas: DatasProva; aoMudar: (p: DatasProva) => void; ajuda: string }) {
+  const [erro, setErro] = useState<string | null>(null);
+  const salvar = async (capitulo: string, data: string) => {
+    setErro(null);
+    const r = await api<{ provas: DatasProva }>(rota, { corpo: { capitulo, data }, tokenProprio: token });
+    if (r.erro) setErro(r.erro); else aoMudar(r.provas);
+  };
+  const dia = hoje();
+  return (
+    <section className="coluna" aria-label="Datas das provas" style={{ gap: 8 }}>
+      <h2 className="display h3" style={{ margin: 0 }}>Datas das provas</h2>
+      <p className="muted small" style={{ margin: 0 }}>{ajuda}</p>
+      {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+      {capitulos.map((c) => {
+        const data = provas[c.id] ?? '';
+        const t = textoProva(situacao(provas, c.id, dia));
+        return (
+          <label key={c.id} className="painel coluna" style={{ padding: 12, gap: 6 }}>
+            <span style={rotulo}>{c.materia} · Cap. {c.numero}: {c.titulo}</span>
+            <span className="linha" style={{ gap: 8 }}>
+              <input type="date" value={data} onChange={(ev) => void salvar(c.id, ev.target.value)} style={{ ...campo, flex: 1, padding: '8px 10px' }} aria-label={`Data da prova do capítulo ${c.numero}`} />
+              {data && <button type="button" className="btn btn-escuro" style={{ minHeight: 40, fontSize: 15 }} onClick={() => void salvar(c.id, '')}>Tirar</button>}
+            </span>
+            <span className="muted small">{data ? `${t} (${diaMes(data)})` : 'Sem data'}</span>
+          </label>
+        );
+      })}
+    </section>
+  );
 }
 
 /** Pergunta que uma criança de 9 anos não responde de cabeça, antes da área dos adultos (pedido das lojas para apps infantis). */
@@ -303,13 +341,14 @@ function Painel({ token, eu, aoSair, aoApagar }: { token: string; eu: Eu; aoSair
 
 function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void> }) {
   const [filhos, setFilhos] = useState<Filho[] | null>(null);
+  const [provas, setProvas] = useState<DatasProva>({});
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [form, setForm] = useState<'nenhum' | 'novo' | 'ligar'>('nenhum');
   const [abrir, setAbrir] = useState<string | null>(null);
   const [apagar, setApagar] = useState<string | null>(null);
-  const carregar = () => api<{ filhos: Filho[] }>('/adulto/familia', { tokenProprio: token }).then((r) => {
-    if (r.erro) setErro(r.erro); else { setFilhos(r.filhos); if (r.filhos.length === 0) setForm((f) => (f === 'nenhum' ? 'novo' : f)); }
+  const carregar = () => api<{ filhos: Filho[]; provas?: DatasProva }>('/adulto/familia', { tokenProprio: token }).then((r) => {
+    if (r.erro) setErro(r.erro); else { setFilhos(r.filhos); setProvas(r.provas ?? {}); if (r.filhos.length === 0) setForm((f) => (f === 'nenhum' ? 'novo' : f)); }
   });
   useEffect(() => { void carregar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -399,6 +438,10 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
         void carregar();
       }} />}
       {form === 'ligar' && <LigarConta token={token} aoFechar={() => setForm('nenhum')} aoLigar={() => { setForm('nenhum'); setAviso('Conta ligada à sua família.'); void carregar(); }} />}
+      {!!filhos?.length && (
+        <DatasDasProvas token={token} rota="/adulto/familia/provas" provas={provas} aoMudar={setProvas}
+          ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque. Depois, continua valendo para revisar. Se a turma do professor marcar outra data, vale a da turma." />
+      )}
     </section>
   );
 }
@@ -561,12 +604,12 @@ function ApagarConta({ token, temSenha, aoApagar }: { token: string; temSenha: b
 }
 
 function DetalheTurma({ token, id }: { token: string; id: string }) {
-  const [dados, setDados] = useState<{ turma: Turma; criancas: Kid[] } | null>(null);
+  const [dados, setDados] = useState<{ turma: Turma; criancas: Kid[]; provas?: DatasProva } | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [pinNovo, setPinNovo] = useState<{ apelido: string; pin: string } | null>(null);
   const [remover, setRemover] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
-  const carregar = () => api<{ turma: Turma; criancas: Kid[] }>(`/adulto/turmas/${id}`, { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : setDados(r)));
+  const carregar = () => api<{ turma: Turma; criancas: Kid[]; provas?: DatasProva }>(`/adulto/turmas/${id}`, { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : setDados(r)));
   useEffect(() => { void carregar(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (erro && !dados) return <div className="aviso aviso-erro">{erro}</div>;
@@ -607,6 +650,8 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
           <div className="small">Passe para a criança. Ele não aparece de novo.</div>
         </div>
       )}
+      <DatasDasProvas token={token} rota={`/adulto/turmas/${id}/provas`} provas={dados.provas ?? {}} aoMudar={(p) => setDados({ ...dados, provas: p })}
+        ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque para as crianças. Depois, continua aberto e valendo para quem chegou depois ou quer revisar." />
       <h2 className="display h3">{criancas.length} {criancas.length === 1 ? 'criança' : 'crianças'}</h2>
       {criancas.length === 0 && <p className="muted">Ninguém entrou ainda. Mande o convite acima.</p>}
       <div style={{ overflowX: 'auto' }}>

@@ -7,7 +7,8 @@ import { FASES, FASE_INFO, chave, hoje, nivel, sequencia } from '../lib/jogo';
 import { quantasHoje, MAX_POR_REVISAO } from '../lib/revisao';
 import { ir } from '../lib/rota';
 import { getEstado, useEstado } from '../lib/store';
-import { useConta } from '../lib/conta';
+import { getConta, useConta } from '../lib/conta';
+import { ordenarCapitulos, situacao, textoProva, type DatasProva } from '../lib/provas';
 import { Moeda, Saldo } from '../components/Loja';
 import { sabimons } from '../data';
 import { formaDe, podeEvoluir, saldo } from '../lib/loja';
@@ -59,9 +60,9 @@ export function BoasVindas() {
   );
 }
 
-/** Próxima fase a fazer: a primeira não concluída, em ordem de capítulo. */
-export function proximaFase(feitas: Record<string, true>) {
-  for (const c of capitulos) for (const f of FASES) if (!feitas[chave(c.id, f)]) return { cap: c, fase: f };
+/** Próxima fase a fazer: a primeira não concluída. Capítulo com prova chegando vem antes; os que já tiveram prova, por último. */
+export function proximaFase(feitas: Record<string, true>, provas: DatasProva | undefined = getConta()?.provas) {
+  for (const c of ordenarCapitulos(capitulos, provas, hoje())) for (const f of FASES) if (!feitas[chave(c.id, f)]) return { cap: c, fase: f };
   return null;
 }
 
@@ -71,12 +72,26 @@ export function jogar() {
   if (p) ir('fase', p.cap.id, p.fase); else ir('mundos');
 }
 
+/** Selo com a data da prova da escola ("Prova em 5 dias", "Já teve prova"). */
+export function SeloProva({ s }: { s: ReturnType<typeof situacao> }) {
+  const t = textoProva(s);
+  if (!t) return null;
+  const perto = s.tipo === 'chegando' && s.dias <= 2;
+  return (
+    <span className="pilula" style={{ flex: 'none', fontSize: 13, padding: '2px 10px', background: s.tipo === 'chegando' ? (perto ? 'var(--coral)' : 'var(--yellow)') : 'var(--surface)',
+      color: 'var(--ink)', borderColor: 'var(--ink)' }}>
+      <Icone nome={s.tipo === 'chegando' ? 'relogio' : 'check'} tamanho={14} espessura={3} />{t}
+    </span>
+  );
+}
+
 export function Inicio() {
   const e = useEstado();
   const { conta, propostasNovas } = useConta();
   const nv = nivel(e.xp);
   const dias = sequencia(e.dias);
-  const prox = proximaFase(e.feitas);
+  const prox = proximaFase(e.feitas, conta?.provas);
+  const provaProx = prox ? situacao(conta?.provas, prox.cap.id, hoje()) : null;
   const feitasCap = prox ? FASES.filter((f) => e.feitas[chave(prox.cap.id, f)]).length : 5;
   const faltamPacote = prox ? (['memoria', 'quiz', 'prova'] as const).find((f) => !e.feitas[chave(prox.cap.id, f)]) : undefined;
   const fasesAte = faltamPacote && prox ? FASES.indexOf(faltamPacote) - FASES.indexOf(prox.fase) + 1 : 0;
@@ -92,6 +107,8 @@ export function Inicio() {
     ? <>Seu <strong>{evolui.formas[formaDe(e, evolui.id) - 1].nome}</strong> pode evoluir! Veja no álbum.</>
     : revisar > 0
     ? <>Tenho <strong>{revisar} {revisar > 1 ? 'perguntas' : 'pergunta'}</strong> para você lembrar hoje. Bora revisar?</>
+    : prox && provaProx?.tipo === 'chegando' && provaProx.dias <= 7
+    ? <>{provaProx.dias === 0 ? 'Hoje tem' : provaProx.dias === 1 ? 'Amanhã tem' : `Em ${provaProx.dias} dias tem`} prova de <strong>{prox.cap.titulo}</strong> na escola. Vamos treinar?</>
     : prox && fasesAte > 0
       ? <>Mais <strong>{fasesAte} {fasesAte > 1 ? 'fases' : 'fase'}</strong> e você ganha um pacote de Sabimons!</>
       : <>Você terminou tudo! Repita as fases para ganhar mais XP.</>;
@@ -163,7 +180,10 @@ export function Inicio() {
 
       {prox && (
         <button className="painel-destaque" onClick={() => ir('mundo', prox.cap.id)} style={{ textAlign: 'left', color: 'inherit' }}>
-          <span className="eyebrow" style={{ color: 'var(--t-yellow)' }}>Continuar · {prox.cap.materia}</span>
+          <span className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
+            <span className="eyebrow" style={{ color: 'var(--t-yellow)' }}>Continuar · {prox.cap.materia}</span>
+            {provaProx && <SeloProva s={provaProx} />}
+          </span>
           <span className="display" style={{ fontSize: 26, display: 'block', marginTop: 4 }}>Cap. {prox.cap.numero} · {prox.cap.titulo}</span>
           <span className="muted small" style={{ display: 'block' }}>Próxima: {FASE_INFO[prox.fase].titulo}</span>
           <span className="linha" style={{ marginTop: 12 }}>

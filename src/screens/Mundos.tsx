@@ -1,29 +1,53 @@
 import { Icone } from '../components/Icone';
 import { Pacote } from '../components/Pacote';
 import { capitulos, capituloPorId } from '../data';
-import { EXTRA_INFO, FASES, FASE_INFO, chave, chaveExtra, extrasDo, extrasLiberados, liberada } from '../lib/jogo';
+import { EXTRA_INFO, FASES, FASE_INFO, chave, chaveExtra, extrasDo, extrasLiberados, hoje, liberada } from '../lib/jogo';
+import { useConta } from '../lib/conta';
+import { diaMes, ordenarCapitulos, situacao } from '../lib/provas';
 import { ir } from '../lib/rota';
 import { useEstado } from '../lib/store';
+import type { Capitulo } from '../data/tipos';
+import { SeloProva } from './Inicio';
 
 export function Mundos() {
   const e = useEstado();
+  const { conta } = useConta();
+  const dia = hoje();
+  const lista = ordenarCapitulos(capitulos, conta?.provas, dia);
+  // Capítulos que já tiveram prova na escola continuam abertos e valendo tudo: ficam numa parte separada, no fim.
+  const atuais = lista.filter((c) => situacao(conta?.provas, c.id, dia).tipo !== 'passou');
+  const passadas = lista.filter((c) => situacao(conta?.provas, c.id, dia).tipo === 'passou');
+  const cartao = (c: Capitulo) => {
+    const n = FASES.filter((f) => e.feitas[chave(c.id, f)]).length;
+    const s = situacao(conta?.provas, c.id, dia);
+    return (
+      <button key={c.id} className="painel-destaque" onClick={() => ir('mundo', c.id)} style={{ textAlign: 'left', color: 'inherit' }}>
+        <span className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
+          <span className="eyebrow" style={{ color: n === 5 ? 'var(--t-green)' : 'var(--t-yellow)' }}>Mundo {c.numero}{n === 5 ? ' · completo' : ''}</span>
+          <SeloProva s={s} />
+        </span>
+        <span className="display" style={{ fontSize: 24, display: 'block', marginTop: 2 }}>{c.titulo}</span>
+        <span className="muted small" style={{ display: 'block' }}>{c.subtitulo}{s.tipo === 'chegando' ? ` · prova no dia ${diaMes(conta!.provas![c.id])}` : ''}</span>
+        <span className="barra barra-verde" style={{ display: 'block', marginTop: 12 }} aria-label={`${n} de 5 fases`}><div style={{ width: `${(n / 5) * 100}%` }} /></span>
+      </button>
+    );
+  };
   return (
     <main className="tela">
       <div>
         <div className="eyebrow">História</div>
         <h1 className="display h1">Escolha o mundo</h1>
       </div>
-      {capitulos.map((c) => {
-        const n = FASES.filter((f) => e.feitas[chave(c.id, f)]).length;
-        return (
-          <button key={c.id} className="painel-destaque" onClick={() => ir('mundo', c.id)} style={{ textAlign: 'left', color: 'inherit' }}>
-            <span className="eyebrow" style={{ color: n === 5 ? 'var(--t-green)' : 'var(--t-yellow)' }}>Mundo {c.numero}{n === 5 ? ' · completo' : ''}</span>
-            <span className="display" style={{ fontSize: 24, display: 'block', marginTop: 2 }}>{c.titulo}</span>
-            <span className="muted small" style={{ display: 'block' }}>{c.subtitulo}</span>
-            <span className="barra barra-verde" style={{ display: 'block', marginTop: 12 }} aria-label={`${n} de 5 fases`}><div style={{ width: `${(n / 5) * 100}%` }} /></span>
-          </button>
-        );
-      })}
+      {atuais.map(cartao)}
+      {passadas.length > 0 && (
+        <section aria-label="Já teve prova" className="coluna" style={{ marginTop: 8 }}>
+          <div>
+            <h2 className="display h3" style={{ margin: 0 }}>Já teve prova na escola</h2>
+            <div className="muted small">Continuam valendo XP e pacotes. Bons para revisar!</div>
+          </div>
+          {passadas.map(cartao)}
+        </section>
+      )}
     </main>
   );
 }
@@ -32,6 +56,7 @@ const NO_FEITA = 'linear-gradient(180deg, #86EFAC, #22C55E)';
 
 export function Mundo({ id }: { id: string }) {
   const e = useEstado();
+  const { conta } = useConta();
   const cap = capituloPorId(id);
   if (!cap) return <main className="tela"><p>Mundo não encontrado.</p></main>;
   const feitas = FASES.filter((f) => e.feitas[chave(cap.id, f)]).length;
@@ -42,7 +67,10 @@ export function Mundo({ id }: { id: string }) {
     <main className="tela">
       <div className="coluna" style={{ gap: 2 }}>
         <button className="voltar" onClick={() => ir('mundos')}><Icone nome="voltar" tamanho={18} espessura={3} />{cap.materia}</button>
-        <div className="eyebrow">Mundo {cap.numero}</div>
+        <div className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
+          <div className="eyebrow">Mundo {cap.numero}</div>
+          <SeloProva s={situacao(conta?.provas, cap.id, hoje())} />
+        </div>
         <h1 className="display h1">{cap.titulo}</h1>
         <div className="muted small">{feitas} de 5 fases completas{e.notas[cap.id] !== undefined ? ` · melhor nota na prova: ${e.notas[cap.id].toLocaleString('pt-BR')}` : ''}</div>
       </div>

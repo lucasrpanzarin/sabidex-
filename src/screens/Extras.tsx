@@ -28,9 +28,9 @@ function useFim(cap: Capitulo, x: Extra) {
   const [res, setRes] = useState<Resultado | null>(null);
   return {
     res,
-    /** acertos e erros dão a nota (7 ou mais libera o pacote do dia); cada erro tira 10% do XP */
-    finalizar: (acertos: number, erros: number) => {
-      const r = concluirExtra(getEstado(), cap, x, new Date(), erros, notaDe(acertos, acertos + erros));
+    /** acertos de total dão a nota (7 ou mais libera o pacote do dia); cada erro tira 10% do XP */
+    finalizar: (acertos: number, total: number, erros: number) => {
+      const r = concluirExtra(getEstado(), cap, x, new Date(), erros, notaDe(acertos, total));
       setEstado(r.estado); setRes(r);
     },
     limpar: () => setRes(null),
@@ -51,12 +51,6 @@ function Opcao({ letra, texto, estado, onClick }: { letra: string; texto: string
   );
 }
 
-const Estrelas = ({ n, de = 3 }: { n: number; de?: number }) => (
-  <div className="display" style={{ fontSize: 36, color: 'var(--t-yellow)', letterSpacing: 4 }} aria-label={`${n} de ${de} estrelas`}>
-    {'★'.repeat(n)}<span style={{ color: 'var(--line-2)' }}>{'★'.repeat(de - n)}</span>
-  </div>
-);
-const estrelasDe = (acertos: number, total: number) => (acertos === total ? 3 : acertos >= total * 0.6 ? 2 : 1);
 
 /* ---------- Complete a frase ---------- */
 function Lacunas({ cap }: { cap: Capitulo }) {
@@ -67,8 +61,7 @@ function Lacunas({ cap }: { cap: Capitulo }) {
   const [escolha, setEscolha] = useState<string | null>(null);
   const [acertos, setAcertos] = useState(0);
 
-  if (res) return <Fim cap={cap} r={res} titulo={acertos === itens.length ? 'Perfeito!' : 'Muito bem!'}
-    detalhe={<><Estrelas n={estrelasDe(acertos, itens.length)} /><div className="display" style={{ fontSize: 22 }}>{acertos} de {itens.length} certas</div></>}
+  if (res) return <Fim cap={cap} r={res} titulo={acertos === itens.length ? 'Perfeito!' : 'Muito bem!'} placar={{ acertos, total: itens.length }}
     onDeNovo={() => { setRodada((r) => r + 1); setI(0); setEscolha(null); setAcertos(0); limpar(); }} />;
 
   const l = itens[i];
@@ -98,7 +91,7 @@ function Lacunas({ cap }: { cap: Capitulo }) {
       {escolha && (
         <div className="coluna sobe" style={{ marginTop: 'auto' }}>
           <div className={`aviso ${acertou ? 'aviso-ok' : 'aviso-erro'}`}><span className="display" style={{ fontSize: 18 }}>{acertou ? 'Acertou!' : `A palavra era "${l.resposta}".`}</span></div>
-          <button className="btn btn-amarelo btn-bloco" onClick={() => { if (i + 1 < itens.length) { setI(i + 1); setEscolha(null); } else finalizar(acertos, itens.length - acertos); }}>
+          <button className="btn btn-amarelo btn-bloco" onClick={() => { if (i + 1 < itens.length) { setI(i + 1); setEscolha(null); } else finalizar(acertos, itens.length, itens.length - acertos); }}>
             {i + 1 < itens.length ? 'Próxima' : 'Terminar'}
           </button>
         </div>
@@ -121,9 +114,8 @@ function QuemSou({ cap }: { cap: Capitulo }) {
 
   const total = itens.length * 3;
   if (res) {
-    const n = pontos >= total * 0.85 ? 3 : pontos >= total * 0.5 ? 2 : 1;
-    return <Fim cap={cap} r={res} titulo={n === 3 ? 'Detetive!' : 'Muito bem!'}
-      detalhe={<><Estrelas n={n} /><div className="display" style={{ fontSize: 22 }}>{pontos} de {total} pontos</div></>}
+    return <Fim cap={cap} r={res} titulo={pontos >= total * 0.85 ? 'Detetive!' : 'Muito bem!'} placar={{ acertos: pontos, total, nome: 'pontos' }}
+      detalhe={<div className="muted small">A nota vem dos pontos: acertar com menos pistas vale mais.</div>}
       onDeNovo={() => { setRodada((r) => r + 1); setI(0); setPistas(1); setErradas([]); setAcabou(null); setPontos(0); setErros(0); limpar(); }} />;
   }
 
@@ -168,7 +160,7 @@ function QuemSou({ cap }: { cap: Capitulo }) {
             <span className="display" style={{ fontSize: 18 }}>{acabou === 'acertou' ? `+${4 - pistas} ${4 - pistas > 1 ? 'pontos' : 'ponto'}!` : 'Dessa vez não deu.'}</span>
           </div>
           <button className="btn btn-amarelo btn-bloco" onClick={() => {
-            if (i + 1 < itens.length) { setI(i + 1); setPistas(1); setErradas([]); setAcabou(null); } else finalizar(itens.length, erros);
+            if (i + 1 < itens.length) { setI(i + 1); setPistas(1); setErradas([]); setAcabou(null); } else finalizar(pontos, total, erros);
           }}>{i + 1 < itens.length ? 'Próximo' : 'Terminar'}</button>
         </div>
       )}
@@ -186,23 +178,31 @@ function Grupos({ cap }: { cap: Capitulo }) {
   const [ti, setTi] = useState(0);
   const [k, setK] = useState(0);
   const [errado, setErrado] = useState<number | null>(null);
-  const [erros, setErros] = useState(0);
+  // Cada frase tem uma chance só: errou, ela vai sozinha para o grupo certo, marcada como erro.
+  const [perdidos, setPerdidos] = useState<Set<string>>(new Set());
   const [pronto, setPronto] = useState(false);
+  const erros = perdidos.size;
+  const totalItens = telas.reduce((n, t) => n + t.fila.length, 0);
 
-  if (res) return <Fim cap={cap} r={res} titulo={erros === 0 ? 'Sem errar nenhuma!' : 'Tudo no lugar!'}
-    detalhe={<><Estrelas n={erros === 0 ? 3 : erros <= 2 ? 2 : 1} /><div className="muted">Erros: {erros}</div></>}
-    onDeNovo={() => { setRodada((r) => r + 1); setTi(0); setK(0); setErros(0); setPronto(false); limpar(); }} />;
+  if (res) return <Fim cap={cap} r={res} titulo={erros === 0 ? 'Sem errar nenhuma!' : 'Tudo no lugar!'} placar={{ acertos: totalItens - erros, total: totalItens }}
+    onDeNovo={() => { setRodada((r) => r + 1); setTi(0); setK(0); setPerdidos(new Set()); setPronto(false); limpar(); }} />;
 
   const tela = telas[ti];
   const atual = tela.fila[k];
-  const colocar = (gi: number) => {
-    if (pronto) return;
-    if (gi !== atual.gi) { setErros((e) => e + 1); setErrado(gi); setTimeout(() => setErrado(null), 500); return; }
+  const avancar = (p: Set<string>) => {
     if (k + 1 < tela.fila.length) setK(k + 1);
     else if (ti + 1 < telas.length) { setTi(ti + 1); setK(0); }
-    else { setPronto(true); setTimeout(() => finalizar(telas.reduce((n, t) => n + t.fila.length, 0), erros), 400); }
+    else { setPronto(true); setTimeout(() => finalizar(totalItens - p.size, totalItens, p.size), 600); }
   };
-  const feitos = tela.fila.slice(0, pronto ? k + 1 : k);
+  const colocar = (gi: number) => {
+    if (pronto || errado !== null) return;
+    if (gi === atual.gi) return avancar(perdidos);
+    const p = new Set(perdidos).add(`${ti}:${atual.t}`);
+    setPerdidos(p); setErrado(gi);
+    // Mostra o erro um instante e a frase vai para o grupo certo.
+    setTimeout(() => { setErrado(null); avancar(p); }, 900);
+  };
+  const feitos = tela.fila.slice(0, pronto || errado !== null ? k + 1 : k);
   const cores = ['var(--cyan)', 'var(--pink)', 'var(--yellow)'];
   return (
     <main className="tela">
@@ -219,14 +219,19 @@ function Grupos({ cap }: { cap: Capitulo }) {
               {g.nome}
             </button>
             <ul className="coluna" style={{ listStyle: 'none', margin: 0, padding: 0, gap: 6 }} aria-label={`Itens em ${g.nome}`}>
-              {feitos.filter((f) => f.gi === gi).map((f) => (
-                <li key={f.t} className="pop small" style={{ borderRadius: 12, padding: '6px 10px', background: '#DCFCE7', border: '1.5px solid #22C55E', fontWeight: 700 }}>{f.t}</li>
-              ))}
+              {feitos.filter((f) => f.gi === gi).map((f) => {
+                const perdeu = perdidos.has(`${ti}:${f.t}`);
+                return (
+                  <li key={f.t} className="pop small" style={{ borderRadius: 12, padding: '6px 10px', background: perdeu ? '#FFE4E6' : '#DCFCE7', border: `1.5px solid ${perdeu ? 'var(--red)' : '#22C55E'}`, fontWeight: 700 }}>
+                    {perdeu && <span style={{ display: 'block', color: 'var(--t-red)' }}>Errou. Vai aqui:</span>}{f.t}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}
       </div>
-      <p className="muted small" style={{ margin: 0, textAlign: 'center' }}>Toque no grupo certo para essa frase.</p>
+      <p className="muted small" style={{ margin: 0, textAlign: 'center' }}>Toque no grupo certo para essa frase. Cada frase tem uma chance só!</p>
       <ContaErros erros={erros} />
     </main>
   );
@@ -239,34 +244,35 @@ function Causas({ cap }: { cap: Capitulo }) {
   const pares = useMemo(() => embaralhar(cap.causas ?? []).slice(0, 5), [cap, rodada]);
   const efeitos = useMemo(() => embaralhar(pares), [pares]);
   const [sel, setSel] = useState<string | null>(null);
+  // Cada causa tem uma chance só: errou, o par certo aparece marcado como erro.
   const [certos, setCertos] = useState<Set<string>>(new Set());
+  const [perdidos, setPerdidos] = useState<Set<string>>(new Set());
   const [errado, setErrado] = useState<string | null>(null);
-  const [erros, setErros] = useState(0);
+  const erros = perdidos.size;
 
-  if (res) return <Fim cap={cap} r={res} titulo={erros === 0 ? 'Perfeito!' : 'Muito bem!'}
-    detalhe={<><Estrelas n={erros === 0 ? 3 : erros <= 3 ? 2 : 1} />
+  if (res) return <Fim cap={cap} r={res} titulo={erros === 0 ? 'Perfeito!' : 'Muito bem!'} placar={{ acertos: certos.size, total: pares.length }}
+    detalhe={<>
       <ul className="coluna" style={{ width: '100%', gap: 6, padding: 0, listStyle: 'none', textAlign: 'left' }}>
         {pares.map((p) => <li key={p.causa} className="small"><strong>{p.causa}</strong> → {p.consequencia}</li>)}
       </ul></>}
-    onDeNovo={() => { setRodada((r) => r + 1); setCertos(new Set()); setErros(0); setSel(null); limpar(); }} />;
+    onDeNovo={() => { setRodada((r) => r + 1); setCertos(new Set()); setPerdidos(new Set()); setSel(null); limpar(); }} />;
 
   const ligar = (causaDoEfeito: string) => {
-    if (!sel || certos.has(causaDoEfeito)) return;
-    if (sel === causaDoEfeito) {
-      const n = new Set(certos).add(sel);
-      setCertos(n); setSel(null);
-      if (n.size === pares.length) setTimeout(() => finalizar(pares.length, erros), 500);
-    } else { setErros((x) => x + 1); setErrado(causaDoEfeito); setTimeout(() => setErrado(null), 400); }
+    if (!sel || certos.has(causaDoEfeito) || perdidos.has(causaDoEfeito)) return;
+    const c = new Set(certos), p = new Set(perdidos);
+    if (sel === causaDoEfeito) c.add(sel);
+    else { p.add(sel); setErrado(causaDoEfeito); setTimeout(() => setErrado(null), 600); }
+    setCertos(c); setPerdidos(p); setSel(null);
+    if (c.size + p.size === pares.length) setTimeout(() => finalizar(c.size, pares.length, p.size), 900);
   };
   return (
     <main className="tela">
       <Topo cap={cap} x="causas" extra={<span className="pilula">{certos.size}/{pares.length}</span>} />
-      <p className="muted small" style={{ margin: 0 }}>Toque numa <strong style={{ color: 'var(--t-yellow)' }}>causa</strong> e depois no que aconteceu por causa dela.</p>
+      <p className="muted small" style={{ margin: 0 }}>Toque numa <strong style={{ color: 'var(--t-yellow)' }}>causa</strong> e depois no que aconteceu por causa dela. Cada causa tem uma chance só!</p>
       <div className="eyebrow" style={{ color: 'var(--t-yellow)' }}>Causa</div>
       <div className="coluna" style={{ gap: 8 }}>
         {pares.map((p) => {
-          const ok = certos.has(p.causa);
-          if (ok) return null;
+          if (certos.has(p.causa) || perdidos.has(p.causa)) return null;
           return (
             <button key={p.causa} onClick={() => setSel(p.causa)} aria-pressed={sel === p.causa}
               className={`btn ${sel === p.causa ? 'btn-amarelo' : 'btn-escuro'}`} style={{ fontSize: 16, minHeight: 56, padding: '8px 12px', justifyContent: 'flex-start', textAlign: 'left' }}>
@@ -278,13 +284,13 @@ function Causas({ cap }: { cap: Capitulo }) {
       <div className="eyebrow" style={{ color: 'var(--t-cyan)', marginTop: 4 }}>O que aconteceu</div>
       <div className="coluna" style={{ gap: 8 }}>
         {efeitos.map((p) => {
-          const ok = certos.has(p.causa);
+          const ok = certos.has(p.causa), perdeu = perdidos.has(p.causa);
           return (
-            <button key={p.consequencia} disabled={ok} onClick={() => ligar(p.causa)} className={errado === p.causa ? 'treme' : ''}
+            <button key={p.consequencia} disabled={ok || perdeu} onClick={() => ligar(p.causa)} className={errado === p.causa ? 'treme' : ''}
               style={{ minHeight: 52, borderRadius: 16, padding: '8px 12px', textAlign: 'left', fontWeight: 700, fontSize: 15,
-                background: ok ? '#DCFCE7' : errado === p.causa ? '#FFE4E6' : 'var(--surface)',
-                border: `3px solid ${ok ? '#22C55E' : errado === p.causa ? 'var(--red)' : sel ? 'var(--line-2)' : 'var(--line)'}` }}>
-              {ok && <span className="small" style={{ display: 'block', color: 'var(--t-yellow)' }}>{p.causa} →</span>}
+                background: ok ? '#DCFCE7' : perdeu || errado === p.causa ? '#FFE4E6' : 'var(--surface)',
+                border: `3px solid ${ok ? '#22C55E' : perdeu || errado === p.causa ? 'var(--red)' : sel ? 'var(--line-2)' : 'var(--line)'}` }}>
+              {(ok || perdeu) && <span className="small" style={{ display: 'block', color: ok ? 'var(--t-yellow)' : 'var(--t-red)' }}>{perdeu ? 'Errou. A causa era: ' : ''}{p.causa} →</span>}
               {p.consequencia}
             </button>
           );

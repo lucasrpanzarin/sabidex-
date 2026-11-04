@@ -10,6 +10,7 @@ import {
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
 } from '../shared/sync';
 import { ESQUEMA, MIGRACOES, temTurma, turmaDaFamilia } from './esquema';
+import { dataValida, type DatasProva } from '../lib/provas';
 import { APPLE, conferirCracha, GOOGLE } from './jwt';
 import { aleatorio, hashSegredo, iguais, pinAleatorio, sha256 } from './seguranca';
 
@@ -138,12 +139,43 @@ function upsertCartas(db: D1Database, id: string, delta: Record<string, number>)
       .bind(id, carta, n));
 }
 
+/* ---------------- Datas das provas da escola ---------------- */
+
+const CAPITULOS_VALIDOS = new Set(capitulos.map((c) => c.id));
+
+/** Datas marcadas para estas turmas. Quando duas marcam o mesmo capítulo, vale a última da lista. */
+async function datasDe(db: D1Database, turmas: string[]): Promise<DatasProva> {
+  if (!turmas.length) return {};
+  const r = await db.prepare(`SELECT turma_id, capitulo, data FROM datas_prova WHERE turma_id IN (${turmas.map(() => '?').join(',')})`)
+    .bind(...turmas).all<{ turma_id: string; capitulo: string; data: string }>();
+  const datas: DatasProva = {};
+  for (const t of turmas) for (const x of r.results) if (x.turma_id === t && CAPITULOS_VALIDOS.has(x.capitulo)) datas[x.capitulo] = x.data;
+  return datas;
+}
+
+/** Marca (ou apaga, com data vazia) a data da prova de um capítulo. */
+async function marcarData(c: C, turmaId: string) {
+  const b = await corpo(c);
+  const capitulo = String(b.capitulo ?? '');
+  if (!CAPITULOS_VALIDOS.has(capitulo)) return erro(c, 400, 'Capítulo inválido.');
+  if (b.data === '' || b.data === null) {
+    await c.env.DB.prepare('DELETE FROM datas_prova WHERE turma_id = ? AND capitulo = ?').bind(turmaId, capitulo).run();
+  } else {
+    if (!dataValida(b.data)) return erro(c, 400, 'Data inválida.');
+    await c.env.DB.prepare(`INSERT INTO datas_prova (turma_id, capitulo, data) VALUES (?, ?, ?)
+      ON CONFLICT (turma_id, capitulo) DO UPDATE SET data = excluded.data`).bind(turmaId, capitulo, b.data).run();
+  }
+  return c.json({ provas: await datasDe(c.env.DB, [turmaId]) });
+}
+
 async function respostaConta(db: D1Database, k: Crianca, progresso: ProgressoSync) {
   const turma = temTurma(k.turma_id)
     ? await db.prepare('SELECT nome, codigo FROM turmas WHERE id = ?').bind(k.turma_id).first<{ nome: string; codigo: string }>()
     : null;
+  // A data da família vale quando a turma não marcou aquele capítulo; a da turma vale mais.
+  const provas = await datasDe(db, [...(k.familia_id ? [turmaDaFamilia(k.familia_id)] : []), ...(temTurma(k.turma_id) ? [k.turma_id] : [])]);
   return {
-    conta: { id: k.id, apelido: k.apelido, cor: k.cor, turma: turma?.nome ?? '', codigo: turma?.codigo ?? '', familia: !!k.familia_id },
+    conta: { id: k.id, apelido: k.apelido, cor: k.cor, turma: turma?.nome ?? '', codigo: turma?.codigo ?? '', familia: !!k.familia_id, provas },
     progresso,
     cartas: await cartasDe(db, k.id),
   };
@@ -638,7 +670,15 @@ app.get('/adulto/turmas/:id', async (c) => {
   const r = await c.env.DB.prepare(`SELECT id, apelido, cor, criado, visto, bloqueado_ate, familia_id IS NOT NULL AS familia, CASE WHEN semana = ? THEN xp_semana ELSE 0 END AS xp_semana,
     json_extract(progresso, '$.xp') AS xp, (SELECT COUNT(*) FROM cartas WHERE crianca_id = criancas.id AND qtd > 0) AS cartas
     FROM criancas WHERE turma_id = ? ORDER BY apelido_chave`).bind(semanaDe(), t.id).all();
-  return c.json({ turma: t, criancas: r.results });
+  return c.json({ turma: t, criancas: r.results, provas: await datasDe(c.env.DB, [t.id]) });
+});
+
+app.post('/adulto/turmas/:id/provas', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const t = await turmaDoAdulto(c, a);
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  return marcarData(c, t.id);
 });
 
 app.post('/adulto/turmas/:id/criancas/:cid/pin', async (c) => {
@@ -680,7 +720,14 @@ app.get('/adulto/familia', async (c) => {
   const r = await c.env.DB.prepare(`SELECT k.id, k.apelido, k.cor, k.criado, k.visto, k.bloqueado_ate, t.nome AS turma, t.codigo AS codigo,
     json_extract(k.progresso, '$.xp') AS xp, (SELECT COUNT(*) FROM cartas WHERE crianca_id = k.id AND qtd > 0) AS cartas
     FROM criancas k LEFT JOIN turmas t ON t.id = k.turma_id WHERE k.familia_id = ? ORDER BY k.criado`).bind(a.id).all();
-  return c.json({ filhos: r.results });
+  return c.json({ filhos: r.results, provas: await datasDe(c.env.DB, [turmaDaFamilia(a.id)]) });
+});
+
+/** Datas das provas para os filhos (vale para quem não está numa turma, ou quando a turma não marcou). */
+app.post('/adulto/familia/provas', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  return marcarData(c, turmaDaFamilia(a.id));
 });
 
 /** Cria o perfil de um filho. Com `progresso`/`cartas`, leva junto o que já foi feito no aparelho. */
@@ -797,6 +844,7 @@ app.post('/adulto/apagar-conta', async (c) => {
     ...[...apagar].flatMap((cid) => apagarCrianca(db, cid)),
     ...mover.flatMap((k) => tirarDaTurma(db, k.id, k.familia_id!)),
     ...turmas.map((t) => db.prepare('DELETE FROM turmas WHERE id = ?').bind(t)),
+    ...[...turmas, turmaDaFamilia(a.id)].map((t) => db.prepare('DELETE FROM datas_prova WHERE turma_id = ?').bind(t)),
     db.prepare(`DELETE FROM sessoes WHERE tipo = 'adulto' AND ref_id = ?`).bind(a.id),
     db.prepare('DELETE FROM adultos WHERE id = ?').bind(a.id),
   ]);

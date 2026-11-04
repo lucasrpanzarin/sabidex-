@@ -89,6 +89,15 @@ bantos x diáspora). Nenhum fato novo entrou. Além disso, a prova agora **embar
    - **Por que aconteceu?:** ligar cada causa ao que aconteceu depois. Treina o "porquê", não só o "quando".
 6. **Chefão misto.** Prova com perguntas de todos os capítulos já feitos, perto da prova da escola.
 
+### Data da prova da escola
+
+O professor (na turma) ou o adulto (na família) marca o dia da prova de cada capítulo, na área dos adultos.
+Antes da data, o capítulo vem primeiro, com o selo "Prova em 5 dias", e o Ará avisa na semana da prova.
+Depois da data, o capítulo vai para **"Já teve prova na escola"**: continua aberto e valendo os mesmos XP e pacotes,
+para quem chegou depois, faltou ou quer revisar (a matéria volta no bimestre). Não damos bônus por estudar antes da
+data: isso seria pressão de tempo e deixaria para trás quem chegou depois. Se a turma e a família marcarem datas
+diferentes, vale a da turma. Código: `src/lib/provas.ts` e a tabela `datas_prova` no servidor.
+
 ---
 
 ## 4. Como prender o foco (sem viciar)
@@ -98,6 +107,10 @@ bantos x diáspora). Nenhum fato novo entrou. Além disso, a prova agora **embar
 - **Meta clara do dia:** "Hoje: 1 revisão + 1 fase". Barra de progresso sempre visível.
 - **Trocar de atividade** a cada 2–3 minutos (ouvir → ligar → ordenar → responder).
 - **Prêmio por aprender, não por tempo de tela:** XP e pacotes vêm de acertar e terminar fases, nunca de ficar mais tempo.
+- **Uma chance por item:** em todos os jogos de ligar e ordenar (memória, linha do tempo, separe nos grupos,
+  por que aconteceu?), cada item tem uma chance só. Errou, o app mostra o certo, marca como erro e segue.
+  Assim não dá para ir clicando até acertar. O resultado é igual em todos os jogos: estrelas, "X de Y certas" e a nota
+  (3 estrelas = nota 10, 2 = nota 7 ou mais, 1 = abaixo de 7).
 - **Chutar não compensa:** cada erro tira 10% do XP da fase (sobra no mínimo 20%). Pacote da fase (memória, quiz), pacote do dia e pacote épico da prova só vêm com nota 7 ou mais (7 de cada 10 certas). Se a nota não der, o pacote da fase fica esperando: ela joga de novo e ganha quando tirar 7.
 - **Surpresa boa:** o pacote de Sabimons e o lendário são o "momento uau"; animação só nesses momentos.
 - **O Ará reage** ao acerto, ao erro ("quase! olha a dica") e ao recorde; fala na 2ª pessoa e chama pelo apelido.

@@ -5,7 +5,11 @@ import { aplicarServidor, getEstado, getPendente, limparPendente, progressoDe, s
 import type { ProgressoSync } from '../shared/sync';
 
 /** `codigo` vazio = ainda não está numa turma. `familia` = tem um adulto responsável ligado à conta. */
-export interface Conta { id: string; apelido: string; cor: string; turma: string; codigo: string; familia?: boolean }
+export interface Conta {
+  id: string; apelido: string; cor: string; turma: string; codigo: string; familia?: boolean;
+  /** datas das provas da escola (capítulo → AAAA-MM-DD), marcadas pelo professor ou pelo adulto da família */
+  provas?: Record<string, string>;
+}
 /** Perfis da família que já entraram neste aparelho (para irmãos trocarem só com o PIN). */
 export interface PerfilAparelho { id: string; apelido: string; cor: string }
 interface RespostaConta { conta: Conta; progresso: ProgressoSync; cartas: Record<string, number> }
