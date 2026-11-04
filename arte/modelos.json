@@ -1,0 +1,242 @@
+[
+  {
+    "slug": "alibaba/qwen-image-3/edit",
+    "title": "Qwen Image 3",
+    "description": "Edit images from an instruction and one to three ordered references with Qwen Image 3.",
+    "operation_type": [
+      "image_edit"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": "text2image",
+    "input_schema": null
+  },
+  {
+    "slug": "alibaba/qwen-image-3/text-to-image",
+    "title": "Qwen Image 3",
+    "description": "Generates images from English or Chinese text, with enhanced prompts and resolution up to 2K.",
+    "operation_type": [
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": "text2image",
+    "input_schema": null
+  },
+  {
+    "slug": "higgsfield/ads-studio/v1.0",
+    "title": "Ads Studio",
+    "description": "From a simple brief to ready-to-use ads. Bring your product, describe your vision, and let Ads Studio handle the creative.",
+    "operation_type": [
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": null,
+    "input_schema": null
+  },
+  {
+    "slug": "higgsfield/ai-influencer",
+    "title": "AI Influencer",
+    "description": "Create one AI influencer character sheet. Human and animal modes. $0.05 per sheet.",
+    "operation_type": [
+      "image_edit",
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": true,
+    "fnf_job_set_type": null,
+    "input_schema": null
+  },
+  {
+    "slug": "higgsfield-ai/soul/standard",
+    "title": "Soul Standard",
+    "description": "Generates fashion and lifestyle photos from text, with style presets for editorial and social content.",
+    "operation_type": [
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "1.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": null,
+    "input_schema": null
+  },
+  {
+    "slug": "higgsfield-ai/soul/v2/image-to-image",
+    "title": "Soul 2",
+    "description": "Generate images from a reference image with Soul 2.",
+    "operation_type": [
+      "image_edit"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": null,
+    "input_schema": null
+  },
+  {
+    "slug": "higgsfield-ai/soul/v2/standard",
+    "title": "Soul 2",
+    "description": "Generates realistic portraits and fashion images, with natural textures and curated editorial styles.",
+    "operation_type": [
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": null,
+    "input_schema": null
+  },
+  {
+    "slug": "ideogram/v4.0",
+    "title": "Ideogram 4.0",
+    "description": "Generates and edits images with multilingual text for posters, packaging and other graphic layouts.",
+    "operation_type": [
+      "image_edit",
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": null,
+    "input_schema": null
+  },
+  {
+    "slug": "marketing-studio/image",
+    "title": "Marketing Studio Image",
+    "description": "Creates and edits campaign images up to 4K from text or images.",
+    "operation_type": [
+      "image_edit",
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": "generic_image",
+    "input_schema": null
+  },
+  {
+    "slug": "marketing-studio/image/flare",
+    "title": "Marketing Studio Image",
+    "description": "Generate and edit Marketing Studio images with GPT Image 2.5 Flare.",
+    "operation_type": [
+      "image_edit",
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": "generic_image",
+    "input_schema": null
+  },
+  {
+    "slug": "marketing-studio/image/sunburst",
+    "title": "Marketing Studio Image",
+    "description": "Generate and edit Marketing Studio images with GPT Image 2.5 Sunburst.",
+    "operation_type": [
+      "image_edit",
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": "generic_image",
+    "input_schema": null
+  },
+  {
+    "slug": "recraft/v4.1/pro/text-to-image",
+    "title": "Recraft V4.1 Pro",
+    "description": "Recraft V4.1 Pro generates images from text prompts with customizable resolution, aspect ratio, output format, and color options. Users can specify background and palette colors to tailor the visual style of the output.",
+    "operation_type": [
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": "recraft_v4_1",
+    "input_schema": null
+  },
+  {
+    "slug": "recraft/v4.1/text-to-image",
+    "title": "Recraft V4.1",
+    "description": "Generates images and illustrations using custom palettes and background colors to fit your brand.",
+    "operation_type": [
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": "recraft_v4_1",
+    "input_schema": null
+  },
+  {
+    "slug": "recraft/v4.1/utility/pro/text-to-image",
+    "title": "Recraft V4.1 Utility Pro",
+    "description": "Recraft V4.1 Utility Pro generates images from text prompts with customizable resolution, aspect ratio, output format, and color options. Users can specify background colors and a palette of colors to influence the image creation process.",
+    "operation_type": [
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": "recraft_v4_1",
+    "input_schema": null
+  },
+  {
+    "slug": "recraft/v4.1/utility/text-to-image",
+    "title": "Recraft V4.1 Utility",
+    "description": "Recraft V4.1 Utility generates images from text prompts with customizable resolution, aspect ratio, output format, and color options including background and palette colors. This variant focuses on utility features for precise control over image attributes.",
+    "operation_type": [
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": "recraft_v4_1",
+    "input_schema": null
+  },
+  {
+    "slug": "soul-id",
+    "title": "Soul ID",
+    "description": "",
+    "operation_type": [
+      "character"
+    ],
+    "output_type": "image",
+    "base_credits": "40.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": null,
+    "input_schema": null
+  },
+  {
+    "slug": "xai/grok-imagine-image-2.0",
+    "title": "Grok Imagine 2.0",
+    "description": "Generates images and makes precise edits while preserving image details and visual consistency.",
+    "operation_type": [
+      "image_edit",
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": "grok_image",
+    "input_schema": null
+  },
+  {
+    "slug": "z-image/turbo",
+    "title": "Z-Image Turbo",
+    "description": "Generates images quickly with clear Chinese and English text rendering and PNG output up to 2K.",
+    "operation_type": [
+      "text2image"
+    ],
+    "output_type": "image",
+    "base_credits": "0.0000",
+    "is_workflow": false,
+    "fnf_job_set_type": "text2image",
+    "input_schema": null
+  }
+]

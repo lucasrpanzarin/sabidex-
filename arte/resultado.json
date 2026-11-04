@@ -1,87 +1,29 @@
 {
-  "quando": "2026-11-04T15:38:51.709Z",
-  "imagens": [
-    {
-      "nome": "001-1",
-      "sabimon": "Brasinho",
-      "modelo": "higgsfield-ai/soul/standard",
-      "largura": 2048,
-      "altura": 2048
-    },
-    {
-      "nome": "002-1",
-      "sabimon": "Pingoró",
-      "modelo": "higgsfield-ai/soul/standard",
-      "largura": 2048,
-      "altura": 2048
-    },
-    {
-      "nome": "003-1",
-      "sabimon": "Sementú",
-      "modelo": "higgsfield-ai/soul/standard",
-      "largura": 2048,
-      "altura": 2048
-    },
-    {
-      "nome": "004-1",
-      "sabimon": "Zapinho",
-      "modelo": "higgsfield-ai/soul/standard",
-      "largura": 2048,
-      "altura": 2048
-    },
-    {
-      "nome": "005-1",
-      "sabimon": "Pedrolho",
-      "modelo": "higgsfield-ai/soul/standard",
-      "largura": 2048,
-      "altura": 2048
-    },
-    {
-      "nome": "006-1",
-      "sabimon": "Ventilu",
-      "modelo": "higgsfield-ai/soul/standard",
-      "largura": 2048,
-      "altura": 2048
-    },
-    {
-      "nome": "007-1",
-      "sabimon": "Arenito",
-      "modelo": "higgsfield-ai/soul/standard",
-      "largura": 2048,
-      "altura": 2048
-    },
-    {
-      "nome": "008-1",
-      "sabimon": "Nevim",
-      "modelo": "higgsfield-ai/soul/standard",
-      "largura": 2048,
-      "altura": 2048
-    },
-    {
-      "nome": "009-1",
-      "sabimon": "Cantaru",
-      "modelo": "higgsfield-ai/soul/standard",
-      "largura": 2048,
-      "altura": 2048
-    },
-    {
-      "nome": "010-1",
-      "sabimon": "Estrelim",
-      "modelo": "higgsfield-ai/soul/standard",
-      "largura": 2048,
-      "altura": 2048
-    }
-  ],
+  "quando": "2026-11-04T15:49:12.264Z",
+  "imagens": [],
   "pedido": {
-    "acao": "gerar",
-    "formas": [
-      1
-    ]
+    "acao": "modelos"
   },
-  "sondagem": {
-    "/models": "{\"total\":95,\"items\":[{\"slug\":\"alibaba/happy-horse/image-to-video\",\"title\":\"Happy Horse 1.0\",\"description\":\"Happy Horse 1.0 - Image to Video. Configured Alibaba route; cloned from hh/image-to-video.\",\"operation_type\":[\"image2video\"],\"output_type\":\"video\",\"base_credits\":\"0.0000\",\"is_workflow\":false,\"fnf_job_set_type\":\"generic_video\",\"input_schema\":null},{\"slug\":\"alibaba/happy-horse/reference-to-video\",\"title\":\"Happy Horse 1.0\",\"description\":\"Happy Horse 1.0 - Reference to Video. Configured Alibaba route; cloned from happy-horse/reference-to-video.\",\"operation_type\":[\"image2video\"],\"output_type\":\"video\",\"base_credits\":\"0.0000\",\"is_workflow\":false,\"fnf_job_set_type\":\"generic_video\",\"input_schema\":null},{\"slug\":\"alibaba/happy-horse/text-to-video\",\"title\":\"Happy Horse 1.0\",\"description\":\"Generates videos from text or image references with clips up to 15 seconds and 1080p resolution.\",\"operation_type\":[\"image2video\"],\"output_type\":\"video\",\"base_credits\":\"0.0000\",\"is_workflow\":false,\"fnf_job_set_type\":\"generic_video\",\"input_schema\":null},{\"slug\":\"alibaba/happy-horse/v1.1/image-to-video\",\"title\":\"HappyHorse 1.1\",\"description\":\"HappyHorse 1.1 - Image to Video. Configured Alibaba route; cloned from hh/image-to-video.\",\"operation_type\":[\"image2video\"],\"output_type\":\"video\",\"base_credits\":\"0.0000\",\"is_workflow\":false,\"fnf_job_set_type\":\"generic_video\",\"input_schema\":null},{\"slug\":\"alibaba/happy-horse/v1.1/reference-to-video\",\"title\":\"HappyHorse 1.1\",\"description\":\"HappyHorse 1.1 - Reference to Video. Configured Alibaba route; cloned from happy-horse/reference-to-video.\",\"operation_type\":[\"image2video\"],\"output_type\":\"video\",\"base_credits\":\"0.0000\",\"is_workflow\":false,\"fnf_job_set_type\":\"generic_video\",\"input_schema\":null},{\"slug\":\"alibaba/happy-horse/v1.1/text-to-video\",\"title\":\"HappyHorse 1.1\",\"description\":\"Generates videos from text or image references with output at 1080p and clips up to 15 seconds.\",\"operation_type\":[\"image2video\"],\"output_type\":\"video\",\"base_credits\":\"0.0000\",\"is_workflow\":false,\"fnf_job_set_type\":\"generic_video\",\"input_schema\":null},{\"slug\":\"alibaba/qwen-image-3/edit\",\"title\":\"Qwen Image 3\",\"description\":\"Edit images from an instruction and one to three ordered references with Qwen Image 3.\",\"operation_type\":[\"image_edit\"],\"output_type\":\"image\",\"base_credits\":\"0.0000\",\"is_workflow\":false,\"fnf_job_set_type\":\"text2image\",\"input_schema\":null},{\"slug\":\"alibaba/qwen-image-3/text-to-image\",\"title\":\"Qwen Image 3\",\"description\":\"Generates images from English or Chinese text, with enhanced prompts and resolution up to 2K.\",\"operation_type\":[\"text2image\"],\"output_type\":\"image\",\"base_credits\":\"0.0000\",\"is_workflow\":false,\"fnf_job_set_type\":\"text2image\",\"input_schema\":null},{\"slug\":\"alibaba/wan-3.0/image-to-video\",\"title\":\"Wan 3.0\",\"description\":\"Generate videos from a starting image with Wan 3.0.\",\"operation_type\":[\"image2video\"],\"output_type\":\"video\",\"base_credits\":\"0.0000\",\"is_workflow\":false,\"fnf_job_set_type\":\"wan3_0\",\"input_schema\":null},{\"s",
-    "/v1/models": "Error: GET https://platform.higgsfield.ai/v1/models: HTTP 405 {\"detail\":\"Method Not Allowed\"}",
-    "/api/models": "Error: GET https://platform.higgsfield.ai/api/models: HTTP 405 {\"detail\":\"Method Not Allowed\"}"
-  },
+  "total": 95,
+  "imagem": [
+    "alibaba/qwen-image-3/edit | Qwen Image 3 | 0.0000",
+    "alibaba/qwen-image-3/text-to-image | Qwen Image 3 | 0.0000",
+    "higgsfield/ads-studio/v1.0 | Ads Studio | 0.0000",
+    "higgsfield/ai-influencer | AI Influencer | 0.0000",
+    "higgsfield-ai/soul/standard | Soul Standard | 1.0000",
+    "higgsfield-ai/soul/v2/image-to-image | Soul 2 | 0.0000",
+    "higgsfield-ai/soul/v2/standard | Soul 2 | 0.0000",
+    "ideogram/v4.0 | Ideogram 4.0 | 0.0000",
+    "marketing-studio/image | Marketing Studio Image | 0.0000",
+    "marketing-studio/image/flare | Marketing Studio Image | 0.0000",
+    "marketing-studio/image/sunburst | Marketing Studio Image | 0.0000",
+    "recraft/v4.1/pro/text-to-image | Recraft V4.1 Pro | 0.0000",
+    "recraft/v4.1/text-to-image | Recraft V4.1 | 0.0000",
+    "recraft/v4.1/utility/pro/text-to-image | Recraft V4.1 Utility Pro | 0.0000",
+    "recraft/v4.1/utility/text-to-image | Recraft V4.1 Utility | 0.0000",
+    "soul-id | Soul ID | 40.0000",
+    "xai/grok-imagine-image-2.0 | Grok Imagine 2.0 | 0.0000",
+    "z-image/turbo | Z-Image Turbo | 0.0000"
+  ],
   "ok": true
 }
