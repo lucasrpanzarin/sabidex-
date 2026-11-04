@@ -3,7 +3,7 @@
 
 import { Hono, type Context } from 'hono';
 import { capitulos } from '../data';
-import { FASES, chaveExtra, extrasDo } from '../lib/jogo';
+import { FASES, POR_PACOTE, chaveExtra, extrasDo } from '../lib/jogo';
 import { idEvolucao, itemPorId, migrarFormas, podeEvoluir, premiosLivres, PRECO_EVOLUCAO, protegido, refCompra } from '../lib/loja';
 import { figurinhaPorId, idCarta, IDS_CARTAS, IDS_PACOTE } from '../lib/figurinhas';
 import {
@@ -142,6 +142,22 @@ function upsertCartas(db: D1Database, id: string, delta: Record<string, number>)
       .bind(id, carta, n));
 }
 
+/**
+ * Proteção simples contra cartas inventadas: cada pacote aberto dá 1 carta,
+ * então o aparelho só pode mandar tantas cartas novas quantos pacotes novos ele abriu.
+ * (A proteção completa é abrir os pacotes no servidor; está no caderno, para antes de publicar nas lojas.)
+ */
+function limitarCartas(delta: Record<string, number>, pacotesNovos: number): Record<string, number> {
+  let resta = Math.max(0, pacotesNovos) * POR_PACOTE;
+  const out: Record<string, number> = {};
+  for (const [carta, n] of Object.entries(delta)) {
+    const pode = Math.min(n, resta);
+    if (pode > 0) { out[carta] = pode; resta -= pode; }
+  }
+  return out;
+}
+const pacotesNovos = (antes: string[], agora: string[]) => { const ja = new Set(antes); return new Set(agora.filter((id) => !ja.has(id))).size; };
+
 /* ---------------- Datas das provas da escola ---------------- */
 
 const CAPITULOS_VALIDOS = new Set(capitulos.map((c) => c.id));
@@ -214,7 +230,7 @@ app.post('/crianca/entrar-turma', async (c) => {
       c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)`)
         .bind(id, t.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semana, Date.now(), Date.now()),
-      ...upsertCartas(c.env.DB, id, sanitizarDelta(b.cartas, IDS_PACOTE)),
+      ...upsertCartas(c.env.DB, id, limitarCartas(sanitizarDelta(b.cartas, IDS_CARTAS), progresso.abertos.length)),
     ]);
   } catch (e) {
     if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já tem alguém com esse apelido na turma. Escolha outro, ou entre com o seu PIN se a conta for sua.');
@@ -337,7 +353,7 @@ app.post('/crianca/sync', async (c) => {
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
   const b = await corpo(c);
   const doAparelho = sanitizar(b.progresso, FASES_VALIDAS);
-  const delta = sanitizarDelta(b.cartas, IDS_PACOTE);
+  const recebidas = sanitizarDelta(b.cartas, IDS_PACOTE);
   const db = c.env.DB;
   // Grava só se ninguém mudou o progresso no meio do caminho (uma evolução, outra aba).
   // Se mudou, lê de novo e junta outra vez: assim nenhuma evolução ou compra do servidor se perde.
@@ -345,6 +361,7 @@ app.post('/crianca/sync', async (c) => {
   for (let tentativa = 0; tentativa < 4; tentativa++) {
     const antes = sanitizar(JSON.parse(atual.progresso), FASES_VALIDAS);
     const m = conferirCompras(antes, mesclar(antes, doAparelho));
+    const delta = limitarCartas(recebidas, pacotesNovos(antes.abertos, doAparelho.abertos));
     const semana = semanaDe();
     const ganho = Math.max(0, m.xp - antes.xp);
     const xpSemana = (atual.semana === semana ? atual.xp_semana : 0) + Math.min(ganho, 2000);
@@ -806,7 +823,7 @@ app.post('/adulto/familia', async (c) => {
       c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, familia_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)`)
         .bind(id, turmaDaFamilia(a.id), a.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semanaDe(), Date.now(), Date.now()),
-      ...upsertCartas(c.env.DB, id, sanitizarDelta(b.cartas, IDS_PACOTE)),
+      ...upsertCartas(c.env.DB, id, limitarCartas(sanitizarDelta(b.cartas, IDS_CARTAS), progresso.abertos.length)),
     ]);
   } catch (e) {
     if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já tem uma criança com esse apelido na sua família.');

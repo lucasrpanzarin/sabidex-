@@ -68,7 +68,8 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 ### Cartas e álbum
 - **Álbum de 60 figurinhas**: 20 Sabimons × 3 formas. Número no álbum = (nº do Sabimon − 1) × 3 + forma. Ids: `s001`, `s001-2`, `s001-3`.
 - **Evolução** (Lucas, 04/11/2026): **3 cartas da forma 1 → 1 da forma 2** (+100 Sabicoins); **2 da forma 2 → 1 da forma 3** (+300 Sabicoins). As cartas usadas somem. Na turma, a evolução é feita pelo servidor.
-- Vida e força da carta: calculadas em `src/lib/sabimon.ts` (pela raridade e pela forma).
+- Vida e força da carta: calculadas em `src/lib/sabimon.ts` (pela raridade e pela forma). Forma 1: comum Vida 50, força 10/20 · rara 60, 20/30 · épica 70, 30/40 · **lendária 90, 40/50**. Forma 2: +30 Vida, força ×1,7. Forma 3: +70 Vida, força ×2,6.
+- **Lendária tem brilho**: estrela-figurinha amarela no canto da moldura e reflexo dourado em cima do desenho.
 - Carta com itens da lojinha não sai em troca nem na evolução (só as cópias repetidas).
 
 ### Lojinha
@@ -133,21 +134,30 @@ Guia de arte: `docs/ARTE-SABIMONS.md`.
 | Logo de texto simples | Letras-figurinha coloridas | 04/11/2026 |
 | Visual com roxo | Álbum de figurinhas (papel + contorno escuro) | 04/11/2026 |
 
-## 6. Pontos em aberto (para o Lucas decidir)
+## 6. Pontos em aberto e decisões da revisão
 
-Achados na revisão geral de 04/11/2026:
+Decididos pelo Lucas em 04/11/2026, depois da revisão geral:
 
-1. **O álbum de 60 é muito difícil de completar sozinho.** Simulação: a criança precisa de cerca de **57 pacotes** para ter os 20 bichos, e cerca de **440 pacotes** para ter as 60 figurinhas sem trocar (porque cada bicho precisa de 10 cartas da forma 1 para ter as 3 formas no álbum). Uma criança ganha mais ou menos 6 pacotes por capítulo + 1 por dia. As lendárias forma 3 ficam quase impossíveis. Ideias: lendária forma 3 precisar de menos cartas, ou o pacote épico dar mais lendárias.
-2. **Lendária tem menos força que épica** (forma 1: épica 30/40, lendária 20/30; a lendária tem mais Vida). Se foi de propósito, ok; se não, ajustar em `src/lib/sabimon.ts`.
-3. **Duas telas ao mesmo tempo**: se a criança joga em dois aparelhos sem internet e depois sincroniza, fica o maior XP dos dois (não a soma). Raro, mas pode perder um pouco de XP.
-4. **Cartas confiadas no aparelho**: o servidor aceita as cartas que o aparelho diz que tirou nos pacotes (até 30 de cada vez). Uma criança muito esperta poderia "inventar" cartas mexendo no navegador. Para mudar, os pacotes teriam que ser abertos no servidor.
-5. **Aviso do conteúdo**: História cap. 9, tema 5, ponto 3 tem uma frase com 22 palavras (o máximo é 20).
-6. `sabidex.com` ainda não está ligado na Cloudflare.
-7. Ciências e Geografia: só "Em breve".
+1. **Álbum difícil de completar: fica como está por enquanto.** Conta feita: uns 58 pacotes (~4 capítulos) para ter os 20 bichos e uns 440 pacotes (~30 capítulos, contando ~14 pacotes por capítulo) para as 60 figurinhas sem trocar. Se ficar difícil demais, as opções já simuladas são:
+   - **"Garantia de progresso"** (quando já tem os 20, a garantia dá o bicho que mais falta): cai para ~280 pacotes. Não mexe na regra 3→1 e 2→1.
+   - Épica e lendária com 2 cartas para a forma 2: ~390 pacotes. Juntando as duas ideias: ~255.
+2. **Lendária é a mais forte em tudo** (força base 40, épica 30; mais Vida também) e tem **brilho**: estrela-figurinha amarela no canto e reflexo dourado parado em cima do desenho (o reflexo só passa uma vez no momento do prêmio).
+3. Frase de 22 palavras no tema "Os griôs" (cap. 9): **fica como está** (o áudio já fala esse texto).
+4. Segurança:
+   - XP de dois aparelhos sem internet (fica o maior, não a soma): **fica como está**.
+   - Cartas inventadas: **feita a proteção pequena** (o servidor só aceita 1 carta nova por pacote novo aberto). A proteção completa está na lista abaixo.
+
+Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geografia só "Em breve".
+
+### Antes de publicar nas lojas (ou ter muitas escolas)
+- [ ] **Abrir os pacotes no servidor** (não no aparelho). Assim ninguém consegue inventar cartas. Abrir pacote passa a precisar de internet.
+- [ ] Ligar `sabidex.com` na Cloudflare.
 
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
+
+- **04/11/2026** · Lendárias mais fortes (força base 40) e com brilho (Lucas). Proteção contra cartas inventadas: o servidor só aceita 1 carta nova por pacote aberto; de quebra, cartas mandadas duas vezes (internet caiu no meio) não contam em dobro. Quem jogava sem conta e evoluiu no aparelho não perde mais a forma 2/3 ao entrar numa turma ou família.
 
 - **04/11/2026** · Revisão geral: textos antigos da lojinha corrigidos ("Medalhas, escudos" → "Frutas, cristais e molduras"; "Cada Sabimon tem 3 espaços" → "Cada carta"); evolução no servidor agora acontece de uma vez só (nunca some carta sem evoluir); sincronizar ao mesmo tempo que evolui não "devolve" mais as Sabicoins da evolução; fotos de teste soltas na pasta principal foram apagadas; este caderno foi criado.
 - **04/11/2026** · Álbum de 60 figurinhas, evolução 3→1 e 2→1, verso novo das cartas, logo novo e ícone novo (Lucas).

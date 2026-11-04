@@ -296,6 +296,24 @@ strong { color: var(--t-coral); font-weight: 900; }
 .carta.com-cenario .palco img { filter: drop-shadow(0 0 2px #0B102699) drop-shadow(0 8px 10px #00000080); }
 
 
+/* Lendária: brilho de figurinha metalizada (parado; o reflexo só passa uma vez no momento do prêmio) */
+.carta.lendaria:not(.vazia) { position: relative; }
+.carta.lendaria:not(.vazia) .palco::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: screen;
+  background:
+    radial-gradient(circle at 12% 14%, #FFFFFF 0 2.2px, #FFFFFF66 3.2px, transparent 5px),
+    radial-gradient(circle at 88% 22%, #FFFFFF 0 2.8px, #FDE68A88 4px, transparent 6px),
+    radial-gradient(circle at 80% 84%, #FEF3C7 0 2px, transparent 4px),
+    radial-gradient(circle at 20% 78%, #FFFFFF 0 1.8px, transparent 3.5px),
+    linear-gradient(118deg, transparent 22%, #FFFFFF55 36%, #FDE68A99 45%, #A5F3FC77 52%, #FFFFFF44 58%, transparent 70%);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 250% 100%; background-position: 0 0, 0 0, 0 0, 0 0, 45% 0; }
+/* Estrelinhas de brilho nos cantos da moldura */
+.carta.lendaria:not(.vazia)::after { content: '★'; position: absolute; top: -11px; left: -9px; z-index: 2; pointer-events: none;
+  font-family: var(--display); font-size: 24px; line-height: 1; color: var(--yellow); -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill;
+  text-shadow: 2px 2px 0 var(--ink); transform: rotate(-12deg); }
+.carta.lendaria.grande:not(.vazia)::after { font-size: 40px; top: -18px; left: -14px; -webkit-text-stroke: 2.5px var(--ink); text-shadow: 3px 3px 0 var(--ink); }
+.carta.lendaria.holo .palco::after { animation: brilho-lendaria 1.6s ease-out 1 both; }
+@keyframes brilho-lendaria { from { background-position: 0 0, 0 0, 0 0, 0 0, 110% 0; } to { background-position: 0 0, 0 0, 0 0, 0 0, 45% 0; } }
+
 /* Moldura especial comprada na lojinha */
 .carta.v-ouro:not(.vazia) { background: linear-gradient(135deg, #FEF3C7, #EAB308 35%, #FDE68A 55%, #CA8A04 80%, #FEF3C7); }
 .carta.v-holo:not(.vazia) { background: linear-gradient(110deg, #F472B6, #22D3EE, #FACC15, #4ADE80, #F472B6); }
