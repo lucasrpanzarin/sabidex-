@@ -74,6 +74,23 @@ Mudanças: o Arenito virou **maria-farinha → guaiamum**; o Ventilu termina com
 | 009 | Cantaru → Melodiru → Sinfonuru | Som | tiny brown songbird (uirapuru) with musical note shaped crest | songbird with glowing musical notes floating around it, singing | large elegant songbird with rainbow sound waves coming from its beak, conductor pose |
 | 010 | Estrelim → Constelão → Galaxiá | Estrela | tiny baby anteater with dark blue fur covered in tiny constellations | anteater with glowing star patterns and a moon on its forehead | large cosmic anteater whose fur looks like a galaxy, surrounded by shooting stars |
 
+## 011 a 020 (30 imagens) — pedidas em 04/11/2026
+
+As descrições completas estão em `arte/sabimons/lista.json`.
+
+| Nº | Nomes (forma 1 → 2 → 3) | Bicho | Tipo | Raridade |
+| --- | --- | --- | --- | --- |
+| 011 | Bolhudo → Bolhão → Maremanso | peixe-boi | Água | ★ |
+| 012 | Folhapé → Saltifolha → Pereflora | perereca | Planta | ★ |
+| 013 | Tucanuvem → Bicorrente → Tucaventania | tucano | Vento | ★ |
+| 014 | Areiruga → Conchaduna → Tartamaré | tartaruga-marinha (sempre de quatro) | Areia | ★ |
+| 015 | Faiscaraqué → Voltaraqué → Trovaraqué | poraquê | Raio | ★★ |
+| 016 | Guarabrasa → Juballama → Guaravulcão | lobo-guará (sem cauda de fogo) | Fogo | ★★ |
+| 017 | Antarocha → Pedranta → Montanta | anta | Pedra | ★★ |
+| 018 | Geladim → Pinguigelo → Glaciguim | pinguim-de-magalhães (preto e branco) | Gelo | ★★★ |
+| 019 | Bugiurro → Ecobugio → Bugitroante | bugio | Som | ★★★ |
+| 020 | Oncelestre → Onçastral → Constelonça | onça-pintada | Estrela | ★★★★ |
+
 ## Onde salvar
 
 - Salve cada imagem em **`arte/sabimons/originais/`** com o nome **`<número>-<forma>.png`**:
