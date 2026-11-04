@@ -5,13 +5,24 @@
   "name": "sabidex",
   "main": "src/worker/index.ts",
   "compatibility_date": "2026-10-01",
-  // Endereço público do app: https://sabidex.fastlabs.workers.dev
+  // Endereço público do app: https://sabidex.com.br
+  // (sabidex.com e os "www" redirecionam para ele; o código está em src/worker/index.ts).
+  // O endereço antigo https://sabidex.fastlabs.workers.dev continua funcionando.
+  // Os dois domínios precisam estar na mesma conta da Cloudflare deste Worker.
+  "routes": [
+    { "pattern": "sabidex.com.br", "custom_domain": true },
+    { "pattern": "www.sabidex.com.br", "custom_domain": true },
+    { "pattern": "sabidex.com", "custom_domain": true },
+    { "pattern": "www.sabidex.com", "custom_domain": true }
+  ],
   "workers_dev": true,
   "preview_urls": true,
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"]
+    // O servidor olha todo pedido primeiro, para redirecionar os outros domínios.
+    "run_worker_first": true
   },
   // Banco de dados das turmas. Sem "database_id": a Cloudflare cria sozinha no primeiro deploy.
   "d1_databases": [{ "binding": "DB", "database_name": "sabidex" }],

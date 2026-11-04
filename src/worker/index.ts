@@ -11,7 +11,7 @@ import {
 import { ESQUEMA } from './esquema';
 import { aleatorio, hashSegredo, iguais, pinAleatorio, sha256 } from './seguranca';
 
-interface Env { DB: D1Database; ADMIN_EMAILS?: string }
+interface Env { DB: D1Database; ASSETS: Fetcher; ADMIN_EMAILS?: string }
 type C = Context<{ Bindings: Env }>;
 
 const DIA = 86_400_000;
@@ -416,4 +416,21 @@ app.delete('/adulto/turmas/:id/criancas/:cid', async (c) => {
 app.notFound((c) => c.json({ erro: 'Não encontrado.' }, 404));
 app.onError((e, c) => { console.error(e); return c.json({ erro: 'Algo deu errado. Tente de novo.' }, 500); });
 
-export default app;
+// Endereço principal. sabidex.com, www.sabidex.com e www.sabidex.com.br levam para cá,
+// assim o progresso salvo no aparelho fica sempre no mesmo endereço.
+// O endereço antigo *.workers.dev continua funcionando sem mudar.
+const PRINCIPAL = 'sabidex.com.br';
+const REDIRECIONAR = new Set(['sabidex.com', 'www.sabidex.com', 'www.sabidex.com.br']);
+
+export default {
+  fetch(req: Request, env: Env, ctx: ExecutionContext) {
+    const url = new URL(req.url);
+    if (REDIRECIONAR.has(url.hostname)) {
+      url.hostname = PRINCIPAL;
+      url.protocol = 'https:';
+      return Response.redirect(url.toString(), 301);
+    }
+    if (url.pathname === '/api' || url.pathname.startsWith('/api/')) return app.fetch(req, env, ctx);
+    return env.ASSETS.fetch(req);
+  },
+} satisfies ExportedHandler<Env>;
