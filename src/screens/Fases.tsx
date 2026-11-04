@@ -162,7 +162,8 @@ function Ouvir({ cap }: { cap: Capitulo }) {
                 <ul style={{ margin: '10px 0 0', paddingLeft: 20, display: 'grid', gap: 6, fontWeight: 600 }}>
                   {t.pontos.map((p, j) => <li key={j}><Texto t={p} /></li>)}
                 </ul>
-                {!ouvidos.has(i) && (
+                {/* Só aparece se o tema ainda não tem áudio: com narração, a criança precisa ouvir. */}
+                {!t.audio && !ouvidos.has(i) && (
                   <button className="btn btn-escuro" style={{ minHeight: 44, padding: '6px 16px', fontSize: 15, marginTop: 10 }}
                     onClick={() => { setOuvidos((s) => new Set(s).add(i)); setAberto(i + 1 < total ? i + 1 : null); }}>
                     Já li este tema
