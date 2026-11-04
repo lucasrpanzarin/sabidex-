@@ -289,7 +289,7 @@ export function Ranking() {
 
 /* ---------------- Trocas ---------------- */
 interface TrocaApi { id: string; de_id: string; para_id: string; carta_dar: string; carta_receber: string; status: string; de_apelido: string; de_cor: string; para_apelido: string; para_cor: string; resolvido: number | null }
-interface Colega { id: string; apelido: string; cor: string; cartas: number }
+interface Colega { id: string; apelido: string; cor: string; cartas: number; online?: number }
 
 function Mini({ id }: { id: string }) {
   const f = figurinhaPorId.get(id);
@@ -350,6 +350,7 @@ export function Trocas() {
         <h1 className="display h1">Trocas</h1>
       </div>
       <button className="btn btn-amarelo btn-bloco" onClick={() => { setAviso(null); setModo('nova'); }}>Propor uma troca</button>
+      <button className="btn btn-escuro btn-bloco" onClick={() => ir('chat')}>Conversa da turma</button>
       {aviso && <div className="aviso aviso-ok pop" role="status">{aviso}</div>}
       <Erro texto={erro} />
 
@@ -457,8 +458,8 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
           {colegas?.length === 0 && <div className="balao">Ainda não tem colegas na turma. Chame seus amigos!</div>}
           {colegas?.map((c) => (
             <button key={c.id} className="linha" onClick={() => setColega(c)} style={{ minHeight: 60, borderRadius: 16, padding: '8px 12px', background: 'var(--surface)', border: '3px solid var(--ink)', textAlign: 'left' }}>
-              <Avatar nome={c.apelido} cor={c.cor} />
-              <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 18, display: 'block' }}>{c.apelido}</span><span className="muted small">{c.cartas} {c.cartas === 1 ? 'carta diferente' : 'cartas diferentes'}</span></span>
+              <span style={{ position: 'relative' }}><Avatar nome={c.apelido} cor={c.cor} />{!!c.online && <span className="colega-online" aria-hidden="true" />}</span>
+              <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 18, display: 'block' }}>{c.apelido}</span><span className="muted small">{c.online ? 'Estudando agora · ' : ''}{c.cartas} {c.cartas === 1 ? 'carta diferente' : 'cartas diferentes'}</span></span>
               <Icone nome="seguir" />
             </button>
           ))}
