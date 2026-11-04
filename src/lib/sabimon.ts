@@ -46,4 +46,4 @@ export const forca = (s: Sabimon, forma: Forma, i: 0 | 1) =>
 export const COPIAS_PARA: Record<Forma, number> = { 1: 1, 2: 3, 3: 6 };
 
 /** Tipos que já têm cenário desenhado em public/cenarios/. Os outros usam o cenário feito só com cores. */
-export const CENARIOS = new Set<string>([]);
+export const CENARIOS = new Set<string>(['fogo', 'agua', 'planta', 'raio', 'pedra', 'vento', 'areia', 'gelo', 'som', 'estrela']);
