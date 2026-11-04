@@ -1,72 +1,21 @@
 {
-  "quando": "2026-11-04T16:07:34.304Z",
+  "quando": "2026-11-04T16:21:35.077Z",
   "imagens": [
-    {
-      "nome": "001-1",
-      "pulado": "já existe"
-    },
-    {
-      "nome": "002-1",
-      "sabimon": "Pingoró",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "003-1",
-      "sabimon": "Sementú",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "004-1",
-      "pulado": "já existe"
-    },
     {
       "nome": "005-1",
       "sabimon": "Pedrolho",
       "modelo": "alibaba/qwen-image-3/text-to-image",
       "largura": 1536,
       "altura": 1536
-    },
-    {
-      "nome": "006-1",
-      "sabimon": "Ventilu",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "007-1",
-      "sabimon": "Arenito",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "008-1",
-      "sabimon": "Nevim",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "009-1",
-      "sabimon": "Cantaru",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "010-1",
-      "pulado": "já existe"
     }
   ],
   "pedido": {
     "acao": "gerar",
     "formas": [
       1
+    ],
+    "numeros": [
+      "005"
     ]
   },
   "ok": true
