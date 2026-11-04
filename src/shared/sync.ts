@@ -11,7 +11,7 @@ export interface Compra {
   sabimon: string;
   /** id do item da loja (quando é item) */
   item?: string;
-  /** forma nova (quando é evolução) */
+  /** forma nova (quando é evolução). `sabimon` é a carta: "s001-1", "s001-2" ou "s001-3" (compras antigas: só "s001") */
   forma?: 2 | 3;
   preco: number;
 }
@@ -73,7 +73,7 @@ export function sanitizar(x: unknown, fasesValidas: Set<string>): ProgressoSync 
     dias: arr(o.dias).filter((s): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s)).slice(-400),
     compras: arr(o.compras).flatMap((x): Compra[] => {
       const k = obj(x);
-      if (typeof k.id !== 'string' || typeof k.sabimon !== 'string' || !/^s\d{3}$/.test(k.sabimon)) return [];
+      if (typeof k.id !== 'string' || typeof k.sabimon !== 'string' || !/^s\d{3}(-[123])?$/.test(k.sabimon)) return [];
       const preco = num(k.preco, 100_000);
       if (typeof k.item === 'string' && /^[a-z0-9]{1,20}$/.test(k.item)) return [{ id: k.id.slice(0, 40), sabimon: k.sabimon, item: k.item, preco }];
       if (k.forma === 2 || k.forma === 3) return [{ id: k.id.slice(0, 40), sabimon: k.sabimon, forma: k.forma, preco }];

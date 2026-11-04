@@ -9,4 +9,4 @@ export function capituloPorId(id: string): Capitulo | undefined {
   return capitulos.find((c) => c.id === id);
 }
 
-export { sabimons, sabimonPorId, TOTAL_PLANEJADO } from './sabimons';
+export { sabimons, sabimonPorId } from './sabimons';

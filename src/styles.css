@@ -182,6 +182,7 @@ strong { color: var(--t-coral); font-weight: 900; }
 .carta.vazia > .dentro { background: #10213F08; }
 .carta.vazia .num, .carta.vazia .nome, .carta.vazia .rar { color: var(--muted); }
 .carta.vazia .palco { background: none; box-shadow: none; }
+.carta.vazia .palco img.silhueta { filter: brightness(0); opacity: .14; }
 .carta.vazia .palco-vazio { font-family: var(--display); color: #10213F73; font-size: 15px; line-height: 1.15; }
 .carta.grande.vazia .palco-vazio { font-size: 34px; }
 .rar.comum { color: var(--muted); } .rar.rara { color: var(--t-cyan); } .rar.epica { color: var(--t-pink); } .rar.lendaria { color: var(--t-yellow); }
@@ -437,9 +438,34 @@ button.painel:active, button.painel-destaque:active, .item-carta:active, .aviso-
    abria o desenho do Sabimon em zoom e estragava a surpresa. */
 .carta-flip:not(.fase-revelado) .carta-flip-frente { visibility: hidden; }
 .carta-flip img { pointer-events: none; }
-.carta-flip-verso { position: absolute; inset: 0; transform: rotateY(180deg); border-radius: 22px; border: 7px solid var(--luz); background: var(--verso);
-  box-shadow: 0 0 0 3px var(--ink), 6px 6px 0 3px var(--ink), 0 0 34px var(--luz);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+.carta-flip-verso { position: absolute; inset: 0; transform: rotateY(180deg); border-radius: 22px; border: 7px solid var(--luz);
+  background: radial-gradient(circle at 50% 42%, #2C3C8C, #141B4A 58%, #0B1030);
+  box-shadow: 0 0 0 3px var(--ink), 6px 6px 0 3px var(--ink), 0 0 34px var(--luz); overflow: hidden; display: block; }
+
+/* Verso da carta: céu de estrelinhas, moldura dourada, medalha com raios e a Ará. */
+.verso { position: absolute; inset: 0; display: block; padding: 10px;
+  background:
+    radial-gradient(circle, #FFFFFF59 1px, transparent 1.6px) 0 0 / 26px 26px,
+    radial-gradient(circle, #FFFFFF2E 1px, transparent 1.6px) 13px 13px / 26px 26px; }
+.verso-moldura { position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  border: 3px solid #FFC21A; border-radius: 14px; box-shadow: inset 0 0 0 2px #10163A, inset 0 0 0 4px #FFC21A55; }
+.verso-canto { position: absolute; font-size: 18px; line-height: 1; color: #FFC21A; text-shadow: 0 0 8px #FFC21A99; }
+.verso-canto.c1 { top: 8px; left: 10px; } .verso-canto.c2 { top: 8px; right: 10px; }
+.verso-canto.c3 { bottom: 8px; left: 10px; } .verso-canto.c4 { bottom: 8px; right: 10px; }
+/* O logo é o mesmo do app (componente Logo, letras-figurinha coloridas). */
+.verso-logo { display: block; line-height: 0; }
+.verso-medalha { position: relative; width: 62%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
+  background: radial-gradient(circle, #FFE58A 0 30%, transparent 62%),
+    repeating-conic-gradient(from 0deg, #FFC21A 0 10deg, #FF9F1C 10deg 20deg);
+  border: 4px solid var(--ink); box-shadow: 0 0 0 5px #22C3D6, 0 0 0 8px var(--ink), 0 0 30px #22C3D688; }
+.verso-medalha img { width: 74%; height: auto; margin-top: 10%; filter: drop-shadow(0 4px 0 #10213F55); }
+.verso-faixa { position: relative; margin-top: 6px; padding: 5px 26px 6px; font-family: var(--display); font-size: 17px; color: #fff; white-space: nowrap;
+  background: var(--coral); border: 3px solid var(--ink); -webkit-text-stroke: 1.5px var(--ink); paint-order: stroke fill;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 50%, 100% 100%, 0 100%, 12px 50%); }
+.verso-estrelas { display: flex; gap: 6px; font-size: 20px; line-height: 1; }
+.verso-estrelas i { font-style: normal; -webkit-text-stroke: 1.5px var(--ink); paint-order: stroke fill; }
+.verso-estrelas .comum { color: #CBD5E1; } .verso-estrelas .rara { color: #22D3EE; }
+.verso-estrelas .epica { color: #F472B6; } .verso-estrelas .lendaria { color: #FFC21A; }
 .carta-flip.fase-verso .carta-flip-verso { animation: brilho-verso 1.6s ease-in-out infinite; }
 @keyframes brilho-verso { 50% { box-shadow: 0 0 0 3px var(--ink), 6px 6px 0 3px var(--ink), 0 0 60px var(--luz); } }
 .pisca-suave { animation: pisca-suave 1.6s ease-in-out infinite; }

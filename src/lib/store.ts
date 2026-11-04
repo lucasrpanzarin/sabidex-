@@ -4,7 +4,8 @@
 
 import { useSyncExternalStore } from 'react';
 import { estadoInicial, migrarCartasAntigas, type Estado } from './jogo';
-import { sabimons } from '../data/sabimons';
+import { IDS_CARTAS } from './figurinhas';
+import { migrarFormasLocal } from './loja';
 import { mesclar, type ProgressoSync } from '../shared/sync';
 
 const CHAVE = 'sabidex:v1';
@@ -16,11 +17,14 @@ const ler = <T,>(k: string, padrao: T): T => {
 };
 const gravar = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* ignora */ } };
 
-const VALIDOS = new Set(sabimons.map((s) => s.id));
+const VALIDOS = IDS_CARTAS;
 const soValidos = (c: Record<string, number>) => Object.fromEntries(Object.entries(c).filter(([id]) => VALIDOS.has(id)));
 
 // As cartas antigas dos capítulos viram pacotes de Sabimons (veja migrarCartasAntigas).
 let estado: Estado = migrarCartasAntigas({ ...estadoInicial(), ...ler<Partial<Estado>>(CHAVE, {}) }, VALIDOS);
+// Cada forma agora é uma carta. Com conta, quem faz essa mudança é o servidor (as cartas ficam lá).
+const temConta = (() => { try { return !!localStorage.getItem('sabidex:token'); } catch { return false; } })();
+if (!temConta) estado = migrarFormasLocal(estado);
 let pendente: Record<string, number> = soValidos(ler(CHAVE_PENDENTE, {}));
 gravar(CHAVE, estado);
 gravar(CHAVE_PENDENTE, pendente);

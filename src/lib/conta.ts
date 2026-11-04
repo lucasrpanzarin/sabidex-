@@ -190,11 +190,11 @@ export async function sincronizar() {
   }
 }
 
-/** Evolui um Sabimon pela conta da turma (o servidor gasta as cópias). Devolve a mensagem de erro, se houver. */
-export async function evoluirNaConta(sabimon: string) {
+/** Evolui uma carta pela conta (o servidor gasta as cartas). Devolve a mensagem de erro, se houver. */
+export async function evoluirNaConta(carta: string) {
   if (!token) return 'Entre na sua conta.';
   await sincronizar();
-  const r = await api<RespostaConta>('/crianca/evoluir', { corpo: { sabimon } });
+  const r = await api<RespostaConta>('/crianca/evoluir', { corpo: { carta } });
   if (r.erro) return r.erro;
   aplicarServidor(r, {});
   return null;

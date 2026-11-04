@@ -10,8 +10,8 @@ import { getEstado, useEstado } from '../lib/store';
 import { getConta, useConta } from '../lib/conta';
 import { ordenarCapitulos, situacao, textoProva, type DatasProva } from '../lib/provas';
 import { Moeda, Saldo } from '../components/Loja';
-import { sabimons } from '../data';
-import { formaDe, podeEvoluir, saldo } from '../lib/loja';
+import { FIGURINHAS } from '../lib/figurinhas';
+import { podeEvoluir, saldo } from '../lib/loja';
 import { Desejo } from './Loja';
 import { EscolherPerfil } from '../components/Perfis';
 import { EntrarTurma } from './Turma';
@@ -99,13 +99,13 @@ export function Inicio() {
   const revisar = Math.min(quantasHoje(e.revisao, capitulos, hoje()), MAX_POR_REVISAO);
   const pacoteDaRevisao = e.pacoteDia !== hoje();
 
-  const evolui = sabimons.find((s) => podeEvoluir(e, s).ok);
+  const evolui = FIGURINHAS.find((f) => podeEvoluir(e, f.id).ok);
   const fala = propostasNovas > 0
     ? <>Você tem <strong>{propostasNovas} {propostasNovas > 1 ? 'propostas' : 'proposta'} de troca</strong>! Veja em Trocas.</>
     : e.pacotes.length > 0
     ? <>Você tem <strong>{e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</strong> esperando. Vamos abrir?</>
     : evolui
-    ? <>Seu <strong>{evolui.formas[formaDe(e, evolui.id) - 1].nome}</strong> pode evoluir! Veja no álbum.</>
+    ? <>Seu <strong>{evolui.s.formas[evolui.forma - 1].nome}</strong> pode evoluir! Veja no álbum.</>
     : revisar > 0
     ? <>Tenho <strong>{revisar} {revisar > 1 ? 'perguntas' : 'pergunta'}</strong> para você lembrar hoje. Bora revisar?</>
     : prox && provaProx?.tipo === 'chegando' && provaProx.dias <= 7
@@ -168,7 +168,7 @@ export function Inicio() {
       )}
 
       {evolui && (
-        <button className="btn btn-verde btn-bloco" onClick={() => ir('album', evolui.id)}>Evoluir {evolui.formas[formaDe(e, evolui.id) - 1].nome}</button>
+        <button className="btn btn-verde btn-bloco" onClick={() => ir('album', evolui.id)}>Evoluir {evolui.s.formas[evolui.forma - 1].nome}</button>
       )}
 
       {e.desejo ? <Desejo onClick={() => ir('loja')} /> : (
