@@ -30,7 +30,7 @@ interface Pedido {
 }
 
 const ESTILO = 'Original creature for a creature-collecting adventure game, stylized 3D game character render, dynamic action pose ready for battle, brave determined expression, big expressive eyes, strong readable silhouette, its elemental power clearly visible as glowing effects, vibrant saturated colors, dramatic rim lighting, full body, centered, plain pure white background, no text, no logo, no frame, no scenery. Exciting but friendly for kids aged 9 to 11, not scary, no blood. Original design, not based on any existing franchise or character.';
-const MESMO_BICHO = 'This is the evolved form of the creature in the reference image: keep the exact same species, face, eye shape, color palette and markings so it is clearly the same character, only older and bigger.';
+const MESMO_BICHO = 'Use the reference image ONLY to keep the same face, eye color, color palette and signature markings, so it is recognizable as the same creature line. Do NOT copy the reference pose, size or body shape: this is a big evolution, so redesign the whole body to be much larger, stronger and more impressive, with a new dynamic pose and new body features, like a creature evolving in an adventure game.';
 
 const resultado: Record<string, unknown> = { quando: new Date().toISOString(), imagens: [] as unknown[] };
 const salvar = () => writeFileSync('arte/resultado.json', JSON.stringify(resultado, null, 2) + '\n');
