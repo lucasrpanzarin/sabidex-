@@ -184,7 +184,7 @@ async function main() {
       const destino = `${PASTA}/${nome}.png`;
       if (existsSync(destino) && !p.refazer) { feitos.push({ nome, pulado: 'já existe' }); continue; }
       const prompt = `${ESTILO} ${s.formas[forma - 1]}`;
-      const corpo: Record<string, unknown> = { prompt, aspect_ratio: '1:1', resolution: '2K', ...(p.extra ?? {}) };
+      const corpo: Record<string, unknown> = { prompt, aspect_ratio: '1:1', resolution: '2k', ...(p.extra ?? {}) };
       if (forma > 1) {
         corpo.prompt = `${prompt} ${MESMO_BICHO}`;
         corpo.image_urls = [await referencia(s.numero, refs)];
