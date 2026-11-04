@@ -9,7 +9,7 @@ import {
   gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
 } from '../shared/sync';
-import { ESQUEMA } from './esquema';
+import { ESQUEMA, MIGRACOES, temTurma, turmaDaFamilia } from './esquema';
 import { aleatorio, hashSegredo, iguais, pinAleatorio, sha256 } from './seguranca';
 
 interface Env { DB: D1Database; ASSETS: Fetcher; ADMIN_EMAILS?: string }
@@ -31,6 +31,9 @@ const app = new Hono<{ Bindings: Env }>().basePath('/api');
 app.use('*', async (c, next) => {
   if (!esquemaPronto) {
     await c.env.DB.batch(ESQUEMA.map((s) => c.env.DB.prepare(s)));
+    for (const m of MIGRACOES) {
+      try { await c.env.DB.prepare(m).run(); } catch (e) { if (!String(e).includes('duplicate column')) throw e; }
+    }
     esquemaPronto = true;
   }
   await next();
@@ -69,7 +72,48 @@ async function sairSessao(c: C) {
 interface Crianca {
   id: string; turma_id: string; apelido: string; cor: string; pin_hash: string; pin_sal: string;
   falhas: number; bloqueado_ate: number; progresso: string; xp_semana: number; semana: string;
+  familia_id: string | null;
 }
+
+const MSG_BLOQUEIO = 'Muitas tentativas erradas. Espere 15 minutos ou peça para um adulto trocar seu PIN.';
+
+/** Confere o PIN contando as tentativas erradas (5 erros bloqueiam por 15 minutos). Devolve a mensagem de erro, ou null se o PIN está certo. */
+async function conferirPin(db: D1Database, k: Crianca, pin: unknown, generico: string): Promise<{ status: 401 | 423; msg: string } | null> {
+  if (k.bloqueado_ate > Date.now()) return { status: 423, msg: MSG_BLOQUEIO };
+  if (!pinValido(pin) || !iguais(await hashSegredo(pin as string, k.pin_sal), k.pin_hash)) {
+    const falhas = k.falhas + 1;
+    await db.prepare('UPDATE criancas SET falhas = ?, bloqueado_ate = ? WHERE id = ?')
+      .bind(falhas >= MAX_FALHAS ? 0 : falhas, falhas >= MAX_FALHAS ? Date.now() + BLOQUEIO_MS : 0, k.id).run();
+    return { status: falhas >= MAX_FALHAS ? 423 : 401, msg: falhas >= MAX_FALHAS ? MSG_BLOQUEIO : generico };
+  }
+  await db.prepare('UPDATE criancas SET falhas = 0, bloqueado_ate = 0, visto = ? WHERE id = ?').bind(Date.now(), k.id).run();
+  return null;
+}
+
+/** Comandos que apagam uma criança e tudo dela (cartas, sessões, trocas pendentes). */
+function apagarCrianca(db: D1Database, cid: string) {
+  return [
+    db.prepare('DELETE FROM cartas WHERE crianca_id = ?').bind(cid),
+    db.prepare(`UPDATE trocas SET status = 'cancelada', resolvido = ? WHERE (de_id = ? OR para_id = ?) AND status = 'pendente'`).bind(Date.now(), cid, cid),
+    db.prepare(`DELETE FROM sessoes WHERE tipo = 'crianca' AND ref_id = ?`).bind(cid),
+    db.prepare('DELETE FROM criancas WHERE id = ?').bind(cid),
+  ];
+}
+
+/** Tira a criança da turma sem apagar a conta: ela volta a ser só da família. */
+function tirarDaTurma(db: D1Database, cid: string, familiaId: string) {
+  return [
+    db.prepare(`UPDATE trocas SET status = 'cancelada', resolvido = ? WHERE (de_id = ? OR para_id = ?) AND status = 'pendente'`).bind(Date.now(), cid, cid),
+    // Se um irmão já usa o mesmo apelido, a chave ganha um final diferente (o apelido mostrado não muda).
+    db.prepare(`UPDATE criancas SET turma_id = ?1, apelido_chave = CASE
+        WHEN EXISTS (SELECT 1 FROM criancas o WHERE o.turma_id = ?1 AND o.apelido_chave = criancas.apelido_chave AND o.id != criancas.id)
+        THEN apelido_chave || '-' || substr(id, 1, 4) ELSE apelido_chave END
+      WHERE id = ?2`).bind(turmaDaFamilia(familiaId), cid),
+  ];
+}
+
+const contarNaTurma = async (db: D1Database, turmaId: string) =>
+  (await db.prepare('SELECT COUNT(*) n FROM criancas WHERE turma_id = ?').bind(turmaId).first<{ n: number }>())?.n ?? 0;
 
 async function cartasDe(db: D1Database, id: string) {
   const r = await db.prepare('SELECT carta_id, qtd FROM cartas WHERE crianca_id = ? AND qtd > 0').bind(id).all<{ carta_id: string; qtd: number }>();
@@ -83,9 +127,11 @@ function upsertCartas(db: D1Database, id: string, delta: Record<string, number>)
 }
 
 async function respostaConta(db: D1Database, k: Crianca, progresso: ProgressoSync) {
-  const turma = await db.prepare('SELECT nome, codigo FROM turmas WHERE id = ?').bind(k.turma_id).first<{ nome: string; codigo: string }>();
+  const turma = temTurma(k.turma_id)
+    ? await db.prepare('SELECT nome, codigo FROM turmas WHERE id = ?').bind(k.turma_id).first<{ nome: string; codigo: string }>()
+    : null;
   return {
-    conta: { id: k.id, apelido: k.apelido, cor: k.cor, turma: turma?.nome ?? '', codigo: turma?.codigo ?? '' },
+    conta: { id: k.id, apelido: k.apelido, cor: k.cor, turma: turma?.nome ?? '', codigo: turma?.codigo ?? '', familia: !!k.familia_id },
     progresso,
     cartas: await cartasDe(db, k.id),
   };
@@ -110,8 +156,7 @@ app.post('/crianca/entrar-turma', async (c) => {
   if (!pinValido(b.pin)) return erro(c, 400, 'O PIN precisa ter 4 números.');
   const t = await c.env.DB.prepare('SELECT id FROM turmas WHERE codigo = ?').bind(codigo).first<{ id: string }>();
   if (!t) return erro(c, 404, 'Não achei essa turma. Confira o código.');
-  const total = await c.env.DB.prepare('SELECT COUNT(*) n FROM criancas WHERE turma_id = ?').bind(t.id).first<{ n: number }>();
-  if ((total?.n ?? 0) >= 60) return erro(c, 409, 'Essa turma já está cheia.');
+  if (await contarNaTurma(c.env.DB, t.id) >= 60) return erro(c, 409, 'Essa turma já está cheia.');
 
   const id = aleatorio(8);
   const sal = aleatorio(16);
@@ -142,14 +187,19 @@ app.post('/crianca/entrar', async (c) => {
     .bind(codigo, chaveApelido(apelido)).first<Crianca>();
   const generico = 'Código, apelido ou PIN não conferem. Tente de novo.';
   if (!k) return erro(c, 401, generico);
-  if (k.bloqueado_ate > Date.now()) return erro(c, 423, 'Muitas tentativas erradas. Espere 15 minutos ou peça para um adulto trocar seu PIN.');
-  if (!iguais(await hashSegredo(b.pin as string, k.pin_sal), k.pin_hash)) {
-    const falhas = k.falhas + 1;
-    await c.env.DB.prepare('UPDATE criancas SET falhas = ?, bloqueado_ate = ? WHERE id = ?')
-      .bind(falhas >= MAX_FALHAS ? 0 : falhas, falhas >= MAX_FALHAS ? Date.now() + BLOQUEIO_MS : 0, k.id).run();
-    return erro(c, 401, falhas >= MAX_FALHAS ? 'Muitas tentativas erradas. Espere 15 minutos ou peça para um adulto trocar seu PIN.' : generico);
-  }
-  await c.env.DB.prepare('UPDATE criancas SET falhas = 0, bloqueado_ate = 0, visto = ? WHERE id = ?').bind(Date.now(), k.id).run();
+  const falha = await conferirPin(c.env.DB, k, b.pin, generico);
+  if (falha) return erro(c, falha.status, falha.msg);
+  return c.json({ token: await novaSessao(c.env.DB, 'crianca', k.id), ...(await respostaConta(c.env.DB, k, sanitizar(JSON.parse(k.progresso), FASES_VALIDAS))) });
+});
+
+/** Criança da família escolhe o perfil dela num aparelho onde a família já entrou (só com o PIN). */
+app.post('/crianca/entrar-perfil', async (c) => {
+  const b = await corpo(c);
+  const k = await c.env.DB.prepare('SELECT * FROM criancas WHERE id = ? AND familia_id IS NOT NULL').bind(String(b.id ?? '')).first<Crianca>();
+  const generico = 'PIN errado. Tente de novo.';
+  if (!k) return erro(c, 404, 'Esse perfil não existe mais. Peça para um adulto entrar na conta da família.');
+  const falha = await conferirPin(c.env.DB, k, b.pin, generico);
+  if (falha) return erro(c, falha.status, falha.msg);
   return c.json({ token: await novaSessao(c.env.DB, 'crianca', k.id), ...(await respostaConta(c.env.DB, k, sanitizar(JSON.parse(k.progresso), FASES_VALIDAS))) });
 });
 
@@ -159,7 +209,35 @@ async function crianca(c: C) {
   return c.env.DB.prepare('SELECT * FROM criancas WHERE id = ?').bind(id).first<Crianca>();
 }
 
+/** Criança na turma (para ranking, colegas e trocas). Criança só da família recebe erro. */
+const SEM_TURMA_MSG = 'Entre numa turma para ver os colegas.';
+
 app.post('/crianca/sair', sairSessao);
+
+/** Criança que já tem conta (da família) entra numa turma. A conta e o progresso continuam os mesmos. */
+app.post('/crianca/turma', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  const b = await corpo(c);
+  const codigo = normalizarCodigo(String(b.codigo ?? ''));
+  const apelido = normalizarApelido(String(b.apelido ?? k.apelido));
+  if (apelido.length < 2) return erro(c, 400, 'O apelido precisa ter pelo menos 2 letras.');
+  const t = await c.env.DB.prepare('SELECT id FROM turmas WHERE codigo = ?').bind(codigo).first<{ id: string }>();
+  if (!t) return erro(c, 404, 'Não achei essa turma. Confira o código.');
+  if (t.id === k.turma_id) return c.json(await respostaConta(c.env.DB, k, sanitizar(JSON.parse(k.progresso), FASES_VALIDAS)));
+  if (await contarNaTurma(c.env.DB, t.id) >= 60) return erro(c, 409, 'Essa turma já está cheia.');
+  try {
+    await c.env.DB.batch([
+      c.env.DB.prepare(`UPDATE trocas SET status = 'cancelada', resolvido = ? WHERE (de_id = ? OR para_id = ?) AND status = 'pendente'`).bind(Date.now(), k.id, k.id),
+      c.env.DB.prepare('UPDATE criancas SET turma_id = ?, apelido = ?, apelido_chave = ? WHERE id = ?').bind(t.id, apelido, chaveApelido(apelido), k.id),
+    ]);
+  } catch (e) {
+    if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já tem alguém com esse apelido na turma. Escolha outro.');
+    throw e;
+  }
+  const novo = { ...k, turma_id: t.id, apelido };
+  return c.json(await respostaConta(c.env.DB, novo, sanitizar(JSON.parse(k.progresso), FASES_VALIDAS)));
+});
 
 /**
  * Compras que chegam do aparelho: itens têm o preço conferido pela tabela da loja.
@@ -229,6 +307,7 @@ async function minimoParaTrocar(db: D1Database, criancaId: string, carta: string
 app.get('/crianca/turma', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
   const r = await c.env.DB.prepare(`SELECT id, apelido, cor, (SELECT COUNT(*) FROM cartas WHERE crianca_id = criancas.id AND qtd > 0) AS cartas
     FROM criancas WHERE turma_id = ? AND id != ? ORDER BY apelido_chave`).bind(k.turma_id, k.id).all();
   return c.json({ colegas: r.results });
@@ -237,6 +316,7 @@ app.get('/crianca/turma', async (c) => {
 app.get('/crianca/colega/:id', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
   const o = await c.env.DB.prepare('SELECT id, apelido, cor FROM criancas WHERE id = ? AND turma_id = ?').bind(c.req.param('id'), k.turma_id).first();
   if (!o) return erro(c, 404, 'Colega não encontrado.');
   // Mostra só o que dá para trocar: Sabimon evoluído ou com itens fica com o dono.
@@ -249,6 +329,7 @@ app.get('/crianca/colega/:id', async (c) => {
 app.get('/crianca/ranking', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
   const r = await c.env.DB.prepare(`SELECT id, apelido, cor, CASE WHEN semana = ? THEN xp_semana ELSE 0 END AS xp,
     (SELECT COUNT(*) FROM cartas WHERE crianca_id = criancas.id AND qtd > 0) AS cartas
     FROM criancas WHERE turma_id = ?`).bind(semanaDe(), k.turma_id).all();
@@ -262,6 +343,7 @@ interface Troca { id: string; turma_id: string; de_id: string; para_id: string; 
 app.get('/crianca/trocas', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
   const r = await c.env.DB.prepare(`SELECT t.*, de.apelido AS de_apelido, de.cor AS de_cor, pa.apelido AS para_apelido, pa.cor AS para_cor
     FROM trocas t LEFT JOIN criancas de ON de.id = t.de_id LEFT JOIN criancas pa ON pa.id = t.para_id
     WHERE (t.de_id = ? OR t.para_id = ?) AND (t.status = 'pendente' OR t.resolvido > ?)
@@ -272,6 +354,7 @@ app.get('/crianca/trocas', async (c) => {
 app.post('/crianca/trocas', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
   const b = await corpo(c);
   const para = String(b.para ?? ''), dar = String(b.dar ?? ''), receber = String(b.receber ?? '');
   if (!CARTAS_VALIDAS.has(dar) || !CARTAS_VALIDAS.has(receber)) return erro(c, 400, 'Carta inválida.');
@@ -298,6 +381,7 @@ app.post('/crianca/trocas', async (c) => {
 app.post('/crianca/trocas/:id/:acao', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
   const acao = c.req.param('acao');
   const t = await c.env.DB.prepare(`SELECT * FROM trocas WHERE id = ? AND status = 'pendente'`).bind(c.req.param('id')).first<Troca>();
   if (!t) return erro(c, 404, 'Essa proposta não está mais esperando resposta.');
@@ -349,6 +433,10 @@ app.post('/crianca/trocas/:id/:acao', async (c) => {
 
 interface Adulto { id: string; nome: string; email: string; senha_hash: string; senha_sal: string; falhas: number; bloqueado_ate: number }
 
+/** Versão da política de privacidade aceita no cadastro (mudar quando o texto mudar). */
+const VERSAO_PRIVACIDADE = '2026-11';
+const MAX_FILHOS = 6;
+
 const emailValido = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 120;
 const ehAdmin = (env: Env, email: string) => (env.ADMIN_EMAILS ?? '').toLowerCase().split(',').map((x) => x.trim()).includes(email.toLowerCase());
 
@@ -360,10 +448,11 @@ app.post('/adulto/cadastro', async (c) => {
   if (nome.length < 2) return erro(c, 400, 'Digite seu nome.');
   if (!emailValido(email)) return erro(c, 400, 'E-mail inválido.');
   if (senha.length < 8) return erro(c, 400, 'A senha precisa ter pelo menos 8 caracteres.');
+  if (b.aceite !== true) return erro(c, 400, 'Para criar a conta, confirme que você é maior de idade e aceita a política de privacidade.');
   const id = aleatorio(8), sal = aleatorio(16);
   try {
-    await c.env.DB.prepare('INSERT INTO adultos (id, nome, email, senha_hash, senha_sal, criado) VALUES (?, ?, ?, ?, ?, ?)')
-      .bind(id, nome, email, await hashSegredo(senha, sal), sal, Date.now()).run();
+    await c.env.DB.prepare('INSERT INTO adultos (id, nome, email, senha_hash, senha_sal, criado, aceite, aceite_versao) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+      .bind(id, nome, email, await hashSegredo(senha, sal), sal, Date.now(), Date.now(), VERSAO_PRIVACIDADE).run();
   } catch (e) {
     if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já existe uma conta com esse e-mail. Use "Entrar".');
     throw e;
@@ -441,7 +530,7 @@ app.get('/adulto/turmas/:id', async (c) => {
   if (!a) return erro(c, 401, 'Entre de novo.');
   const t = await turmaDoAdulto(c, a);
   if (!t) return erro(c, 404, 'Turma não encontrada.');
-  const r = await c.env.DB.prepare(`SELECT id, apelido, cor, criado, visto, bloqueado_ate, CASE WHEN semana = ? THEN xp_semana ELSE 0 END AS xp_semana,
+  const r = await c.env.DB.prepare(`SELECT id, apelido, cor, criado, visto, bloqueado_ate, familia_id IS NOT NULL AS familia, CASE WHEN semana = ? THEN xp_semana ELSE 0 END AS xp_semana,
     json_extract(progresso, '$.xp') AS xp, (SELECT COUNT(*) FROM cartas WHERE crianca_id = criancas.id AND qtd > 0) AS cartas
     FROM criancas WHERE turma_id = ? ORDER BY apelido_chave`).bind(semanaDe(), t.id).all();
   return c.json({ turma: t, criancas: r.results });
@@ -459,19 +548,150 @@ app.post('/adulto/turmas/:id/criancas/:cid/pin', async (c) => {
   return c.json({ pin });
 });
 
+/**
+ * Tira a criança da turma. Se ela tem conta da família, a conta continua (só sai da turma);
+ * se foi criada só na turma, a conta é apagada.
+ */
 app.delete('/adulto/turmas/:id/criancas/:cid', async (c) => {
   const a = await adulto(c);
   if (!a) return erro(c, 401, 'Entre de novo.');
   const t = await turmaDoAdulto(c, a);
   if (!t) return erro(c, 404, 'Turma não encontrada.');
   const cid = c.req.param('cid');
-  const k = await c.env.DB.prepare('SELECT id FROM criancas WHERE id = ? AND turma_id = ?').bind(cid, t.id).first();
+  const k = await c.env.DB.prepare('SELECT id, familia_id FROM criancas WHERE id = ? AND turma_id = ?').bind(cid, t.id).first<{ id: string; familia_id: string | null }>();
   if (!k) return erro(c, 404, 'Criança não encontrada.');
-  await c.env.DB.batch([
-    c.env.DB.prepare('DELETE FROM cartas WHERE crianca_id = ?').bind(cid),
-    c.env.DB.prepare(`UPDATE trocas SET status = 'cancelada', resolvido = ? WHERE (de_id = ? OR para_id = ?) AND status = 'pendente'`).bind(Date.now(), cid, cid),
-    c.env.DB.prepare(`DELETE FROM sessoes WHERE tipo = 'crianca' AND ref_id = ?`).bind(cid),
-    c.env.DB.prepare('DELETE FROM criancas WHERE id = ?').bind(cid),
+  await c.env.DB.batch(k.familia_id ? tirarDaTurma(c.env.DB, cid, k.familia_id) : apagarCrianca(c.env.DB, cid));
+  return c.json({ ok: true, apagada: !k.familia_id });
+});
+
+/* ---------------- Família: o responsável e os perfis dos filhos ---------------- */
+
+const doAdulto = (c: C, adultoId: string) =>
+  c.env.DB.prepare('SELECT * FROM criancas WHERE id = ? AND familia_id = ?').bind(c.req.param('cid'), adultoId).first<Crianca>();
+
+app.get('/adulto/familia', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const r = await c.env.DB.prepare(`SELECT k.id, k.apelido, k.cor, k.criado, k.visto, k.bloqueado_ate, t.nome AS turma, t.codigo AS codigo,
+    json_extract(k.progresso, '$.xp') AS xp, (SELECT COUNT(*) FROM cartas WHERE crianca_id = k.id AND qtd > 0) AS cartas
+    FROM criancas k LEFT JOIN turmas t ON t.id = k.turma_id WHERE k.familia_id = ? ORDER BY k.criado`).bind(a.id).all();
+  return c.json({ filhos: r.results });
+});
+
+/** Cria o perfil de um filho. Com `progresso`/`cartas`, leva junto o que já foi feito no aparelho. */
+app.post('/adulto/familia', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const b = await corpo(c);
+  const apelido = normalizarApelido(String(b.apelido ?? ''));
+  const cor = String(b.cor ?? '');
+  if (apelido.length < 2) return erro(c, 400, 'O apelido precisa ter pelo menos 2 letras.');
+  if (!COR.test(cor)) return erro(c, 400, 'Cor inválida.');
+  if (!pinValido(b.pin)) return erro(c, 400, 'O PIN precisa ter 4 números.');
+  const n = await c.env.DB.prepare('SELECT COUNT(*) n FROM criancas WHERE familia_id = ?').bind(a.id).first<{ n: number }>();
+  if ((n?.n ?? 0) >= MAX_FILHOS) return erro(c, 429, `Limite de ${MAX_FILHOS} crianças por família.`);
+  const id = aleatorio(8), sal = aleatorio(16);
+  const progresso = mesclar(progressoVazio(), sanitizar(b.progresso, FASES_VALIDAS));
+  try {
+    await c.env.DB.batch([
+      c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, familia_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)`)
+        .bind(id, turmaDaFamilia(a.id), a.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semanaDe(), Date.now(), Date.now()),
+      ...upsertCartas(c.env.DB, id, sanitizarDelta(b.cartas, CARTAS_VALIDAS)),
+    ]);
+  } catch (e) {
+    if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já tem uma criança com esse apelido na sua família.');
+    throw e;
+  }
+  return c.json({ id });
+});
+
+/** Liga à família uma conta que a criança já tinha numa turma (código + apelido + PIN). */
+app.post('/adulto/familia/ligar', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const b = await corpo(c);
+  const k = await c.env.DB.prepare(`SELECT k.* FROM criancas k JOIN turmas t ON t.id = k.turma_id WHERE t.codigo = ? AND k.apelido_chave = ?`)
+    .bind(normalizarCodigo(String(b.codigo ?? '')), chaveApelido(normalizarApelido(String(b.apelido ?? '')))).first<Crianca>();
+  const generico = 'Código, apelido ou PIN não conferem.';
+  if (!k) return erro(c, 401, generico);
+  const falha = await conferirPin(c.env.DB, k, b.pin, generico);
+  if (falha) return erro(c, falha.status, falha.msg);
+  if (k.familia_id && k.familia_id !== a.id) return erro(c, 409, 'Essa conta já está ligada a outra família.');
+  const n = await c.env.DB.prepare('SELECT COUNT(*) n FROM criancas WHERE familia_id = ?').bind(a.id).first<{ n: number }>();
+  if (!k.familia_id && (n?.n ?? 0) >= MAX_FILHOS) return erro(c, 429, `Limite de ${MAX_FILHOS} crianças por família.`);
+  await c.env.DB.prepare('UPDATE criancas SET familia_id = ? WHERE id = ?').bind(a.id, k.id).run();
+  return c.json({ id: k.id });
+});
+
+/** Abre o perfil do filho neste aparelho (o adulto já provou quem é com a senha). */
+app.post('/adulto/familia/:cid/aparelho', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const k = await doAdulto(c, a.id);
+  if (!k) return erro(c, 404, 'Criança não encontrada.');
+  await c.env.DB.prepare('UPDATE criancas SET falhas = 0, bloqueado_ate = 0, visto = ? WHERE id = ?').bind(Date.now(), k.id).run();
+  return c.json({ token: await novaSessao(c.env.DB, 'crianca', k.id), ...(await respostaConta(c.env.DB, k, sanitizar(JSON.parse(k.progresso), FASES_VALIDAS))) });
+});
+
+/** O responsável escolhe um PIN novo (ou o servidor sorteia um). */
+app.post('/adulto/familia/:cid/pin', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const b = await corpo(c);
+  if (b.pin !== undefined && !pinValido(b.pin)) return erro(c, 400, 'O PIN precisa ter 4 números.');
+  const pin = b.pin === undefined ? pinAleatorio() : String(b.pin), sal = aleatorio(16);
+  const r = await c.env.DB.prepare('UPDATE criancas SET pin_hash = ?, pin_sal = ?, falhas = 0, bloqueado_ate = 0 WHERE id = ? AND familia_id = ?')
+    .bind(await hashSegredo(pin, sal), sal, c.req.param('cid'), a.id).run();
+  if (!r.meta.changes) return erro(c, 404, 'Criança não encontrada.');
+  return c.json({ pin });
+});
+
+app.post('/adulto/familia/:cid/sair-turma', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const k = await doAdulto(c, a.id);
+  if (!k) return erro(c, 404, 'Criança não encontrada.');
+  if (temTurma(k.turma_id)) await c.env.DB.batch(tirarDaTurma(c.env.DB, k.id, a.id));
+  return c.json({ ok: true });
+});
+
+/** Apaga o perfil do filho e tudo dele, para sempre. */
+app.delete('/adulto/familia/:cid', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const k = await doAdulto(c, a.id);
+  if (!k) return erro(c, 404, 'Criança não encontrada.');
+  await c.env.DB.batch(apagarCrianca(c.env.DB, k.id));
+  return c.json({ ok: true });
+});
+
+/**
+ * Apaga a conta do adulto (exigência da Apple e do Google). Pede a senha de novo.
+ * Some junto: os perfis dos filhos e as turmas dele. Crianças de outras famílias
+ * que estavam nessas turmas só saem da turma; as que só existiam na turma são apagadas.
+ */
+app.post('/adulto/apagar-conta', async (c) => {
+  const id = await sessao(c, 'adulto');
+  if (!id) return erro(c, 401, 'Entre de novo.');
+  const a = await c.env.DB.prepare('SELECT * FROM adultos WHERE id = ?').bind(id).first<Adulto>();
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const b = await corpo(c);
+  if (!iguais(await hashSegredo(String(b.senha ?? ''), a.senha_sal), a.senha_hash)) return erro(c, 401, 'Senha errada.');
+  const db = c.env.DB;
+  const turmas = (await db.prepare('SELECT id FROM turmas WHERE dono_id = ?').bind(a.id).all<{ id: string }>()).results.map((t) => t.id);
+  const nasTurmas = turmas.length
+    ? (await db.prepare(`SELECT id, familia_id FROM criancas WHERE turma_id IN (${turmas.map(() => '?').join(',')})`).bind(...turmas).all<{ id: string; familia_id: string | null }>()).results
+    : [];
+  const filhos = (await db.prepare('SELECT id FROM criancas WHERE familia_id = ?').bind(a.id).all<{ id: string }>()).results.map((k) => k.id);
+  const apagar = new Set([...filhos, ...nasTurmas.filter((k) => !k.familia_id || k.familia_id === a.id).map((k) => k.id)]);
+  const mover = nasTurmas.filter((k) => k.familia_id && k.familia_id !== a.id);
+  await db.batch([
+    ...[...apagar].flatMap((cid) => apagarCrianca(db, cid)),
+    ...mover.flatMap((k) => tirarDaTurma(db, k.id, k.familia_id!)),
+    ...turmas.map((t) => db.prepare('DELETE FROM turmas WHERE id = ?').bind(t)),
+    db.prepare(`DELETE FROM sessoes WHERE tipo = 'adulto' AND ref_id = ?`).bind(a.id),
+    db.prepare('DELETE FROM adultos WHERE id = ?').bind(a.id),
   ]);
   return c.json({ ok: true });
 });

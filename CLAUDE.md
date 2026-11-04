@@ -31,6 +31,8 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 - Servidor: `src/worker/index.ts` (Hono) + banco D1 `sabidex` (tabelas em `src/worker/esquema.ts`, criadas sozinhas). Regras de mesclagem em `src/shared/sync.ts`.
 - Cartas ficam numa tabela à parte no servidor; trocas são uma transação única (nunca duplica nem some carta).
 - O service worker (`public/sw.js`) nunca guarda respostas de `/api/`.
-- Login da criança: código da turma + apelido + PIN de 4 números. Adultos: e-mail + senha.
+- Contas: o adulto (e-mail + senha, aceita a política de privacidade no cadastro) cria a **conta da família** e os perfis dos filhos (apelido + cor + PIN). O adulto abre o perfil no aparelho da criança; irmãos no mesmo aparelho trocam de perfil com o PIN. Turma é opcional: a criança entra com o código e continua com a mesma conta. Criança só da turma (sem família) entra com código + apelido + PIN.
+- Criança da família sem turma tem `turma_id = 'familia:<id do adulto>'` no banco (`src/worker/esquema.ts`).
+- Exigências das lojas já atendidas: pergunta "só para adultos" antes da área dos adultos, botão "Apagar minha conta", política de privacidade em `#/privacidade` (`src/screens/Privacidade.tsx`; ao mudar o texto, mudar `VERSAO_PRIVACIDADE` no servidor).
 - Áudios de narração em `public/audio/<capitulo>-<tema>.mp3` (voz Kokoro pm_alex).
 - Antes de publicar: `npm test` e `npm run build` precisam passar.

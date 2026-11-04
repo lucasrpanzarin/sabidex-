@@ -9,8 +9,16 @@ App de estudo para crianças: a matéria da escola vira fases de jogo, e cada fa
 - XP, níveis, dias seguidos e o mascote Ará.
 - Pacotes de 3 cartas (comum, rara, épica e lendária) e álbum com 12 cartas por capítulo.
 
+**Conta da família (precisa de internet)**
+- Sem conta, o progresso fica só no aparelho. Para guardar de verdade, um adulto cria a **conta da família** em "Sou pai, mãe ou professor" (tem uma conta de multiplicar antes, para a criança não entrar sozinha).
+- O adulto cria o perfil de cada filho (apelido, cor e PIN) e toca em "Abrir neste aparelho" no celular da criança. O progresso que já estava no aparelho pode ir junto.
+- Irmãos no mesmo aparelho escolhem o próprio perfil e digitam o PIN.
+- O adulto vê o progresso, troca o PIN, tira da turma, apaga um perfil ou apaga a conta inteira.
+- Política de privacidade em `#/privacidade`.
+
 **Turma (precisa de internet)**
 - Adultos (pais e professores) criam conta em "Área dos pais e professores", criam turmas e recebem um código (ex.: ARARA-4821).
+- Criança com conta da família entra na turma só com o código e continua com a mesma conta.
 - A criança entra na turma com o código, um apelido e cria um PIN de 4 números. O progresso que ela já tinha vai junto.
 - Em outro aparelho, ela entra com código + apelido + PIN e recupera tudo. 5 PINs errados bloqueiam por 15 minutos.
 - **Trocas:** a criança propõe trocar qualquer carta com um colega da turma; o colega aceita ou recusa. O app avisa quando é a única cópia ou quando a troca é desigual. Não existe chat.
