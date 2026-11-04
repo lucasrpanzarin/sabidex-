@@ -5,7 +5,9 @@ import { sabimonPorId } from '../data/sabimons';
 import { mesclar, progressoVazio, sanitizar } from '../shared/sync';
 
 const estrelim = sabimonPorId.get('s010')!; // tem desenho das 3 formas
-const brasinho = sabimonPorId.get('s001')!; // só a forma 1 tem desenho
+const b0 = sabimonPorId.get('s001')!;
+// exemplo de Sabimon cuja forma 2 ainda não tem desenho
+const brasinho = { ...b0, formas: [b0.formas[0], { ...b0.formas[1], imagem: undefined }, b0.formas[2]] as typeof b0.formas };
 
 describe('Sabicoins', () => {
   it('o saldo é o XP menos o que foi gasto', () => {
