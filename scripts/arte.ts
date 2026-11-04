@@ -25,6 +25,8 @@ interface Pedido {
   tipos?: string[];
   numeros?: string[];
   refazer?: boolean;
+  /** só estas imagens, ex.: ["013-3", "014-2"] */
+  so?: string[];
   /** modelo para a forma 1 (só texto) */
   modelo?: string;
   /** modelo para as formas 2 e 3 (texto + imagem de referência) */
@@ -208,6 +210,7 @@ async function main() {
   for (const forma of [...p.formas].sort()) {
     for (const s of lista.filter((x) => !p.numeros || p.numeros.includes(x.numero))) {
       const nome = `${s.numero}-${forma}`;
+      if (p.so && !p.so.includes(nome)) continue;
       const destino = `${PASTA}/${nome}.png`;
       if (existsSync(destino) && !p.refazer) { feitos.push({ nome, pulado: 'já existe' }); continue; }
       const prompt = `${ESTILO} ${s.formas[forma - 1]}`;

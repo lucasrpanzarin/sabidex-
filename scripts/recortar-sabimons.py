@@ -22,7 +22,7 @@ CONTORNO = {
     '020': (34, 211, 238),   # Oncelestre, Onçastral, Constelonça: turquesa
 }
 # Desenhos com sombra cinza no chão: o recorte também tira o cinza claro (não usar em bicho branco).
-TIRAR_SOMBRA = {'004-1'}
+TIRAR_SOMBRA = {'004-1', '016-2'}
 
 def contorno(img: Image.Image, cor) -> Image.Image:
     """Desenha uma luz da cor dada em volta do bicho, por trás dele."""
