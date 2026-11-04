@@ -6,6 +6,8 @@
 //   { "acao": "gerar", "formas": [1], "numeros": ["001", ...] }
 //   - forma 1 nasce só do texto; formas 2 e 3 usam a forma 1 como imagem de referência.
 //   - imagens que já existem não são refeitas, a não ser com "refazer": true.
+//   { "acao": "cenarios", "tipos": ["fogo", ...] }
+//   - gera os cenários atrás dos bichos (arte/cenarios/lista.json) em arte/cenarios/originais/.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 
 const BASE = process.env.HIGGSFIELD_BASE ?? 'https://platform.higgsfield.ai';
@@ -17,8 +19,10 @@ const chave = process.env.HIGGSFIELD_API_KEY
 
 interface Sabimon { numero: string; nomes: string[]; tipo: string; formas: string[] }
 interface Pedido {
-  acao: 'gerar' | 'modelos';
+  acao: 'gerar' | 'modelos' | 'cenarios';
   formas: number[];
+  /** só para "cenarios": quais arquivos gerar (sem isso, todos) */
+  tipos?: string[];
   numeros?: string[];
   refazer?: boolean;
   /** modelo para a forma 1 (só texto) */
@@ -156,7 +160,7 @@ async function main() {
   const p: Pedido = JSON.parse(readFileSync('arte/pedido.json', 'utf8'));
   resultado.pedido = p;
   if (!chave) throw new Error('Falta o segredo HIGGSFIELD_API_KEY no GitHub.');
-  const lista: Sabimon[] = JSON.parse(readFileSync('arte/sabimons/lista.json', 'utf8'));
+  const lista: Sabimon[] = p.acao === 'gerar' ? JSON.parse(readFileSync('arte/sabimons/lista.json', 'utf8')) : [];
   const refs: Record<string, string> = existsSync(REFS) ? JSON.parse(readFileSync(REFS, 'utf8')) : {};
   const texto = p.modelo ? [{ modelo: p.modelo }] : TEXTO;
   const comRef = p.modeloRef ? [{ modelo: p.modeloRef }] : COM_REFERENCIA;
@@ -173,6 +177,28 @@ async function main() {
     writeFileSync('arte/modelos.json', JSON.stringify(imagem, null, 2) + '\n');
     resultado.total = todos.length;
     resultado.imagem = imagem.map((m) => `${m.slug} | ${m.title} | ${m.base_credits}`);
+    resultado.ok = true;
+    return;
+  }
+  if (p.acao === 'cenarios') {
+    const cenarios: { tipo: string; arquivo: string; prompt: string }[] = JSON.parse(readFileSync('arte/cenarios/lista.json', 'utf8'));
+    const pasta = 'arte/cenarios/originais';
+    mkdirSync(pasta, { recursive: true });
+    const feitos = resultado.imagens as unknown[];
+    for (const c of cenarios.filter((x) => !p.tipos || p.tipos.includes(x.arquivo))) {
+      const destino = `${pasta}/${c.arquivo}.png`;
+      if (existsSync(destino) && !p.refazer) { feitos.push({ nome: c.arquivo, pulado: 'já existe' }); continue; }
+      const corpo: Record<string, unknown> = { prompt: c.prompt, aspect_ratio: '1:1', resolution: '2k', ...(p.extra ?? {}) };
+      let gerado: { url: string; modelo: string } | undefined;
+      for (let tentativa = 1; !gerado; tentativa++) {
+        try { gerado = await gerarComCandidatos('texto', texto, corpo); } catch (e) {
+          if (tentativa >= 3 || !String(e).includes('(failed)')) throw e;
+          await espera(5000);
+        }
+      }
+      feitos.push({ nome: c.arquivo, tipo: c.tipo, modelo: gerado.modelo, ...(await baixarPng(gerado.url, destino)) });
+      salvar();
+    }
     resultado.ok = true;
     return;
   }
