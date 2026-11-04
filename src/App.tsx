@@ -2,7 +2,7 @@ import { Nav } from './components/Nav';
 import { FASES, type Fase } from './lib/jogo';
 import { ir, useRota } from './lib/rota';
 import { useEstado } from './lib/store';
-import { Adulto } from './screens/Adulto';
+import { Adulto, NovaSenha } from './screens/Adulto';
 import { Album, AbrirPacote } from './screens/Colecao';
 import { TelaFase } from './screens/Fases';
 import { BoasVindas, Inicio } from './screens/Inicio';
@@ -11,6 +11,7 @@ import { Revisao } from './screens/Revisao';
 import { TelaExtra } from './screens/Extras';
 import { EXTRAS, type Extra } from './lib/jogo';
 import { Loja } from './screens/Loja';
+import { Privacidade } from './screens/Privacidade';
 import { EntrarConta, MinhaConta, Ranking, Trocas } from './screens/Turma';
 
 export function App() {
@@ -18,6 +19,8 @@ export function App() {
   const [pagina = '', a, b] = useRota();
 
   // Telas que não precisam do perfil da criança
+  if (pagina === 'nova-senha') return <div className="app"><NovaSenha token={a ?? ''} /></div>;
+  if (pagina === 'privacidade') return <div className="app"><Privacidade /></div>;
   if (pagina === 'adulto') return <div className="app"><Adulto turmaId={a} /></div>;
   if (pagina === 'entrar') return <div className="app"><EntrarConta aoTerminar={() => ir()} aoVoltar={() => (e.perfil ? ir('trocas') : ir())} /></div>;
   if (!e.perfil) return <div className="app"><BoasVindas /></div>;

@@ -11,10 +11,13 @@ import { Moeda, Saldo } from '../components/Loja';
 import { sabimons } from '../data';
 import { formaDe, podeEvoluir, saldo } from '../lib/loja';
 import { Desejo } from './Loja';
+import { EscolherPerfil } from '../components/Perfis';
 
 export const CORES = ['#22D3EE', '#F472B6', '#FACC15', '#4ADE80', '#FB923C', '#A78BFA'];
 
 export function BoasVindas() {
+  const { perfis } = useConta();
+  const [novo, setNovo] = useState(false);
   const [nome, setNome] = useState('');
   const [cor, setCor] = useState(CORES[0]);
   const ok = nome.trim().length >= 2;
@@ -23,6 +26,13 @@ export function BoasVindas() {
       <div className="logo" style={{ fontSize: 44 }}>Sabidex</div>
       <Ara tamanho={130} />
       <div className="balao" style={{ maxWidth: 320 }}>Oi! Eu sou o <strong>Ará</strong>. Vamos estudar, ganhar Sabimons e completar o álbum?</div>
+      {perfis.length > 0 && !novo && (
+        <div className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}>
+          <EscolherPerfil perfis={perfis} titulo="Quem vai jogar?" />
+          <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => setNovo(true)}>Sou outra criança</button>
+        </div>
+      )}
+      {(perfis.length === 0 || novo) && <>
       <form className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}
         onSubmit={(ev) => { ev.preventDefault(); if (ok) setEstado((e) => ({ ...e, perfil: { nome: nome.trim(), cor } })); }}>
         <label htmlFor="apelido" className="display h3">Como você quer ser chamado?</label>
@@ -42,6 +52,7 @@ export function BoasVindas() {
         <button className="btn btn-amarelo btn-bloco" disabled={!ok} style={{ marginTop: 8 }}>Começar</button>
       </form>
       <button type="button" className="btn btn-escuro btn-bloco" style={{ maxWidth: 340 }} onClick={() => ir('entrar')}>Já tenho conta na turma</button>
+      </>}
       <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => ir('adulto')}>Sou pai, mãe ou professor</button>
     </main>
   );
