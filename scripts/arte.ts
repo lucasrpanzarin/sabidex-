@@ -189,9 +189,17 @@ async function main() {
         corpo.prompt = `${prompt} ${MESMO_BICHO}`;
         corpo.image_urls = [await referencia(s.numero, refs)];
       }
-      const { url, modelo: usado } = forma > 1
-        ? await gerarComCandidatos('ref', comRef, corpo)
-        : await gerarComCandidatos('texto', texto, corpo);
+      // Falha genérica do Higgsfield: tenta de novo até 3 vezes.
+      let gerado: { url: string; modelo: string } | undefined;
+      for (let tentativa = 1; !gerado; tentativa++) {
+        try {
+          gerado = forma > 1 ? await gerarComCandidatos('ref', comRef, corpo) : await gerarComCandidatos('texto', texto, corpo);
+        } catch (e) {
+          if (tentativa >= 3 || !String(e).includes('(failed)')) throw e;
+          await espera(5000);
+        }
+      }
+      const { url, modelo: usado } = gerado;
       const tamanho = await baixarPng(url, destino);
       refs[nome] = url;
       writeFileSync(REFS, JSON.stringify(refs, null, 2) + '\n');
