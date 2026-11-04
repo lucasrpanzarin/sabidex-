@@ -231,7 +231,7 @@ export const historia10: Capitulo = {
       "pergunta": "Quando e onde os portugueses chegaram ao Brasil?",
       "opcoes": [
         "Em 1415, em Ceuta",
-        "Em 22 de abril de 1500, em Porto Seguro, na Bahia",
+        "Em 1500, em Porto Seguro",
         "Em 1549, em Salvador",
         "Em 1565, no Rio de Janeiro"
       ],
@@ -252,9 +252,9 @@ export const historia10: Capitulo = {
     {
       "pergunta": "Por que o pau-brasil era tão valioso na Europa?",
       "opcoes": [
-        "Dava uma tinta vermelha para tingir tecidos",
-        "Dava frutas muito doces",
-        "Tinha ouro dentro",
+        "Dava tinta vermelha para tecidos",
+        "Dava o açúcar dos engenhos",
+        "Tinha ouro dentro do tronco",
         "Servia para fazer remédios"
       ],
       "certa": 0,
@@ -263,10 +263,10 @@ export const historia10: Capitulo = {
     {
       "pergunta": "O que era o escambo?",
       "opcoes": [
-        "Uma moeda portuguesa",
-        "Um tipo de navio",
-        "A troca de trabalho ou produtos sem usar dinheiro",
-        "Um armazém no litoral"
+        "Uma moeda usada pelos portugueses",
+        "Um imposto pago ao rei de Portugal",
+        "A troca de produtos sem usar dinheiro",
+        "A divisão do Brasil em capitanias"
       ],
       "certa": 2,
       "explicacao": "Os indígenas trabalhavam e recebiam espelhos, tecidos e machados."
@@ -285,9 +285,9 @@ export const historia10: Capitulo = {
     {
       "pergunta": "Quais capitanias hereditárias prosperaram?",
       "opcoes": [
-        "Todas elas",
         "Bahia e Maranhão",
-        "Nenhuma",
+        "Pernambuco e Bahia",
+        "São Vicente e Maranhão",
         "Pernambuco e São Vicente"
       ],
       "certa": 3,
@@ -319,9 +319,9 @@ export const historia10: Capitulo = {
       "pergunta": "Por que os jesuítas eram contra a escravidão dos indígenas?",
       "opcoes": [
         "Porque queriam vendê-los",
-        "Porque não gostavam do Brasil",
+        "Porque queriam levá-los a Portugal",
         "Porque queriam catequizá-los",
-        "Porque queriam procurar ouro"
+        "Porque queriam usá-los nos engenhos"
       ],
       "certa": 2,
       "explicacao": "Eles queriam ensinar a religião católica aos indígenas, nas missões."
@@ -329,9 +329,9 @@ export const historia10: Capitulo = {
     {
       "pergunta": "Por que os holandeses invadiram o Nordeste do Brasil?",
       "opcoes": [
-        "Para pegar ouro",
-        "Para plantar café",
-        "Para caçar animais",
+        "Para tirar o pau-brasil das matas",
+        "Para catequizar os indígenas",
+        "Para procurar ouro no sertão",
         "Para controlar os engenhos de açúcar"
       ],
       "certa": 3,

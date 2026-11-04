@@ -7,7 +7,7 @@ export type Fase = 'ouvir' | 'memoria' | 'linha' | 'quiz' | 'prova';
 export const FASES: Fase[] = ['ouvir', 'memoria', 'linha', 'quiz', 'prova'];
 
 export const FASE_INFO: Record<Fase, { titulo: string; sub: string; xp: number }> = {
-  ouvir: { titulo: 'Ouvir os temas', sub: 'Escute a explicação de cada tema', xp: 50 },
+  ouvir: { titulo: 'Ouvir os temas', sub: 'Escute ou leia cada tema', xp: 50 },
   memoria: { titulo: 'Jogo da memória', sub: 'Ligue cada palavra ao significado', xp: 60 },
   linha: { titulo: 'Linha do tempo', sub: 'Coloque os fatos na ordem certa', xp: 60 },
   quiz: { titulo: 'Quiz relâmpago', sub: 'Verdadeiro ou falso contra o relógio', xp: 80 },
@@ -40,10 +40,14 @@ export interface Estado {
   dias: string[];
   /** ids dos pacotes já abertos (para não voltarem ao sincronizar) */
   abertos: string[];
+  /** Revisão do Ará: id da pergunta → caixa (0–4) e dia em que ela volta. Fica só no aparelho. */
+  revisao: Record<string, { caixa: number; proxima: string }>;
+  /** último dia em que a revisão deu pacote (no máximo um por dia) */
+  ultimaRevisao: string;
 }
 
 export const estadoInicial = (): Estado => ({
-  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [],
+  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [], revisao: {}, ultimaRevisao: '',
 });
 
 export function nivel(xp: number) {
@@ -82,7 +86,7 @@ export interface Resultado {
 }
 
 let contador = 0;
-const novoId = () => `p${Date.now().toString(36)}${(contador++).toString(36)}`;
+export const novoId = () => `p${Date.now().toString(36)}${(contador++).toString(36)}`;
 
 /**
  * Registra uma fase terminada. Na primeira vez dá XP cheio (e pacote, se for o caso);

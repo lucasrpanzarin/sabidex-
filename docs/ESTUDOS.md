@@ -51,16 +51,12 @@ São os resultados mais firmes da pesquisa sobre aprendizagem. Cada um vira uma 
 6. Verdadeiro ou falso: metade de cada; as falsas são **erros que a criança realmente comete** (trocar dois povos, inverter causa e efeito), não absurdos.
 7. A explicação ensina: diz por que a certa é certa em uma frase.
 
-### O que achamos nos capítulos 9 e 10
+### Revisão dos capítulos 9 e 10 (feita em 04/11/2026)
 
-A conferência automática (`validarCapitulo`) achou pontos para melhorar:
-
-- **7 das 20 questões** da prova têm a resposta certa bem mais comprida que as outras (ex.: "Quem foi Piye?" → só a certa é uma frase completa).
-- Algumas erradas são absurdas e fáceis de descartar ("Uma viagem de férias dos portugueses", "Mandando cartas").
-- No capítulo 9, **nenhuma resposta certa está na letra D**.
-- A prova não muda a ordem das opções a cada vez; quem refaz decora a posição.
-
-Nada disso quebra o jogo, mas deixa a prova mais fácil do que parece. Vale corrigir (conferindo com o livro).
+A conferência automática achou respostas certas bem mais compridas que as outras (7 de 20) e opções erradas
+absurdas ("Uma viagem de férias dos portugueses"). Foram corrigidas: as certas ficaram curtas e as erradas agora
+usam coisas do próprio capítulo que a criança pode confundir (Obá x Oni, khoi-khoi x san, assírios x núbios,
+bantos x diáspora). Nenhum fato novo entrou. Além disso, a prova agora **embaralha as opções** a cada tentativa.
 
 ---
 
@@ -70,15 +66,20 @@ Nada disso quebra o jogo, mas deixa a prova mais fácil do que parece. Vale corr
 
 | Fase | Bom para | Melhoria sugerida |
 |---|---|---|
-| Ouvir os temas | primeiro contato, palavra + som | 1 pergunta rápida depois de cada tema ("o que você lembra?") |
+| Ouvir os temas | primeiro contato, palavra + som | **Feito:** botão "Já li este tema" (para quem está sem som ou prefere ler). Ideia: 1 pergunta rápida depois de cada tema |
 | Jogo da memória | vocabulário | ok; na revisão, misturar palavras de capítulos diferentes |
 | Linha do tempo | ordem e contexto | ok |
-| Quiz relâmpago | erros comuns | opção "sem relógio" para quem fica ansioso |
-| Prova (chefão) | tudo junto | embaralhar opções; mostrar explicação de cada erro (já mostra a certa) |
+| Quiz relâmpago | erros comuns | **Feito:** o relógio para enquanto a criança lê a explicação; as respostas vão para a revisão |
+| Prova (chefão) | tudo junto | **Feito:** opções embaralhadas a cada tentativa; as respostas vão para a revisão |
 
 ### Jogos novos, por ordem de impacto
 
-1. **Revisão do Ará (repetição espaçada).** Todo dia, 5 a 8 perguntas que a criança errou ou acertou há tempo. Acertou: a pergunta volta daqui a mais dias (1 → 3 → 7 → 21). Errou: volta amanhã. É o que mais faz a matéria ficar para a prova da escola. Dá XP e, a cada 5 revisões, um pacote.
+1. **Revisão do Ará (repetição espaçada) — FEITO.** Toda pergunta do quiz e da prova entra na revisão.
+   Errou: volta amanhã. Acertou: volta em 3 dias, depois 7, 21 e 60 (só sobe se acertar no dia certo, então repetir a
+   fase no mesmo dia não "engana"). A revisão tem até 8 perguntas, mistura capítulos e mostra a explicação na hora.
+   Dá 10 XP por acerto e, uma vez por dia (com 5 perguntas ou mais), um pacote de cartas. Aparece no Início quando
+   tem pergunta para hoje. Código: `src/lib/revisao.ts` e `src/screens/Revisao.tsx`.
+   Por enquanto a agenda da revisão fica só no aparelho (não vai para o servidor da turma).
 2. **Complete a frase.** Frase do livro com uma lacuna e 4 palavras para escolher. Treina lembrar a palavra exata.
 3. **Quem sou eu?** 3 pistas, uma de cada vez. Acertar na 1ª pista vale mais XP.
 4. **Separe nos grupos.** Arrastar itens para 2 ou 3 caixas (ex.: "khoi-khoi" x "san"). Ótimo para coisas que a criança confunde.
@@ -150,7 +151,7 @@ Por último, o Lucas confere datas e nomes principais no livro (`fontes.md` diz 
 ## 6. Próximos passos sugeridos
 
 1. Criar o próximo capítulo mandando as fotos na conversa.
-2. Corrigir as questões dos capítulos 9 e 10 apontadas na seção 2.
-3. Criar a **Revisão do Ará** (repetição espaçada): é o jogo que mais ajuda na prova da escola.
+2. Levar a agenda da Revisão do Ará para o servidor (para não perder ao trocar de aparelho).
+3. Opção "sem relógio" no quiz relâmpago.
 4. Criar "Complete a frase" e "Quem sou eu?" (precisa acrescentar esses campos em `tipos.ts`).
 5. Painel do professor: mostrar quais perguntas a turma mais erra.

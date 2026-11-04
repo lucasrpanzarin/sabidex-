@@ -58,6 +58,7 @@ export interface Capitulo {
   temas: Tema[];
   pares: Par[];
   linha: Evento[];
+  /** Não reordene nem apague itens de um capítulo publicado: a Revisão do Ará guarda as perguntas pela posição. Acrescente no fim. */
   quiz: Afirmacao[];
   prova: Questao[];
   cartas: Carta[];

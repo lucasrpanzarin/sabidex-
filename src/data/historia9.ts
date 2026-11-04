@@ -249,10 +249,10 @@ export const historia9: Capitulo = {
     {
       "pergunta": "Como os khoi-khoi e os san deixaram registros do seu modo de vida?",
       "opcoes": [
-        "Escrevendo livros",
-        "Escrevendo em papiros",
-        "Fazendo pinturas rupestres nas rochas",
-        "Mandando cartas"
+        "Com livros escritos",
+        "Com hieróglifos",
+        "Com pinturas rupestres",
+        "Com estátuas de bronze"
       ],
       "certa": 2,
       "explicacao": "Eles não escreviam. Deixaram pinturas rupestres em rochas e cavernas."
@@ -262,8 +262,8 @@ export const historia9: Capitulo = {
       "opcoes": [
         "moravam sempre no mesmo lugar",
         "mudavam de lugar em busca de alimento",
-        "moravam em castelos",
-        "viviam em barcos no mar"
+        "moravam em cabanas e criavam cabras",
+        "viviam em cidades com um rei"
       ],
       "certa": 1,
       "explicacao": "Nômade é quem muda de lugar. Os khoi-khoi é que eram sedentários."
@@ -271,9 +271,9 @@ export const historia9: Capitulo = {
     {
       "pergunta": "A Núbia, reino vizinho do Egito, ficava onde hoje é:",
       "opcoes": [
-        "o Brasil",
-        "Portugal",
         "a Nigéria",
+        "Angola",
+        "o Mali",
         "o Sudão"
       ],
       "certa": 3,
@@ -282,10 +282,10 @@ export const historia9: Capitulo = {
     {
       "pergunta": "Quem foi Piye?",
       "opcoes": [
-        "Um navegador português",
-        "Um rei núbio que conquistou o Egito e começou a era dos faraós negros",
-        "Um griô do Mali",
-        "Um governador-geral do Brasil"
+        "Um navegador que contornou a África",
+        "Um rei núbio que conquistou o Egito",
+        "Um griô que contava histórias no Mali",
+        "Um rei assírio que invadiu o Egito"
       ],
       "certa": 1,
       "explicacao": "Piye conquistou o Egito por volta de 730 a.C."
@@ -294,9 +294,9 @@ export const historia9: Capitulo = {
       "pergunta": "Entre os iorubás, quem era o Oni?",
       "opcoes": [
         "O rei que todos obedeciam",
-        "Um instrumento musical",
-        "Uma comida típica",
-        "Uma árvore sagrada"
+        "O chefe de cada cidade",
+        "O mais velho que conta histórias",
+        "Um povo que migrou pela África"
       ],
       "certa": 0,
       "explicacao": "Cada cidade tinha um Obá, e todos obedeciam ao rei, o Oni."
@@ -315,10 +315,10 @@ export const historia9: Capitulo = {
     {
       "pergunta": "O que foi a diáspora africana?",
       "opcoes": [
-        "Uma festa tradicional africana",
-        "A maior migração forçada da história, com africanos levados como escravizados",
-        "Uma guerra entre o Egito e a Núbia",
-        "Uma viagem de férias dos portugueses"
+        "A grande migração dos bantos pela África",
+        "A migração forçada de africanos escravizados",
+        "A conquista do Egito pelos núbios",
+        "A viagem dos portugueses em volta da África"
       ],
       "certa": 1,
       "explicacao": "Milhões de africanos foram levados à força, principalmente para a América."
@@ -338,9 +338,9 @@ export const historia9: Capitulo = {
       "pergunta": "Em 2022, a Alemanha devolveu à Nigéria:",
       "opcoes": [
         "os Bronzes de Benin",
+        "pinturas rupestres",
         "uma pirâmide",
-        "um baobá",
-        "navios portugueses"
+        "um papiro egípcio"
       ],
       "certa": 0,
       "explicacao": "Foram 21 Bronzes de Benin, levados por soldados britânicos em 1897."

@@ -51,6 +51,9 @@ Crie `src/data/<materia><numero>.ts` no formato de `src/data/tipos.ts` (veja `hi
 
 Guarde também, em `livro/<capitulo>/fontes.md`, uma lista curta de "item → página do livro" para conferência.
 
+Capítulo já publicado: não reordene nem apague perguntas do `quiz` e da `prova` (a Revisão do Ará guarda pela posição).
+Para corrigir, edite o texto no mesmo lugar; para acrescentar, ponha no fim.
+
 ## Etapa 3 — Conferir
 
 1. `npm run conferir -- <capitulo> --espalhar` (espalha as respostas certas entre A–D e mostra os problemas).
