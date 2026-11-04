@@ -7,7 +7,7 @@ import { voltar } from '../lib/rota';
 
 /** E-mail para pedidos sobre dados. */
 const EMAIL_CONTATO = 'lucas@fastgsa.com';
-const ATUALIZADA = 'novembro de 2026';
+const ATUALIZADA = '4 de novembro de 2026 (chat da turma)';
 
 function Parte({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
@@ -40,12 +40,21 @@ export function Privacidade() {
       <Parte titulo="O que guardamos da criança">
         Só um <strong>apelido</strong>, uma <strong>cor</strong>, um <strong>PIN</strong> de 4 números (embaralhado) e o <strong>progresso no jogo</strong>:
         fases feitas, notas, XP, cartas, compras na lojinha do jogo e propostas de troca de cartas.
+        Se o chat da turma estiver ligado, guardamos também as <strong>mensagens</strong> que a criança escreve, por 60 dias.
         Nunca pedimos nome completo, e-mail, telefone, foto, endereço ou localização da criança.
       </Parte>
       <Parte titulo="Quem vê o quê">
         O adulto responsável vê o progresso dos filhos. O professor vê o apelido e o progresso dos alunos da turma dele.
-        Colegas da mesma turma veem só o apelido, a cor, as cartas e o XP da semana.
-        Não existe chat: as crianças só trocam propostas de cartas.
+        Colegas da mesma turma veem só o apelido, a cor, as cartas, o XP da semana e, se os adultos deixarem, se a criança está estudando agora.
+      </Parte>
+      <Parte titulo="Chat da turma">
+        Existe um chat escrito só entre colegas da <strong>mesma turma da escola</strong>, num grupo único (não há mensagem privada).
+        Ele começa desligado: só funciona se o <strong>professor</strong> ligar para a turma <strong>e</strong> o <strong>responsável</strong> autorizar o filho.
+        O professor escolhe o horário (o padrão é das 7h às 21h).
+        O responsável e o professor podem <strong>ler todas as mensagens</strong>, e a criança é avisada disso na tela do chat.
+        O app bloqueia palavrões, telefones, endereços, links, e-mails e nomes de redes sociais, e não aceita fotos nem áudios.
+        A criança pode tocar em "Avisar o professor" numa mensagem. O professor pode apagar mensagens e pausar as mensagens de um aluno.
+        As mensagens são apagadas sozinhas depois de 60 dias, ou na hora, junto com o perfil da criança.
       </Parte>
       <Parte titulo="Autorização dos pais">
         A conta da família só pode ser criada por um adulto, que confirma ser o responsável pela criança.

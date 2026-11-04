@@ -13,12 +13,24 @@ import { EXTRAS, type Extra } from './lib/jogo';
 import { Loja } from './screens/Loja';
 import { Privacidade } from './screens/Privacidade';
 import { ContaCriada, EntrarConta, MinhaConta, Ranking, Trocas } from './screens/Turma';
-import { useConta } from './lib/conta';
+import { useEffect } from 'react';
+import { api, useConta } from './lib/conta';
+import { Chat } from './screens/Chat';
 
 export function App() {
   const e = useEstado();
   const [pagina = '', a, b] = useRota();
-  const { contaNova } = useConta();
+  const { contaNova, conta } = useConta();
+
+  // "Estudando agora": com o app aberto e na tela, avisa o servidor a cada minuto (só para quem está numa turma).
+  useEffect(() => {
+    if (!conta?.codigo) return;
+    const ping = () => { if (document.visibilityState === 'visible') void api('/crianca/ping', { corpo: {} }); };
+    ping();
+    const t = setInterval(ping, 60_000);
+    document.addEventListener('visibilitychange', ping);
+    return () => { clearInterval(t); document.removeEventListener('visibilitychange', ping); };
+  }, [conta?.codigo]);
 
   // Telas que não precisam do perfil da criança
   if (pagina === 'nova-senha') return <div className="app"><NovaSenha token={a ?? ''} /></div>;
@@ -46,6 +58,7 @@ export function App() {
     case 'album': tela = <Album id={a} />; break;
     case 'loja': tela = <Loja key={a ?? ''} sabimonId={a} />; aba = 'album'; break;
     case 'trocas': tela = <Trocas />; break;
+    case 'chat': tela = <Chat />; aba = 'trocas'; comNav = false; break;
     case 'ranking': tela = <Ranking />; break;
     case 'conta': tela = <MinhaConta />; aba = ''; break;
     default: tela = <Inicio />; aba = '';

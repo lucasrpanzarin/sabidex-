@@ -7,7 +7,8 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 ## Regras do produto
 
 - Todo texto do app é em **português do Brasil**, frases curtas, para uma criança de 10 anos ler sozinha.
-- **Segurança das crianças:** nunca coletar sobrenome, e-mail, foto, telefone ou localização da criança. Só apelido e uma cor de avatar. Nada de chat livre entre crianças: trocas são só propostas de cartas.
+- **Segurança das crianças:** nunca coletar sobrenome, e-mail, foto, telefone ou localização da criança. Só apelido e uma cor de avatar.
+- **Chat da turma** (decidido pelo Lucas em 04/11/2026; `src/shared/chat.ts`, `src/screens/Chat.tsx`): escrito, mas só num grupo único da turma da escola (nada de mensagem privada nem chat com quem é de fora). Começa desligado: o professor liga para a turma e escolhe o horário (padrão 7h–21h de Brasília) **e** o responsável autoriza cada filho na conta da família (criança sem família não escreve). Pais e professor leem tudo, e a tela avisa a criança. O app bloqueia palavrões, telefones, endereços, links, e-mails e redes sociais; sem fotos nem áudio; máx. 200 letras e 5 mensagens a cada 30 s. A criança pode "Avisar o professor"; o professor apaga mensagens e pausa um aluno. Mensagens somem em 60 dias. "Estudando agora" só para a turma, e professor/responsável podem desligar.
 - Conteúdo vem do livro da escola. Cada capítulo novo é um arquivo em `src/data/` seguindo o formato de `src/data/tipos.ts`. Não invente fatos históricos: confira com o livro.
 - Capítulo novo a partir de fotos do livro: siga a skill **capitulo-do-livro** (`.claude/skills/capitulo-do-livro/SKILL.md`), na conversa, sem API paga. Regras de perguntas, jogos e idade: `docs/ESTUDOS.md`.
 - Cartas colecionáveis têm desenhos originais. Nunca usar personagens, nomes ou marcas de outros jogos (Pokémon etc.).

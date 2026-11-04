@@ -99,6 +99,38 @@ export const MIGRACOES = [
     data TEXT NOT NULL,
     PRIMARY KEY (turma_id, capitulo)
   )`,
+  // Chat da turma (decisão do Lucas em 04/11/2026). Só grupo da turma, sem mensagem privada.
+  // O professor liga para a turma (chat = 1) e escolhe o horário; o responsável autoriza cada filho (chat_ok = 1).
+  `ALTER TABLE turmas ADD COLUMN chat INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE turmas ADD COLUMN chat_inicio INTEGER NOT NULL DEFAULT 7`,
+  `ALTER TABLE turmas ADD COLUMN chat_fim INTEGER NOT NULL DEFAULT 21`,
+  // "Estudando agora" na lista da turma: o professor pode desligar para a turma e o responsável para o filho.
+  `ALTER TABLE turmas ADD COLUMN mostrar_online INTEGER NOT NULL DEFAULT 1`,
+  `ALTER TABLE criancas ADD COLUMN chat_ok INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE criancas ADD COLUMN mostrar_online INTEGER NOT NULL DEFAULT 1`,
+  `ALTER TABLE criancas ADD COLUMN mudo_ate INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE criancas ADD COLUMN ativo INTEGER NOT NULL DEFAULT 0`,
+  // Mensagens somem depois de 60 dias. apagada = 1 quando o professor apaga (só os adultos ainda veem).
+  `CREATE TABLE IF NOT EXISTS mensagens (
+    id TEXT PRIMARY KEY,
+    turma_id TEXT NOT NULL,
+    crianca_id TEXT NOT NULL,
+    texto TEXT NOT NULL,
+    criado INTEGER NOT NULL,
+    apagada INTEGER NOT NULL DEFAULT 0
+  )`,
+  `CREATE INDEX IF NOT EXISTS mensagens_turma ON mensagens (turma_id, criado)`,
+  `CREATE INDEX IF NOT EXISTS mensagens_crianca ON mensagens (crianca_id, criado)`,
+  // "Avisar o professor" numa mensagem.
+  `CREATE TABLE IF NOT EXISTS avisos_chat (
+    id TEXT PRIMARY KEY,
+    turma_id TEXT NOT NULL,
+    mensagem_id TEXT NOT NULL,
+    por_id TEXT NOT NULL,
+    criado INTEGER NOT NULL,
+    resolvido INTEGER NOT NULL DEFAULT 0,
+    UNIQUE (mensagem_id, por_id)
+  )`,
 ];
 
 export const SEM_TURMA = 'familia:';

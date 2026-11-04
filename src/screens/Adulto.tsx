@@ -19,8 +19,8 @@ const rotulo: React.CSSProperties = { fontWeight: 800 };
 const botaoPequeno: React.CSSProperties = { flex: 1, minHeight: 40, fontSize: 15 };
 
 interface Turma { id: string; nome: string; codigo: string; criancas: number; dono: string }
-interface Kid { id: string; apelido: string; cor: string; xp: number | null; xp_semana: number; cartas: number; visto: number; bloqueado_ate: number; familia: number }
-interface Filho { id: string; apelido: string; cor: string; xp: number | null; cartas: number; visto: number; bloqueado_ate: number; turma: string | null; codigo: string | null }
+interface Kid { id: string; apelido: string; cor: string; xp: number | null; xp_semana: number; cartas: number; visto: number; bloqueado_ate: number; familia: number; chat_ok: number; mudo_ate: number; online: number }
+interface Filho { id: string; apelido: string; cor: string; xp: number | null; cartas: number; visto: number; bloqueado_ate: number; turma: string | null; codigo: string | null; chat_ok: number; mostrar_online: number; turma_chat: number | null }
 
 function quando(ms: number) {
   const d = Math.floor((Date.now() - ms) / 86_400_000);
@@ -423,6 +423,7 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
               <button className="btn btn-escuro" style={botaoPequeno} onClick={() => setApagar(f.id)}>Apagar</button>
             </div>
           )}
+          {f.turma && <ChatDoFilho token={token} f={f} aoMudar={() => void carregar()} />}
         </div>
       ))}
       {form === 'nenhum' && (
@@ -443,6 +444,64 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
           ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque. Depois, continua valendo para revisar. Se a turma do professor marcar outra data, vale a da turma." />
       )}
     </section>
+  );
+}
+
+/* ---------------- Chat da turma (área dos adultos) ---------------- */
+
+interface MsgAdulto { id: string; crianca_id: string; apelido: string | null; cor: string | null; texto: string; criado: number; apagada: number; doFilho?: boolean }
+const dataHora = (ms: number) => new Date(ms).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+/** Lista de mensagens para pais e professor. Mostra também as apagadas (riscadas). */
+function Conversa({ mensagens, avisadas, acoes }: { mensagens: MsgAdulto[]; avisadas?: Set<string>; acoes?: (m: MsgAdulto) => React.ReactNode }) {
+  if (!mensagens.length) return <p className="muted small" style={{ margin: 0 }}>Nenhuma mensagem nos últimos 60 dias.</p>;
+  return (
+    <div className="coluna" style={{ gap: 6, maxHeight: 420, overflowY: 'auto', padding: 2 }}>
+      {mensagens.map((m) => (
+        <div key={m.id} className="linha" style={{ gap: 8, alignItems: 'flex-start', padding: '6px 8px', borderRadius: 12,
+          background: avisadas?.has(m.id) ? '#FEE2E2' : m.doFilho ? '#CFFAFE' : 'var(--surface)', border: '2px solid var(--ink)' }}>
+          <Bolinha nome={m.apelido ?? '?'} cor={m.cor ?? '#94A3B8'} tamanho={26} />
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span className="small" style={{ fontWeight: 900 }}>{m.apelido ?? 'Conta apagada'}</span>
+            <span className="muted small"> · {dataHora(m.criado)}{m.apagada ? ' · apagada' : ''}{avisadas?.has(m.id) ? ' · aluno avisou' : ''}</span>
+            <span style={{ display: 'block', fontWeight: 700, overflowWrap: 'anywhere', textDecoration: m.apagada ? 'line-through' : undefined, opacity: m.apagada ? 0.6 : 1 }}>{m.texto}</span>
+            {acoes?.(m)}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** O responsável autoriza o chat e o "estudando agora" do filho, e lê a conversa da turma. */
+function ChatDoFilho({ token, f, aoMudar }: { token: string; f: Filho; aoMudar: () => void }) {
+  const [ler, setLer] = useState<MsgAdulto[] | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const mudar = async (campo: 'chat' | 'online', valor: boolean) => {
+    const r = await api(`/adulto/familia/${f.id}/chat`, { corpo: { [campo]: valor }, tokenProprio: token });
+    if (r.erro) setErro(r.erro); else aoMudar();
+  };
+  const abrir = async () => {
+    if (ler) return setLer(null);
+    const r = await api<{ mensagens: MsgAdulto[] }>(`/adulto/familia/${f.id}/chat`, { tokenProprio: token });
+    if (r.erro) setErro(r.erro); else setLer(r.mensagens);
+  };
+  return (
+    <div className="coluna" style={{ gap: 6, borderTop: '2px dashed var(--line)', paddingTop: 8 }}>
+      <span className="small" style={{ fontWeight: 900 }}>Chat da turma {f.turma}</span>
+      {!f.turma_chat && <span className="muted small">O professor ainda não ligou o chat desta turma. Quando ligar, só funciona se você autorizar aqui.</span>}
+      <label className="linha small" style={{ gap: 8, fontWeight: 700, alignItems: 'flex-start' }}>
+        <input type="checkbox" checked={!!f.chat_ok} onChange={(ev) => void mudar('chat', ev.target.checked)} style={{ width: 22, height: 22, flex: 'none' }} />
+        <span>Deixar {f.apelido} escrever no chat da turma. Só os colegas da turma participam, num grupo único (sem mensagem privada). Você e o professor podem ler tudo, e {f.apelido} é avisado disso.</span>
+      </label>
+      <label className="linha small" style={{ gap: 8, fontWeight: 700, alignItems: 'flex-start' }}>
+        <input type="checkbox" checked={!!f.mostrar_online} onChange={(ev) => void mudar('online', ev.target.checked)} style={{ width: 22, height: 22, flex: 'none' }} />
+        <span>Mostrar para os colegas quando {f.apelido} está estudando agora.</span>
+      </label>
+      <button className="btn btn-escuro" style={{ minHeight: 40, fontSize: 15 }} onClick={() => void abrir()}>{ler ? 'Fechar a conversa' : 'Ler a conversa da turma'}</button>
+      {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
+      {ler && <><span className="muted small">As mensagens de {f.apelido} aparecem em azul. Mensagens com mais de 60 dias são apagadas sozinhas.</span><Conversa mensagens={ler} /></>}
+    </div>
   );
 }
 
@@ -603,13 +662,89 @@ function ApagarConta({ token, temSenha, aoApagar }: { token: string; temSenha: b
   );
 }
 
+interface ChatTurma { chat: number; chat_inicio: number; chat_fim: number; mostrar_online: number }
+interface DadosTurma { turma: Turma; chat?: ChatTurma; avisos?: number; criancas: Kid[]; provas?: DatasProva }
+
+const HORAS = Array.from({ length: 25 }, (_, h) => h);
+
+/** O professor liga o chat, escolhe o horário, lê tudo, vê os avisos dos alunos e apaga mensagens. */
+function ChatDaTurma({ token, id, chat, avisos, criancas, aoMudar }: { token: string; id: string; chat: ChatTurma; avisos: number; criancas: Kid[]; aoMudar: () => void }) {
+  const [ler, setLer] = useState<{ mensagens: MsgAdulto[]; avisos: { mensagem_id: string; por: string | null }[] } | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [apagar, setApagar] = useState<string | null>(null);
+  const salvar = async (mud: Record<string, unknown>) => {
+    const r = await api(`/adulto/turmas/${id}/chat`, { corpo: mud, tokenProprio: token });
+    if (r.erro) setErro(r.erro); else { setErro(null); aoMudar(); }
+  };
+  const carregarConversa = async () => {
+    const r = await api<{ mensagens: MsgAdulto[]; avisos: { mensagem_id: string; por: string | null }[] }>(`/adulto/turmas/${id}/chat`, { tokenProprio: token });
+    if (r.erro) setErro(r.erro); else setLer(r);
+  };
+  const acao = async (m: MsgAdulto, qual: 'apagar' | 'ok') => {
+    const r = await api(`/adulto/turmas/${id}/chat/${m.id}/${qual}`, { corpo: {}, tokenProprio: token });
+    setApagar(null);
+    if (r.erro) setErro(r.erro); else { await carregarConversa(); aoMudar(); }
+  };
+  const avisadas = new Set(ler?.avisos.map((v) => v.mensagem_id));
+  const liberadas = criancas.filter((k) => k.chat_ok).length;
+  const selectHora = (valor: number, campo: 'inicio' | 'fim') => (
+    <select value={valor} onChange={(ev) => void salvar({ [campo]: Number(ev.target.value) })} style={{ font: 'inherit', fontWeight: 800, padding: '6px 8px', borderRadius: 10, border: '2px solid var(--ink)', background: 'var(--surface)' }}>
+      {HORAS.map((h) => <option key={h} value={h}>{h}h</option>)}
+    </select>
+  );
+  return (
+    <section className="painel coluna" style={{ gap: 10 }} aria-label="Chat da turma">
+      <div className="linha" style={{ justifyContent: 'space-between' }}>
+        <h2 className="display h3" style={{ margin: 0 }}>Chat da turma</h2>
+        {avisos > 0 && <span className="pilula" style={{ borderColor: 'var(--coral)', color: 'var(--t-coral)' }}>{avisos} {avisos > 1 ? 'avisos' : 'aviso'}</span>}
+      </div>
+      <p className="muted small" style={{ margin: 0 }}>
+        Um grupo só com a turma (sem mensagem privada). Cada criança só escreve se o responsável autorizar na conta da família.
+        O app bloqueia palavrões, telefones, endereços, links e redes sociais. Mensagens somem depois de 60 dias.
+      </p>
+      <label className="linha" style={{ gap: 8, fontWeight: 800 }}>
+        <input type="checkbox" checked={!!chat.chat} onChange={(ev) => void salvar({ chat: ev.target.checked })} style={{ width: 24, height: 24 }} />
+        Chat ligado para a turma
+      </label>
+      <div className="linha small" style={{ gap: 8, fontWeight: 700, flexWrap: 'wrap' }}>
+        Aberto das {selectHora(chat.chat_inicio, 'inicio')} às {selectHora(chat.chat_fim, 'fim')} (horário de Brasília)
+      </div>
+      <label className="linha small" style={{ gap: 8, fontWeight: 700 }}>
+        <input type="checkbox" checked={!!chat.mostrar_online} onChange={(ev) => void salvar({ online: ev.target.checked })} style={{ width: 22, height: 22 }} />
+        Mostrar aos alunos quem está estudando agora
+      </label>
+      {!!chat.chat && <span className="small" style={{ fontWeight: 700 }}>{liberadas} de {criancas.length} {criancas.length === 1 ? 'criança liberada' : 'crianças liberadas'} pelos responsáveis.</span>}
+      <button className="btn btn-escuro" style={{ minHeight: 42, fontSize: 15 }} onClick={() => (ler ? setLer(null) : void carregarConversa())}>{ler ? 'Fechar a conversa' : 'Ler a conversa'}</button>
+      {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
+      {ler && (
+        <>
+          <span className="muted small">Em vermelho: mensagens que algum aluno avisou. Mensagens apagadas continuam aqui (riscadas) só para os adultos.</span>
+          <Conversa mensagens={ler.mensagens} avisadas={avisadas} acoes={(m) => m.apagada ? null : (
+            apagar === m.id ? (
+              <span className="linha" style={{ gap: 6, marginTop: 4 }}>
+                <span className="small" style={{ fontWeight: 700 }}>Apagar para os alunos?</span>
+                <button className="btn btn-vermelho" style={{ minHeight: 32, fontSize: 13, padding: '0 10px' }} onClick={() => void acao(m, 'apagar')}>Apagar</button>
+                <button className="btn btn-escuro" style={{ minHeight: 32, fontSize: 13, padding: '0 10px' }} onClick={() => setApagar(null)}>Não</button>
+              </span>
+            ) : (
+              <span className="linha" style={{ gap: 10, marginTop: 2 }}>
+                <button className="chat-avisar" onClick={() => setApagar(m.id)}>Apagar</button>
+                {avisadas.has(m.id) && <button className="chat-avisar" style={{ color: 'var(--t-green)' }} onClick={() => void acao(m, 'ok')}>Está tudo bem</button>}
+              </span>
+            ))} />
+        </>
+      )}
+    </section>
+  );
+}
+
 function DetalheTurma({ token, id }: { token: string; id: string }) {
-  const [dados, setDados] = useState<{ turma: Turma; criancas: Kid[]; provas?: DatasProva } | null>(null);
+  const [dados, setDados] = useState<DadosTurma | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [pinNovo, setPinNovo] = useState<{ apelido: string; pin: string } | null>(null);
   const [remover, setRemover] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
-  const carregar = () => api<{ turma: Turma; criancas: Kid[]; provas?: DatasProva }>(`/adulto/turmas/${id}`, { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : setDados(r)));
+  const carregar = () => api<DadosTurma>(`/adulto/turmas/${id}`, { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : setDados(r)));
   useEffect(() => { void carregar(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (erro && !dados) return <div className="aviso aviso-erro">{erro}</div>;
@@ -625,6 +760,10 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
   const tirar = async (k: Kid) => {
     const r = await api(`/adulto/turmas/${id}/criancas/${k.id}`, { metodo: 'DELETE', tokenProprio: token });
     setRemover(null);
+    if (r.erro) setErro(r.erro); else void carregar();
+  };
+  const silenciar = async (k: Kid, horas: number) => {
+    const r = await api(`/adulto/turmas/${id}/criancas/${k.id}/silenciar`, { corpo: { horas }, tokenProprio: token });
     if (r.erro) setErro(r.erro); else void carregar();
   };
   const copiar = async () => {
@@ -652,6 +791,7 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
       )}
       <DatasDasProvas token={token} rota={`/adulto/turmas/${id}/provas`} provas={dados.provas ?? {}} aoMudar={(p) => setDados({ ...dados, provas: p })}
         ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque para as crianças. Depois, continua aberto e valendo para quem chegou depois ou quer revisar." />
+      {dados.chat && <ChatDaTurma token={token} id={id} chat={dados.chat} avisos={dados.avisos ?? 0} criancas={criancas} aoMudar={() => void carregar()} />}
       <h2 className="display h3">{criancas.length} {criancas.length === 1 ? 'criança' : 'crianças'}</h2>
       {criancas.length === 0 && <p className="muted">Ninguém entrou ainda. Mande o convite acima.</p>}
       <div style={{ overflowX: 'auto' }}>
@@ -662,7 +802,10 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
                 <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: '50%', background: k.cor, display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', color: 'var(--ink)' }}>{k.apelido[0]?.toUpperCase()}</span>
                 <span style={{ flex: 1 }}>
                   <span className="display" style={{ fontSize: 18, display: 'block' }}>{k.apelido}</span>
-                  <span className="muted small">{k.xp_semana} XP na semana · {k.xp ?? 0} XP no total · {k.cartas} cartas · visto {quando(k.visto)}{k.bloqueado_ate > Date.now() ? ' · bloqueado por PIN errado' : ''}</span>
+                  <span className="muted small">{k.online ? 'estudando agora · ' : ''}{k.xp_semana} XP na semana · {k.xp ?? 0} XP no total · {k.cartas} cartas · visto {quando(k.visto)}{k.bloqueado_ate > Date.now() ? ' · bloqueado por PIN errado' : ''}</span>
+                  {dados.chat?.chat ? <span className="small" style={{ display: 'block', fontWeight: 700, color: k.mudo_ate > Date.now() ? 'var(--t-coral)' : k.chat_ok ? 'var(--t-green)' : 'var(--muted)' }}>
+                    Chat: {k.mudo_ate > Date.now() ? `pausado até ${dataHora(k.mudo_ate)}` : k.chat_ok ? 'liberado pelo responsável' : k.familia ? 'responsável ainda não liberou' : 'sem conta da família (o responsável precisa criar para liberar)'}
+                  </span> : null}
                 </span>
               </div>
               {remover === k.id ? (
@@ -672,8 +815,11 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
                   <button className="btn btn-vermelho" style={{ minHeight: 40, fontSize: 15 }} onClick={() => void tirar(k)}>Remover</button>
                 </div>
               ) : (
-                <div className="linha" style={{ gap: 8 }}>
+                <div className="linha" style={{ gap: 8, flexWrap: 'wrap' }}>
                   <button className="btn btn-escuro" style={{ flex: 1, minHeight: 40, fontSize: 15 }} onClick={() => void novoPin(k)}>Novo PIN</button>
+                  {!!dados.chat?.chat && !!k.chat_ok && (k.mudo_ate > Date.now()
+                    ? <button className="btn btn-escuro" style={{ flex: 1, minHeight: 40, fontSize: 15 }} onClick={() => void silenciar(k, 0)}>Tirar a pausa</button>
+                    : <button className="btn btn-escuro" style={{ flex: 1, minHeight: 40, fontSize: 15 }} onClick={() => void silenciar(k, 24)}>Pausar chat 1 dia</button>)}
                   <button className="btn btn-escuro" style={{ flex: 1, minHeight: 40, fontSize: 15 }} onClick={() => setRemover(k.id)}>Remover</button>
                 </div>
               )}

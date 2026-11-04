@@ -12,6 +12,7 @@ import {
 } from '../shared/sync';
 import { ESQUEMA, MIGRACOES, temTurma, turmaDaFamilia } from './esquema';
 import { dataValida, type DatasProva } from '../lib/provas';
+import { conferirMensagem, dentroDoHorario, GUARDAR_DIAS, JANELA_LIMITE, LIMITE_MENSAGENS, MOTIVO as MOTIVO_CHAT, ONLINE_MS } from '../shared/chat';
 import { APPLE, conferirCracha, GOOGLE } from './jwt';
 import { aleatorio, hashSegredo, iguais, pinAleatorio, sha256 } from './seguranca';
 
@@ -88,7 +89,7 @@ async function sairSessao(c: C) {
 interface Crianca {
   id: string; turma_id: string; apelido: string; cor: string; pin_hash: string; pin_sal: string;
   falhas: number; bloqueado_ate: number; progresso: string; xp_semana: number; semana: string;
-  familia_id: string | null;
+  familia_id: string | null; chat_ok: number; mostrar_online: number; mudo_ate: number; ativo: number;
 }
 
 const MSG_BLOQUEIO = 'Muitas tentativas erradas. Espere 15 minutos ou peça para um adulto trocar seu PIN.';
@@ -112,6 +113,8 @@ function apagarCrianca(db: D1Database, cid: string) {
     db.prepare('DELETE FROM cartas WHERE crianca_id = ?').bind(cid),
     db.prepare(`UPDATE trocas SET status = 'cancelada', resolvido = ? WHERE (de_id = ? OR para_id = ?) AND status = 'pendente'`).bind(Date.now(), cid, cid),
     db.prepare(`DELETE FROM sessoes WHERE tipo = 'crianca' AND ref_id = ?`).bind(cid),
+    db.prepare('DELETE FROM mensagens WHERE crianca_id = ?').bind(cid),
+    db.prepare('DELETE FROM avisos_chat WHERE por_id = ?').bind(cid),
     db.prepare('DELETE FROM criancas WHERE id = ?').bind(cid),
   ];
 }
@@ -256,7 +259,11 @@ async function crianca(c: C) {
   const id = await sessao(c, 'crianca');
   if (!id) return null;
   const k = await c.env.DB.prepare('SELECT * FROM criancas WHERE id = ?').bind(id).first<Crianca>();
-  return k && migrarCrianca(c.env.DB, k);
+  if (!k) return null;
+  // "Estudando agora": guarda quando a criança mexeu no app (no máximo uma gravação a cada 30 s).
+  const agora = Date.now();
+  if (agora - (k.ativo ?? 0) > 30_000) { await c.env.DB.prepare('UPDATE criancas SET ativo = ? WHERE id = ?').bind(agora, k.id).run(); k.ativo = agora; }
+  return migrarCrianca(c.env.DB, k);
 }
 
 /**
@@ -388,8 +395,9 @@ app.get('/crianca/turma', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
   if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
-  const r = await c.env.DB.prepare(`SELECT id, apelido, cor, (SELECT COUNT(*) FROM cartas WHERE crianca_id = criancas.id AND qtd > 0) AS cartas
-    FROM criancas WHERE turma_id = ? AND id != ? ORDER BY apelido_chave`).bind(k.turma_id, k.id).all();
+  const r = await c.env.DB.prepare(`SELECT k.id, k.apelido, k.cor, (SELECT COUNT(*) FROM cartas WHERE crianca_id = k.id AND qtd > 0) AS cartas,
+    (t.mostrar_online = 1 AND k.mostrar_online = 1 AND k.ativo > ?) AS online
+    FROM criancas k JOIN turmas t ON t.id = k.turma_id WHERE k.turma_id = ? AND k.id != ? ORDER BY k.apelido_chave`).bind(Date.now() - ONLINE_MS, k.turma_id, k.id).all();
   return c.json({ colegas: r.results });
 });
 
@@ -514,7 +522,7 @@ app.post('/crianca/trocas/:id/:acao', async (c) => {
 interface Adulto { id: string; nome: string; email: string; senha_hash: string; senha_sal: string; falhas: number; bloqueado_ate: number; aceite_versao: string; tem_senha: number }
 
 /** Versão da política de privacidade aceita no cadastro (mudar quando o texto mudar). */
-const VERSAO_PRIVACIDADE = '2026-11';
+const VERSAO_PRIVACIDADE = '2026-11-chat';
 const MAX_FILHOS = 6;
 
 const emailValido = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 120;
@@ -701,9 +709,11 @@ app.get('/adulto/turmas/:id', async (c) => {
   const t = await turmaDoAdulto(c, a);
   if (!t) return erro(c, 404, 'Turma não encontrada.');
   const r = await c.env.DB.prepare(`SELECT id, apelido, cor, criado, visto, bloqueado_ate, familia_id IS NOT NULL AS familia, CASE WHEN semana = ? THEN xp_semana ELSE 0 END AS xp_semana,
-    json_extract(progresso, '$.xp') AS xp, (SELECT COUNT(*) FROM cartas WHERE crianca_id = criancas.id AND qtd > 0) AS cartas
-    FROM criancas WHERE turma_id = ? ORDER BY apelido_chave`).bind(semanaDe(), t.id).all();
-  return c.json({ turma: t, criancas: r.results, provas: await datasDe(c.env.DB, [t.id]) });
+    json_extract(progresso, '$.xp') AS xp, (SELECT COUNT(*) FROM cartas WHERE crianca_id = criancas.id AND qtd > 0) AS cartas,
+    chat_ok, mudo_ate, (ativo > ?) AS online
+    FROM criancas WHERE turma_id = ? ORDER BY apelido_chave`).bind(semanaDe(), Date.now() - ONLINE_MS, t.id).all();
+  const avisos = await c.env.DB.prepare('SELECT COUNT(DISTINCT mensagem_id) n FROM avisos_chat WHERE turma_id = ? AND resolvido = 0').bind(t.id).first<{ n: number }>();
+  return c.json({ turma: t, chat: await turmaChat(c.env.DB, t.id), avisos: avisos?.n ?? 0, criancas: r.results, provas: await datasDe(c.env.DB, [t.id]) });
 });
 
 app.post('/adulto/turmas/:id/provas', async (c) => {
@@ -751,6 +761,7 @@ app.get('/adulto/familia', async (c) => {
   const a = await adulto(c);
   if (!a) return erro(c, 401, 'Entre de novo.');
   const r = await c.env.DB.prepare(`SELECT k.id, k.apelido, k.cor, k.criado, k.visto, k.bloqueado_ate, t.nome AS turma, t.codigo AS codigo,
+    k.chat_ok, k.mostrar_online, t.chat AS turma_chat,
     json_extract(k.progresso, '$.xp') AS xp, (SELECT COUNT(*) FROM cartas WHERE crianca_id = k.id AND qtd > 0) AS cartas
     FROM criancas k LEFT JOIN turmas t ON t.id = k.turma_id WHERE k.familia_id = ? ORDER BY k.criado`).bind(a.id).all();
   return c.json({ filhos: r.results, provas: await datasDe(c.env.DB, [turmaDaFamilia(a.id)]) });
@@ -877,6 +888,7 @@ app.post('/adulto/apagar-conta', async (c) => {
     ...[...apagar].flatMap((cid) => apagarCrianca(db, cid)),
     ...mover.flatMap((k) => tirarDaTurma(db, k.id, k.familia_id!)),
     ...turmas.map((t) => db.prepare('DELETE FROM turmas WHERE id = ?').bind(t)),
+    ...turmas.flatMap((t) => [db.prepare('DELETE FROM mensagens WHERE turma_id = ?').bind(t), db.prepare('DELETE FROM avisos_chat WHERE turma_id = ?').bind(t)]),
     ...[...turmas, turmaDaFamilia(a.id)].map((t) => db.prepare('DELETE FROM datas_prova WHERE turma_id = ?').bind(t)),
     db.prepare(`DELETE FROM sessoes WHERE tipo = 'adulto' AND ref_id = ?`).bind(a.id),
     db.prepare('DELETE FROM adultos WHERE id = ?').bind(a.id),
@@ -905,6 +917,197 @@ async function arquivo(req: Request, env: Env) {
   }
   return r;
 }
+
+
+/* ============================ Chat da turma ============================ */
+// Decisão do Lucas (04/11/2026): chat escrito só no grupo da turma. Pais e professor leem tudo.
+// Para a criança escrever: o professor ligou o chat da turma, o responsável autorizou,
+// está no horário e ela não está silenciada. Mensagens somem depois de 60 dias.
+
+interface TurmaChat { id: string; nome: string; chat: number; chat_inicio: number; chat_fim: number; mostrar_online: number }
+interface Mensagem { id: string; crianca_id: string; apelido: string | null; cor: string | null; texto: string; criado: number; apagada: number }
+
+const turmaChat = (db: D1Database, id: string) =>
+  db.prepare('SELECT id, nome, chat, chat_inicio, chat_fim, mostrar_online FROM turmas WHERE id = ?').bind(id).first<TurmaChat>();
+
+/** Por que a criança não pode escrever agora (ou null se pode). */
+function bloqueioChat(t: TurmaChat | null, k: Crianca): { motivo: string; texto: string } | null {
+  if (!t) return { motivo: 'sem-turma', texto: 'Entre numa turma para conversar com os colegas.' };
+  if (!t.chat) return { motivo: 'desligado', texto: 'O chat da turma ainda não foi ligado pelo professor.' };
+  if (!k.familia_id) return { motivo: 'sem-familia', texto: 'Para usar o chat, peça para seu responsável criar a conta da família no Sabidex e liberar o chat para você.' };
+  if (!k.chat_ok) return { motivo: 'sem-autorizacao', texto: 'Peça para seu responsável liberar o chat na área dos adultos.' };
+  if (k.mudo_ate > Date.now()) return { motivo: 'silenciado', texto: 'O professor pausou suas mensagens por um tempo. Você ainda pode ler.' };
+  if (!dentroDoHorario(t.chat_inicio, t.chat_fim)) return { motivo: 'horario', texto: `O chat abre das ${t.chat_inicio}h às ${t.chat_fim}h.` };
+  return null;
+}
+
+const limparVelhas = (db: D1Database, turmaId: string) => {
+  const limite = Date.now() - GUARDAR_DIAS * DIA;
+  return db.batch([
+    db.prepare('DELETE FROM mensagens WHERE turma_id = ? AND criado < ?').bind(turmaId, limite),
+    db.prepare('DELETE FROM avisos_chat WHERE turma_id = ? AND criado < ?').bind(turmaId, limite),
+  ]);
+};
+
+async function mensagensDa(db: D1Database, turmaId: string, opcoes: { depois?: number; limite: number; comApagadas: boolean }) {
+  const r = await db.prepare(`SELECT m.id, m.crianca_id, k.apelido, k.cor, m.texto, m.criado, m.apagada FROM mensagens m LEFT JOIN criancas k ON k.id = m.crianca_id
+    WHERE m.turma_id = ? AND m.criado > ? ${opcoes.comApagadas ? '' : 'AND m.apagada = 0'} ORDER BY m.criado DESC LIMIT ?`)
+    .bind(turmaId, opcoes.depois ?? 0, opcoes.limite).all<Mensagem>();
+  return r.results.reverse();
+}
+
+/** A criança lê o chat (as últimas 60 mensagens, ou só as novas depois de `depois`). */
+app.get('/crianca/chat', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  if (!temTurma(k.turma_id)) return c.json({ liberado: false, motivo: 'sem-turma', aviso: 'Entre numa turma para conversar com os colegas.', mensagens: [], online: [] });
+  const t = await turmaChat(c.env.DB, k.turma_id);
+  // Sem chat ligado ou sem autorização, a criança não lê nada (nem as mensagens dos colegas).
+  const b = bloqueioChat(t, k);
+  if (b && ['desligado', 'sem-familia', 'sem-autorizacao'].includes(b.motivo)) return c.json({ liberado: false, motivo: b.motivo, aviso: b.texto, mensagens: [], online: [] });
+  const depois = Number(c.req.query('depois') ?? 0) || 0;
+  const mensagens = (await mensagensDa(c.env.DB, k.turma_id, { depois, limite: 60, comApagadas: false }))
+    .map((m) => ({ id: m.id, de: m.crianca_id, apelido: m.apelido ?? 'Colega', cor: m.cor ?? '#94A3B8', texto: m.texto, criado: m.criado, minha: m.crianca_id === k.id }));
+  const online = t?.mostrar_online
+    ? (await c.env.DB.prepare('SELECT apelido, cor FROM criancas WHERE turma_id = ? AND id != ? AND mostrar_online = 1 AND ativo > ? ORDER BY apelido_chave')
+      .bind(k.turma_id, k.id, Date.now() - ONLINE_MS).all<{ apelido: string; cor: string }>()).results
+    : [];
+  return c.json({ liberado: !b, motivo: b?.motivo ?? null, aviso: b?.texto ?? null, horario: t ? { inicio: t.chat_inicio, fim: t.chat_fim } : null, mensagens, online });
+});
+
+app.post('/crianca/chat', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  const t = temTurma(k.turma_id) ? await turmaChat(c.env.DB, k.turma_id) : null;
+  const b = bloqueioChat(t, k);
+  if (b) return erro(c, 403, b.texto);
+  const conf = conferirMensagem(String((await corpo(c)).texto ?? ''));
+  if (!conf.ok) return erro(c, 400, MOTIVO_CHAT[conf.motivo]);
+  const db = c.env.DB;
+  const recentes = await db.prepare('SELECT COUNT(*) n FROM mensagens WHERE crianca_id = ? AND criado > ?').bind(k.id, Date.now() - JANELA_LIMITE).first<{ n: number }>();
+  if ((recentes?.n ?? 0) >= LIMITE_MENSAGENS) return erro(c, 429, 'Calma! Espere um pouquinho antes de mandar mais mensagens.');
+  const m = { id: aleatorio(10), criado: Date.now() };
+  await db.prepare('INSERT INTO mensagens (id, turma_id, crianca_id, texto, criado) VALUES (?, ?, ?, ?, ?)').bind(m.id, t!.id, k.id, conf.texto, m.criado).run();
+  if (Math.random() < 0.05) await limparVelhas(db, t!.id);
+  return c.json({ id: m.id, de: k.id, apelido: k.apelido, cor: k.cor, texto: conf.texto, criado: m.criado, minha: true });
+});
+
+/** "Avisar o professor" sobre uma mensagem. */
+app.post('/crianca/chat/:mid/avisar', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  const m = await c.env.DB.prepare('SELECT id, turma_id, crianca_id FROM mensagens WHERE id = ? AND turma_id = ?').bind(c.req.param('mid'), k.turma_id).first<{ id: string; turma_id: string; crianca_id: string }>();
+  if (!m) return erro(c, 404, 'Mensagem não encontrada.');
+  if (m.crianca_id === k.id) return erro(c, 400, 'Essa mensagem é sua.');
+  await c.env.DB.prepare('INSERT OR IGNORE INTO avisos_chat (id, turma_id, mensagem_id, por_id, criado) VALUES (?, ?, ?, ?, ?)')
+    .bind(aleatorio(10), m.turma_id, m.id, k.id, Date.now()).run();
+  return c.json({ ok: true });
+});
+
+/** O app avisa que a criança está com ele aberto (para o "estudando agora"). */
+app.post('/crianca/ping', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  return c.json({ ok: true });
+});
+
+/* ---- Professor ---- */
+
+/** Liga/desliga o chat, escolhe o horário e o "estudando agora" da turma. */
+app.post('/adulto/turmas/:id/chat', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const t = await turmaDoAdulto(c, a);
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  const b = await corpo(c);
+  const atual = (await turmaChat(c.env.DB, t.id))!;
+  const hora = (v: unknown, padrao: number) => (Number.isInteger(v) && (v as number) >= 0 && (v as number) <= 24 ? (v as number) : padrao);
+  const novo = {
+    chat: typeof b.chat === 'boolean' ? Number(b.chat) : atual.chat,
+    inicio: hora(b.inicio, atual.chat_inicio),
+    fim: hora(b.fim, atual.chat_fim),
+    online: typeof b.online === 'boolean' ? Number(b.online) : atual.mostrar_online,
+  };
+  if (novo.inicio === novo.fim) return erro(c, 400, 'O chat precisa abrir e fechar em horas diferentes.');
+  await c.env.DB.prepare('UPDATE turmas SET chat = ?, chat_inicio = ?, chat_fim = ?, mostrar_online = ? WHERE id = ?').bind(novo.chat, novo.inicio, novo.fim, novo.online, t.id).run();
+  return c.json({ chat: (await turmaChat(c.env.DB, t.id))! });
+});
+
+/** O professor lê tudo (inclusive o que foi apagado) e vê os avisos das crianças. */
+app.get('/adulto/turmas/:id/chat', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const t = await turmaDoAdulto(c, a);
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  await limparVelhas(c.env.DB, t.id);
+  const mensagens = await mensagensDa(c.env.DB, t.id, { limite: 500, comApagadas: true });
+  const avisos = (await c.env.DB.prepare(`SELECT v.id, v.mensagem_id, v.criado, k.apelido AS por FROM avisos_chat v LEFT JOIN criancas k ON k.id = v.por_id
+    WHERE v.turma_id = ? AND v.resolvido = 0 ORDER BY v.criado`).bind(t.id).all()).results;
+  return c.json({ mensagens, avisos });
+});
+
+app.post('/adulto/turmas/:id/chat/:mid/apagar', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const t = await turmaDoAdulto(c, a);
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  await c.env.DB.batch([
+    c.env.DB.prepare('UPDATE mensagens SET apagada = 1 WHERE id = ? AND turma_id = ?').bind(c.req.param('mid'), t.id),
+    c.env.DB.prepare('UPDATE avisos_chat SET resolvido = 1 WHERE mensagem_id = ? AND turma_id = ?').bind(c.req.param('mid'), t.id),
+  ]);
+  return c.json({ ok: true });
+});
+
+/** Marca os avisos de uma mensagem como vistos (sem apagar a mensagem). */
+app.post('/adulto/turmas/:id/chat/:mid/ok', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const t = await turmaDoAdulto(c, a);
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  await c.env.DB.prepare('UPDATE avisos_chat SET resolvido = 1 WHERE mensagem_id = ? AND turma_id = ?').bind(c.req.param('mid'), t.id).run();
+  return c.json({ ok: true });
+});
+
+/** Pausa as mensagens de uma criança (horas = 0 tira a pausa). Ela continua lendo. */
+app.post('/adulto/turmas/:id/criancas/:cid/silenciar', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const t = await turmaDoAdulto(c, a);
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  const horas = Number((await corpo(c)).horas ?? 24);
+  if (![0, 1, 24, 168].includes(horas)) return erro(c, 400, 'Tempo inválido.');
+  const ate = horas ? Date.now() + horas * 3600_000 : 0;
+  const r = await c.env.DB.prepare('UPDATE criancas SET mudo_ate = ? WHERE id = ? AND turma_id = ?').bind(ate, c.req.param('cid'), t.id).run();
+  if (!r.meta.changes) return erro(c, 404, 'Criança não encontrada.');
+  return c.json({ mudo_ate: ate });
+});
+
+/* ---- Responsável ---- */
+
+/** Autoriza (ou não) o filho a usar o chat, e a aparecer como "estudando agora". */
+app.post('/adulto/familia/:cid/chat', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const k = await doAdulto(c, a.id);
+  if (!k) return erro(c, 404, 'Criança não encontrada.');
+  const b = await corpo(c);
+  const chatOk = typeof b.chat === 'boolean' ? Number(b.chat) : k.chat_ok;
+  const online = typeof b.online === 'boolean' ? Number(b.online) : k.mostrar_online;
+  await c.env.DB.prepare('UPDATE criancas SET chat_ok = ?, mostrar_online = ? WHERE id = ?').bind(chatOk, online, k.id).run();
+  return c.json({ chat_ok: chatOk, mostrar_online: online });
+});
+
+/** O responsável lê a conversa da turma do filho (as mensagens dele aparecem destacadas). */
+app.get('/adulto/familia/:cid/chat', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const k = await doAdulto(c, a.id);
+  if (!k) return erro(c, 404, 'Criança não encontrada.');
+  if (!temTurma(k.turma_id)) return c.json({ turma: null, mensagens: [] });
+  const t = await turmaChat(c.env.DB, k.turma_id);
+  const mensagens = (await mensagensDa(c.env.DB, k.turma_id, { limite: 500, comApagadas: true })).map((m) => ({ ...m, doFilho: m.crianca_id === k.id }));
+  return c.json({ turma: t ? { nome: t.nome, chat: t.chat, inicio: t.chat_inicio, fim: t.chat_fim } : null, mensagens });
+});
 
 export default {
   fetch(req: Request, env: Env, ctx: ExecutionContext) {
