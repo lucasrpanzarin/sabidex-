@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "deploy": "npm test && npm run build && wrangler deploy",
-    "dev:api": "wrangler dev"
+    "dev:api": "wrangler dev",
+    "conferir": "tsx scripts/conferir.ts"
   },
   "dependencies": {
     "@fontsource/lilita-one": "^5.3.0",

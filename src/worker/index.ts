@@ -3,7 +3,7 @@
 
 import { Hono, type Context } from 'hono';
 import { capitulos, sabimonPorId, sabimons } from '../data';
-import { FASES } from '../lib/jogo';
+import { FASES, chaveExtra, extrasDo } from '../lib/jogo';
 import { copiasGastas, formaDe, idEvolucao, itemPorId, podeEvoluir, PRECO_EVOLUCAO, protegido } from '../lib/loja';
 import {
   gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
@@ -26,7 +26,7 @@ interface Env {
 type C = Context<{ Bindings: Env }>;
 
 const DIA = 86_400_000;
-const FASES_VALIDAS = new Set(capitulos.flatMap((c) => FASES.map((f) => `${c.id}:${f}`)));
+const FASES_VALIDAS = new Set(capitulos.flatMap((c) => [...FASES.map((f) => `${c.id}:${f}`), ...extrasDo(c).map((x) => chaveExtra(c.id, x))]));
 const CARTAS_VALIDAS = new Set(sabimons.map((c) => c.id));
 const COR = /^#[0-9A-Fa-f]{6}$/;
 const MAX_FALHAS = 5;
@@ -39,6 +39,8 @@ let esquemaPronto = false;
 const app = new Hono<{ Bindings: Env }>().basePath('/api');
 
 app.use('*', async (c, next) => {
+  // Nas versões de teste (previews) não há banco: a turma fica desligada, com aviso claro.
+  if (!(c.env as Partial<Env>).DB) return c.json({ erro: 'A turma não funciona nesta versão de teste.' }, 503);
   if (!esquemaPronto) {
     await c.env.DB.batch(ESQUEMA.map((s) => c.env.DB.prepare(s)));
     for (const m of MIGRACOES) {

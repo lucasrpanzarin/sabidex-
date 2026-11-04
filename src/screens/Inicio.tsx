@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Ara } from '../components/Ara';
 import { Icone } from '../components/Icone';
 import { capitulos } from '../data';
-import { FASES, FASE_INFO, chave, nivel, sequencia } from '../lib/jogo';
+import { FASES, FASE_INFO, chave, hoje, nivel, sequencia } from '../lib/jogo';
+import { quantasHoje, MAX_POR_REVISAO } from '../lib/revisao';
 import { ir } from '../lib/rota';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import { useConta } from '../lib/conta';
@@ -78,6 +79,8 @@ export function Inicio() {
   const feitasCap = prox ? FASES.filter((f) => e.feitas[chave(prox.cap.id, f)]).length : 5;
   const faltamPacote = prox ? (['memoria', 'quiz', 'prova'] as const).find((f) => !e.feitas[chave(prox.cap.id, f)]) : undefined;
   const fasesAte = faltamPacote && prox ? FASES.indexOf(faltamPacote) - FASES.indexOf(prox.fase) + 1 : 0;
+  const revisar = Math.min(quantasHoje(e.revisao, capitulos, hoje()), MAX_POR_REVISAO);
+  const pacoteDaRevisao = e.pacoteDia !== hoje();
 
   const evolui = sabimons.find((s) => podeEvoluir(e, s).ok);
   const fala = propostasNovas > 0
@@ -86,6 +89,8 @@ export function Inicio() {
     ? <>Você tem <strong>{e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</strong> esperando. Vamos abrir?</>
     : evolui
     ? <>Seu <strong>{evolui.formas[formaDe(e, evolui.id) - 1].nome}</strong> pode evoluir! Veja no álbum.</>
+    : revisar > 0
+    ? <>Tenho <strong>{revisar} {revisar > 1 ? 'perguntas' : 'pergunta'}</strong> para você lembrar hoje. Bora revisar?</>
     : prox && fasesAte > 0
       ? <>Mais <strong>{fasesAte} {fasesAte > 1 ? 'fases' : 'fase'}</strong> e você ganha um pacote de Sabimons!</>
       : <>Você terminou tudo! Repita as fases para ganhar mais XP.</>;
@@ -130,6 +135,17 @@ export function Inicio() {
           <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="10" width="32" height="28" rx="8" fill="#0B1026" /><rect x="9" y="13" width="26" height="22" rx="6" fill="#FACC15" /><rect x="19" y="10" width="6" height="28" fill="#F472B6" /><circle cx="22" cy="10" r="5" fill="#F472B6" /></svg>
           <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 19, display: 'block' }}>{e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'} para abrir</span><span className="small" style={{ fontWeight: 800 }}>{e.pacotes.some((p) => p.tipo === 'epico') ? 'Tem pacote épico!' : 'Toque para abrir'}</span></span>
           <Icone nome="seguir" espessura={3} />
+        </button>
+      )}
+
+      {revisar > 0 && (
+        <button className="painel-destaque linha" onClick={() => ir('revisao')} style={{ textAlign: 'left', color: 'inherit', borderColor: 'var(--pink)' }}>
+          <span style={{ flex: 1 }}>
+            <span className="eyebrow" style={{ color: 'var(--pink)' }}>Revisão do Ará</span>
+            <span className="display" style={{ fontSize: 22, display: 'block', marginTop: 4 }}>{revisar} {revisar > 1 ? 'perguntas' : 'pergunta'} para lembrar</span>
+            <span className="muted small" style={{ display: 'block' }}>{pacoteDaRevisao ? 'Vale o pacote do dia!' : 'Lembrar de novo deixa a memória forte'}</span>
+          </span>
+          <span className="btn btn-rosa" style={{ minHeight: 44, padding: '8px 18px' }}>Revisar</span>
         </button>
       )}
 

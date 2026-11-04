@@ -6,6 +6,8 @@ App de estudo para crianças: a matéria da escola vira fases de jogo, e cada fa
 
 **Jogo (funciona até sem internet)**
 - **Mundos** por capítulo (História · Cap. 9 e Cap. 10), cada um com 5 fases: ouvir os temas (áudio), jogo da memória, linha do tempo, quiz relâmpago e o chefão (prova de 10 questões com correção; nota 7 libera o pacote épico).
+- **Jogos extras** em cada mundo: complete a frase, quem sou eu?, separe nos grupos e por que aconteceu? Terminar os quatro dá um pacote.
+- **Revisão do Ará:** as perguntas erradas voltam no dia seguinte e as certas voltam em 3, 7, 21 e 60 dias (repetição espaçada). Revisar também vale o pacote do dia.
 - XP, níveis, dias seguidos e o mascote Ará.
 - Pacotes de 3 cartas (comum, rara, épica e lendária) e álbum com 12 cartas por capítulo.
 
@@ -40,6 +42,10 @@ O código já está pronto. Cada opção só aparece no app depois de configurad
 
 ## Como adicionar um capítulo
 
+**Pela conversa com o Claude (recomendado):** mande as fotos das páginas na conversa e siga `livro/LEIAME.md`. Regras de perguntas, jogos e idade: `docs/ESTUDOS.md`.
+
+**À mão:**
+
 1. Crie `src/data/<materia><numero>.ts` no formato de `src/data/tipos.ts`.
 2. Coloque os áudios em `public/audio/`.
 3. Adicione o capítulo à lista em `src/data/index.ts`.
@@ -52,6 +58,7 @@ npm install      # instala tudo
 npm run dev      # abre o app no computador (sem servidor)
 npm run build && npm run dev:api   # app + servidor + banco local
 npm test         # testes das regras do jogo e do conteúdo
+npm run conferir -- historia-11   # confere as perguntas de um capítulo
 npm run build    # gera a versão para publicar (pasta dist/)
 ```
 

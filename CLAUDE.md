@@ -9,6 +9,7 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 - Todo texto do app é em **português do Brasil**, frases curtas, para uma criança de 10 anos ler sozinha.
 - **Segurança das crianças:** nunca coletar sobrenome, e-mail, foto, telefone ou localização da criança. Só apelido e uma cor de avatar. Nada de chat livre entre crianças: trocas são só propostas de cartas.
 - Conteúdo vem do livro da escola. Cada capítulo novo é um arquivo em `src/data/` seguindo o formato de `src/data/tipos.ts`. Não invente fatos históricos: confira com o livro.
+- Capítulo novo a partir de fotos do livro: siga a skill **capitulo-do-livro** (`.claude/skills/capitulo-do-livro/SKILL.md`), na conversa, sem API paga. Regras de perguntas, jogos e idade: `docs/ESTUDOS.md`.
 - Cartas colecionáveis têm desenhos originais. Nunca usar personagens, nomes ou marcas de outros jogos (Pokémon etc.).
 - Sabimons ficam em `src/data/sabimons.ts` (fatos sobre os bichos precisam ser verdadeiros). Os números da carta (Vida, força, cópias para evoluir) ficam em `src/lib/sabimon.ts`. Desenhos: `arte/sabimons/originais/` → `python3 scripts/recortar-sabimons.py` → `public/sabimons/`.
 - Sabicoins: cada fase dá o mesmo número de XP e de Sabicoins. O saldo é XP total − soma das compras (`src/lib/loja.ts`, onde ficam os preços). A loja vende itens para a faixa de 3 espaços embaixo da carta; evoluir gasta cópias + Sabicoins. Na turma, a evolução passa pelo servidor (`/api/crianca/evoluir`). Sabimon evoluído ou com itens não sai em troca (só as cópias repetidas).

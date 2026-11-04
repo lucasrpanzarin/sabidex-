@@ -7,6 +7,9 @@ import { Album, AbrirPacote } from './screens/Colecao';
 import { TelaFase } from './screens/Fases';
 import { BoasVindas, Inicio } from './screens/Inicio';
 import { Mundo, Mundos } from './screens/Mundos';
+import { Revisao } from './screens/Revisao';
+import { TelaExtra } from './screens/Extras';
+import { EXTRAS, type Extra } from './lib/jogo';
 import { Loja } from './screens/Loja';
 import { Privacidade } from './screens/Privacidade';
 import { EntrarConta, MinhaConta, Ranking, Trocas } from './screens/Turma';
@@ -32,6 +35,10 @@ export function App() {
       tela = FASES.includes(b as Fase) ? <TelaFase capId={a} fase={b as Fase} /> : <Mundos />;
       comNav = false; break;
     case 'pacote': tela = <AbrirPacote />; comNav = false; break;
+    case 'extra':
+      tela = EXTRAS.includes(b as Extra) ? <TelaExtra capId={a} x={b as Extra} /> : <Mundos />;
+      comNav = false; break;
+    case 'revisao': tela = <Revisao />; comNav = false; break;
     case 'album': tela = <Album id={a} />; break;
     case 'loja': tela = <Loja key={a ?? ''} sabimonId={a} />; aba = 'album'; break;
     case 'trocas': tela = <Trocas />; break;

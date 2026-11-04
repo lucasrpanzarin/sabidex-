@@ -6,5 +6,10 @@
   },
   "enabledPlugins": {
     "ui-ux-pro-max@ui-ux-pro-max-skill": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(python3 .claude/skills/ui-ux-pro-max/scripts/search.py *)"
+    ]
   }
 }

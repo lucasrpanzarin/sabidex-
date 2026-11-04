@@ -249,10 +249,10 @@ export const historia9: Capitulo = {
     {
       "pergunta": "Como os khoi-khoi e os san deixaram registros do seu modo de vida?",
       "opcoes": [
-        "Escrevendo livros",
-        "Escrevendo em papiros",
-        "Fazendo pinturas rupestres nas rochas",
-        "Mandando cartas"
+        "Com livros escritos",
+        "Com hieróglifos",
+        "Com pinturas rupestres",
+        "Com estátuas de bronze"
       ],
       "certa": 2,
       "explicacao": "Eles não escreviam. Deixaram pinturas rupestres em rochas e cavernas."
@@ -262,8 +262,8 @@ export const historia9: Capitulo = {
       "opcoes": [
         "moravam sempre no mesmo lugar",
         "mudavam de lugar em busca de alimento",
-        "moravam em castelos",
-        "viviam em barcos no mar"
+        "moravam em cabanas e criavam cabras",
+        "viviam em cidades com um rei"
       ],
       "certa": 1,
       "explicacao": "Nômade é quem muda de lugar. Os khoi-khoi é que eram sedentários."
@@ -271,9 +271,9 @@ export const historia9: Capitulo = {
     {
       "pergunta": "A Núbia, reino vizinho do Egito, ficava onde hoje é:",
       "opcoes": [
-        "o Brasil",
-        "Portugal",
         "a Nigéria",
+        "Angola",
+        "o Mali",
         "o Sudão"
       ],
       "certa": 3,
@@ -282,10 +282,10 @@ export const historia9: Capitulo = {
     {
       "pergunta": "Quem foi Piye?",
       "opcoes": [
-        "Um navegador português",
-        "Um rei núbio que conquistou o Egito e começou a era dos faraós negros",
-        "Um griô do Mali",
-        "Um governador-geral do Brasil"
+        "Um navegador que contornou a África",
+        "Um rei núbio que conquistou o Egito",
+        "Um griô que contava histórias no Mali",
+        "Um rei assírio que invadiu o Egito"
       ],
       "certa": 1,
       "explicacao": "Piye conquistou o Egito por volta de 730 a.C."
@@ -294,9 +294,9 @@ export const historia9: Capitulo = {
       "pergunta": "Entre os iorubás, quem era o Oni?",
       "opcoes": [
         "O rei que todos obedeciam",
-        "Um instrumento musical",
-        "Uma comida típica",
-        "Uma árvore sagrada"
+        "O chefe de cada cidade",
+        "O mais velho que conta histórias",
+        "Um povo que migrou pela África"
       ],
       "certa": 0,
       "explicacao": "Cada cidade tinha um Obá, e todos obedeciam ao rei, o Oni."
@@ -315,10 +315,10 @@ export const historia9: Capitulo = {
     {
       "pergunta": "O que foi a diáspora africana?",
       "opcoes": [
-        "Uma festa tradicional africana",
-        "A maior migração forçada da história, com africanos levados como escravizados",
-        "Uma guerra entre o Egito e a Núbia",
-        "Uma viagem de férias dos portugueses"
+        "A grande migração dos bantos pela África",
+        "A migração forçada de africanos escravizados",
+        "A conquista do Egito pelos núbios",
+        "A viagem dos portugueses em volta da África"
       ],
       "certa": 1,
       "explicacao": "Milhões de africanos foram levados à força, principalmente para a América."
@@ -338,12 +338,219 @@ export const historia9: Capitulo = {
       "pergunta": "Em 2022, a Alemanha devolveu à Nigéria:",
       "opcoes": [
         "os Bronzes de Benin",
+        "pinturas rupestres",
         "uma pirâmide",
-        "um baobá",
-        "navios portugueses"
+        "um papiro egípcio"
       ],
       "certa": 0,
       "explicacao": "Foram 21 Bronzes de Benin, levados por soldados britânicos em 1897."
+    }
+  ],
+  "lacunas": [
+    {
+      "frase": "A África tem ___ países.",
+      "resposta": "54",
+      "distratores": [
+        "24",
+        "104",
+        "12"
+      ]
+    },
+    {
+      "frase": "Os san eram ___: mudavam de lugar e não moravam fixo.",
+      "resposta": "nômades",
+      "distratores": [
+        "sedentários",
+        "iorubás",
+        "griôs"
+      ]
+    },
+    {
+      "frase": "Os khoi-khoi e os san deixaram ___ nas rochas.",
+      "resposta": "pinturas rupestres",
+      "distratores": [
+        "hieróglifos",
+        "livros escritos",
+        "bronzes"
+      ]
+    },
+    {
+      "frase": "O rei núbio ___ conquistou o Egito.",
+      "resposta": "Piye",
+      "distratores": [
+        "Oni",
+        "Obá",
+        "Kaang"
+      ]
+    },
+    {
+      "frase": "Passar o conhecimento pela fala se chama ___.",
+      "resposta": "oralidade",
+      "distratores": [
+        "diáspora",
+        "migração",
+        "escrita"
+      ]
+    },
+    {
+      "frase": "Cafuné, quitanda e minhoca são palavras dos ___.",
+      "resposta": "bantos",
+      "distratores": [
+        "iorubás",
+        "assírios",
+        "san"
+      ]
+    },
+    {
+      "frase": "Diáspora é quando muitas pessoas são ___ a sair de onde vivem.",
+      "resposta": "forçadas",
+      "distratores": [
+        "convidadas",
+        "pagas",
+        "ensinadas"
+      ]
+    },
+    {
+      "frase": "Em 2022, a Alemanha devolveu os Bronzes de Benin para a ___.",
+      "resposta": "Nigéria",
+      "distratores": [
+        "Núbia",
+        "Angola",
+        "Mali"
+      ]
+    }
+  ],
+  "quemSou": [
+    {
+      "resposta": "Griô",
+      "pistas": [
+        "Vivo no Mali, na Gâmbia, no Senegal e na Guiné.",
+        "Quando eu morria, era colocado perto de um baobá.",
+        "Sou o mais velho da aldeia e conto as histórias pela fala."
+      ],
+      "distratores": [
+        "Oni",
+        "Obá",
+        "Rei Piye"
+      ]
+    },
+    {
+      "resposta": "Baobá",
+      "pistas": [
+        "Eu e os griôs preservamos a tradição.",
+        "Vivo centenas de anos.",
+        "Sou uma árvore africana."
+      ],
+      "distratores": [
+        "Pirâmide",
+        "Berimbau",
+        "Hieróglifo"
+      ]
+    },
+    {
+      "resposta": "Rei Piye",
+      "pistas": [
+        "Meu reino ficava onde hoje é o Sudão.",
+        "Comecei a era dos faraós negros.",
+        "Sou o rei núbio que conquistou o Egito."
+      ],
+      "distratores": [
+        "Oni",
+        "Obá",
+        "Rubem Confete"
+      ]
+    },
+    {
+      "resposta": "Berimbau",
+      "pistas": [
+        "Vim da cultura africana e estou na música.",
+        "Toco junto com o reco-reco e os tambores.",
+        "Sou o instrumento da capoeira."
+      ],
+      "distratores": [
+        "Reco-reco",
+        "Tambor",
+        "Frevo"
+      ]
+    },
+    {
+      "resposta": "Pintura rupestre",
+      "pistas": [
+        "Os khoi-khoi e os san me deixaram.",
+        "Estou em rochas e cavernas.",
+        "Sou um desenho feito por quem não escrevia."
+      ],
+      "distratores": [
+        "Hieróglifo",
+        "Bronzes de Benin",
+        "Pirâmide"
+      ]
+    }
+  ],
+  "classificar": [
+    {
+      "pergunta": "Khoi-khoi ou san?",
+      "grupos": [
+        {
+          "nome": "Khoi-khoi",
+          "itens": [
+            "Eram sedentários",
+            "Moravam em cabanas",
+            "Criavam carneiros e cabras"
+          ]
+        },
+        {
+          "nome": "San",
+          "itens": [
+            "Eram nômades",
+            "Viviam em cavernas",
+            "Caçavam e coletavam frutos"
+          ]
+        }
+      ]
+    },
+    {
+      "pergunta": "Iorubás ou bantos?",
+      "grupos": [
+        {
+          "nome": "Iorubás",
+          "itens": [
+            "Viviam onde hoje é a Nigéria",
+            "Cada cidade tinha um Obá",
+            "Obedeciam ao rei, o Oni"
+          ]
+        },
+        {
+          "nome": "Bantos",
+          "itens": [
+            "Fizeram uma grande migração",
+            "Vivem em Angola, Congo e Moçambique",
+            "Deram a palavra cafuné"
+          ]
+        }
+      ]
+    }
+  ],
+  "causas": [
+    {
+      "causa": "A África era rica em recursos",
+      "consequencia": "Foi muito explorada por outros povos"
+    },
+    {
+      "causa": "Na lenda de Kaang, os humanos fizeram fogo",
+      "consequencia": "Os animais fugiram com medo"
+    },
+    {
+      "causa": "O rei Piye conquistou o Egito",
+      "consequencia": "Começou a era dos faraós negros"
+    },
+    {
+      "causa": "Os assírios invadiram o Egito",
+      "consequencia": "Acabou a era dos faraós negros"
+    },
+    {
+      "causa": "Países europeus dominaram a África",
+      "consequencia": "Levaram ouro, diamante e látex"
     }
   ]
 };
