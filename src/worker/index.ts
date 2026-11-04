@@ -4,7 +4,7 @@
 import { Hono, type Context } from 'hono';
 import { capitulos, sabimonPorId, sabimons } from '../data';
 import { FASES } from '../lib/jogo';
-import { copiasGastas, formaDe, idEvolucao, itemPorId, podeEvoluir, PRECO_EVOLUCAO, protegido } from '../lib/loja';
+import { copiasGastas, formaDe, idEvolucao, itemPorId, podeEvoluir, premiosLivres, PRECO_EVOLUCAO, protegido } from '../lib/loja';
 import {
   gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
@@ -167,13 +167,16 @@ app.post('/crianca/sair', sairSessao);
  */
 function conferirCompras(antes: ProgressoSync, m: ProgressoSync): ProgressoSync {
   const ja = new Set(antes.compras.map((c) => c.id));
-  const compras = m.compras.flatMap((c) => {
-    if (ja.has(c.id)) return [c];
-    if (!CARTAS_VALIDAS.has(c.sabimon)) return [];
-    if (c.forma) return [];
+  const compras: ProgressoSync['compras'] = [];
+  for (const c of m.compras) {
+    if (ja.has(c.id)) { compras.push(c); continue; }
+    if (!CARTAS_VALIDAS.has(c.sabimon) || c.forma) continue;
     const item = c.item ? itemPorId.get(c.item) : undefined;
-    return item ? [{ ...c, preco: item.preco }] : [];
-  });
+    if (!item || item.antigo) continue;
+    // Prêmio de estudo: no máximo 1 por mundo completo.
+    if (item.premio && premiosLivres({ feitas: m.feitas, compras }) < 1) continue;
+    compras.push({ ...c, preco: item.preco });
+  }
   return { ...m, compras };
 }
 

@@ -42,15 +42,15 @@ function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { cap: Capi
   return (
     <main className="tela" style={{ alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
       <div className="pop"><Ara tamanho={120} humor={aprovado ? 'feliz' : 'triste'} /></div>
-      <h1 className="display h1" style={{ color: aprovado ? 'var(--yellow)' : 'var(--ink)', textShadow: aprovado ? '0 3px 0 #B45309' : undefined }}>{titulo}</h1>
+      <h1 className={`display h1${aprovado ? ' titulo-premio' : ''}`}>{titulo}</h1>
       {detalhe}
       <div className="painel coluna sobe" style={{ width: '100%', gap: 8, animationDelay: '.15s' }}>
         <div className="linha" style={{ justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
-          <span className="display" style={{ fontSize: 30, color: 'var(--cyan-2)' }}>+{r.xpGanho} XP</span>
-          <span className="display linha" style={{ fontSize: 30, color: 'var(--yellow)', gap: 6 }}><Moeda tamanho={26} />+{r.xpGanho}</span>
+          <span className="display" style={{ fontSize: 30, color: 'var(--t-cyan)' }}>+{r.xpGanho} XP</span>
+          <span className="display linha" style={{ fontSize: 30, color: 'var(--t-yellow)', gap: 6 }}><Moeda tamanho={26} />+{r.xpGanho}</span>
         </div>
         <div className="muted small">XP sobe seu nível. Sabicoins você gasta na lojinha.</div>
-        {r.subiuNivel && <div className="display pop" style={{ fontSize: 22, color: 'var(--green)' }}>Subiu para o nível {nv.nivel}!</div>}
+        {r.subiuNivel && <div className="display pop" style={{ fontSize: 22, color: 'var(--t-green)' }}>Subiu para o nível {nv.nivel}!</div>}
         {!r.primeiraVez && aprovado && <div className="muted small">Fase repetida: metade do XP e das Sabicoins.</div>}
       </div>
       {r.pacotesGanhos.length > 0 && (
@@ -126,8 +126,8 @@ function Ouvir({ cap }: { cap: Capitulo }) {
           {VOZES.map((v) => (
             <button key={v.id} onClick={() => setVoz(v.id)} aria-pressed={voz === v.id}
               style={{ borderRadius: 16, padding: '8px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                background: voz === v.id ? 'var(--surface-2)' : 'var(--surface)', border: `2px solid ${voz === v.id ? v.cor : 'var(--line)'}` }}>
-              <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: '50%', background: v.cor, color: 'var(--bg)', display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: 18 }}>{v.nome[0]}</span>
+                background: voz === v.id ? 'var(--surface-2)' : 'var(--surface)', border: `3px solid ${voz === v.id ? v.cor : 'var(--line)'}` }}>
+              <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: '50%', background: v.cor, color: 'var(--ink)', display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: 18 }}>{v.nome[0]}</span>
               <span className="display" style={{ fontSize: 15 }}>{v.nome}</span>
               <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)' }}>{v.descricao}</span>
             </button>
@@ -189,7 +189,7 @@ function Memoria({ cap }: { cap: Capitulo }) {
   if (res) {
     const estrelas = erros === 0 ? 3 : erros <= 3 ? 2 : 1;
     return <Fim cap={cap} r={res} titulo={estrelas === 3 ? 'Perfeito!' : 'Muito bem!'}
-      detalhe={<div className="display" style={{ fontSize: 36, color: 'var(--yellow)', letterSpacing: 4 }} aria-label={`${estrelas} estrelas`}>{'★'.repeat(estrelas)}<span style={{ color: 'var(--line-2)' }}>{'★'.repeat(3 - estrelas)}</span></div>}
+      detalhe={<div className="display" style={{ fontSize: 36, color: 'var(--t-yellow)', letterSpacing: 4 }} aria-label={`${estrelas} estrelas`}>{'★'.repeat(estrelas)}<span style={{ color: 'var(--line-2)' }}>{'★'.repeat(3 - estrelas)}</span></div>}
       onDeNovo={() => { setRodada((r) => r + 1); setCertos(new Set()); setErros(0); setSel(null); limpar(); }} />;
   }
   return (
@@ -214,8 +214,8 @@ function Memoria({ cap }: { cap: Capitulo }) {
               <button key={p.palavra} disabled={ok} onClick={() => escolherSig(p.palavra)}
                 className={errado === p.palavra ? 'treme' : ''}
                 style={{ minHeight: 64, borderRadius: 16, padding: '8px 12px', textAlign: 'left', fontWeight: 700, fontSize: 14, lineHeight: 1.3,
-                  background: ok ? '#0F2A22' : errado === p.palavra ? '#2A1020' : 'var(--surface)',
-                  border: `1.5px solid ${ok ? '#22C55E' : errado === p.palavra ? 'var(--red)' : sel ? 'var(--line-2)' : 'var(--line)'}`,
+                  background: ok ? '#DCFCE7' : errado === p.palavra ? '#FFE4E6' : 'var(--surface)',
+                  border: `3px solid ${ok ? '#22C55E' : errado === p.palavra ? 'var(--red)' : sel ? 'var(--line-2)' : 'var(--line)'}`,
                   opacity: ok ? 0.55 : 1 }}>{p.significado}</button>
             );
           })}
@@ -249,23 +249,23 @@ function Linha({ cap }: { cap: Capitulo }) {
   };
 
   if (res) return <Fim cap={cap} r={res} titulo={erros === 0 ? 'Sem errar nenhuma!' : 'Linha completa!'}
-    detalhe={<ol className="coluna" style={{ width: '100%', gap: 6, padding: 0, listStyle: 'none', textAlign: 'left' }}>{certa.map((ev) => <li key={ev.fato} className="small"><span className="display" style={{ color: 'var(--yellow)' }}>{ev.ano}</span> · {ev.fato}</li>)}</ol>}
+    detalhe={<ol className="coluna" style={{ width: '100%', gap: 6, padding: 0, listStyle: 'none', textAlign: 'left' }}>{certa.map((ev) => <li key={ev.fato} className="small"><span className="display" style={{ color: 'var(--t-yellow)' }}>{ev.ano}</span> · {ev.fato}</li>)}</ol>}
     onDeNovo={() => { setRodada((r) => r + 1); setPostos([]); setErros(0); limpar(); }} />;
 
   const restantes = eventos.filter((ev) => !postos.includes(ev));
   return (
     <main className="tela">
       <Topo cap={cap} fase="linha" />
-      <div className="aviso" style={{ background: 'var(--surface)', border: '1.5px solid var(--line)' }}>
+      <div className="aviso" style={{ background: 'var(--surface)', border: '3px solid var(--ink)' }}>
         Toque nos fatos do <strong>mais antigo</strong> para o <strong>mais novo</strong>.
       </div>
       <ol style={{ listStyle: 'none', margin: 0, padding: '0 0 0 22px', borderLeft: '4px solid var(--line)', display: 'grid', gap: 8 }}>
         {certa.map((_, i) => {
           const ev = postos[i];
           return (
-            <li key={i} className={ev ? 'pop' : ''} style={{ position: 'relative', minHeight: 48, borderRadius: 14, padding: '8px 12px', background: ev ? '#0F2A22' : 'transparent', border: `1.5px ${ev ? 'solid #22C55E' : 'dashed var(--line)'}` }}>
+            <li key={i} className={ev ? 'pop' : ''} style={{ position: 'relative', minHeight: 48, borderRadius: 14, padding: '8px 12px', background: ev ? '#DCFCE7' : 'transparent', border: `1.5px ${ev ? 'solid #22C55E' : 'dashed var(--line)'}` }}>
               <span aria-hidden="true" style={{ position: 'absolute', left: -35, top: 14, width: 18, height: 18, borderRadius: '50%', background: ev ? 'var(--green)' : 'var(--line)', border: '3px solid var(--bg)' }} />
-              {ev ? <><span className="display" style={{ color: 'var(--yellow)', marginRight: 8 }}>{ev.ano}</span><span style={{ fontWeight: 700 }}>{ev.fato}</span></> : <span className="muted small">{i + 1}º lugar</span>}
+              {ev ? <><span className="display" style={{ color: 'var(--t-yellow)', marginRight: 8 }}>{ev.ano}</span><span style={{ fontWeight: 700 }}>{ev.fato}</span></> : <span className="muted small">{i + 1}º lugar</span>}
             </li>
           );
         })}
@@ -273,9 +273,9 @@ function Linha({ cap }: { cap: Capitulo }) {
       <div className="coluna" style={{ gap: 8 }}>
         {restantes.map((ev) => (
           <button key={ev.fato} onClick={() => tocar(ev)} className={errado === ev.fato ? 'treme' : ''}
-            style={{ minHeight: 56, borderRadius: 16, padding: '10px 14px', textAlign: 'left', fontWeight: 800, background: errado === ev.fato ? '#2A1020' : 'var(--surface)', border: `1.5px solid ${errado === ev.fato ? 'var(--red)' : 'var(--line-2)'}` }}>
+            style={{ minHeight: 56, borderRadius: 16, padding: '10px 14px', textAlign: 'left', fontWeight: 800, background: errado === ev.fato ? '#FFE4E6' : 'var(--surface)', border: `3px solid ${errado === ev.fato ? 'var(--red)' : 'var(--line-2)'}` }}>
             {ev.fato}
-            {errado === ev.fato && <span style={{ display: 'block', fontSize: 13, color: 'var(--red)' }}>Ainda não! Tem um fato mais antigo.</span>}
+            {errado === ev.fato && <span style={{ display: 'block', fontSize: 13, color: 'var(--t-red)' }}>Ainda não! Tem um fato mais antigo.</span>}
           </button>
         ))}
       </div>
@@ -337,7 +337,7 @@ function Quiz({ cap }: { cap: Capitulo }) {
   const q = lista[i];
   return (
     <main className="tela">
-      <Topo cap={cap} fase="quiz" extra={<span className="pilula" style={{ borderColor: resto <= 10 ? 'var(--red)' : undefined, color: resto <= 10 ? 'var(--red)' : undefined }}><Icone nome="relogio" tamanho={16} />{Math.max(0, resto)}s</span>} />
+      <Topo cap={cap} fase="quiz" extra={<span className="pilula" style={{ borderColor: resto <= 10 ? 'var(--red)' : undefined, color: resto <= 10 ? 'var(--t-red)' : undefined }}><Icone nome="relogio" tamanho={16} />{Math.max(0, resto)}s</span>} />
       <div className="barra barra-amarela" aria-hidden="true"><div style={{ width: `${(Math.max(0, resto) / TEMPO) * 100}%`, transition: 'width 1s linear' }} /></div>
       <div className="muted small">Pergunta {i + 1} de {lista.length} · {acertos} certas</div>
       <div className="painel-destaque" style={{ minHeight: 150, display: 'grid', placeItems: 'center' }}>
@@ -383,7 +383,7 @@ function Prova({ cap }: { cap: Capitulo }) {
       <>
         <Fim cap={cap} r={res} aprovado={passou} titulo={passou ? 'Chefão vencido!' : 'Quase lá!'}
           detalhe={<div className="coluna" style={{ alignItems: 'center', gap: 0 }}>
-            <div className="display" style={{ fontSize: 64, lineHeight: 1, color: passou ? 'var(--green)' : 'var(--pink)' }}>{nota.toLocaleString('pt-BR')}</div>
+            <div className="display" style={{ fontSize: 64, lineHeight: 1, color: passou ? 'var(--t-green)' : 'var(--t-pink)' }}>{nota.toLocaleString('pt-BR')}</div>
             <div className="muted">{acertos} de {qs.length} certas{passou ? '' : ` · precisa de nota ${NOTA_MINIMA} para o pacote`}</div>
           </div>}
           onDeNovo={() => { setI(0); setRespostas([]); limpar(); }} />
@@ -394,7 +394,7 @@ function Prova({ cap }: { cap: Capitulo }) {
             return (
               <div key={k} className={`aviso ${ok ? 'aviso-ok' : 'aviso-erro'}`}>
                 <div className="display" style={{ fontSize: 16 }}>{k + 1}. {q.pergunta}</div>
-                {!ok && <div className="small" style={{ color: 'var(--red)' }}>Você marcou: {LETRAS[respostas[k]]}) {q.opcoes[respostas[k]]}</div>}
+                {!ok && <div className="small" style={{ color: 'var(--t-red)' }}>Você marcou: {LETRAS[respostas[k]]}) {q.opcoes[respostas[k]]}</div>}
                 <div className="small">Certa: <strong>{LETRAS[q.certa]}) {q.opcoes[q.certa]}</strong></div>
                 <div className="small muted">{q.explicacao}</div>
               </div>
@@ -414,10 +414,10 @@ function Prova({ cap }: { cap: Capitulo }) {
         <legend className="display" style={{ fontSize: 22, marginBottom: 12 }}>{q.pergunta}</legend>
         {q.opcoes.map((o, k) => (
           <label key={k} className="linha" style={{ minHeight: 60, borderRadius: 16, padding: '10px 12px', cursor: 'pointer', fontWeight: 700,
-            background: escolha === k ? '#12324A' : 'var(--surface)', border: `1.5px solid ${escolha === k ? 'var(--cyan)' : 'var(--line)'}` }}>
+            background: escolha === k ? '#CFFAFE' : 'var(--surface)', border: `3px solid ${escolha === k ? 'var(--cyan)' : 'var(--line)'}` }}>
             <input type="radio" name={`q${i}`} checked={escolha === k} onChange={() => setEscolha(k)} style={{ position: 'absolute', opacity: 0 }} />
             <span style={{ width: 32, height: 32, flex: 'none', borderRadius: '50%', display: 'grid', placeItems: 'center', fontFamily: 'var(--display)',
-              background: escolha === k ? 'var(--cyan)' : 'var(--bg)', color: escolha === k ? 'var(--bg)' : 'var(--ink)' }}>{LETRAS[k]}</span>
+              background: escolha === k ? 'var(--cyan)' : 'var(--bg)', color: escolha === k ? 'var(--ink)' : 'var(--ink)' }}>{LETRAS[k]}</span>
             {o}
           </label>
         ))}

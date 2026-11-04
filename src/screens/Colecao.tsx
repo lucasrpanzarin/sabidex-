@@ -7,7 +7,7 @@ import { sabimonPorId, sabimons, TOTAL_PLANEJADO } from '../data';
 import type { Raridade, Sabimon } from '../data/tipos';
 import { abrirPacote, garantiaAtiva, guardarCartas, GARANTIA } from '../lib/jogo';
 import { Faixa, Moeda, Saldo } from '../components/Loja';
-import { ESPACOS, PRECO_EVOLUCAO, copiasGastas, evoluir, formaDe, itensDe, podeEvoluir, saldo } from '../lib/loja';
+import { ESPACOS, PRECO_EVOLUCAO, copiasGastas, evoluir, formaDe, itensDe, podeEvoluir, saldo, visualDe } from '../lib/loja';
 import { useConta, evoluirNaConta } from '../lib/conta';
 import { ir } from '../lib/rota';
 import { jogar } from './Inicio';
@@ -24,8 +24,8 @@ export function AbrirPacote() {
     const nNovos = aberto.novos.size;
     const guardar = () => { setEstado((s) => guardarCartas(s, aberto.pacoteId, aberto.cartas)); setAberto(null); };
     return (
-      <main className="tela" style={{ alignItems: 'center', textAlign: 'center', background: 'radial-gradient(circle at 50% 40%, #1E2A63 0%, transparent 65%)' }}>
-        <div className="display pop" style={{ fontSize: 30, color: 'var(--yellow)', textShadow: '0 3px 0 #B45309' }}>
+      <main className="tela" style={{ alignItems: 'center', textAlign: 'center', background: 'radial-gradient(circle at 50% 40%, #FFE7A3 0%, transparent 65%)' }}>
+        <div className="display titulo-premio pop" style={{ fontSize: 30 }}>
           {lendaria ? 'Lendário!' : melhor.raridade === 'epica' ? 'Épico!' : nNovos ? 'Sabimon novo!' : 'Pacote aberto!'}
         </div>
         <div style={{ position: 'relative', display: 'grid', placeItems: 'center', padding: '8px 0', width: '100%', overflow: 'hidden', borderRadius: 24 }}>
@@ -78,12 +78,12 @@ export function AbrirPacote() {
         <button className="voltar" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         <span className="eyebrow">{e.pacotes.length > 1 ? `${e.pacotes.length} pacotes` : 'Pacote'}</span>
       </div>
-      <h1 className="display h1" style={{ color: 'var(--yellow)', textShadow: '0 4px 0 #B45309', marginTop: 12 }}>{epico ? 'Pacote épico!' : 'Novo pacote!'}</h1>
+      <h1 className="display h1 titulo-premio" style={{ marginTop: 12 }}>{epico ? 'Pacote épico!' : 'Novo pacote!'}</h1>
       <button onClick={abrir} aria-label="Abrir o pacote" className="pacote-botao">
         <Pacote epico={epico} texto={epico ? '3 Sabimons · 1 épico ou melhor' : '3 Sabimons'} />
       </button>
       <span className="btn btn-amarelo" aria-hidden="true">Toque para abrir</span>
-      {garantiaAtiva(e) && <p className="small" style={{ color: 'var(--green)', fontWeight: 800, margin: 0 }}>Este pacote garante um Sabimon novo!</p>}
+      {garantiaAtiva(e) && <p className="small" style={{ color: 'var(--t-green)', fontWeight: 800, margin: 0 }}>Este pacote garante um Sabimon novo!</p>}
       {e.pacotes.length > 1 && <p className="muted small">Mais {e.pacotes.length - 1} {e.pacotes.length > 2 ? 'pacotes' : 'pacote'} depois desse</p>}
     </main>
   );
@@ -136,11 +136,11 @@ function Detalhe({ s }: { s: Sabimon }) {
         <button className="voltar" onClick={() => ir('album')}><Icone nome="voltar" tamanho={18} espessura={3} />Álbum</button>
         <Saldo valor={saldo(e)} />
       </div>
-      {evoluiu && <div className="display pop" style={{ fontSize: 30, color: 'var(--yellow)', textShadow: '0 3px 0 #B45309' }}>Evoluiu!</div>}
+      {evoluiu && <div className="display titulo-premio pop" style={{ fontSize: 30 }}>Evoluiu!</div>}
       <div style={{ position: 'relative', display: 'grid', placeItems: 'center', width: '100%', overflow: 'hidden', borderRadius: 24 }}>
         {evoluiu && <div className="raios" aria-hidden="true" />}
         <div key={forma} className={evoluiu ? 'pop' : undefined} style={{ position: 'relative', width: 'min(290px, 100%)' }}>
-          <CartaView carta={s} forma={forma} itens={itens} grande animar />
+          <CartaView carta={s} forma={forma} itens={itens} visual={visualDe(e, s.id)} grande animar />
         </div>
       </div>
       <Faixa itens={itens} onLivre={() => ir('loja', s.id)} />
@@ -190,7 +190,7 @@ export function Album({ id }: { id?: string }) {
           <div className="eyebrow">Álbum</div>
           <h1 className="display h2" style={{ fontSize: 27 }}>Sabimons</h1>
         </div>
-        <div className="display" style={{ fontSize: 28, color: 'var(--green)', fontVariantNumeric: 'tabular-nums' }}>{tem}<span style={{ fontSize: 16, color: 'var(--muted)' }}>/{sabimons.length}</span></div>
+        <div className="display" style={{ fontSize: 28, color: 'var(--t-green)', fontVariantNumeric: 'tabular-nums' }}>{tem}<span style={{ fontSize: 16, color: 'var(--muted)' }}>/{sabimons.length}</span></div>
       </div>
       <div className="barra barra-verde"><div style={{ width: `${(tem / sabimons.length) * 100}%` }} /></div>
       <p className="muted small" style={{ margin: 0 }}>Os primeiros {sabimons.length} de {TOTAL_PLANEJADO} Sabimons. Novos chegam em breve!</p>
@@ -207,7 +207,7 @@ export function Album({ id }: { id?: string }) {
       <div className="grade-3">
         {lista.map((c) => (
           <div key={c.id} style={{ position: 'relative' }}>
-            <CartaView carta={c} forma={formaDe(e, c.id)} tem={e.cartas[c.id] > 0} quantidade={e.cartas[c.id]} onClick={() => ir('album', c.id)} />
+            <CartaView carta={c} forma={formaDe(e, c.id)} visual={visualDe(e, c.id)} tem={e.cartas[c.id] > 0} quantidade={e.cartas[c.id]} onClick={() => ir('album', c.id)} />
             {podeEvoluir(e, c).ok && <span className="selo-novo" style={{ background: 'var(--green)' }}>EVOLUIR!</span>}
           </div>
         ))}

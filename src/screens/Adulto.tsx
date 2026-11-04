@@ -6,7 +6,7 @@ import { ir } from '../lib/rota';
 
 const K = 'sabidex:adulto';
 const lerToken = () => { try { return localStorage.getItem(K); } catch { return null; } };
-const campo: React.CSSProperties = { font: 'inherit', fontWeight: 700, fontSize: 17, padding: '13px 14px', borderRadius: 14, border: '1.5px solid var(--line-2)', background: 'var(--surface)', color: 'var(--ink)', width: '100%' };
+const campo: React.CSSProperties = { font: 'inherit', fontWeight: 700, fontSize: 17, padding: '13px 14px', borderRadius: 14, border: '3px solid var(--ink)', background: 'var(--surface)', color: 'var(--ink)', width: '100%' };
 
 interface Turma { id: string; nome: string; codigo: string; criancas: number; dono: string }
 interface Kid { id: string; apelido: string; cor: string; xp: number | null; xp_semana: number; cartas: number; visto: number; bloqueado_ate: number }
@@ -155,14 +155,14 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
       </div>
       <div className="painel-destaque coluna" style={{ alignItems: 'center', textAlign: 'center' }}>
         <div className="muted small">Código da turma</div>
-        <div className="display" style={{ fontSize: 40, color: 'var(--yellow)', letterSpacing: '.04em', userSelect: 'all' }}>{turma.codigo}</div>
+        <div className="display" style={{ fontSize: 40, color: 'var(--t-yellow)', letterSpacing: '.04em', userSelect: 'all' }}>{turma.codigo}</div>
         <p className="small" style={{ margin: 0, fontWeight: 700, userSelect: 'all' }}>{convite}</p>
         <button className="btn btn-ciano" onClick={() => void copiar()}>{copiado ? 'Copiado!' : 'Copiar convite'}</button>
       </div>
       {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
       {pinNovo && (
         <div className="aviso aviso-ok" role="status">
-          Novo PIN de <strong>{pinNovo.apelido}</strong>: <span className="display" style={{ fontSize: 24, color: 'var(--yellow)' }}>{pinNovo.pin}</span>
+          Novo PIN de <strong>{pinNovo.apelido}</strong>: <span className="display" style={{ fontSize: 24, color: 'var(--t-yellow)' }}>{pinNovo.pin}</span>
           <div className="small">Passe para a criança. Ele não aparece de novo.</div>
         </div>
       )}
@@ -173,7 +173,7 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
           {criancas.map((k) => (
             <div key={k.id} className="painel coluna" style={{ padding: 12, gap: 8 }}>
               <div className="linha">
-                <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: '50%', background: k.cor, display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', color: 'var(--bg)' }}>{k.apelido[0]?.toUpperCase()}</span>
+                <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: '50%', background: k.cor, display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', color: 'var(--ink)' }}>{k.apelido[0]?.toUpperCase()}</span>
                 <span style={{ flex: 1 }}>
                   <span className="display" style={{ fontSize: 18, display: 'block' }}>{k.apelido}</span>
                   <span className="muted small">{k.xp_semana} XP na semana · {k.xp ?? 0} XP no total · {k.cartas} cartas · visto {quando(k.visto)}{k.bloqueado_ate > Date.now() ? ' · bloqueado por PIN errado' : ''}</span>

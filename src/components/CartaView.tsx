@@ -12,6 +12,8 @@ interface Props {
   forma?: Forma;
   /** itens da loja colocados no Sabimon (somam Vida e força) */
   itens?: string[];
+  /** moldura especial comprada na lojinha */
+  visual?: 'ouro' | 'holo';
   tem?: boolean;
   quantidade?: number;
   grande?: boolean;
@@ -23,12 +25,12 @@ const num = (n: number) => String(n).padStart(3, '0');
 
 function Desenho({ carta, forma, tem }: { carta: Sabimon; forma: Forma; tem: boolean }) {
   const f = carta.formas[forma - 1];
-  if (!tem) return <span className="palco-vazio" aria-hidden="true">?</span>;
+  if (!tem) return <span className="palco-vazio" aria-hidden="true">falta!</span>;
   if (!f.imagem) return <span className="palco-vazio" style={{ fontSize: 14 }}>Desenho<br />em breve</span>;
   return <img src={'/' + f.imagem} alt="" loading="lazy" decoding="async" draggable={false} />;
 }
 
-export function CartaView({ carta, forma = 1, itens = [], tem = true, quantidade = 1, grande = false, animar = false, onClick }: Props) {
+export function CartaView({ carta, forma = 1, itens = [], visual, tem = true, quantidade = 1, grande = false, animar = false, onClick }: Props) {
   const f = carta.formas[forma - 1];
   const extra = bonus(itens);
   const nome = tem ? f.nome : '???';
@@ -36,7 +38,7 @@ export function CartaView({ carta, forma = 1, itens = [], tem = true, quantidade
   const estilo = { '--tipo': COR_TIPO[carta.tipo], '--tipo-claro': tema.claro, '--tipo-escuro': tema.escuro,
     ...(CENARIOS.has(tema.classe) ? { '--cenario': `url(/cenarios/${tema.classe}.webp)` } : {}) } as CSSProperties;
   const comCenario = tem && CENARIOS.has(tema.classe);
-  const classe = `carta ${tem ? `${carta.raridade} t-${tema.classe}` : 'vazia'}${grande ? ' grande' : ''}${animar && tem && carta.raridade === 'lendaria' ? ' holo' : ''}${comCenario ? ' com-cenario' : ''}`;
+  const classe = `carta ${tem ? `${carta.raridade} t-${tema.classe}` : 'vazia'}${grande ? ' grande' : ''}${animar && tem && carta.raridade === 'lendaria' ? ' holo' : ''}${comCenario ? ' com-cenario' : ''}${tem && visual ? ` v-${visual}` : ''}`;
 
   if (grande) {
     return (

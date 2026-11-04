@@ -14,10 +14,10 @@ import { CORES } from './Inicio';
 const cartaPorId = sabimonPorId;
 const nomeDe = (id: string) => cartaPorId.get(id)?.formas[0].nome;
 const NIVEL = { comum: 1, rara: 2, epica: 3, lendaria: 4 } as const;
-const campo: React.CSSProperties = { font: 'inherit', fontWeight: 800, fontSize: 18, padding: '14px 16px', borderRadius: 16, border: '1.5px solid var(--line-2)', background: 'var(--surface)', color: 'var(--ink)', width: '100%' };
+const campo: React.CSSProperties = { font: 'inherit', fontWeight: 800, fontSize: 18, padding: '14px 16px', borderRadius: 16, border: '3px solid var(--ink)', background: 'var(--surface)', color: 'var(--ink)', width: '100%' };
 
 function Avatar({ nome, cor, tamanho = 40 }: { nome: string; cor: string; tamanho?: number }) {
-  return <span aria-hidden="true" style={{ width: tamanho, height: tamanho, flex: 'none', borderRadius: '50%', background: cor, display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: tamanho * 0.45, color: 'var(--bg)', boxShadow: 'inset 0 -3px 0 #00000033, inset 0 2px 0 #FFFFFF88' }}>{nome[0]?.toUpperCase()}</span>;
+  return <span aria-hidden="true" style={{ width: tamanho, height: tamanho, flex: 'none', borderRadius: '50%', background: cor, display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: tamanho * 0.45, color: 'var(--ink)', boxShadow: 'inset 0 -3px 0 #00000033, inset 0 2px 0 #FFFFFF88' }}>{nome[0]?.toUpperCase()}</span>;
 }
 
 function Erro({ texto }: { texto: string | null }) {
@@ -31,7 +31,7 @@ export function ContaCriada() {
   return (
     <main className="tela" style={{ alignItems: 'center', textAlign: 'center' }}>
       <div className="pop"><Ara tamanho={110} /></div>
-      <h1 className="display h2" style={{ color: 'var(--yellow)' }}>Você entrou na turma!</h1>
+      <h1 className="display h2" style={{ color: 'var(--t-yellow)' }}>Você entrou na turma!</h1>
       <div className="painel" style={{ width: '100%' }}>
         <div className="muted small">Para entrar em outro celular você vai precisar de:</div>
         <div className="display" style={{ fontSize: 20, marginTop: 6 }}>Código: {contaNova.codigo}</div>
@@ -168,7 +168,7 @@ function SemTurma({ titulo, texto }: { titulo: string; texto: ReactNode }) {
           <button className="btn btn-escuro btn-bloco" onClick={() => ir('entrar')}>Já tenho conta em outro aparelho</button>
           <div className="painel coluna" style={{ gap: 10 }}>
             {['Você precisa do código da turma, que o professor ou um adulto passa.', 'Só aparece seu apelido, nunca o nome completo.', 'Não tem chat: só propostas de troca de cartas.'].map((t) => (
-              <div key={t} className="linha" style={{ gap: 10, fontWeight: 700 }}><span style={{ color: 'var(--cyan-2)' }}><Icone nome="escudo" tamanho={20} /></span>{t}</div>
+              <div key={t} className="linha" style={{ gap: 10, fontWeight: 700 }}><span style={{ color: 'var(--t-cyan)' }}><Icone nome="escudo" tamanho={20} /></span>{t}</div>
             ))}
           </div>
         </>
@@ -228,7 +228,7 @@ export function Ranking() {
               <div key={p.id} className="coluna" style={{ alignItems: 'center', gap: 6 }}>
                 <Avatar nome={p.apelido} cor={p.cor} tamanho={i === 0 ? 58 : 48} />
                 <div className="display" style={{ fontSize: 15, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.id === dados?.eu ? 'Você' : p.apelido}</div>
-                <div style={{ alignSelf: 'stretch', height: [120, 92, 76][i], borderRadius: '18px 18px 8px 8px', background: ouro[i][0], boxShadow: `inset 0 -5px 0 ${ouro[i][1]}, inset 0 2px 0 #FFFFFF99`, color: 'var(--bg)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ alignSelf: 'stretch', height: [120, 92, 76][i], borderRadius: '18px 18px 8px 8px', background: ouro[i][0], boxShadow: `inset 0 -5px 0 ${ouro[i][1]}, inset 0 2px 0 #FFFFFF99`, color: 'var(--ink)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <div className="display" style={{ fontSize: 30, lineHeight: 1 }}>{i + 1}º</div>
                   <div style={{ fontSize: 12, fontWeight: 900 }}>{valor(p)}</div>
                 </div>
@@ -241,7 +241,7 @@ export function Ranking() {
         {lista.slice(lista.length >= 2 ? 3 : 0).map((p, j) => {
           const eu = p.id === dados?.eu;
           return (
-            <li key={p.id} className="linha" style={{ minHeight: 52, padding: '6px 12px', borderRadius: 16, background: eu ? '#12324A' : 'var(--surface)', boxShadow: `inset 0 0 0 1.5px ${eu ? 'var(--cyan)' : 'var(--line)'}` }}>
+            <li key={p.id} className="linha" style={{ minHeight: 52, padding: '6px 12px', borderRadius: 16, background: eu ? '#CFFAFE' : 'var(--surface)', boxShadow: `inset 0 0 0 1.5px ${eu ? 'var(--cyan)' : 'var(--line)'}` }}>
               <span className="display" style={{ width: 26, color: 'var(--muted)' }}>{j + (lista.length >= 2 ? 4 : 1)}</span>
               <Avatar nome={p.apelido} cor={p.cor} tamanho={34} />
               <span style={{ flex: 1, fontWeight: 900 }}>{eu ? 'Você' : p.apelido}</span>
@@ -334,12 +334,12 @@ export function Trocas() {
               <div className="linha" style={{ gap: 8 }}><Avatar nome={t.de_apelido} cor={t.de_cor} tamanho={32} /><span style={{ fontWeight: 800 }}><span className="display">{t.de_apelido}</span> quer trocar</span></div>
               <div className="linha" style={{ justifyContent: 'center', gap: 10 }}>
                 <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você ganha</span><Mini id={t.carta_dar} /></div>
-                <span style={{ color: 'var(--pink)' }}><Icone nome="trocas" /></span>
+                <span style={{ color: 'var(--t-pink)' }}><Icone nome="trocas" /></span>
                 <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você dá</span><Mini id={t.carta_receber} /></div>
               </div>
-              {minhas === 1 && !protegido(e, t.carta_receber) && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)' }}>Atenção: é a sua <strong>única</strong> {nomeDe(t.carta_receber)}. Ela vai sair do seu álbum.</div>}
+              {minhas === 1 && !protegido(e, t.carta_receber) && <div className="aviso" style={{ background: '#FEF3C7', border: '1.5px solid var(--yellow)' }}>Atenção: é a sua <strong>única</strong> {nomeDe(t.carta_receber)}. Ela vai sair do seu álbum.</div>}
               {paraTrocar(e, t.carta_receber) < 1 && <div className="aviso aviso-erro">Seu {nomeDe(t.carta_receber)} tem evolução ou itens e fica com você. Só dá para trocar uma cópia repetida.</div>}
-              {NIVEL[cartaPorId.get(t.carta_receber)?.raridade ?? 'comum'] > NIVEL[cartaPorId.get(t.carta_dar)?.raridade ?? 'comum'] && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)' }}>Pense bem: você dá uma carta <strong>mais rara</strong> do que recebe.</div>}
+              {NIVEL[cartaPorId.get(t.carta_receber)?.raridade ?? 'comum'] > NIVEL[cartaPorId.get(t.carta_dar)?.raridade ?? 'comum'] && <div className="aviso" style={{ background: '#FEF3C7', border: '1.5px solid var(--yellow)' }}>Pense bem: você dá uma carta <strong>mais rara</strong> do que recebe.</div>}
               {!(e.cartas[t.carta_dar] > 0) && <div className="aviso aviso-ok">Essa carta é <strong>nova</strong> para você!</div>}
               <div className="linha" style={{ gap: 10 }}>
                 <button className="btn btn-escuro" style={{ flex: 1 }} disabled={!!ocupado} onClick={() => void agir(t, 'recusar')}>Recusar</button>
@@ -370,7 +370,7 @@ export function Trocas() {
             const fui = t.de_id === eu;
             return (
               <div key={t.id} className="small" style={{ fontWeight: 700, color: 'var(--muted)' }}>
-                <span style={{ color: t.status === 'aceita' ? 'var(--green)' : 'var(--muted)' }}>{STATUS[t.status] ?? t.status}</span> · {fui ? `com ${t.para_apelido}` : `com ${t.de_apelido}`}: {nomeDe(fui ? t.carta_dar : t.carta_receber)} por {nomeDe(fui ? t.carta_receber : t.carta_dar)}
+                <span style={{ color: t.status === 'aceita' ? 'var(--t-green)' : 'var(--muted)' }}>{STATUS[t.status] ?? t.status}</span> · {fui ? `com ${t.para_apelido}` : `com ${t.de_apelido}`}: {nomeDe(fui ? t.carta_dar : t.carta_receber)} por {nomeDe(fui ? t.carta_receber : t.carta_dar)}
               </div>
             );
           })}
@@ -427,7 +427,7 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
           {!colegas && !erro && <p className="muted">Carregando…</p>}
           {colegas?.length === 0 && <div className="balao">Ainda não tem colegas na turma. Chame seus amigos!</div>}
           {colegas?.map((c) => (
-            <button key={c.id} className="linha" onClick={() => setColega(c)} style={{ minHeight: 60, borderRadius: 16, padding: '8px 12px', background: 'var(--surface)', border: '1.5px solid var(--line)', textAlign: 'left' }}>
+            <button key={c.id} className="linha" onClick={() => setColega(c)} style={{ minHeight: 60, borderRadius: 16, padding: '8px 12px', background: 'var(--surface)', border: '3px solid var(--ink)', textAlign: 'left' }}>
               <Avatar nome={c.apelido} cor={c.cor} />
               <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 18, display: 'block' }}>{c.apelido}</span><span className="muted small">{c.cartas} {c.cartas === 1 ? 'carta diferente' : 'cartas diferentes'}</span></span>
               <Icone nome="seguir" />
@@ -444,7 +444,7 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
             {dele.map((c) => (
               <div key={c.id} style={{ position: 'relative' }}>
                 <CartaView carta={c} quantidade={cartasDele?.[c.id]} onClick={() => setQuero(c)} />
-                {!(e.cartas[c.id] > 0) && <span style={{ position: 'absolute', top: -6, right: -4, background: 'var(--yellow)', color: 'var(--bg)', fontSize: 10, fontWeight: 900, borderRadius: 999, padding: '2px 6px' }}>NOVA</span>}
+                {!(e.cartas[c.id] > 0) && <span style={{ position: 'absolute', top: -6, right: -4, background: 'var(--yellow)', color: 'var(--ink)', fontSize: 10, fontWeight: 900, borderRadius: 999, padding: '2px 6px' }}>NOVA</span>}
               </div>
             ))}
           </div>
@@ -466,10 +466,10 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
         <div className="coluna" style={{ alignItems: 'center' }}>
           <div className="linha" style={{ justifyContent: 'center', gap: 10 }}>
             <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você dá</span><div style={{ width: 120 }}><CartaView carta={dou} /></div></div>
-            <span style={{ color: 'var(--pink)' }}><Icone nome="trocas" /></span>
+            <span style={{ color: 'var(--t-pink)' }}><Icone nome="trocas" /></span>
             <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você ganha</span><div style={{ width: 120 }}><CartaView carta={quero} /></div></div>
           </div>
-          {e.cartas[dou.id] === 1 && !protegido(e, dou.id) && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)', width: '100%' }}>Atenção: é a sua <strong>única</strong> {dou.formas[0].nome}. Se {colega?.apelido} aceitar, ela sai do seu álbum.</div>}
+          {e.cartas[dou.id] === 1 && !protegido(e, dou.id) && <div className="aviso" style={{ background: '#FEF3C7', border: '1.5px solid var(--yellow)', width: '100%' }}>Atenção: é a sua <strong>única</strong> {dou.formas[0].nome}. Se {colega?.apelido} aceitar, ela sai do seu álbum.</div>}
           {(e.cartas[dou.id] > 1 || protegido(e, dou.id)) && <div className="aviso aviso-ok" style={{ width: '100%' }}>Boa! Você vai dar uma carta <strong>repetida</strong>.</div>}
           <p className="muted small" style={{ margin: 0, textAlign: 'center' }}>{ROTULO[dou.raridade]} por {ROTULO[quero.raridade]}. {colega?.apelido} pode aceitar ou recusar.</p>
           <button className="btn btn-amarelo btn-bloco" disabled={ocupado} onClick={() => void enviar()}>{ocupado ? 'Enviando…' : 'Enviar proposta'}</button>

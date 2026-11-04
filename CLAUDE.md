@@ -11,14 +11,14 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 - Conteúdo vem do livro da escola. Cada capítulo novo é um arquivo em `src/data/` seguindo o formato de `src/data/tipos.ts`. Não invente fatos históricos: confira com o livro.
 - Cartas colecionáveis têm desenhos originais. Nunca usar personagens, nomes ou marcas de outros jogos (Pokémon etc.).
 - Sabimons ficam em `src/data/sabimons.ts` (fatos sobre os bichos precisam ser verdadeiros). Os números da carta (Vida, força, cópias para evoluir) ficam em `src/lib/sabimon.ts`. Desenhos: `arte/sabimons/originais/` → `python3 scripts/recortar-sabimons.py` → `public/sabimons/`.
-- Sabicoins: cada fase dá o mesmo número de XP e de Sabicoins. O saldo é XP total − soma das compras (`src/lib/loja.ts`, onde ficam os preços). A loja vende itens para a faixa de 3 espaços embaixo da carta; evoluir gasta cópias + Sabicoins. Na turma, a evolução passa pelo servidor (`/api/crianca/evoluir`). Sabimon evoluído ou com itens não sai em troca (só as cópias repetidas).
+- Sabicoins: cada fase dá o mesmo número de XP e de Sabicoins. O saldo é XP total − soma das compras (`src/lib/loja.ts`, onde ficam os preços). A loja vende itens com raridade (mesma moldura das cartas) e um fato real sobre o Brasil: itens de Vida/força/enfeite vão para a faixa de 3 espaços embaixo da carta; itens visuais (moldura de ouro, brilho holográfico) mudam a carta e não ocupam espaço. A Coroa não se vende: ganha 1 por mundo completo. Itens antigos (`antigo: true`) saem da vitrine mas continuam valendo para quem comprou. Nada de desconto ou pressão de tempo; evoluir gasta cópias + Sabicoins. Na turma, a evolução passa pelo servidor (`/api/crianca/evoluir`). Sabimon evoluído ou com itens não sai em troca (só as cópias repetidas).
 - Pacotes só vêm do estudo (fase nova, prova, 1ª fase do dia, nível novo). Nunca vender pacote, nem por moeda do jogo nem por dinheiro.
 
 ## Visual (não mudar sem o Lucas pedir)
 
-- Fundo azul-noite (`--bg`), cores neon: turquesa `--cyan`, rosa `--pink`, amarelo `--yellow`, verde `--green`. Nada de roxo como cor principal (fica parecido com o app Baobab).
+- Visual **"álbum de figurinhas"** (escolhido pelo Lucas em 04/11/2026): fundo de papel claro (`--bg`), contorno escuro grosso (`--ink`) e sombra "de adesivo" em painéis, botões e cartas. Cores de preencher: coral `--coral`, amarelo `--yellow`, turquesa `--cyan`, rosa `--pink`, verde `--green`. Para **texto colorido** use as versões escuras (`--t-coral`, `--t-yellow` etc.), senão não dá para ler no papel. Nada de roxo como cor principal (fica parecido com o app Baobab).
 - Títulos e botões na fonte **Lilita One**; textos em **Nunito**.
-- Botões "de jogo": degradê, brilho em cima, sombra embaixo (`.btn` em `src/styles.css`).
+- Botões "de jogo": cor viva, contorno escuro e "chão" embaixo (`.btn` em `src/styles.css`).
 - Animação só em momentos de prêmio (abrir pacote, subir de nível, acertar). Telas paradas não tremem nem piscam. Sempre respeitar `prefers-reduced-motion`.
 - Raridades: comum ★ (cinza), rara ★★ (turquesa), épica ★★★ (rosa), lendária ★★★★ (amarelo, borda holográfica).
 - Mascote: Ará, a arara (`src/components/Ara.tsx`).

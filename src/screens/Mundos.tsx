@@ -17,7 +17,7 @@ export function Mundos() {
         const n = FASES.filter((f) => e.feitas[chave(c.id, f)]).length;
         return (
           <button key={c.id} className="painel-destaque" onClick={() => ir('mundo', c.id)} style={{ textAlign: 'left', color: 'inherit' }}>
-            <span className="eyebrow" style={{ color: n === 5 ? 'var(--green)' : 'var(--yellow)' }}>Mundo {c.numero}{n === 5 ? ' · completo' : ''}</span>
+            <span className="eyebrow" style={{ color: n === 5 ? 'var(--t-green)' : 'var(--t-yellow)' }}>Mundo {c.numero}{n === 5 ? ' · completo' : ''}</span>
             <span className="display" style={{ fontSize: 24, display: 'block', marginTop: 2 }}>{c.titulo}</span>
             <span className="muted small" style={{ display: 'block' }}>{c.subtitulo}</span>
             <span className="barra barra-verde" style={{ display: 'block', marginTop: 12 }} aria-label={`${n} de 5 fases`}><div style={{ width: `${(n / 5) * 100}%` }} /></span>
@@ -54,20 +54,20 @@ export function Mundo({ id }: { id: string }) {
           const eAgora = f === agora;
           const tam = eAgora ? 78 : 64;
           const estilo: React.CSSProperties = feita
-            ? { background: NO_FEITA, boxShadow: 'inset 0 -4px 0 #15803D, inset 0 2px 0 #DCFCE7' }
+            ? { background: NO_FEITA, border: '3px solid var(--ink)', boxShadow: '3px 3px 0 var(--ink)' }
             : eAgora
-              ? { background: 'linear-gradient(180deg, #FDE68A 0%, #FACC15 45%, #EAB308 100%)', boxShadow: 'inset 0 -5px 0 #CA8A04, inset 0 2px 0 #FEF9C3, 0 0 0 6px #FACC1533, 0 8px 24px #FACC1555' }
-              : { background: 'var(--surface)', border: '1.5px dashed var(--line-2)' };
+              ? { background: 'linear-gradient(180deg, #FDE68A 0%, #FACC15 45%, #EAB308 100%)', border: '3px solid var(--ink)', boxShadow: '4px 4px 0 var(--ink), 0 0 0 8px #FFC21A55, 0 8px 24px #FACC1555' }
+              : { background: 'var(--surface)', border: '3px dashed #10213F66' };
           return (
             <li key={f} style={{ paddingLeft: recuo[i] }}>
               <button disabled={!livre} onClick={() => ir('fase', cap.id, f)} className="linha"
                 style={{ background: 'none', border: 0, padding: 0, textAlign: 'left', gap: 14, cursor: livre ? 'pointer' : 'not-allowed' }}
                 aria-label={`${f === 'prova' ? 'Chefão' : `Fase ${i + 1}`}: ${FASE_INFO[f].titulo}${feita ? ', completa' : livre ? '' : ', bloqueada'}`}>
-                <span style={{ width: tam, height: tam, flex: 'none', borderRadius: '50%', display: 'grid', placeItems: 'center', color: feita ? '#052E16' : eAgora ? 'var(--bg)' : 'var(--muted)', ...estilo }}>
+                <span style={{ width: tam, height: tam, flex: 'none', borderRadius: '50%', display: 'grid', placeItems: 'center', color: feita ? '#052E16' : eAgora ? 'var(--ink)' : 'var(--muted)', ...estilo }}>
                   <Icone nome={feita ? 'check' : livre ? 'play' : 'cadeado'} tamanho={feita ? 30 : 28} cheio={!feita && livre} espessura={feita ? 3.5 : 2.5} />
                 </span>
                 <span style={{ minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 11, fontWeight: 900, letterSpacing: '.06em', textTransform: 'uppercase', color: eAgora ? 'var(--yellow)' : feita ? 'var(--green)' : 'var(--muted)' }}>{f === 'prova' ? 'Chefão' : eAgora ? 'Agora' : `Fase ${i + 1}`}</span>
+                  <span style={{ display: 'block', fontSize: 11, fontWeight: 900, letterSpacing: '.06em', textTransform: 'uppercase', color: eAgora ? 'var(--t-yellow)' : feita ? 'var(--t-green)' : 'var(--muted)' }}>{f === 'prova' ? 'Chefão' : eAgora ? 'Agora' : `Fase ${i + 1}`}</span>
                   <span className="display" style={{ display: 'block', fontSize: 19, color: livre ? 'var(--ink)' : 'var(--muted)' }}>{FASE_INFO[f].titulo}</span>
                   <span className="muted small">{FASE_INFO[f].sub} · +{FASE_INFO[f].xp} XP</span>
                 </span>
