@@ -18,9 +18,9 @@ const campo: React.CSSProperties = { font: 'inherit', fontWeight: 700, fontSize:
 const rotulo: React.CSSProperties = { fontWeight: 800 };
 const botaoPequeno: React.CSSProperties = { flex: 1, minHeight: 40, fontSize: 15 };
 
-interface Turma { id: string; nome: string; codigo: string; criancas: number; dono: string }
-interface Kid { id: string; apelido: string; cor: string; xp: number | null; xp_semana: number; cartas: number; visto: number; bloqueado_ate: number; familia: number }
-interface Filho { id: string; apelido: string; cor: string; xp: number | null; cartas: number; visto: number; bloqueado_ate: number; turma: string | null; codigo: string | null }
+interface Turma { id: string; nome: string; codigo: string; criancas: number; dono: string; sou_dono?: number }
+interface Kid { id: string; apelido: string; cor: string; xp: number | null; xp_semana: number; cartas: number; visto: number; bloqueado_ate: number; familia: number; chat_ok: number; mudo_ate: number; online: number }
+interface Filho { id: string; apelido: string; cor: string; xp: number | null; cartas: number; visto: number; bloqueado_ate: number; turma: string | null; codigo: string | null; chat_ok: number; mostrar_online: number; turma_chat: number | null }
 
 function quando(ms: number) {
   const d = Math.floor((Date.now() - ms) / 86_400_000);
@@ -423,6 +423,7 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
               <button className="btn btn-escuro" style={botaoPequeno} onClick={() => setApagar(f.id)}>Apagar</button>
             </div>
           )}
+          {f.turma && <ChatDoFilho token={token} f={f} aoMudar={() => void carregar()} />}
         </div>
       ))}
       {form === 'nenhum' && (
@@ -443,6 +444,64 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
           ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque. Depois, continua valendo para revisar. Se a turma do professor marcar outra data, vale a da turma." />
       )}
     </section>
+  );
+}
+
+/* ---------------- Chat da turma (área dos adultos) ---------------- */
+
+interface MsgAdulto { id: string; crianca_id: string; apelido: string | null; cor: string | null; texto: string; criado: number; apagada: number; doFilho?: boolean }
+const dataHora = (ms: number) => new Date(ms).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+/** Lista de mensagens para pais e professor. Mostra também as apagadas (riscadas). */
+function Conversa({ mensagens, avisadas, acoes }: { mensagens: MsgAdulto[]; avisadas?: Set<string>; acoes?: (m: MsgAdulto) => React.ReactNode }) {
+  if (!mensagens.length) return <p className="muted small" style={{ margin: 0 }}>Nenhuma mensagem nos últimos 60 dias.</p>;
+  return (
+    <div className="coluna" style={{ gap: 6, maxHeight: 420, overflowY: 'auto', padding: 2 }}>
+      {mensagens.map((m) => (
+        <div key={m.id} className="linha" style={{ gap: 8, alignItems: 'flex-start', padding: '6px 8px', borderRadius: 12,
+          background: avisadas?.has(m.id) ? '#FEE2E2' : m.doFilho ? '#CFFAFE' : 'var(--surface)', border: '2px solid var(--ink)' }}>
+          <Bolinha nome={m.apelido ?? '?'} cor={m.cor ?? '#94A3B8'} tamanho={26} />
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span className="small" style={{ fontWeight: 900 }}>{m.apelido ?? 'Conta apagada'}</span>
+            <span className="muted small"> · {dataHora(m.criado)}{m.apagada ? ' · apagada' : ''}{avisadas?.has(m.id) ? ' · aluno avisou' : ''}</span>
+            <span style={{ display: 'block', fontWeight: 700, overflowWrap: 'anywhere', textDecoration: m.apagada ? 'line-through' : undefined, opacity: m.apagada ? 0.6 : 1 }}>{m.texto}</span>
+            {acoes?.(m)}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** O responsável autoriza o chat e o "estudando agora" do filho, e lê a conversa da turma. */
+function ChatDoFilho({ token, f, aoMudar }: { token: string; f: Filho; aoMudar: () => void }) {
+  const [ler, setLer] = useState<MsgAdulto[] | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const mudar = async (campo: 'chat' | 'online', valor: boolean) => {
+    const r = await api(`/adulto/familia/${f.id}/chat`, { corpo: { [campo]: valor }, tokenProprio: token });
+    if (r.erro) setErro(r.erro); else aoMudar();
+  };
+  const abrir = async () => {
+    if (ler) return setLer(null);
+    const r = await api<{ mensagens: MsgAdulto[] }>(`/adulto/familia/${f.id}/chat`, { tokenProprio: token });
+    if (r.erro) setErro(r.erro); else setLer(r.mensagens);
+  };
+  return (
+    <div className="coluna" style={{ gap: 6, borderTop: '2px dashed var(--line)', paddingTop: 8 }}>
+      <span className="small" style={{ fontWeight: 900 }}>Chat da turma {f.turma}</span>
+      {!f.turma_chat && <span className="muted small">O professor ainda não ligou o chat desta turma. Quando ligar, só funciona se você autorizar aqui.</span>}
+      <label className="linha small" style={{ gap: 8, fontWeight: 700, alignItems: 'flex-start' }}>
+        <input type="checkbox" checked={!!f.chat_ok} onChange={(ev) => void mudar('chat', ev.target.checked)} style={{ width: 22, height: 22, flex: 'none' }} />
+        <span>Deixar {f.apelido} escrever no chat da turma. Só os colegas da turma participam, num grupo único (sem mensagem privada). Você e o professor podem ler tudo, e {f.apelido} é avisado disso.</span>
+      </label>
+      <label className="linha small" style={{ gap: 8, fontWeight: 700, alignItems: 'flex-start' }}>
+        <input type="checkbox" checked={!!f.mostrar_online} onChange={(ev) => void mudar('online', ev.target.checked)} style={{ width: 22, height: 22, flex: 'none' }} />
+        <span>Mostrar para os colegas quando {f.apelido} está estudando agora.</span>
+      </label>
+      <button className="btn btn-escuro" style={{ minHeight: 40, fontSize: 15 }} onClick={() => void abrir()}>{ler ? 'Fechar a conversa' : 'Ler a conversa da turma'}</button>
+      {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
+      {ler && <><span className="muted small">As mensagens de {f.apelido} aparecem em azul. Mensagens com mais de 60 dias são apagadas sozinhas.</span><Conversa mensagens={ler} /></>}
+    </div>
   );
 }
 
@@ -525,6 +584,7 @@ function LigarConta({ token, aoFechar, aoLigar }: { token: string; aoFechar: () 
 function Turmas({ token, admin }: { token: string; admin: boolean }) {
   const [turmas, setTurmas] = useState<Turma[] | null>(null);
   const [aberto, setAberto] = useState(false);
+  const [convite, setConvite] = useState<string | null>(null);
   const [nome, setNome] = useState('');
   const [erro, setErro] = useState<string | null>(null);
   const carregar = () => api<{ turmas: Turma[] }>('/adulto/turmas', { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : setTurmas(r.turmas)));
@@ -536,6 +596,13 @@ function Turmas({ token, admin }: { token: string; admin: boolean }) {
     setNome('');
     ir('adulto', r.turma.id);
   };
+  const usarConvite = async () => {
+    setErro(null);
+    const r = await api<{ turma: { id: string } }>('/adulto/convite', { corpo: { codigo: convite }, tokenProprio: token });
+    if (r.erro) return setErro(r.erro);
+    setConvite(null);
+    ir('adulto', r.turma.id);
+  };
   return (
     <section className="coluna" aria-label="Turmas">
       <h2 className="display h2" style={{ marginTop: 12 }}>Turmas</h2>
@@ -545,7 +612,7 @@ function Turmas({ token, admin }: { token: string; admin: boolean }) {
         <button key={t.id} className="painel-destaque linha" onClick={() => ir('adulto', t.id)} style={{ textAlign: 'left', color: 'inherit' }}>
           <span style={{ flex: 1 }}>
             <span className="display" style={{ fontSize: 20, display: 'block' }}>{t.nome}</span>
-            <span className="muted small">Código {t.codigo} · {t.criancas} {t.criancas === 1 ? 'criança' : 'crianças'}{admin ? ` · de ${t.dono}` : ''}</span>
+            <span className="muted small">Código {t.codigo} · {t.criancas} {t.criancas === 1 ? 'criança' : 'crianças'}{admin || !t.sou_dono ? ` · criada por ${t.dono}` : ''}{!t.sou_dono && !admin ? ' · você é administrador' : ''}</span>
           </span>
           <Icone nome="seguir" />
         </button>
@@ -557,6 +624,19 @@ function Turmas({ token, admin }: { token: string; admin: boolean }) {
           <button className="btn btn-amarelo btn-bloco" disabled={nome.trim().length < 2}>Criar e gerar código</button>
         </form>
       ) : <button className="btn btn-escuro btn-bloco" onClick={() => setAberto(true)}>Criar turma</button>}
+      {convite === null ? (
+        <button className="btn btn-escuro btn-bloco" onClick={() => setConvite('')}>Tenho um convite para administrar uma turma</button>
+      ) : (
+        <form className="painel coluna" onSubmit={(ev) => { ev.preventDefault(); void usarConvite(); }}>
+          <label htmlFor="t-convite" className="display h3">Convite de administrador</label>
+          <span className="muted small">Quem criou a turma gera esse código e manda para você. Ele vale 7 dias e uma vez só.</span>
+          <input id="t-convite" style={{ ...campo, textTransform: 'uppercase', letterSpacing: '.06em' }} placeholder="ADM-XXXX-XXXX" value={convite} maxLength={20} autoComplete="off" onChange={(ev) => setConvite(ev.target.value)} />
+          <div className="linha" style={{ gap: 8 }}>
+            <button type="button" className="btn btn-escuro" style={{ flex: 1 }} onClick={() => setConvite(null)}>Cancelar</button>
+            <button className="btn btn-amarelo" style={{ flex: 1 }} disabled={convite.replace(/[^a-z0-9]/gi, '').length < 8}>Entrar</button>
+          </div>
+        </form>
+      )}
     </section>
   );
 }
@@ -603,13 +683,141 @@ function ApagarConta({ token, temSenha, aoApagar }: { token: string; temSenha: b
   );
 }
 
+/** Quem administra a turma. O dono convida (código) e remove; os outros podem sair. */
+function Administradores({ token, id, nomeTurma }: { token: string; id: string; nomeTurma: string }) {
+  const [dados, setDados] = useState<{ admins: { id: string; nome: string; dono: number }[]; eu: string; souDono: boolean } | null>(null);
+  const [codigo, setCodigo] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [copiado, setCopiado] = useState(false);
+  const [tirar, setTirar] = useState<string | null>(null);
+  const carregar = () => api<{ admins: { id: string; nome: string; dono: number }[]; eu: string; souDono: boolean }>(`/adulto/turmas/${id}/admins`, { tokenProprio: token })
+    .then((r) => (r.erro ? setErro(r.erro) : setDados(r)));
+  useEffect(() => { void carregar(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!dados) return null;
+  const texto = codigo ? `Você foi convidado para ajudar a administrar a turma "${nomeTurma}" no Sabidex. Entre em ${location.origin}/, vá na área dos adultos, crie sua conta (se ainda não tiver) e, em Turmas, toque em "Tenho um convite" e digite o código ${codigo}. Vale 7 dias.` : '';
+  const gerar = async () => {
+    setErro(null);
+    const r = await api<{ codigo: string }>(`/adulto/turmas/${id}/convite`, { corpo: {}, tokenProprio: token });
+    if (r.erro) setErro(r.erro); else setCodigo(r.codigo);
+  };
+  const remover = async (aid: string) => {
+    const r = await api(`/adulto/turmas/${id}/admins/${aid}`, { metodo: 'DELETE', tokenProprio: token });
+    setTirar(null);
+    if (r.erro) return setErro(r.erro);
+    if (aid === dados.eu) ir('adulto'); else void carregar();
+  };
+  const copiar = async () => { try { await navigator.clipboard.writeText(texto); setCopiado(true); setTimeout(() => setCopiado(false), 2500); } catch { /* */ } };
+  return (
+    <section className="painel coluna" style={{ gap: 8 }} aria-label="Administradores">
+      <h2 className="display h3" style={{ margin: 0 }}>Administradores</h2>
+      <p className="muted small" style={{ margin: 0 }}>Podem ver as crianças, trocar PIN, marcar provas e cuidar do chat. Só quem criou a turma convida e remove administradores.</p>
+      {dados.admins.map((x) => (
+        <div key={x.id} className="linha" style={{ gap: 8 }}>
+          <span style={{ flex: 1, fontWeight: 800 }}>{x.nome}{x.id === dados.eu ? ' (você)' : ''} <span className="muted small">· {x.dono ? 'criou a turma' : 'administrador'}</span></span>
+          {!x.dono && (dados.souDono || x.id === dados.eu) && (tirar === x.id ? (
+            <>
+              <button className="btn btn-vermelho" style={{ minHeight: 34, fontSize: 13, padding: '0 10px' }} onClick={() => void remover(x.id)}>{x.id === dados.eu ? 'Sair' : 'Remover'}</button>
+              <button className="btn btn-escuro" style={{ minHeight: 34, fontSize: 13, padding: '0 10px' }} onClick={() => setTirar(null)}>Não</button>
+            </>
+          ) : <button className="chat-avisar" onClick={() => setTirar(x.id)}>{x.id === dados.eu ? 'Sair da administração' : 'Remover'}</button>)}
+        </div>
+      ))}
+      {dados.souDono && (codigo ? (
+        <div className="aviso aviso-ok coluna" style={{ gap: 6 }}>
+          <span className="small">Código de convite (vale 7 dias, uma vez só):</span>
+          <span className="display" style={{ fontSize: 24, color: 'var(--t-yellow)', letterSpacing: '.04em', userSelect: 'all' }}>{codigo}</span>
+          <span className="small" style={{ userSelect: 'all' }}>{texto}</span>
+          <button className="btn btn-ciano" style={{ minHeight: 40, fontSize: 15 }} onClick={() => void copiar()}>{copiado ? 'Copiado!' : 'Copiar convite'}</button>
+        </div>
+      ) : <button className="btn btn-escuro" style={{ minHeight: 42, fontSize: 15 }} onClick={() => void gerar()}>Convidar administrador (professor ou outro responsável)</button>)}
+      {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
+    </section>
+  );
+}
+
+interface ChatTurma { chat: number; chat_inicio: number; chat_fim: number; mostrar_online: number }
+interface DadosTurma { turma: Turma; chat?: ChatTurma; avisos?: number; criancas: Kid[]; provas?: DatasProva }
+
+const HORAS = Array.from({ length: 25 }, (_, h) => h);
+
+/** O professor liga o chat, escolhe o horário, lê tudo, vê os avisos dos alunos e apaga mensagens. */
+function ChatDaTurma({ token, id, chat, avisos, criancas, aoMudar }: { token: string; id: string; chat: ChatTurma; avisos: number; criancas: Kid[]; aoMudar: () => void }) {
+  const [ler, setLer] = useState<{ mensagens: MsgAdulto[]; avisos: { mensagem_id: string; por: string | null }[] } | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [apagar, setApagar] = useState<string | null>(null);
+  const salvar = async (mud: Record<string, unknown>) => {
+    const r = await api(`/adulto/turmas/${id}/chat`, { corpo: mud, tokenProprio: token });
+    if (r.erro) setErro(r.erro); else { setErro(null); aoMudar(); }
+  };
+  const carregarConversa = async () => {
+    const r = await api<{ mensagens: MsgAdulto[]; avisos: { mensagem_id: string; por: string | null }[] }>(`/adulto/turmas/${id}/chat`, { tokenProprio: token });
+    if (r.erro) setErro(r.erro); else setLer(r);
+  };
+  const acao = async (m: MsgAdulto, qual: 'apagar' | 'ok') => {
+    const r = await api(`/adulto/turmas/${id}/chat/${m.id}/${qual}`, { corpo: {}, tokenProprio: token });
+    setApagar(null);
+    if (r.erro) setErro(r.erro); else { await carregarConversa(); aoMudar(); }
+  };
+  const avisadas = new Set(ler?.avisos.map((v) => v.mensagem_id));
+  const liberadas = criancas.filter((k) => k.chat_ok).length;
+  const selectHora = (valor: number, campo: 'inicio' | 'fim') => (
+    <select value={valor} onChange={(ev) => void salvar({ [campo]: Number(ev.target.value) })} style={{ font: 'inherit', fontWeight: 800, padding: '6px 8px', borderRadius: 10, border: '2px solid var(--ink)', background: 'var(--surface)' }}>
+      {HORAS.map((h) => <option key={h} value={h}>{h}h</option>)}
+    </select>
+  );
+  return (
+    <section className="painel coluna" style={{ gap: 10 }} aria-label="Chat da turma">
+      <div className="linha" style={{ justifyContent: 'space-between' }}>
+        <h2 className="display h3" style={{ margin: 0 }}>Chat da turma</h2>
+        {avisos > 0 && <span className="pilula" style={{ borderColor: 'var(--coral)', color: 'var(--t-coral)' }}>{avisos} {avisos > 1 ? 'avisos' : 'aviso'}</span>}
+      </div>
+      <p className="muted small" style={{ margin: 0 }}>
+        Um grupo só com a turma (sem mensagem privada). Cada criança só escreve se o responsável autorizar na conta da família.
+        O app bloqueia palavrões, telefones, endereços, links e redes sociais. Mensagens somem depois de 60 dias.
+      </p>
+      <label className="linha" style={{ gap: 8, fontWeight: 800 }}>
+        <input type="checkbox" checked={!!chat.chat} onChange={(ev) => void salvar({ chat: ev.target.checked })} style={{ width: 24, height: 24 }} />
+        Chat ligado para a turma
+      </label>
+      <div className="linha small" style={{ gap: 8, fontWeight: 700, flexWrap: 'wrap' }}>
+        Aberto das {selectHora(chat.chat_inicio, 'inicio')} às {selectHora(chat.chat_fim, 'fim')} (horário de Brasília)
+      </div>
+      <label className="linha small" style={{ gap: 8, fontWeight: 700 }}>
+        <input type="checkbox" checked={!!chat.mostrar_online} onChange={(ev) => void salvar({ online: ev.target.checked })} style={{ width: 22, height: 22 }} />
+        Mostrar aos alunos quem está estudando agora
+      </label>
+      {!!chat.chat && <span className="small" style={{ fontWeight: 700 }}>{liberadas} de {criancas.length} {criancas.length === 1 ? 'criança liberada' : 'crianças liberadas'} pelos responsáveis.</span>}
+      <button className="btn btn-escuro" style={{ minHeight: 42, fontSize: 15 }} onClick={() => (ler ? setLer(null) : void carregarConversa())}>{ler ? 'Fechar a conversa' : 'Ler a conversa'}</button>
+      {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
+      {ler && (
+        <>
+          <span className="muted small">Em vermelho: mensagens que algum aluno avisou. Mensagens apagadas continuam aqui (riscadas) só para os adultos.</span>
+          <Conversa mensagens={ler.mensagens} avisadas={avisadas} acoes={(m) => m.apagada ? null : (
+            apagar === m.id ? (
+              <span className="linha" style={{ gap: 6, marginTop: 4 }}>
+                <span className="small" style={{ fontWeight: 700 }}>Apagar para os alunos?</span>
+                <button className="btn btn-vermelho" style={{ minHeight: 32, fontSize: 13, padding: '0 10px' }} onClick={() => void acao(m, 'apagar')}>Apagar</button>
+                <button className="btn btn-escuro" style={{ minHeight: 32, fontSize: 13, padding: '0 10px' }} onClick={() => setApagar(null)}>Não</button>
+              </span>
+            ) : (
+              <span className="linha" style={{ gap: 10, marginTop: 2 }}>
+                <button className="chat-avisar" onClick={() => setApagar(m.id)}>Apagar</button>
+                {avisadas.has(m.id) && <button className="chat-avisar" style={{ color: 'var(--t-green)' }} onClick={() => void acao(m, 'ok')}>Está tudo bem</button>}
+              </span>
+            ))} />
+        </>
+      )}
+    </section>
+  );
+}
+
 function DetalheTurma({ token, id }: { token: string; id: string }) {
-  const [dados, setDados] = useState<{ turma: Turma; criancas: Kid[]; provas?: DatasProva } | null>(null);
+  const [dados, setDados] = useState<DadosTurma | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [pinNovo, setPinNovo] = useState<{ apelido: string; pin: string } | null>(null);
   const [remover, setRemover] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
-  const carregar = () => api<{ turma: Turma; criancas: Kid[]; provas?: DatasProva }>(`/adulto/turmas/${id}`, { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : setDados(r)));
+  const carregar = () => api<DadosTurma>(`/adulto/turmas/${id}`, { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : setDados(r)));
   useEffect(() => { void carregar(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (erro && !dados) return <div className="aviso aviso-erro">{erro}</div>;
@@ -625,6 +833,10 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
   const tirar = async (k: Kid) => {
     const r = await api(`/adulto/turmas/${id}/criancas/${k.id}`, { metodo: 'DELETE', tokenProprio: token });
     setRemover(null);
+    if (r.erro) setErro(r.erro); else void carregar();
+  };
+  const silenciar = async (k: Kid, horas: number) => {
+    const r = await api(`/adulto/turmas/${id}/criancas/${k.id}/silenciar`, { corpo: { horas }, tokenProprio: token });
     if (r.erro) setErro(r.erro); else void carregar();
   };
   const copiar = async () => {
@@ -652,6 +864,8 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
       )}
       <DatasDasProvas token={token} rota={`/adulto/turmas/${id}/provas`} provas={dados.provas ?? {}} aoMudar={(p) => setDados({ ...dados, provas: p })}
         ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque para as crianças. Depois, continua aberto e valendo para quem chegou depois ou quer revisar." />
+      <Administradores token={token} id={id} nomeTurma={turma.nome} />
+      {dados.chat && <ChatDaTurma token={token} id={id} chat={dados.chat} avisos={dados.avisos ?? 0} criancas={criancas} aoMudar={() => void carregar()} />}
       <h2 className="display h3">{criancas.length} {criancas.length === 1 ? 'criança' : 'crianças'}</h2>
       {criancas.length === 0 && <p className="muted">Ninguém entrou ainda. Mande o convite acima.</p>}
       <div style={{ overflowX: 'auto' }}>
@@ -662,7 +876,10 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
                 <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: '50%', background: k.cor, display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', color: 'var(--ink)' }}>{k.apelido[0]?.toUpperCase()}</span>
                 <span style={{ flex: 1 }}>
                   <span className="display" style={{ fontSize: 18, display: 'block' }}>{k.apelido}</span>
-                  <span className="muted small">{k.xp_semana} XP na semana · {k.xp ?? 0} XP no total · {k.cartas} cartas · visto {quando(k.visto)}{k.bloqueado_ate > Date.now() ? ' · bloqueado por PIN errado' : ''}</span>
+                  <span className="muted small">{k.online ? 'estudando agora · ' : ''}{k.xp_semana} XP na semana · {k.xp ?? 0} XP no total · {k.cartas} cartas · visto {quando(k.visto)}{k.bloqueado_ate > Date.now() ? ' · bloqueado por PIN errado' : ''}</span>
+                  {dados.chat?.chat ? <span className="small" style={{ display: 'block', fontWeight: 700, color: k.mudo_ate > Date.now() ? 'var(--t-coral)' : k.chat_ok ? 'var(--t-green)' : 'var(--muted)' }}>
+                    Chat: {k.mudo_ate > Date.now() ? `pausado até ${dataHora(k.mudo_ate)}` : k.chat_ok ? 'liberado pelo responsável' : k.familia ? 'responsável ainda não liberou' : 'sem conta da família (o responsável precisa criar para liberar)'}
+                  </span> : null}
                 </span>
               </div>
               {remover === k.id ? (
@@ -672,8 +889,11 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
                   <button className="btn btn-vermelho" style={{ minHeight: 40, fontSize: 15 }} onClick={() => void tirar(k)}>Remover</button>
                 </div>
               ) : (
-                <div className="linha" style={{ gap: 8 }}>
+                <div className="linha" style={{ gap: 8, flexWrap: 'wrap' }}>
                   <button className="btn btn-escuro" style={{ flex: 1, minHeight: 40, fontSize: 15 }} onClick={() => void novoPin(k)}>Novo PIN</button>
+                  {!!dados.chat?.chat && !!k.chat_ok && (k.mudo_ate > Date.now()
+                    ? <button className="btn btn-escuro" style={{ flex: 1, minHeight: 40, fontSize: 15 }} onClick={() => void silenciar(k, 0)}>Tirar a pausa</button>
+                    : <button className="btn btn-escuro" style={{ flex: 1, minHeight: 40, fontSize: 15 }} onClick={() => void silenciar(k, 24)}>Pausar chat 1 dia</button>)}
                   <button className="btn btn-escuro" style={{ flex: 1, minHeight: 40, fontSize: 15 }} onClick={() => setRemover(k.id)}>Remover</button>
                 </div>
               )}
