@@ -1,0 +1,31 @@
+# Gera as narrações com o ElevenLabs.
+# Dispara quando o arquivo vozes/pedido.json muda. A chave fica em
+# Settings → Secrets and variables → Actions → ELEVENLABS_API_KEY.
+name: Vozes (ElevenLabs)
+on:
+  push:
+    branches: [main]
+    paths: ['vozes/pedido.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: vozes
+jobs:
+  vozes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Gerar
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: npm ci && npx tsx scripts/vozes.ts
+      - name: Salvar no repositório
+        run: |
+          git config user.name "sabidex-vozes"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A vozes public/audio
+          git diff --cached --quiet || git commit -m "Vozes: resultado do pedido"
+          git pull --rebase origin main && git push
