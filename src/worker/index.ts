@@ -211,6 +211,19 @@ app.post('/turma/info', async (c) => {
   return c.json({ nome: t.nome, codigo });
 });
 
+/**
+ * Quem tem o código da turma vê os apelidos e cores dos colegas (os mesmos do ranking),
+ * para tocar no próprio nome em vez de decorar o apelido. A conta continua protegida pelo PIN.
+ */
+app.post('/turma/alunos', async (c) => {
+  const b = await corpo(c);
+  const codigo = normalizarCodigo(String(b.codigo ?? ''));
+  const t = await c.env.DB.prepare('SELECT id, nome FROM turmas WHERE codigo = ?').bind(codigo).first<{ id: string; nome: string }>();
+  if (!t) return erro(c, 404, 'Não achei essa turma. Confira o código com seu professor ou responsável.');
+  const r = await c.env.DB.prepare('SELECT apelido, cor FROM criancas WHERE turma_id = ? ORDER BY apelido_chave').bind(t.id).all<{ apelido: string; cor: string }>();
+  return c.json({ nome: t.nome, codigo, alunos: r.results });
+});
+
 /** Criança entra numa turma pela primeira vez e cria o PIN. O progresso do aparelho vai junto. */
 app.post('/crianca/entrar-turma', async (c) => {
   const b = await corpo(c);

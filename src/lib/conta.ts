@@ -17,6 +17,8 @@ interface RespostaConta { conta: Conta; progresso: ProgressoSync; cartas: Record
 const K_TOKEN = 'sabidex:token';
 const K_CONTA = 'sabidex:conta';
 const K_PERFIS = 'sabidex:perfis';
+/** Último código de turma usado neste aparelho, para a criança não precisar decorar. Fica mesmo depois de sair. */
+const K_ULTIMO_CODIGO = 'sabidex:ultimo-codigo';
 
 const ler = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
 let token = ler(K_TOKEN);
@@ -56,10 +58,13 @@ export async function api<T = Record<string, unknown>>(caminho: string, opcoes: 
   }
 }
 
+export const ultimoCodigo = () => ler(K_ULTIMO_CODIGO) ?? '';
+
 function guardar(t: string, r: RespostaConta) {
   token = t; conta = r.conta;
   lembrarPerfil(r.conta);
   try { localStorage.setItem(K_TOKEN, t); localStorage.setItem(K_CONTA, JSON.stringify(r.conta)); } catch { /* ignora */ }
+  if (r.conta.codigo) try { localStorage.setItem(K_ULTIMO_CODIGO, r.conta.codigo); } catch { /* ignora */ }
   setRegistrarCartas(true);
   mudou();
 }

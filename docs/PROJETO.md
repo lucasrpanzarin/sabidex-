@@ -88,6 +88,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - **Vários administradores na turma**: o dono convida outros adultos com um código `ADM-XXXX-XXXX` (vale 7 dias, uma vez só). Só o dono convida ou remove administradores. Se o dono apagar a conta, a turma passa para o administrador mais antigo.
 - **Ranking da semana** (XP e cartas), zera toda segunda.
 - Pergunta de conta (ex.: "Quanto é 6 × 15?") antes da área dos adultos.
+- **Entrar na conta em outro aparelho**: código da turma (o aparelho lembra o último usado) → a criança toca no próprio nome na lista da turma → PIN. Não precisa decorar o apelido. A lista (apelido + cor) só aparece para quem tem o código, igual ao ranking.
 - 5 PINs errados bloqueiam 15 minutos.
 - Botão "Apagar minha conta"; política de privacidade em `#/privacidade`.
 - **Da criança só guardamos**: apelido, cor, PIN embaralhado e o progresso do jogo.
@@ -159,6 +160,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
+
+- **04/11/2026** · "Entrar na minha conta" ficou mais fácil: o aparelho lembra o código da turma e a criança toca no nome dela numa lista, em vez de digitar o apelido; depois só o PIN (Lucas).
 
 - **04/11/2026** · Chat da turma supervisionado, "Estudando agora" e vários administradores por turma (Lucas).
 
