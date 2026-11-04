@@ -1,1 +1,25 @@
-{ "acao": "minhas" }
+{
+ "acao": "amostra",
+ "vozes": [
+  {
+   "nome": "nina-padrao",
+   "id": "GM2UA3fbsIaLHcswCDX9",
+   "modelo": "eleven_multilingual_v2"
+  },
+  {
+   "nome": "nina-v3",
+   "id": "GM2UA3fbsIaLHcswCDX9",
+   "modelo": "eleven_v3"
+  },
+  {
+   "nome": "otto-padrao",
+   "id": "ycxdm1PRMs962FxyyuJ0",
+   "modelo": "eleven_multilingual_v2"
+  },
+  {
+   "nome": "otto-v3",
+   "id": "ycxdm1PRMs962FxyyuJ0",
+   "modelo": "eleven_v3"
+  }
+ ]
+}
