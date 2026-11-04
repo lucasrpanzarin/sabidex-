@@ -30,7 +30,7 @@ interface Pedido {
 }
 
 const ESTILO = 'Original creature for a creature-collecting adventure game, stylized 3D game character render, dynamic action pose ready for battle, brave determined expression, big expressive eyes, strong readable silhouette, its elemental power clearly visible as glowing effects, vibrant saturated colors, dramatic rim lighting, full body, centered, plain pure white background, no text, no logo, no frame, no scenery. Exciting but friendly for kids aged 9 to 11, not scary, no blood. Original design, not based on any existing franchise or character.';
-const MESMO_BICHO = 'This is a big evolution of the creature in the reference image. Follow the CHANGE list: new pose, bigger body, new parts, and the new colors if any. Follow the KEEP list so it is clearly recognizable as the same creature line. Do not copy the reference pose.';
+const MESMO_BICHO = 'This is a big evolution of the creature in the reference image. Follow the CHANGE list: new pose, bigger body, new parts, and the new colors if any. Follow the KEEP list so it is clearly recognizable as the same creature line. Do not copy the reference pose. Isolated character on a plain pure white background: absolutely no environment, no scenery, no dark background.';
 const HERDA = 'Keep the special features the reference already has (emblems, cape, claws, armor, markings) and make them bigger and more powerful.';
 
 const resultado: Record<string, unknown> = { quando: new Date().toISOString(), imagens: [] as unknown[] };
