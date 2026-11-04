@@ -138,5 +138,145 @@
       "teenage giant anteater now standing on its hind legs, taller and athletic, long claws glowing with starlight, a crescent moon emblem on its forehead, its bushy tail now a flowing cape of night sky with constellations, martial-arts fighting stance",
       "CHANGE: much bigger and more powerful, now floating in the air with arms wide open in an epic pose, star armor with star-shaped shoulder pauldrons and a glowing chest plate, the night-sky cape grown into a huge swirling turquoise and blue galaxy, a crown of small orbiting planets, its fur gains a turquoise glow, a bright turquoise rim light around its body. KEEP: the crescent moon emblem on its forehead, the long anteater snout, the glowing starlight claws and the same face"
     ]
+  },
+  {
+    "numero": "011",
+    "nomes": [
+      "Bolhudo",
+      "Bolhão",
+      "Maremanso"
+    ],
+    "tipo": "Água",
+    "formas": [
+      "small young Amazonian manatee (peixe-boi) swimming forward, round grey-blue body with a paddle-shaped tail and two small flippers, whiskered snout, blowing a spinning stream of water bubbles, brave cheerful eyes",
+      "CHANGE: twice as big and stronger, rising out of the water in a powerful forward charge, flippers now wrapped in spinning water rings, glowing turquoise wave stripes along its back, a big water shield forming in front of it. KEEP: the round manatee body, paddle tail, whiskered snout and the same kind eyes",
+      "CHANGE: a huge gentle giant manatee guardian floating upright in a tall waterspout, body turns deep blue with a pale turquoise belly, a crown of flowing water and lily pads on its head, giant water whirlpools orbiting its flippers, calm powerful pose. KEEP: the paddle tail, the whiskered snout and the same kind eyes"
+    ]
+  },
+  {
+    "numero": "012",
+    "nomes": [
+      "Folhapé",
+      "Saltifolha",
+      "Pereflora"
+    ],
+    "tipo": "Planta",
+    "formas": [
+      "small bright green Brazilian tree frog (perereca) with big round toe pads, leaf-shaped markings on its back, crouched on all fours ready to jump, glowing green vine whips curling around it, big shiny brave eyes",
+      "CHANGE: twice as big and athletic, mid-air leaping attack pose, a cape of large tropical leaves on its back, flowers blooming on its shoulders, long glowing vines swinging from its hands. KEEP: bright green skin, the big round toe pads, leaf markings and the same eyes",
+      "CHANGE: a huge jungle frog champion standing tall on strong legs, its back is a living garden with orchids and bromeliads, leafy armor on its arms, giant glowing vine whips crackling with green energy around it, heroic pose. KEEP: bright green skin, big round toe pads and the same brave eyes"
+    ]
+  },
+  {
+    "numero": "013",
+    "nomes": [
+      "Tucanuvem",
+      "Bicorrente",
+      "Tucaventania"
+    ],
+    "tipo": "Vento",
+    "formas": [
+      "small young toco toucan with a huge bright orange beak with a black tip, black feathers with a white throat, flapping its wings and blowing a swirling gust of wind from its beak, brave eyes with blue eye rings",
+      "CHANGE: twice as big, diving down through the air in a fast attack, wings spread with feather tips trailing white wind streams, small cloud puffs swirling around its body, beak glowing with wind energy. KEEP: the huge orange beak with black tip, white throat, blue eye rings and the same eyes",
+      "CHANGE: a huge storm toucan with four wide wings, feathers turn deep black with glowing white edges, a spinning cyclone wrapped around its lower body, beak crackling with swirling wind blades, small clouds orbiting it, commanding pose in the air. KEEP: the huge orange beak with black tip, white throat and blue eye rings"
+    ]
+  },
+  {
+    "numero": "014",
+    "nomes": [
+      "Areiruga",
+      "Conchaduna",
+      "Tartamaré"
+    ],
+    "tipo": "Areia",
+    "formas": [
+      "small young sea turtle hatchling crawling on all four flippers like a real sea turtle, never standing upright, sandy golden shell with spiral patterns, sand swirling around its flippers, determined eyes",
+      "CHANGE: twice as big, still on all four flippers like a real sea turtle, never standing upright, shell becomes golden sandstone with seashells embedded in it, a whirlwind of sand rising around it, flippers glowing at the edges. KEEP: sea turtle body shape, spiral shell patterns and the same eyes",
+      "CHANGE: a huge ancient sea turtle titan, low and wide on all four giant flippers, never standing upright, its shell is a sand dune with seashells and small crystal lagoons on top, a giant sandstorm ring circling it. KEEP: sea turtle body shape, golden spiral shell patterns and the same wise eyes"
+    ]
+  },
+  {
+    "numero": "015",
+    "nomes": [
+      "Faiscaraqué",
+      "Voltaraqué",
+      "Trovaraqué"
+    ],
+    "tipo": "Raio",
+    "formas": [
+      "small young Amazon electric eel (poraqué) fish, long smooth dark olive body with a bright yellow belly, curving in an S shape in the air, bright yellow electric sparks crackling along its whole body, determined eyes, glowing gold outline",
+      "CHANGE: twice as big and longer, coiled in a powerful spiral pose, glowing yellow lightning stripes along its dark body, a long fin along its belly crackling with electricity, lightning bolts jumping from its tail. KEEP: long eel fish body, yellow belly and the same eyes",
+      "CHANGE: a huge thunder eel serpent coiled high in the air, body turns black with bright gold lightning patterns, a crown of crackling lightning on its head, giant electric arcs connecting the coils of its body, commanding pose. KEEP: long eel fish body, yellow belly and the same eyes"
+    ]
+  },
+  {
+    "numero": "016",
+    "nomes": [
+      "Guarabrasa",
+      "Juballama",
+      "Guaravulcão"
+    ],
+    "tipo": "Fogo",
+    "formas": [
+      "young maned wolf (lobo-guara) with very long thin black legs like stockings, reddish-orange fur, big upright ears, a short black mane on its neck glowing with small embers, standing alert on the cerrado ground pose, brave eyes, short tail with a white tip",
+      "CHANGE: twice as big and athletic, leaping forward in an attack, the black mane becomes a burning crest of flames along its neck and back, ember markings on its legs, fire trailing from its paws. KEEP: very long thin black legs, reddish-orange fur, big upright ears, short white-tipped tail and the same eyes",
+      "CHANGE: a huge volcano maned wolf standing proud, dark volcanic rock armor on its shoulders and chest with glowing lava cracks, a tall mane of roaring flames, flaming paw prints under its feet. KEEP: very long thin black legs, reddish-orange fur, big upright ears, short white-tipped tail and the same eyes"
+    ]
+  },
+  {
+    "numero": "017",
+    "nomes": [
+      "Antarocha",
+      "Pedranta",
+      "Montanta"
+    ],
+    "tipo": "Pedra",
+    "formas": [
+      "small young South American tapir (anta) on all four legs, dark brown body with a short flexible trunk-like snout, small round ears, stone-grey rocky patches on its back, small rocks floating around it, brave eyes",
+      "CHANGE: twice as big and very strong, charging forward with its head down, stone armor plates covering its back and legs, pink and turquoise crystals growing along its spine, rocks breaking under its feet. KEEP: tapir body on four legs, short flexible snout, small round ears and the same eyes",
+      "CHANGE: a huge mountain tapir titan on four massive legs, its back is a rocky mountain ridge with crystal peaks, glowing turquoise cracks in its stone armor, a boulder storm orbiting it, calm powerful pose. KEEP: tapir body on four legs, short flexible snout and the same eyes"
+    ]
+  },
+  {
+    "numero": "018",
+    "nomes": [
+      "Geladim",
+      "Pinguigelo",
+      "Glaciguim"
+    ],
+    "tipo": "Gelo",
+    "formas": [
+      "small young Magellanic penguin, black back and white belly with two black bands across its chest, black and white face stripes, sliding forward on its belly on ice, frosty breath and small ice crystals around it, brave eyes",
+      "CHANGE: twice as big and athletic, standing in a fighting stance, flippers turned into sharp curved ice blades, frost armor on its chest, a swirling snowstorm around its feet. KEEP: black back, white belly with two black chest bands, black and white face stripes and the same eyes",
+      "CHANGE: a huge glacier penguin titan, large ice crystal spikes growing on its back and shoulders, flippers are giant ice blades, a frozen ring of snowflakes orbiting it, cold blue glow in its eyes, commanding pose. KEEP: black and white colors with the two black chest bands, black and white face stripes"
+    ]
+  },
+  {
+    "numero": "019",
+    "nomes": [
+      "Bugiurro",
+      "Ecobugio",
+      "Bugitroante"
+    ],
+    "tipo": "Som",
+    "formas": [
+      "small young howler monkey (bugio), reddish-brown fur, dark face with a bearded throat, holding a branch with its long tail, mouth open in a mighty howl, visible pink sound waves coming out of its mouth, brave eyes",
+      "CHANGE: twice as big and strong, standing on a branch with arms wide, its howl sends giant pink and turquoise sound rings into the air, glowing music-note markings on its fur, the tail curling like a treble clef. KEEP: reddish-brown fur, dark bearded face and the same eyes",
+      "CHANGE: a huge thunder howler monkey king, golden-red mane, glowing sound rings orbiting its body like a crown, its howl creating a giant shock wave of pink and gold sound, heroic pose. KEEP: dark bearded face, the long curling tail and the same eyes"
+    ]
+  },
+  {
+    "numero": "020",
+    "nomes": [
+      "Oncelestre",
+      "Onçastral",
+      "Constelonça"
+    ],
+    "tipo": "Estrela",
+    "formas": [
+      "young jaguar cub (onca-pintada), golden fur with black rosette spots, the rosettes glow softly like little stars, crouched ready to pounce, tiny stars orbiting around it, brave eyes, glowing turquoise outline",
+      "CHANGE: twice as big and athletic, leaping through the air, fur turns deep night blue with glowing golden rosettes like constellations, a crescent moon mark on its forehead, stardust trailing from its paws, glowing turquoise outline. KEEP: jaguar body, rosette spots, round ears and the same eyes",
+      "CHANGE: a huge cosmic jaguar standing proud on a floating star platform, fur like a galaxy in deep blue and turquoise with golden constellation rosettes, a mane of starlight around its neck, shooting stars orbiting it, glowing turquoise outline. KEEP: jaguar body, rosette spots, the crescent moon mark and the same eyes"
+    ]
   }
 ]

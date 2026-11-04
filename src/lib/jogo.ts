@@ -212,17 +212,20 @@ export const GARANTIA = 10;
 
 const ORDEM: Raridade[] = ['comum', 'rara', 'epica', 'lendaria'];
 
+/** Quantos Sabimons vêm em cada pacote. */
+export const POR_PACOTE = 1;
+
 /**
- * Sorteia 3 Sabimons diferentes. No pacote épico o último é épico ou lendário.
- * Com `garantia`, se nenhum dos 3 for novo, troca um deles por um Sabimon que a criança ainda não tem.
+ * Sorteia os Sabimons do pacote (sem repetir dentro dele). No pacote épico o último é épico ou lendário.
+ * Com `garantia`, se nenhum for novo, troca o mais comum por um Sabimon que a criança ainda não tem.
  */
 export function abrirPacote(
   lista: Sabimon[], tipo: TipoPacote, rng: () => number = Math.random,
   opcoes: { tem?: Record<string, number>; garantia?: boolean } = {},
 ): Sabimon[] {
   const saida: Sabimon[] = [];
-  for (let i = 0; i < 3; i++) {
-    const especial = tipo === 'epico' && i === 2;
+  for (let i = 0; i < POR_PACOTE; i++) {
+    const especial = tipo === 'epico' && i === POR_PACOTE - 1;
     const rar = sortearRaridade(rng, especial ? { epica: 80, lendaria: 20 } : PESOS);
     let escolha = lista.filter((c) => c.raridade === rar && !saida.includes(c));
     if (!escolha.length) escolha = lista.filter((c) => !saida.includes(c));
@@ -254,7 +257,7 @@ export const garantiaAtiva = (e: Estado) => (e.semNovo ?? 0) >= GARANTIA - 1;
 
 /**
  * As cartas antigas dos capítulos (ids "h-…") deixaram de existir.
- * Quem tinha cartas antigas ganha pacotes de Sabimons no lugar: 1 pacote para cada 3 cartas.
+ * Quem tinha cartas antigas ganha pacotes de Sabimons no lugar: 1 pacote para cada carta (até 30).
  * Os ids dos pacotes são fixos, então isso nunca dá pacote em dobro (nem em dois aparelhos).
  */
 export function migrarCartasAntigas(e: Estado, validos: Set<string>): Estado {
@@ -263,7 +266,7 @@ export function migrarCartasAntigas(e: Estado, validos: Set<string>): Estado {
   const total = antigas.reduce((s, [, n]) => s + Math.max(0, n), 0);
   const ja = new Set([...e.abertos, ...e.pacotes.map((p) => p.id)]);
   const extras: Pacote[] = [];
-  for (let i = 1; i <= Math.min(Math.ceil(total / 3), 20); i++) {
+  for (let i = 1; i <= Math.min(total, 30); i++) {
     const id = `antigas-${i}`;
     if (!ja.has(id)) extras.push({ id, tipo: 'normal', capitulo: 'antigas' });
   }

@@ -31,18 +31,19 @@ export function AbrirPacote() {
           {(lendaria || melhor.raridade === 'epica') && <div className="raios" aria-hidden="true" />}
           <div className="pop" style={{ position: 'relative', boxShadow: lendaria ? '0 0 50px #FACC1555' : undefined, borderRadius: 20, width: 'min(290px, 100%)' }}>
             <CartaView carta={melhor} grande animar />
+            {aberto.cartas.length === 1 && aberto.novos.has(melhor.id) && <span className="selo-novo" style={{ fontSize: 14, padding: '4px 10px', top: -10, right: -8 }}>NOVO</span>}
           </div>
         </div>
-        <div className="grade-3" style={{ width: '100%' }}>
+        {aberto.cartas.length > 1 && <div className="grade-3" style={{ width: '100%' }}>
           {aberto.cartas.map((c, i) => (
             <div key={c.id} className="sobe" style={{ animationDelay: `${0.4 + i * 0.15}s`, position: 'relative' }}>
               <CartaView carta={c} />
               {aberto.novos.has(c.id) && <span className="selo-novo">NOVO</span>}
             </div>
           ))}
-        </div>
+        </div>}
         <p className="muted small" style={{ margin: 0 }}>
-          {nNovos ? `${nNovos} ${nNovos > 1 ? 'Sabimons novos' : 'Sabimon novo'} no álbum!` : 'Todos repetidos: eles ajudam a evoluir e servem para trocar.'}
+          {nNovos ? (aberto.cartas.length > 1 ? `${nNovos} Sabimons novos no álbum!` : 'Novo no seu álbum!') : `Repetido! Você tem ${(e.cartas[melhor.id] ?? 0) + 1} cópias. Elas ajudam a evoluir e servem para trocar.`}
         </p>
         {e.pacotes.length > 1 ? (
           <button className="btn btn-amarelo btn-bloco" style={{ marginTop: 'auto' }} onClick={guardar}>Guardar e abrir o próximo</button>
@@ -83,7 +84,7 @@ export function AbrirPacote() {
         <span style={{ width: 210, height: 280, borderRadius: 24, background: 'linear-gradient(170deg,#26357A,#141B3D)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
           <span className="logo" style={{ fontSize: 24 }}>Sabidex</span>
           <Ara tamanho={96} />
-          <span className="small" style={{ fontWeight: 800, color: '#C7D0F5' }}>{epico ? '3 Sabimons · 1 épico ou melhor' : '3 Sabimons'}</span>
+          <span className="small" style={{ fontWeight: 800, color: '#C7D0F5' }}>{epico ? '1 Sabimon épico ou lendário' : '1 Sabimon surpresa'}</span>
         </span>
       </button>
       <span className="btn btn-amarelo" aria-hidden="true">Toque para abrir</span>
@@ -186,6 +187,9 @@ export function Album({ id }: { id?: string }) {
   if (detalhe) return <Detalhe s={detalhe} />;
 
   const tem = sabimons.filter((c) => e.cartas[c.id] > 0).length;
+  // O objetivo do álbum são as 3 formas de cada Sabimon.
+  const formas = sabimons.reduce((s, c) => s + (e.cartas[c.id] > 0 ? formaDe(e, c.id) : 0), 0);
+  const totalFormas = sabimons.length * 3;
   const lista = sabimons.filter((c) => filtro === 'todas' || c.raridade === filtro);
   return (
     <main className="tela">
@@ -194,10 +198,13 @@ export function Album({ id }: { id?: string }) {
           <div className="eyebrow">Álbum</div>
           <h1 className="display h2" style={{ fontSize: 27 }}>Sabimons</h1>
         </div>
-        <div className="display" style={{ fontSize: 28, color: 'var(--green)', fontVariantNumeric: 'tabular-nums' }}>{tem}<span style={{ fontSize: 16, color: 'var(--muted)' }}>/{sabimons.length}</span></div>
+        <div className="display" style={{ fontSize: 28, color: 'var(--green)', fontVariantNumeric: 'tabular-nums', textAlign: 'right', lineHeight: 1 }}>
+          {formas}<span style={{ fontSize: 16, color: 'var(--muted)' }}>/{totalFormas}</span>
+          <div className="small" style={{ fontFamily: 'var(--body)', fontWeight: 800, color: 'var(--muted)' }}>formas</div>
+        </div>
       </div>
-      <div className="barra barra-verde"><div style={{ width: `${(tem / sabimons.length) * 100}%` }} /></div>
-      <p className="muted small" style={{ margin: 0 }}>Os primeiros {sabimons.length} de {TOTAL_PLANEJADO} Sabimons. Novos chegam em breve!</p>
+      <div className="barra barra-verde" role="progressbar" aria-valuenow={formas} aria-valuemax={totalFormas} aria-label="Formas no álbum"><div style={{ width: `${(formas / totalFormas) * 100}%` }} /></div>
+      <p className="muted small" style={{ margin: 0 }}>Complete as 3 formas de cada Sabimon. Você tem {tem} de {sabimons.length} Sabimons. Ao todo serão {TOTAL_PLANEJADO}!</p>
 
       {e.pacotes.length > 0 && <button className="btn btn-rosa btn-bloco" onClick={() => ir('pacote')}>Abrir {e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</button>}
       <button className="btn btn-escuro btn-bloco" onClick={() => ir('loja')}><Moeda /> Lojinha · {saldo(e).toLocaleString('pt-BR')} Sabicoins</button>
