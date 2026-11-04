@@ -1,12 +1,142 @@
 [
-  { "numero": "001", "nomes": ["Brasinho", "Brasão", "Fornalhuda"], "tipo": "Fogo", "formas": ["tiny baby capybara, warm brown fur, small glowing orange embers on top of its head, sleepy happy smile", "young capybara standing on hind legs, flame mane on its head and shoulders, confident grin", "big strong capybara with a crown of fire, glowing lava-orange belly, heroic pose"] },
-  { "numero": "002", "nomes": ["Pingoró", "Botorrão", "Marabotão"], "tipo": "Água", "formas": ["tiny pink river dolphin baby blowing a water bubble, playful", "young pink river dolphin with water swirl fins, jumping pose", "large majestic pink river dolphin surrounded by a ring of flowing water, wise eyes"] },
-  { "numero": "003", "nomes": ["Sementú", "Tatuflora", "Matatu"], "tipo": "Planta", "formas": ["tiny armadillo curled half into a ball, a small green sprout on its back", "armadillo with leafy shell and flowers, standing proudly", "big armadillo whose shell is a small forest with trees and vines, calm guardian"] },
-  { "numero": "004", "nomes": ["Zapinho", "Faiscaluz", "Trovalume"], "tipo": "Raio", "formas": ["tiny round firefly with a glowing yellow electric tail, sparkles", "firefly with lightning-shaped wings and bright electric aura", "large firefly knight with crackling lightning armor and a brilliant tail lantern"] },
-  { "numero": "005", "nomes": ["Pedrolho", "Cristabuti", "Montabuti"], "tipo": "Pedra", "formas": ["tiny tortoise with a shell of pastel crystals, shy smile", "tortoise with big shiny amethyst crystal shell, sturdy stance", "huge tortoise whose shell is a crystal mountain with glowing gems"] },
-  { "numero": "006", "nomes": ["Ventilu", "Rajadinho", "Furacolibri"], "tipo": "Vento", "formas": ["tiny hummingbird with turquoise feathers and a little wind swirl", "hummingbird with long flowing wind-trail tail feathers, fast pose", "large hummingbird with a tornado swirling around its wings, fierce eyes"] },
-  { "numero": "007", "nomes": ["Arenito", "Dunasiri", "Tempestasiri"], "tipo": "Areia", "formas": ["tiny beach crab with sandy beige shell, peeking from sand", "crab with sandstone armor and small sand whirlwinds at its claws", "big crab warrior with dune-shaped shell and a sandstorm swirl behind it"] },
-  { "numero": "008", "nomes": ["Nevim", "Friozão", "Glaciaré"], "tipo": "Gelo", "formas": ["tiny baby sloth made of soft snow, little knitted snow hat, sleepy", "sloth with icy blue fur and frost crystals on its arms, hanging from an icicle", "large majestic ice sloth with a glacier crown and snowflakes floating around"] },
-  { "numero": "009", "nomes": ["Cantaru", "Melodiru", "Sinfonuru"], "tipo": "Som", "formas": ["tiny brown songbird (uirapuru) with musical note shaped crest", "songbird with glowing musical notes floating around it, singing", "large elegant songbird with rainbow sound waves coming from its beak, conductor pose"] },
-  { "numero": "010", "nomes": ["Estrelim", "Constelão", "Galaxiá"], "tipo": "Estrela", "formas": ["tiny baby anteater with dark blue fur covered in tiny constellations", "anteater with glowing star patterns and a moon on its forehead", "large cosmic anteater whose fur looks like a galaxy, surrounded by shooting stars"] }
+  {
+    "numero": "001",
+    "nomes": [
+      "Brasinho",
+      "Brasão",
+      "Fornalhuda"
+    ],
+    "tipo": "Fogo",
+    "formas": [
+      "small young capybara with warm brown fur, a crest of real flickering flames on its head, tiny embers swirling around it, brave grin, crouched ready to pounce",
+      "young capybara standing on hind legs, flame mane on its head and shoulders, confident grin",
+      "big strong capybara with a crown of fire, glowing lava-orange belly, heroic pose"
+    ]
+  },
+  {
+    "numero": "002",
+    "nomes": [
+      "Pingoró",
+      "Botorrão",
+      "Marabotão"
+    ],
+    "tipo": "Água",
+    "formas": [
+      "small young pink Amazon river dolphin (boto) with a long slender beak and no legs, leaping out of a spiraling water splash, a water orb forming at its fin, fearless playful eyes",
+      "young pink river dolphin with water swirl fins, jumping pose",
+      "large majestic pink river dolphin surrounded by a ring of flowing water, wise eyes"
+    ]
+  },
+  {
+    "numero": "003",
+    "nomes": [
+      "Sementú",
+      "Tatuflora",
+      "Matatu"
+    ],
+    "tipo": "Planta",
+    "formas": [
+      "small young armadillo with a banded shell made of green leaves, glowing vine whips sprouting from its back, a little flower on its head, standing ready to fight",
+      "armadillo with leafy shell and flowers, standing proudly",
+      "big armadillo whose shell is a small forest with trees and vines, calm guardian"
+    ]
+  },
+  {
+    "numero": "004",
+    "nomes": [
+      "Zapinho",
+      "Faiscaluz",
+      "Trovalume"
+    ],
+    "tipo": "Raio",
+    "formas": [
+      "small round firefly insect with six tiny legs, antennae and translucent wings, black and yellow body, its glowing abdomen crackling with bright yellow lightning sparks, hovering in a heroic pose",
+      "firefly with lightning-shaped wings and bright electric aura",
+      "large firefly knight with crackling lightning armor and a brilliant tail lantern"
+    ]
+  },
+  {
+    "numero": "005",
+    "nomes": [
+      "Pedrolho",
+      "Cristabuti",
+      "Montabuti"
+    ],
+    "tipo": "Pedra",
+    "formas": [
+      "small young tortoise with a shell of jagged pastel crystals, a glowing gem on its forehead, stomping stance kicking up small rocks",
+      "tortoise with big shiny amethyst crystal shell, sturdy stance",
+      "huge tortoise whose shell is a crystal mountain with glowing gems"
+    ]
+  },
+  {
+    "numero": "006",
+    "nomes": [
+      "Ventilu",
+      "Rajadinho",
+      "Furacolibri"
+    ],
+    "tipo": "Vento",
+    "formas": [
+      "small hummingbird with a long thin needle beak and turquoise iridescent feathers, wings blurred mid-flight, a sharp swirling wind blade around it, focused eyes",
+      "hummingbird with long flowing wind-trail tail feathers, fast pose",
+      "large hummingbird with a tornado swirling around its wings, fierce eyes"
+    ]
+  },
+  {
+    "numero": "007",
+    "nomes": [
+      "Arenito",
+      "Dunasiri",
+      "Tempestasiri"
+    ],
+    "tipo": "Areia",
+    "formas": [
+      "small beach crab with a sandy beige armored shell and big raised pincers, a little sand tornado spinning between its claws, battle stance",
+      "crab with sandstone armor and small sand whirlwinds at its claws",
+      "big crab warrior with dune-shaped shell and a sandstorm swirl behind it"
+    ]
+  },
+  {
+    "numero": "008",
+    "nomes": [
+      "Nevim",
+      "Friozão",
+      "Glaciaré"
+    ],
+    "tipo": "Gelo",
+    "formas": [
+      "small young three-toed sloth with fluffy snow-white fur and an icy blue face mask, long hooked claws glowing with frost, breathing a puff of snowflakes, brave look",
+      "sloth with icy blue fur and frost crystals on its arms, hanging from an icicle",
+      "large majestic ice sloth with a glacier crown and snowflakes floating around"
+    ]
+  },
+  {
+    "numero": "009",
+    "nomes": [
+      "Cantaru",
+      "Melodiru",
+      "Sinfonuru"
+    ],
+    "tipo": "Som",
+    "formas": [
+      "small brown uirapuru songbird with a musical-note shaped crest, wings spread, singing a visible glowing sound-wave blast from its beak",
+      "songbird with glowing musical notes floating around it, singing",
+      "large elegant songbird with rainbow sound waves coming from its beak, conductor pose"
+    ]
+  },
+  {
+    "numero": "010",
+    "nomes": [
+      "Estrelim",
+      "Constelão",
+      "Galaxiá"
+    ],
+    "tipo": "Estrela",
+    "formas": [
+      "small young giant anteater with a long tubular snout and a big bushy tail, dark navy fur with glowing constellation lines, tiny stars orbiting around it, confident stance",
+      "anteater with glowing star patterns and a moon on its forehead",
+      "large cosmic anteater whose fur looks like a galaxy, surrounded by shooting stars"
+    ]
+  }
 ]

@@ -1,1 +1,1 @@
-{ "acao": "modelos" }
+{ "acao": "gerar", "formas": [1], "numeros": ["001", "004", "010"] }

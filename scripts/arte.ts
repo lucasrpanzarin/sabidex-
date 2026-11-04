@@ -29,7 +29,7 @@ interface Pedido {
   extra?: Record<string, unknown>;
 }
 
-const ESTILO = 'Cute collectible creature character, 3D vinyl toy style, soft rounded shapes, big shiny expressive eyes, friendly face, vibrant saturated colors, smooth soft studio lighting, full body, front three-quarter view, centered, plain white background, no text, no logo, no frame. Original design, not based on any existing franchise.';
+const ESTILO = 'Original creature for a creature-collecting adventure game, stylized 3D game character render, dynamic action pose ready for battle, brave determined expression, big expressive eyes, strong readable silhouette, its elemental power clearly visible as glowing effects, vibrant saturated colors, dramatic rim lighting, full body, centered, plain pure white background, no text, no logo, no frame, no scenery. Exciting but friendly for kids aged 9 to 11, not scary, no blood. Original design, not based on any existing franchise or character.';
 const MESMO_BICHO = 'This is the evolved form of the creature in the reference image: keep the exact same species, face, eye shape, color palette and markings so it is clearly the same character, only older and bigger.';
 
 const resultado: Record<string, unknown> = { quando: new Date().toISOString(), imagens: [] as unknown[] };
@@ -53,6 +53,7 @@ function urlDaImagem(j: Record<string, any>): string | undefined {
 
 // Nomes possíveis dos modelos no Higgsfield (o primeiro que existir é usado).
 const TEXTO: Candidato[] = [
+  { modelo: 'alibaba/qwen-image-3/text-to-image' },
   { modelo: 'bytedance/seedream/v4/text-to-image' },
   { modelo: 'bytedance/seedream/v4.5/text-to-image' },
   { modelo: 'bytedance/seedream/v4' },
@@ -63,6 +64,7 @@ const TEXTO: Candidato[] = [
   { modelo: 'higgsfield-ai/soul/standard', extra: { resolution: '1080p' } },
 ];
 const COM_REFERENCIA: Candidato[] = [
+  { modelo: 'alibaba/qwen-image-3/edit' },
   { modelo: 'bytedance/seedream/v4/edit' },
   { modelo: 'bytedance/seedream/v4.5/edit' },
   { modelo: 'seedream/v4/edit' },
@@ -93,7 +95,7 @@ async function gerarComCandidatos(tipo: 'texto' | 'ref', lista: Candidato[], cor
 /** Pergunta ao Higgsfield a lista de modelos, se ele tiver esse endereço. */
 async function sondar() {
   const achados: Record<string, unknown> = {};
-  for (const c of ['/models', '/v1/models', '/api/models']) {
+  for (const c of ['/models/alibaba/qwen-image-3/text-to-image', '/models/alibaba/qwen-image-3/edit']) {
     try { achados[c] = JSON.stringify(await api(c)).slice(0, 3000); } catch (e) { achados[c] = String(e).slice(0, 200); }
   }
   resultado.sondagem = achados;
