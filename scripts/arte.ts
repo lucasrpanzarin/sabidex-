@@ -31,6 +31,7 @@ interface Pedido {
 
 const ESTILO = 'Original creature for a creature-collecting adventure game, stylized 3D game character render, dynamic action pose ready for battle, brave determined expression, big expressive eyes, strong readable silhouette, its elemental power clearly visible as glowing effects, vibrant saturated colors, dramatic rim lighting, full body, centered, plain pure white background, no text, no logo, no frame, no scenery. Exciting but friendly for kids aged 9 to 11, not scary, no blood. Original design, not based on any existing franchise or character.';
 const MESMO_BICHO = 'Use the reference image ONLY to keep the same face, eye color, color palette and signature markings, so it is recognizable as the same creature line. Do NOT copy the reference pose, size or body shape: this is a big evolution, so redesign the whole body to be much larger, stronger and more impressive, with a new dynamic pose and new body features, like a creature evolving in an adventure game.';
+const HERDA = 'Keep every special feature the reference already has (emblems, cape, claws, armor, markings) and make them bigger and more powerful, adding new armor and details on top.';
 
 const resultado: Record<string, unknown> = { quando: new Date().toISOString(), imagens: [] as unknown[] };
 const salvar = () => writeFileSync('arte/resultado.json', JSON.stringify(resultado, null, 2) + '\n');
@@ -135,20 +136,20 @@ async function baixarPng(url: string, destino: string) {
   return { largura: width, altura: height };
 }
 
-/** Endereço público da forma 1 para servir de referência. */
-async function referencia(numero: string, refs: Record<string, string>) {
-  const salva = refs[`${numero}-1`];
+/** Endereço público da forma anterior (1 para a 2, 2 para a 3) para servir de referência. */
+async function referencia(numero: string, forma: number, refs: Record<string, string>) {
+  const salva = refs[`${numero}-${forma}`];
   if (salva) {
     const r = await fetch(salva, { method: 'HEAD' }).catch(() => undefined);
     if (r?.ok) return salva;
   }
   const repo = process.env.GITHUB_REPOSITORY;
   if (repo) {
-    const raw = `https://raw.githubusercontent.com/${repo}/main/${PASTA}/${numero}-1.png`;
+    const raw = `https://raw.githubusercontent.com/${repo}/main/${PASTA}/${numero}-${forma}.png`;
     const r = await fetch(raw, { method: 'HEAD' }).catch(() => undefined);
     if (r?.ok) return raw;
   }
-  throw new Error(`Não achei um endereço público da forma 1 do ${numero}. Gere a forma 1 de novo.`);
+  throw new Error(`Não achei um endereço público da forma ${forma} do ${numero}. Gere essa forma de novo.`);
 }
 
 async function main() {
@@ -186,8 +187,8 @@ async function main() {
       const prompt = `${ESTILO} ${s.formas[forma - 1]}`;
       const corpo: Record<string, unknown> = { prompt, aspect_ratio: '1:1', resolution: '2k', ...(p.extra ?? {}) };
       if (forma > 1) {
-        corpo.prompt = `${prompt} ${MESMO_BICHO}`;
-        corpo.image_urls = [await referencia(s.numero, refs)];
+        corpo.prompt = `${prompt} ${MESMO_BICHO}${forma === 3 ? ` ${HERDA}` : ''}`;
+        corpo.image_urls = [await referencia(s.numero, forma - 1, refs)];
       }
       // Falha genérica do Higgsfield: tenta de novo até 3 vezes.
       let gerado: { url: string; modelo: string } | undefined;
