@@ -1,17 +1,22 @@
 {
-  "quando": "2026-11-04T15:50:48.861Z",
-  "imagens": [],
+  "quando": "2026-11-04T16:21:35.077Z",
+  "imagens": [
+    {
+      "nome": "005-1",
+      "sabimon": "Pedrolho",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    }
+  ],
   "pedido": {
     "acao": "gerar",
     "formas": [
       1
     ],
     "numeros": [
-      "001",
-      "004",
-      "010"
+      "005"
     ]
   },
-  "ok": false,
-  "erro": "Error: POST https://platform.higgsfield.ai/alibaba/qwen-image-3/text-to-image: HTTP 400 {\"detail\":\"resolution: '2K' is not one of ['1k', '2k']\"}"
+  "ok": true
 }
