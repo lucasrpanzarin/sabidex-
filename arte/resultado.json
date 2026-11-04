@@ -1,26 +1,40 @@
 {
-  "quando": "2026-11-04T20:14:26.299Z",
+  "quando": "2026-11-04T21:03:11.441Z",
   "imagens": [
     {
-      "nome": "014-2",
-      "sabimon": "Conchaduna",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
+      "nome": "pacote-normal-a",
+      "tipo": "normal",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1248,
+      "altura": 1872
+    },
+    {
+      "nome": "pacote-normal-b",
+      "tipo": "normal",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1248,
+      "altura": 1872
+    },
+    {
+      "nome": "pacote-epico-a",
+      "tipo": "epico",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1248,
+      "altura": 1872
+    },
+    {
+      "nome": "pacote-epico-b",
+      "tipo": "epico",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1248,
+      "altura": 1872
     }
   ],
   "pedido": {
-    "acao": "gerar",
-    "formas": [
-      2
-    ],
-    "refazer": true,
-    "numeros": [
-      "014"
-    ],
-    "so": [
-      "014-2"
-    ]
+    "acao": "cenarios",
+    "lista": "arte/pacote/lista.json",
+    "pasta": "arte/pacote/originais",
+    "formato": "2:3"
   },
   "ok": true
 }
