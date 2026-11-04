@@ -31,5 +31,13 @@
     // Quem vê todas as turmas (administrador geral).
     "ADMIN_EMAILS": "lucasrpanzarin@gmail.com,lucas@fastgsa.com"
   },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // Versões de teste de cada pull request (comando "wrangler preview" da Cloudflare).
+  // De propósito SEM o banco de dados: a prévia nunca lê nem grava dados reais das turmas.
+  // O jogo funciona normalmente na prévia; só as partes de turma (login, trocas, ranking) ficam sem servidor.
+  "previews": {
+    "vars": {
+      "ADMIN_EMAILS": "lucasrpanzarin@gmail.com,lucas@fastgsa.com"
+    }
+  }
 }

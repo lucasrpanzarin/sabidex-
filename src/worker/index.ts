@@ -29,6 +29,8 @@ let esquemaPronto = false;
 const app = new Hono<{ Bindings: Env }>().basePath('/api');
 
 app.use('*', async (c, next) => {
+  // Nas versões de teste (previews) não há banco: a turma fica desligada, com aviso claro.
+  if (!(c.env as Partial<Env>).DB) return c.json({ erro: 'A turma não funciona nesta versão de teste.' }, 503);
   if (!esquemaPronto) {
     await c.env.DB.batch(ESQUEMA.map((s) => c.env.DB.prepare(s)));
     esquemaPronto = true;
