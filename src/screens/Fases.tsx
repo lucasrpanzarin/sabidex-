@@ -31,7 +31,7 @@ function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: ReactNo
 
 const MOTIVO: Record<MotivoPacote, string> = {
   fase: 'Pacote por terminar uma fase nova',
-  prova: 'Pacote épico por passar na prova: 1 épico ou lendário',
+  prova: 'Pacote épico por passar na prova: vem um épico ou lendário',
   dia: 'Pacote do dia, por estudar hoje',
   nivel: 'Pacote de presente pelo nível novo',
 };
