@@ -7,6 +7,7 @@ import { Album, AbrirPacote } from './screens/Colecao';
 import { TelaFase } from './screens/Fases';
 import { BoasVindas, Inicio } from './screens/Inicio';
 import { Mundo, Mundos } from './screens/Mundos';
+import { Loja } from './screens/Loja';
 import { EntrarConta, MinhaConta, Ranking, Trocas } from './screens/Turma';
 
 export function App() {
@@ -28,7 +29,8 @@ export function App() {
       tela = FASES.includes(b as Fase) ? <TelaFase capId={a} fase={b as Fase} /> : <Mundos />;
       comNav = false; break;
     case 'pacote': tela = <AbrirPacote />; comNav = false; break;
-    case 'album': tela = <Album />; break;
+    case 'album': tela = <Album id={a} />; break;
+    case 'loja': tela = <Loja key={a ?? ''} sabimonId={a} />; aba = 'album'; break;
     case 'trocas': tela = <Trocas />; break;
     case 'ranking': tela = <Ranking />; break;
     case 'conta': tela = <MinhaConta />; aba = ''; break;

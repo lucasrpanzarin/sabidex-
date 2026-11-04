@@ -6,6 +6,10 @@ import { FASES, FASE_INFO, chave, nivel, sequencia } from '../lib/jogo';
 import { ir } from '../lib/rota';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import { useConta } from '../lib/conta';
+import { Moeda, Saldo } from '../components/Loja';
+import { sabimons } from '../data';
+import { formaDe, podeEvoluir, saldo } from '../lib/loja';
+import { Desejo } from './Loja';
 
 export const CORES = ['#22D3EE', '#F472B6', '#FACC15', '#4ADE80', '#FB923C', '#A78BFA'];
 
@@ -17,7 +21,7 @@ export function BoasVindas() {
     <main className="tela" style={{ justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
       <div className="logo" style={{ fontSize: 44 }}>Sabidex</div>
       <Ara tamanho={130} />
-      <div className="balao" style={{ maxWidth: 320 }}>Oi! Eu sou o <strong>Ará</strong>. Vamos estudar, ganhar cartas e completar o álbum?</div>
+      <div className="balao" style={{ maxWidth: 320 }}>Oi! Eu sou o <strong>Ará</strong>. Vamos estudar, ganhar Sabimons e completar o álbum?</div>
       <form className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}
         onSubmit={(ev) => { ev.preventDefault(); if (ok) setEstado((e) => ({ ...e, perfil: { nome: nome.trim(), cor } })); }}>
         <label htmlFor="apelido" className="display h3">Como você quer ser chamado?</label>
@@ -64,23 +68,29 @@ export function Inicio() {
   const faltamPacote = prox ? (['memoria', 'quiz', 'prova'] as const).find((f) => !e.feitas[chave(prox.cap.id, f)]) : undefined;
   const fasesAte = faltamPacote && prox ? FASES.indexOf(faltamPacote) - FASES.indexOf(prox.fase) + 1 : 0;
 
+  const evolui = sabimons.find((s) => podeEvoluir(e, s).ok);
   const fala = propostasNovas > 0
     ? <>Você tem <strong>{propostasNovas} {propostasNovas > 1 ? 'propostas' : 'proposta'} de troca</strong>! Veja em Trocas.</>
     : e.pacotes.length > 0
     ? <>Você tem <strong>{e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</strong> esperando. Vamos abrir?</>
+    : evolui
+    ? <>Seu <strong>{evolui.formas[formaDe(e, evolui.id) - 1].nome}</strong> pode evoluir! Veja no álbum.</>
     : prox && fasesAte > 0
-      ? <>Mais <strong>{fasesAte} {fasesAte > 1 ? 'fases' : 'fase'}</strong> e você ganha um pacote de cartas!</>
+      ? <>Mais <strong>{fasesAte} {fasesAte > 1 ? 'fases' : 'fase'}</strong> e você ganha um pacote de Sabimons!</>
       : <>Você terminou tudo! Repita as fases para ganhar mais XP.</>;
 
   return (
     <main className="tela">
       <div className="linha" style={{ justifyContent: 'space-between' }}>
         <div className="logo">Sabidex</div>
+        <span className="linha" style={{ gap: 8 }}>
+        <button onClick={() => ir('loja')} style={{ border: 0, background: 'none', padding: 0, color: 'inherit', font: 'inherit' }} aria-label={`${saldo(e)} Sabicoins. Abrir a lojinha`}><Saldo valor={saldo(e)} /></button>
         <span className="pilula" title="Dias seguidos estudando">
           <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(180deg,#FDBA74,#F97316)', display: 'grid', placeItems: 'center' }}>
             <svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 0c1 3 5 5 5 9a5 5 0 01-10 0c0-2 1-3 2-4 1 1 2 2 2 2s1-3 1-7z" fill="#FFF7ED" /></svg>
           </span>
           {dias} {dias === 1 ? 'dia' : 'dias'}
+        </span>
         </span>
       </div>
 
@@ -108,6 +118,18 @@ export function Inicio() {
           style={{ border: 0, textAlign: 'left', borderRadius: 22, padding: '12px 14px', background: 'linear-gradient(110deg,#F472B6,#A78BFA 40%,#22D3EE 75%)', color: 'var(--bg)', boxShadow: 'inset 0 2px 0 #FFFFFF66' }}>
           <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="10" width="32" height="28" rx="8" fill="#0B1026" /><rect x="9" y="13" width="26" height="22" rx="6" fill="#FACC15" /><rect x="19" y="10" width="6" height="28" fill="#F472B6" /><circle cx="22" cy="10" r="5" fill="#F472B6" /></svg>
           <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 19, display: 'block' }}>{e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'} para abrir</span><span className="small" style={{ fontWeight: 800 }}>{e.pacotes.some((p) => p.tipo === 'epico') ? 'Tem pacote épico!' : 'Toque para abrir'}</span></span>
+          <Icone nome="seguir" espessura={3} />
+        </button>
+      )}
+
+      {evolui && (
+        <button className="btn btn-verde btn-bloco" onClick={() => ir('album', evolui.id)}>Evoluir {evolui.formas[formaDe(e, evolui.id) - 1].nome}</button>
+      )}
+
+      {e.desejo ? <Desejo onClick={() => ir('loja')} /> : (
+        <button className="painel linha" onClick={() => ir('loja')} style={{ textAlign: 'left', color: 'inherit', width: '100%' }}>
+          <Moeda tamanho={40} />
+          <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 19, display: 'block' }}>Lojinha</span><span className="muted small">Medalhas, escudos e coroas para seus Sabimons</span></span>
           <Icone nome="seguir" espessura={3} />
         </button>
       )}

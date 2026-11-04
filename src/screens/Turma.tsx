@@ -3,14 +3,16 @@ import { Ara } from '../components/Ara';
 import { CartaView, ROTULO } from '../components/CartaView';
 import { Icone } from '../components/Icone';
 import { Pin } from '../components/Pin';
-import { todasCartas } from '../data';
-import type { Carta } from '../data/tipos';
+import { sabimonPorId, sabimons } from '../data';
+import type { Sabimon } from '../data/tipos';
 import { api, entrarNaConta, entrarNaTurma, esquecerContaNova, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
 import { ir } from '../lib/rota';
+import { paraTrocar, protegido } from '../lib/loja';
 import { useEstado } from '../lib/store';
 import { CORES } from './Inicio';
 
-const cartaPorId = new Map(todasCartas.map((c) => [c.id, c]));
+const cartaPorId = sabimonPorId;
+const nomeDe = (id: string) => cartaPorId.get(id)?.formas[0].nome;
 const NIVEL = { comum: 1, rara: 2, epica: 3, lendaria: 4 } as const;
 const campo: React.CSSProperties = { font: 'inherit', fontWeight: 800, fontSize: 18, padding: '14px 16px', borderRadius: 16, border: '1.5px solid var(--line-2)', background: 'var(--surface)', color: 'var(--ink)', width: '100%' };
 
@@ -300,7 +302,7 @@ export function Trocas() {
     if (r.erro) setErro(r.erro);
     else {
       setErro(null);
-      if (acao === 'aceitar') setAviso(`Troca feita! A carta ${cartaPorId.get(t.carta_dar)?.nome} já está no seu álbum.`);
+      if (acao === 'aceitar') setAviso(`Troca feita! A carta ${nomeDe(t.carta_dar)} já está no seu álbum.`);
       await sincronizar();
     }
     await carregar();
@@ -335,7 +337,8 @@ export function Trocas() {
                 <span style={{ color: 'var(--pink)' }}><Icone nome="trocas" /></span>
                 <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você dá</span><Mini id={t.carta_receber} /></div>
               </div>
-              {minhas === 1 && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)' }}>Atenção: é a sua <strong>única</strong> {cartaPorId.get(t.carta_receber)?.nome}. Ela vai sair do seu álbum.</div>}
+              {minhas === 1 && !protegido(e, t.carta_receber) && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)' }}>Atenção: é a sua <strong>única</strong> {nomeDe(t.carta_receber)}. Ela vai sair do seu álbum.</div>}
+              {paraTrocar(e, t.carta_receber) < 1 && <div className="aviso aviso-erro">Seu {nomeDe(t.carta_receber)} tem evolução ou itens e fica com você. Só dá para trocar uma cópia repetida.</div>}
               {NIVEL[cartaPorId.get(t.carta_receber)?.raridade ?? 'comum'] > NIVEL[cartaPorId.get(t.carta_dar)?.raridade ?? 'comum'] && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)' }}>Pense bem: você dá uma carta <strong>mais rara</strong> do que recebe.</div>}
               {!(e.cartas[t.carta_dar] > 0) && <div className="aviso aviso-ok">Essa carta é <strong>nova</strong> para você!</div>}
               <div className="linha" style={{ gap: 10 }}>
@@ -353,7 +356,7 @@ export function Trocas() {
           {enviadas.map((t) => (
             <div key={t.id} className="painel linha" style={{ padding: 12 }}>
               <Avatar nome={t.para_apelido} cor={t.para_cor} tamanho={32} />
-              <span style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>Você ofereceu <strong>{cartaPorId.get(t.carta_dar)?.nome}</strong> para {t.para_apelido} por <strong>{cartaPorId.get(t.carta_receber)?.nome}</strong></span>
+              <span style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>Você ofereceu <strong>{nomeDe(t.carta_dar)}</strong> para {t.para_apelido} por <strong>{nomeDe(t.carta_receber)}</strong></span>
               <button className="btn btn-escuro" style={{ minHeight: 40, fontSize: 15, padding: '6px 12px' }} disabled={!!ocupado} onClick={() => void agir(t, 'cancelar')}>Cancelar</button>
             </div>
           ))}
@@ -367,7 +370,7 @@ export function Trocas() {
             const fui = t.de_id === eu;
             return (
               <div key={t.id} className="small" style={{ fontWeight: 700, color: 'var(--muted)' }}>
-                <span style={{ color: t.status === 'aceita' ? 'var(--green)' : 'var(--muted)' }}>{STATUS[t.status] ?? t.status}</span> · {fui ? `com ${t.para_apelido}` : `com ${t.de_apelido}`}: {cartaPorId.get(fui ? t.carta_dar : t.carta_receber)?.nome} por {cartaPorId.get(fui ? t.carta_receber : t.carta_dar)?.nome}
+                <span style={{ color: t.status === 'aceita' ? 'var(--green)' : 'var(--muted)' }}>{STATUS[t.status] ?? t.status}</span> · {fui ? `com ${t.para_apelido}` : `com ${t.de_apelido}`}: {nomeDe(fui ? t.carta_dar : t.carta_receber)} por {nomeDe(fui ? t.carta_receber : t.carta_dar)}
               </div>
             );
           })}
@@ -382,8 +385,8 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
   const [colegas, setColegas] = useState<Colega[] | null>(null);
   const [colega, setColega] = useState<Colega | null>(null);
   const [cartasDele, setCartasDele] = useState<Record<string, number> | null>(null);
-  const [quero, setQuero] = useState<Carta | null>(null);
-  const [dou, setDou] = useState<Carta | null>(null);
+  const [quero, setQuero] = useState<Sabimon | null>(null);
+  const [dou, setDou] = useState<Sabimon | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
 
@@ -394,8 +397,8 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
     void api<{ cartas: Record<string, number> }>(`/crianca/colega/${colega.id}`).then((r) => r.erro ? setErro(r.erro) : setCartasDele(r.cartas));
   }, [colega]);
 
-  const minhas = useMemo(() => todasCartas.filter((c) => e.cartas[c.id] > 0).sort((a, b) => (e.cartas[b.id] - e.cartas[a.id])), [e.cartas]);
-  const dele = useMemo(() => todasCartas.filter((c) => (cartasDele?.[c.id] ?? 0) > 0).sort((a, b) => Number(e.cartas[a.id] > 0) - Number(e.cartas[b.id] > 0)), [cartasDele, e.cartas]);
+  const minhas = useMemo(() => sabimons.filter((c) => paraTrocar(e, c.id) > 0).sort((a, b) => (paraTrocar(e, b.id) - paraTrocar(e, a.id))), [e]);
+  const dele = useMemo(() => sabimons.filter((c) => (cartasDele?.[c.id] ?? 0) > 0).sort((a, b) => Number(e.cartas[a.id] > 0) - Number(e.cartas[b.id] > 0)), [cartasDele, e.cartas]);
 
   const enviar = async () => {
     if (!colega || !quero || !dou) return;
@@ -451,9 +454,10 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
       {passo === 3 && (
         <>
           {minhas.length === 0 && <div className="balao">Você ainda não tem cartas para dar. Jogue as fases para ganhar pacotes!</div>}
+          <p className="muted small" style={{ margin: 0 }}>Sabimons evoluídos ou com itens ficam com você. Só as cópias repetidas deles aparecem aqui.</p>
           <p className="muted small" style={{ margin: 0 }}>As repetidas aparecem primeiro.</p>
           <div className="grade-3">
-            {minhas.map((c) => <CartaView key={c.id} carta={c} quantidade={e.cartas[c.id]} onClick={() => setDou(c)} />)}
+            {minhas.map((c) => <CartaView key={c.id} carta={c} quantidade={paraTrocar(e, c.id)} onClick={() => setDou(c)} />)}
           </div>
         </>
       )}
@@ -465,8 +469,8 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
             <span style={{ color: 'var(--pink)' }}><Icone nome="trocas" /></span>
             <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você ganha</span><div style={{ width: 120 }}><CartaView carta={quero} /></div></div>
           </div>
-          {e.cartas[dou.id] === 1 && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)', width: '100%' }}>Atenção: é a sua <strong>única</strong> {dou.nome}. Se {colega?.apelido} aceitar, ela sai do seu álbum.</div>}
-          {e.cartas[dou.id] > 1 && <div className="aviso aviso-ok" style={{ width: '100%' }}>Boa! Você vai dar uma carta <strong>repetida</strong>.</div>}
+          {e.cartas[dou.id] === 1 && !protegido(e, dou.id) && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)', width: '100%' }}>Atenção: é a sua <strong>única</strong> {dou.formas[0].nome}. Se {colega?.apelido} aceitar, ela sai do seu álbum.</div>}
+          {(e.cartas[dou.id] > 1 || protegido(e, dou.id)) && <div className="aviso aviso-ok" style={{ width: '100%' }}>Boa! Você vai dar uma carta <strong>repetida</strong>.</div>}
           <p className="muted small" style={{ margin: 0, textAlign: 'center' }}>{ROTULO[dou.raridade]} por {ROTULO[quero.raridade]}. {colega?.apelido} pode aceitar ou recusar.</p>
           <button className="btn btn-amarelo btn-bloco" disabled={ocupado} onClick={() => void enviar()}>{ocupado ? 'Enviando…' : 'Enviar proposta'}</button>
         </div>
