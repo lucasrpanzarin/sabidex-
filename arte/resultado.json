@@ -1,72 +1,79 @@
 {
-  "quando": "2026-11-04T17:41:50.220Z",
+  "quando": "2026-11-04T18:19:37.648Z",
   "imagens": [
     {
-      "nome": "005-2",
-      "sabimon": "Cristabuti",
-      "modelo": "alibaba/qwen-image-3/edit",
+      "nome": "fogo",
+      "tipo": "Fogo",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
       "largura": 1536,
       "altura": 1536
     },
     {
-      "nome": "006-2",
-      "pulado": "já existe"
-    },
-    {
-      "nome": "007-2",
-      "sabimon": "Dunasiri",
-      "modelo": "alibaba/qwen-image-3/edit",
+      "nome": "agua",
+      "tipo": "Água",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
       "largura": 1536,
       "altura": 1536
     },
     {
-      "nome": "009-2",
-      "sabimon": "Melodiru",
-      "modelo": "alibaba/qwen-image-3/edit",
+      "nome": "planta",
+      "tipo": "Planta",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
       "largura": 1536,
       "altura": 1536
     },
     {
-      "nome": "005-3",
-      "sabimon": "Montabuti",
-      "modelo": "alibaba/qwen-image-3/edit",
+      "nome": "raio",
+      "tipo": "Raio",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
       "largura": 1536,
       "altura": 1536
     },
     {
-      "nome": "006-3",
-      "sabimon": "Furacolibri",
-      "modelo": "alibaba/qwen-image-3/edit",
+      "nome": "pedra",
+      "tipo": "Pedra",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
       "largura": 1536,
       "altura": 1536
     },
     {
-      "nome": "007-3",
-      "sabimon": "Tempestasiri",
-      "modelo": "alibaba/qwen-image-3/edit",
+      "nome": "vento",
+      "tipo": "Vento",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
       "largura": 1536,
       "altura": 1536
     },
     {
-      "nome": "009-3",
-      "sabimon": "Sinfonuru",
-      "modelo": "alibaba/qwen-image-3/edit",
+      "nome": "areia",
+      "tipo": "Areia",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "gelo",
+      "tipo": "Gelo",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "som",
+      "tipo": "Som",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "estrela",
+      "tipo": "Estrela",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
       "largura": 1536,
       "altura": 1536
     }
   ],
   "pedido": {
-    "acao": "gerar",
-    "formas": [
-      2,
-      3
-    ],
-    "numeros": [
-      "005",
-      "006",
-      "007",
-      "009"
-    ]
+    "acao": "cenarios"
   },
   "ok": true
 }
