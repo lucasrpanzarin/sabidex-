@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { Ara } from '../components/Ara';
 import { CartaView, ROTULO } from '../components/CartaView';
 import { Icone } from '../components/Icone';
-import { sabimons, TOTAL_PLANEJADO } from '../data';
+import { sabimonPorId, sabimons, TOTAL_PLANEJADO } from '../data';
 import type { Raridade, Sabimon } from '../data/tipos';
 import { abrirPacote, garantiaAtiva, guardarCartas, GARANTIA } from '../lib/jogo';
-import { COPIAS_PARA } from '../lib/sabimon';
+import { Faixa, Moeda, Saldo } from '../components/Loja';
+import { ESPACOS, PRECO_EVOLUCAO, copiasGastas, evoluir, formaDe, itensDe, podeEvoluir, saldo } from '../lib/loja';
+import { useConta, evoluirNaConta } from '../lib/conta';
 import { ir } from '../lib/rota';
 import { jogar } from './Inicio';
-import { setEstado, useEstado } from '../lib/store';
+import { getEstado, setEstado, useEstado } from '../lib/store';
 
 export function AbrirPacote() {
   const e = useEstado();
@@ -25,7 +27,7 @@ export function AbrirPacote() {
         <div className="display pop" style={{ fontSize: 30, color: 'var(--yellow)', textShadow: '0 3px 0 #B45309' }}>
           {lendaria ? 'Lendário!' : melhor.raridade === 'epica' ? 'Épico!' : nNovos ? 'Sabimon novo!' : 'Pacote aberto!'}
         </div>
-        <div style={{ position: 'relative', display: 'grid', placeItems: 'center', padding: '8px 0', width: '100%' }}>
+        <div style={{ position: 'relative', display: 'grid', placeItems: 'center', padding: '8px 0', width: '100%', overflow: 'hidden', borderRadius: 24 }}>
           {(lendaria || melhor.raridade === 'epica') && <div className="raios" aria-hidden="true" />}
           <div className="pop" style={{ position: 'relative', boxShadow: lendaria ? '0 0 50px #FACC1555' : undefined, borderRadius: 20, width: 'min(290px, 100%)' }}>
             <CartaView carta={melhor} grande animar />
@@ -93,35 +95,98 @@ export function AbrirPacote() {
 
 const FILTROS: [Raridade | 'todas', string][] = [['todas', 'Todos'], ['comum', '★'], ['rara', '★★'], ['epica', '★★★'], ['lendaria', '★★★★']];
 
-export function Album() {
+/** Detalhe de um Sabimon: carta grande, itens, cópias e evolução. */
+function Detalhe({ s }: { s: Sabimon }) {
   const e = useEstado();
-  const [filtro, setFiltro] = useState<Raridade | 'todas'>('todas');
-  const [detalhe, setDetalhe] = useState<Sabimon | null>(null);
-  const tem = sabimons.filter((c) => e.cartas[c.id] > 0).length;
-  const lista = sabimons.filter((c) => filtro === 'todas' || c.raridade === filtro);
+  const { conta } = useConta();
+  const [evoluiu, setEvoluiu] = useState(false);
+  const [ocupado, setOcupado] = useState(false);
+  const [erro, setErro] = useState('');
+  const n = e.cartas[s.id] ?? 0;
+  const forma = formaDe(e, s.id);
+  const itens = itensDe(e, s.id);
+  const p = podeEvoluir(e, s);
+  const prox = p.forma ? s.formas[p.forma - 1].nome : '';
+  const precisa = p.forma ? 1 + copiasGastas(p.forma) : 0;
 
-  if (detalhe) {
-    const n = e.cartas[detalhe.id] ?? 0;
-    const falta = Math.max(0, COPIAS_PARA[2] - n);
+  const evoluirAgora = async () => {
+    setErro('');
+    if (conta) {
+      setOcupado(true);
+      const msg = await evoluirNaConta(s.id);
+      setOcupado(false);
+      if (msg) { setErro(msg); return; }
+    } else {
+      const novo = evoluir(getEstado(), s);
+      if (!novo) return;
+      setEstado(novo);
+    }
+    setEvoluiu(true);
+  };
+
+  if (n === 0) {
     return (
       <main className="tela" style={{ alignItems: 'center', textAlign: 'center' }}>
-        <button className="voltar" style={{ alignSelf: 'flex-start' }} onClick={() => setDetalhe(null)}><Icone nome="voltar" tamanho={18} espessura={3} />Álbum</button>
-        <div className="pop" style={{ width: 'min(290px, 100%)' }}><CartaView carta={detalhe} tem={n > 0} grande animar /></div>
-        {n > 0 ? (
-          <div className="painel coluna" style={{ width: '100%', gap: 6 }}>
-            <div className="display" style={{ fontSize: 18 }}>Você tem {n} {n > 1 ? 'cópias' : 'cópia'}</div>
-            <div className="barra barra-verde" aria-hidden="true"><div style={{ width: `${Math.min(1, n / COPIAS_PARA[2]) * 100}%` }} /></div>
-            <div className="muted small">
-              {falta > 0
-                ? `Junte mais ${falta} ${falta > 1 ? 'cópias' : 'cópia'} para evoluir para ${detalhe.formas[1].nome}. A evolução chega em breve!`
-                : `Você já tem cópias para evoluir para ${detalhe.formas[1].nome}. A evolução chega em breve!`}
-            </div>
-          </div>
-        ) : <div className="muted">Você ainda não tem esse Sabimon. Continue jogando para ganhar pacotes!</div>}
+        <button className="voltar" style={{ alignSelf: 'flex-start' }} onClick={() => ir('album')}><Icone nome="voltar" tamanho={18} espessura={3} />Álbum</button>
+        <CartaView carta={s} tem={false} grande />
+        <div className="muted">Você ainda não tem esse Sabimon. Continue jogando para ganhar pacotes!</div>
       </main>
     );
   }
 
+  return (
+    <main className="tela" style={{ alignItems: 'center', textAlign: 'center' }}>
+      <div className="linha" style={{ alignSelf: 'stretch', justifyContent: 'space-between' }}>
+        <button className="voltar" onClick={() => ir('album')}><Icone nome="voltar" tamanho={18} espessura={3} />Álbum</button>
+        <Saldo valor={saldo(e)} />
+      </div>
+      {evoluiu && <div className="display pop" style={{ fontSize: 30, color: 'var(--yellow)', textShadow: '0 3px 0 #B45309' }}>Evoluiu!</div>}
+      <div style={{ position: 'relative', display: 'grid', placeItems: 'center', width: '100%', overflow: 'hidden', borderRadius: 24 }}>
+        {evoluiu && <div className="raios" aria-hidden="true" />}
+        <div key={forma} className={evoluiu ? 'pop' : undefined} style={{ position: 'relative', width: 'min(290px, 100%)' }}>
+          <CartaView carta={s} forma={forma} itens={itens} grande animar />
+        </div>
+      </div>
+      <Faixa itens={itens} onLivre={() => ir('loja', s.id)} />
+
+      <div className="painel coluna" style={{ width: '100%', gap: 8 }}>
+        <div className="display" style={{ fontSize: 18 }}>
+          {n > 1 ? `Você tem ${n} cópias` : 'Você tem 1 cópia'}
+        </div>
+        {p.ok ? (
+          <>
+            <div className="muted small">Você pode evoluir para <strong style={{ color: 'var(--ink)' }}>{prox}</strong>! Gasta {copiasGastas(p.forma)} cópias e {PRECO_EVOLUCAO[p.forma]} Sabicoins.</div>
+            <button className="btn btn-amarelo btn-bloco" disabled={ocupado} onClick={() => void evoluirAgora()}>
+              {ocupado ? 'Evoluindo…' : <>Evoluir por <Moeda /> {PRECO_EVOLUCAO[p.forma]}</>}
+            </button>
+          </>
+        ) : p.motivo === 'final' ? (
+          <div className="muted small">Forma final! As cópias repetidas servem para trocar com os amigos.</div>
+        ) : p.motivo === 'desenho' ? (
+          <div className="muted small">A evolução para <strong style={{ color: 'var(--ink)' }}>{prox}</strong> ainda está sendo desenhada. Junte {precisa} cópias enquanto isso!</div>
+        ) : p.motivo === 'copias' ? (
+          <>
+            <div className="barra barra-verde" aria-hidden="true"><div style={{ width: `${Math.min(1, n / precisa) * 100}%` }} /></div>
+            <div className="muted small">Junte mais {p.faltam} {p.faltam! > 1 ? 'cópias' : 'cópia'} para evoluir para <strong style={{ color: 'var(--ink)' }}>{prox}</strong>.</div>
+          </>
+        ) : (
+          <div className="muted small">Você já tem as cópias! Faltam {p.faltam} Sabicoins para evoluir para <strong style={{ color: 'var(--ink)' }}>{prox}</strong>.</div>
+        )}
+        {erro && <div className="aviso aviso-erro">{erro}</div>}
+      </div>
+      {itens.length < ESPACOS && <button className="btn btn-escuro btn-bloco" onClick={() => ir('loja', s.id)}>Colocar item da lojinha</button>}
+    </main>
+  );
+}
+
+export function Album({ id }: { id?: string }) {
+  const e = useEstado();
+  const [filtro, setFiltro] = useState<Raridade | 'todas'>('todas');
+  const detalhe = id ? sabimonPorId.get(id) : undefined;
+  if (detalhe) return <Detalhe s={detalhe} />;
+
+  const tem = sabimons.filter((c) => e.cartas[c.id] > 0).length;
+  const lista = sabimons.filter((c) => filtro === 'todas' || c.raridade === filtro);
   return (
     <main className="tela">
       <div className="linha" style={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -135,6 +200,7 @@ export function Album() {
       <p className="muted small" style={{ margin: 0 }}>Os primeiros {sabimons.length} de {TOTAL_PLANEJADO} Sabimons. Novos chegam em breve!</p>
 
       {e.pacotes.length > 0 && <button className="btn btn-rosa btn-bloco" onClick={() => ir('pacote')}>Abrir {e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</button>}
+      <button className="btn btn-escuro btn-bloco" onClick={() => ir('loja')}><Moeda /> Lojinha · {saldo(e).toLocaleString('pt-BR')} Sabicoins</button>
 
       <div className="linha" style={{ gap: 8, flexWrap: 'wrap' }}>
         {FILTROS.map(([k, r]) => (
@@ -144,7 +210,12 @@ export function Album() {
         ))}
       </div>
       <div className="grade-3">
-        {lista.map((c) => <CartaView key={c.id} carta={c} tem={e.cartas[c.id] > 0} quantidade={e.cartas[c.id]} onClick={() => setDetalhe(c)} />)}
+        {lista.map((c) => (
+          <div key={c.id} style={{ position: 'relative' }}>
+            <CartaView carta={c} forma={formaDe(e, c.id)} tem={e.cartas[c.id] > 0} quantidade={e.cartas[c.id]} onClick={() => ir('album', c.id)} />
+            {podeEvoluir(e, c).ok && <span className="selo-novo" style={{ background: 'var(--green)' }}>EVOLUIR!</span>}
+          </div>
+        ))}
       </div>
       {(e.semNovo ?? 0) > 0 && tem < sabimons.length && (
         <p className="muted small" style={{ margin: 0, textAlign: 'center' }}>

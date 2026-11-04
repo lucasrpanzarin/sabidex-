@@ -7,6 +7,7 @@ import { sabimonPorId, sabimons } from '../data';
 import type { Sabimon } from '../data/tipos';
 import { api, entrarNaConta, entrarNaTurma, esquecerContaNova, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
 import { ir } from '../lib/rota';
+import { paraTrocar, protegido } from '../lib/loja';
 import { useEstado } from '../lib/store';
 import { CORES } from './Inicio';
 
@@ -336,7 +337,8 @@ export function Trocas() {
                 <span style={{ color: 'var(--pink)' }}><Icone nome="trocas" /></span>
                 <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você dá</span><Mini id={t.carta_receber} /></div>
               </div>
-              {minhas === 1 && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)' }}>Atenção: é a sua <strong>única</strong> {nomeDe(t.carta_receber)}. Ela vai sair do seu álbum.</div>}
+              {minhas === 1 && !protegido(e, t.carta_receber) && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)' }}>Atenção: é a sua <strong>única</strong> {nomeDe(t.carta_receber)}. Ela vai sair do seu álbum.</div>}
+              {paraTrocar(e, t.carta_receber) < 1 && <div className="aviso aviso-erro">Seu {nomeDe(t.carta_receber)} tem evolução ou itens e fica com você. Só dá para trocar uma cópia repetida.</div>}
               {NIVEL[cartaPorId.get(t.carta_receber)?.raridade ?? 'comum'] > NIVEL[cartaPorId.get(t.carta_dar)?.raridade ?? 'comum'] && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)' }}>Pense bem: você dá uma carta <strong>mais rara</strong> do que recebe.</div>}
               {!(e.cartas[t.carta_dar] > 0) && <div className="aviso aviso-ok">Essa carta é <strong>nova</strong> para você!</div>}
               <div className="linha" style={{ gap: 10 }}>
@@ -395,7 +397,7 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
     void api<{ cartas: Record<string, number> }>(`/crianca/colega/${colega.id}`).then((r) => r.erro ? setErro(r.erro) : setCartasDele(r.cartas));
   }, [colega]);
 
-  const minhas = useMemo(() => sabimons.filter((c) => e.cartas[c.id] > 0).sort((a, b) => (e.cartas[b.id] - e.cartas[a.id])), [e.cartas]);
+  const minhas = useMemo(() => sabimons.filter((c) => paraTrocar(e, c.id) > 0).sort((a, b) => (paraTrocar(e, b.id) - paraTrocar(e, a.id))), [e]);
   const dele = useMemo(() => sabimons.filter((c) => (cartasDele?.[c.id] ?? 0) > 0).sort((a, b) => Number(e.cartas[a.id] > 0) - Number(e.cartas[b.id] > 0)), [cartasDele, e.cartas]);
 
   const enviar = async () => {
@@ -452,9 +454,10 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
       {passo === 3 && (
         <>
           {minhas.length === 0 && <div className="balao">Você ainda não tem cartas para dar. Jogue as fases para ganhar pacotes!</div>}
+          <p className="muted small" style={{ margin: 0 }}>Sabimons evoluídos ou com itens ficam com você. Só as cópias repetidas deles aparecem aqui.</p>
           <p className="muted small" style={{ margin: 0 }}>As repetidas aparecem primeiro.</p>
           <div className="grade-3">
-            {minhas.map((c) => <CartaView key={c.id} carta={c} quantidade={e.cartas[c.id]} onClick={() => setDou(c)} />)}
+            {minhas.map((c) => <CartaView key={c.id} carta={c} quantidade={paraTrocar(e, c.id)} onClick={() => setDou(c)} />)}
           </div>
         </>
       )}
@@ -466,8 +469,8 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
             <span style={{ color: 'var(--pink)' }}><Icone nome="trocas" /></span>
             <div className="coluna" style={{ alignItems: 'center', gap: 4 }}><span className="muted small">Você ganha</span><div style={{ width: 120 }}><CartaView carta={quero} /></div></div>
           </div>
-          {e.cartas[dou.id] === 1 && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)', width: '100%' }}>Atenção: é a sua <strong>única</strong> {dou.formas[0].nome}. Se {colega?.apelido} aceitar, ela sai do seu álbum.</div>}
-          {e.cartas[dou.id] > 1 && <div className="aviso aviso-ok" style={{ width: '100%' }}>Boa! Você vai dar uma carta <strong>repetida</strong>.</div>}
+          {e.cartas[dou.id] === 1 && !protegido(e, dou.id) && <div className="aviso" style={{ background: '#2A2410', border: '1.5px solid var(--yellow)', width: '100%' }}>Atenção: é a sua <strong>única</strong> {dou.formas[0].nome}. Se {colega?.apelido} aceitar, ela sai do seu álbum.</div>}
+          {(e.cartas[dou.id] > 1 || protegido(e, dou.id)) && <div className="aviso aviso-ok" style={{ width: '100%' }}>Boa! Você vai dar uma carta <strong>repetida</strong>.</div>}
           <p className="muted small" style={{ margin: 0, textAlign: 'center' }}>{ROTULO[dou.raridade]} por {ROTULO[quero.raridade]}. {colega?.apelido} pode aceitar ou recusar.</p>
           <button className="btn btn-amarelo btn-bloco" disabled={ocupado} onClick={() => void enviar()}>{ocupado ? 'Enviando…' : 'Enviar proposta'}</button>
         </div>

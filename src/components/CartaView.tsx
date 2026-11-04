@@ -3,12 +3,15 @@
 import type { CSSProperties } from 'react';
 import type { Sabimon } from '../data/tipos';
 import { COR_TIPO, ROTULO, forca, vida, type Forma } from '../lib/sabimon';
+import { bonus } from '../lib/loja';
 
 export { ROTULO };
 
 interface Props {
   carta: Sabimon;
   forma?: Forma;
+  /** itens da loja colocados no Sabimon (somam Vida e força) */
+  itens?: string[];
   tem?: boolean;
   quantidade?: number;
   grande?: boolean;
@@ -25,8 +28,9 @@ function Desenho({ carta, forma, tem }: { carta: Sabimon; forma: Forma; tem: boo
   return <img src={'/' + f.imagem} alt="" loading="lazy" decoding="async" draggable={false} />;
 }
 
-export function CartaView({ carta, forma = 1, tem = true, quantidade = 1, grande = false, animar = false, onClick }: Props) {
+export function CartaView({ carta, forma = 1, itens = [], tem = true, quantidade = 1, grande = false, animar = false, onClick }: Props) {
   const f = carta.formas[forma - 1];
+  const extra = bonus(itens);
   const nome = tem ? f.nome : '???';
   const estilo = { '--tipo': COR_TIPO[carta.tipo] } as CSSProperties;
   const classe = `carta ${tem ? carta.raridade : 'vazia'}${grande ? ' grande' : ''}${animar && tem && carta.raridade === 'lendaria' ? ' holo' : ''}`;
@@ -37,7 +41,7 @@ export function CartaView({ carta, forma = 1, tem = true, quantidade = 1, grande
         <div className="dentro">
           <div className="topo-carta">
             <span className="nome">{nome}</span>
-            {tem && <span className="vida"><small>VIDA</small>{vida(carta, forma)}<Coracao /></span>}
+            {tem && <span className="vida"><small>VIDA</small>{vida(carta, forma) + extra.vida}<Coracao /></span>}
           </div>
           <div className="formas-carta">
             Forma {[1, 2, 3].map((i) => <i key={i} className={tem && i <= forma ? 'on' : ''} />)}
@@ -45,7 +49,7 @@ export function CartaView({ carta, forma = 1, tem = true, quantidade = 1, grande
           </div>
           <div className="palco"><Desenho carta={carta} forma={forma} tem={tem} /></div>
           {tem && f.poderes.map((p, i) => (
-            <div key={p} className="poder"><span className="ic" aria-hidden="true">✦</span><b>{p}</b><span>{forca(carta, forma, i as 0 | 1)}</span></div>
+            <div key={p} className="poder"><span className="ic" aria-hidden="true">✦</span><b>{p}</b><span>{forca(carta, forma, i as 0 | 1) + extra.forca}</span></div>
           ))}
           {tem && <p className="fato"><strong>Fato real:</strong> {carta.fato}</p>}
           <div className="rodape-carta"><span>Nº {num(carta.numero)}</span><span className={`rar ${carta.raridade}`}>{ROTULO[carta.raridade]}</span></div>

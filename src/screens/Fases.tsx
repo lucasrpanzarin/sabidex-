@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Ara } from '../components/Ara';
 import { Icone } from '../components/Icone';
+import { Moeda } from '../components/Loja';
 import { capituloPorId } from '../data';
 import type { Capitulo } from '../data/tipos';
 import { FASE_INFO, NOTA_MINIMA, concluirFase, embaralhar, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
@@ -44,9 +45,13 @@ function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { cap: Capi
       <h1 className="display h1" style={{ color: aprovado ? 'var(--yellow)' : 'var(--ink)', textShadow: aprovado ? '0 3px 0 #B45309' : undefined }}>{titulo}</h1>
       {detalhe}
       <div className="painel coluna sobe" style={{ width: '100%', gap: 8, animationDelay: '.15s' }}>
-        <div className="display" style={{ fontSize: 30, color: 'var(--cyan-2)' }}>+{r.xpGanho} XP</div>
+        <div className="linha" style={{ justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <span className="display" style={{ fontSize: 30, color: 'var(--cyan-2)' }}>+{r.xpGanho} XP</span>
+          <span className="display linha" style={{ fontSize: 30, color: 'var(--yellow)', gap: 6 }}><Moeda tamanho={26} />+{r.xpGanho}</span>
+        </div>
+        <div className="muted small">XP sobe seu nível. Sabicoins você gasta na lojinha.</div>
         {r.subiuNivel && <div className="display pop" style={{ fontSize: 22, color: 'var(--green)' }}>Subiu para o nível {nv.nivel}!</div>}
-        {!r.primeiraVez && aprovado && <div className="muted small">Fase repetida: metade do XP.</div>}
+        {!r.primeiraVez && aprovado && <div className="muted small">Fase repetida: metade do XP e das Sabicoins.</div>}
       </div>
       {r.pacotesGanhos.length > 0 && (
         <div className="painel-destaque sobe coluna" style={{ width: '100%', animationDelay: '.3s', borderColor: 'var(--pink)', gap: 4 }}>

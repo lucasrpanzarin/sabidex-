@@ -54,7 +54,7 @@ export function setEstado(novo: Estado | ((e: Estado) => Estado)) {
 }
 
 export const progressoDe = (e: Estado): ProgressoSync => ({
-  xp: e.xp, feitas: e.feitas, notas: e.notas, pacotes: e.pacotes, abertos: e.abertos, dias: e.dias,
+  xp: e.xp, feitas: e.feitas, notas: e.notas, pacotes: e.pacotes, abertos: e.abertos, dias: e.dias, compras: e.compras,
 });
 
 /**

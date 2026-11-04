@@ -197,3 +197,20 @@ strong { color: var(--yellow); font-weight: 900; }
 }
 
 .selo-novo { position: absolute; top: -6px; right: -4px; background: var(--yellow); color: var(--bg); font-size: 10px; font-weight: 900; border-radius: 999px; padding: 2px 6px; }
+
+/* Lojinha */
+.moeda { display: inline-block; flex: none; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FEF08A, #EAB308 60%, #A16207); box-shadow: inset 0 -2px 0 #00000040, inset 0 1px 0 #FFFBEB; }
+.faixa { width: min(290px, 100%); display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.faixa > * { min-height: 58px; border-radius: 12px; display: grid; place-items: center; align-content: center; gap: 2px; font: inherit; font-size: 11px; font-weight: 900; text-align: center; }
+.faixa .livre { border: 1.5px dashed var(--line); background: none; color: #5B678F; }
+.faixa button.livre { color: var(--cyan); border-color: var(--line-2); cursor: pointer; }
+.faixa .cheio { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--line); color: var(--ink); }
+.loja-grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.item-loja { position: relative; background: var(--surface); border: 0; border-radius: 18px; padding: 14px 10px 12px; color: var(--ink); font: inherit; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; box-shadow: inset 0 0 0 1.5px var(--line); }
+.item-loja b { font-family: var(--display); font-weight: 400; font-size: 17px; line-height: 1.1; }
+.item-loja small { font-size: 12px; font-weight: 800; color: var(--muted); }
+.preco { font-family: var(--display); font-size: 17px; color: var(--yellow); display: flex; align-items: center; gap: 5px; }
+.item-loja .desejo-selo { position: absolute; top: 8px; right: 8px; font-size: 10px; font-weight: 900; color: var(--bg); background: var(--pink); border-radius: 999px; padding: 2px 6px; }
+.escolha-sabimon { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.escolha-sabimon .carta[aria-pressed="true"] { outline: 3px solid var(--green); outline-offset: 2px; }
+.escolha-sabimon .carta:disabled { opacity: .4; }

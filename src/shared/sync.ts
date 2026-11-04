@@ -2,6 +2,20 @@
 // As cartas ficam numa tabela à parte no servidor (por causa das trocas);
 // o resto do progresso é mesclado aqui, sem nunca perder nada.
 
+/**
+ * Uma compra na lojinha: um item colocado num Sabimon, ou uma evolução.
+ * O saldo de Sabicoins é sempre XP total − soma dos preços das compras.
+ */
+export interface Compra {
+  id: string;
+  sabimon: string;
+  /** id do item da loja (quando é item) */
+  item?: string;
+  /** forma nova (quando é evolução) */
+  forma?: 2 | 3;
+  preco: number;
+}
+
 export interface ProgressoSync {
   xp: number;
   feitas: Record<string, true>;
@@ -10,9 +24,10 @@ export interface ProgressoSync {
   /** ids de pacotes já abertos (para um pacote aberto não voltar) */
   abertos: string[];
   dias: string[];
+  compras: Compra[];
 }
 
-export const progressoVazio = (): ProgressoSync => ({ xp: 0, feitas: {}, notas: {}, pacotes: [], abertos: [], dias: [] });
+export const progressoVazio = (): ProgressoSync => ({ xp: 0, feitas: {}, notas: {}, pacotes: [], abertos: [], dias: [], compras: [] });
 
 const uniq = <T,>(a: T[]) => [...new Set(a)];
 
@@ -31,6 +46,7 @@ export function mesclar(s: ProgressoSync, c: ProgressoSync): ProgressoSync {
     pacotes: [...porId.values()].slice(0, 50),
     abertos,
     dias: uniq([...s.dias, ...c.dias]).sort().slice(-400),
+    compras: [...new Map([...(s.compras ?? []), ...(c.compras ?? [])].map((x) => [x.id, x])).values()].slice(0, 500),
   };
 }
 
@@ -55,6 +71,14 @@ export function sanitizar(x: unknown, fasesValidas: Set<string>): ProgressoSync 
     pacotes,
     abertos: arr(o.abertos).filter((s): s is string => typeof s === 'string').map((s) => s.slice(0, 40)).slice(-500),
     dias: arr(o.dias).filter((s): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s)).slice(-400),
+    compras: arr(o.compras).flatMap((x): Compra[] => {
+      const k = obj(x);
+      if (typeof k.id !== 'string' || typeof k.sabimon !== 'string' || !/^s\d{3}$/.test(k.sabimon)) return [];
+      const preco = num(k.preco, 100_000);
+      if (typeof k.item === 'string' && /^[a-z0-9]{1,20}$/.test(k.item)) return [{ id: k.id.slice(0, 40), sabimon: k.sabimon, item: k.item, preco }];
+      if (k.forma === 2 || k.forma === 3) return [{ id: k.id.slice(0, 40), sabimon: k.sabimon, forma: k.forma, preco }];
+      return [];
+    }).slice(0, 500),
   };
 }
 

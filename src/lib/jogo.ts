@@ -2,6 +2,7 @@
 // Funções puras (sem tela), para poder testar.
 
 import type { Raridade, Sabimon } from '../data/tipos';
+import type { Compra } from '../shared/sync';
 
 export type Fase = 'ouvir' | 'memoria' | 'linha' | 'quiz' | 'prova';
 export const FASES: Fase[] = ['ouvir', 'memoria', 'linha', 'quiz', 'prova'];
@@ -44,10 +45,14 @@ export interface Estado {
   semNovo: number;
   /** dia (AAAA-MM-DD) em que a criança já ganhou o pacote do dia */
   pacoteDia: string;
+  /** compras da lojinha (itens e evoluções); o saldo é XP − soma dos preços */
+  compras: Compra[];
+  /** item da loja que a criança escolheu como "meu desejo" */
+  desejo: string | null;
 }
 
 export const estadoInicial = (): Estado => ({
-  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [], semNovo: 0, pacoteDia: '',
+  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [], semNovo: 0, pacoteDia: '', compras: [], desejo: null,
 });
 
 export function nivel(xp: number) {
