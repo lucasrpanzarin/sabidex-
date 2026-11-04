@@ -1,0 +1,31 @@
+# Robô do livro: lê as fotos das páginas e cria o rascunho de um capítulo com o Claude.
+# Dispara quando o arquivo livro/pedido.json muda. A chave fica em
+# Settings → Secrets and variables → Actions → ANTHROPIC_API_KEY.
+name: Robô do livro (Claude)
+on:
+  push:
+    branches: [main]
+    paths: ['livro/pedido.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: livro
+jobs:
+  livro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Ler e gerar
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npm ci && npx tsx scripts/livro.ts
+      - name: Salvar no repositório
+        run: |
+          git config user.name "sabidex-livro"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A livro src/data
+          git diff --cached --quiet || git commit -m "Livro: resultado do pedido"
+          git pull --rebase origin main && git push

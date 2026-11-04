@@ -21,6 +21,10 @@ App de estudo para crianças: a matéria da escola vira fases de jogo, e cada fa
 
 ## Como adicionar um capítulo
 
+**Com o robô do livro (recomendado):** tire fotos das páginas e siga `livro/LEIAME.md`. O robô cria o rascunho e uma revisão. Regras de perguntas, jogos e idade: `docs/ESTUDOS.md`.
+
+**À mão:**
+
 1. Crie `src/data/<materia><numero>.ts` no formato de `src/data/tipos.ts`.
 2. Coloque os áudios em `public/audio/`.
 3. Adicione o capítulo à lista em `src/data/index.ts`.
