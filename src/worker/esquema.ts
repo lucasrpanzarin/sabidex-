@@ -68,3 +68,32 @@ export const ESQUEMA = [
   `UPDATE trocas SET status = 'cancelada', resolvido = unixepoch() * 1000
     WHERE status = 'pendente' AND (carta_dar LIKE 'h-%' OR carta_receber LIKE 'h-%')`,
 ];
+
+/**
+ * Colunas acrescentadas depois. Cada uma roda sozinha; se a coluna já existe, o erro é ignorado.
+ *
+ * Conta da família: a criança pode ter um adulto responsável (familia_id = id do adulto).
+ * Criança da família que ainda não está numa turma fica com turma_id = 'familia:<id do adulto>'
+ * (assim o apelido continua único dentro da família e nenhuma consulta de turma a encontra).
+ */
+export const MIGRACOES = [
+  `ALTER TABLE adultos ADD COLUMN aceite INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE adultos ADD COLUMN aceite_versao TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE criancas ADD COLUMN familia_id TEXT`,
+  `CREATE INDEX IF NOT EXISTS criancas_familia ON criancas (familia_id)`,
+  // Adulto que entrou com Google/Apple e nunca criou senha (tem_senha = 0).
+  `ALTER TABLE adultos ADD COLUMN tem_senha INTEGER NOT NULL DEFAULT 1`,
+  // Links de "esqueci minha senha" (valem 1 hora e uma vez só).
+  `CREATE TABLE IF NOT EXISTS recuperacoes (
+    token_hash TEXT PRIMARY KEY,
+    adulto_id TEXT NOT NULL,
+    expira INTEGER NOT NULL,
+    usado INTEGER NOT NULL DEFAULT 0,
+    criado INTEGER NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS recuperacoes_adulto ON recuperacoes (adulto_id, criado)`,
+];
+
+export const SEM_TURMA = 'familia:';
+export const turmaDaFamilia = (adultoId: string) => SEM_TURMA + adultoId;
+export const temTurma = (turmaId: string) => !turmaId.startsWith(SEM_TURMA);

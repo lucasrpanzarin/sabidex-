@@ -39,6 +39,31 @@ export interface Questao {
   explicacao: string;
 }
 
+/** Complete a frase: `frase` tem ___ no lugar da palavra-chave. */
+export interface Lacuna {
+  frase: string;
+  resposta: string;
+  distratores: [string, string, string];
+}
+
+/** Quem sou eu? 3 pistas, da mais difícil para a mais fácil. */
+export interface QuemSouEu {
+  resposta: string;
+  pistas: [string, string, string];
+  distratores: [string, string, string];
+}
+
+/** Separe nos grupos: 2 ou 3 grupos com 2 a 4 itens cada. */
+export interface Classificar {
+  pergunta: string;
+  grupos: { nome: string; itens: string[] }[];
+}
+
+export interface CausaEfeito {
+  causa: string;
+  consequencia: string;
+}
+
 export type TipoSabimon = 'Fogo' | 'Água' | 'Planta' | 'Raio' | 'Pedra' | 'Vento' | 'Areia' | 'Gelo' | 'Som' | 'Estrela';
 
 export interface FormaSabimon {
@@ -70,6 +95,12 @@ export interface Capitulo {
   temas: Tema[];
   pares: Par[];
   linha: Evento[];
+  /** Não reordene nem apague itens de um capítulo publicado: a Revisão do Ará guarda as perguntas pela posição. Acrescente no fim. */
   quiz: Afirmacao[];
   prova: Questao[];
+  /** Jogos extras (opcionais). Só aparecem no app quando o capítulo tem material suficiente. */
+  lacunas?: Lacuna[];
+  quemSou?: QuemSouEu[];
+  classificar?: Classificar[];
+  causas?: CausaEfeito[];
 }

@@ -69,6 +69,17 @@ for src in sorted(ORIGEM.glob('*.png')):
     recortar(src, dst)
     print('ok', dst)
 
+# Ará, a mascote: arte/mascote/originais/ara-<humor>.png → public/mascote/ara-<humor>.webp (mesmo recorte)
+MAS_ORIGEM = Path('arte/mascote/originais')
+MAS_DESTINO = Path('public/mascote')
+MAS_DESTINO.mkdir(parents=True, exist_ok=True)
+for src in sorted(MAS_ORIGEM.glob('*.png')):
+    dst = MAS_DESTINO / (src.stem + '.webp')
+    if '--tudo' not in sys.argv and dst.exists() and dst.stat().st_mtime >= src.stat().st_mtime:
+        continue
+    recortar(src, dst)
+    print('ok', dst)
+
 # Cenários atrás dos bichos: não precisam de recorte, só ficar leves.
 CEN_ORIGEM = Path('arte/cenarios/originais')
 CEN_DESTINO = Path('public/cenarios')

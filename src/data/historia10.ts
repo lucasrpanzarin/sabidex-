@@ -231,7 +231,7 @@ export const historia10: Capitulo = {
       "pergunta": "Quando e onde os portugueses chegaram ao Brasil?",
       "opcoes": [
         "Em 1415, em Ceuta",
-        "Em 22 de abril de 1500, em Porto Seguro, na Bahia",
+        "Em 1500, em Porto Seguro",
         "Em 1549, em Salvador",
         "Em 1565, no Rio de Janeiro"
       ],
@@ -252,9 +252,9 @@ export const historia10: Capitulo = {
     {
       "pergunta": "Por que o pau-brasil era tão valioso na Europa?",
       "opcoes": [
-        "Dava uma tinta vermelha para tingir tecidos",
-        "Dava frutas muito doces",
-        "Tinha ouro dentro",
+        "Dava tinta vermelha para tecidos",
+        "Dava o açúcar dos engenhos",
+        "Tinha ouro dentro do tronco",
         "Servia para fazer remédios"
       ],
       "certa": 0,
@@ -263,10 +263,10 @@ export const historia10: Capitulo = {
     {
       "pergunta": "O que era o escambo?",
       "opcoes": [
-        "Uma moeda portuguesa",
-        "Um tipo de navio",
-        "A troca de trabalho ou produtos sem usar dinheiro",
-        "Um armazém no litoral"
+        "Uma moeda usada pelos portugueses",
+        "Um imposto pago ao rei de Portugal",
+        "A troca de produtos sem usar dinheiro",
+        "A divisão do Brasil em capitanias"
       ],
       "certa": 2,
       "explicacao": "Os indígenas trabalhavam e recebiam espelhos, tecidos e machados."
@@ -285,9 +285,9 @@ export const historia10: Capitulo = {
     {
       "pergunta": "Quais capitanias hereditárias prosperaram?",
       "opcoes": [
-        "Todas elas",
         "Bahia e Maranhão",
-        "Nenhuma",
+        "Pernambuco e Bahia",
+        "São Vicente e Maranhão",
         "Pernambuco e São Vicente"
       ],
       "certa": 3,
@@ -319,9 +319,9 @@ export const historia10: Capitulo = {
       "pergunta": "Por que os jesuítas eram contra a escravidão dos indígenas?",
       "opcoes": [
         "Porque queriam vendê-los",
-        "Porque não gostavam do Brasil",
+        "Porque queriam levá-los a Portugal",
         "Porque queriam catequizá-los",
-        "Porque queriam procurar ouro"
+        "Porque queriam usá-los nos engenhos"
       ],
       "certa": 2,
       "explicacao": "Eles queriam ensinar a religião católica aos indígenas, nas missões."
@@ -329,13 +329,219 @@ export const historia10: Capitulo = {
     {
       "pergunta": "Por que os holandeses invadiram o Nordeste do Brasil?",
       "opcoes": [
-        "Para pegar ouro",
-        "Para plantar café",
-        "Para caçar animais",
+        "Para tirar o pau-brasil das matas",
+        "Para catequizar os indígenas",
+        "Para procurar ouro no sertão",
         "Para controlar os engenhos de açúcar"
       ],
       "certa": 3,
       "explicacao": "Eles queriam o açúcar direto da fonte. Tomaram Salvador (1624) e Olinda e Recife (1630)."
+    }
+  ],
+  "lacunas": [
+    {
+      "frase": "Os portugueses chegaram a Porto Seguro em ___.",
+      "resposta": "1500",
+      "distratores": [
+        "1415",
+        "1549",
+        "1654"
+      ]
+    },
+    {
+      "frase": "A troca de produtos sem usar dinheiro se chama ___.",
+      "resposta": "escambo",
+      "distratores": [
+        "feitoria",
+        "sesmaria",
+        "missão"
+      ]
+    },
+    {
+      "frase": "O pau-brasil dava tinta ___ para tingir tecidos.",
+      "resposta": "vermelha",
+      "distratores": [
+        "azul",
+        "verde",
+        "amarela"
+      ]
+    },
+    {
+      "frase": "As capitanias eram ___ porque passavam de pai para filho.",
+      "resposta": "hereditárias",
+      "distratores": [
+        "gerais",
+        "francesas",
+        "jesuítas"
+      ]
+    },
+    {
+      "frase": "Quem recebia uma capitania era o ___.",
+      "resposta": "donatário",
+      "distratores": [
+        "ouvidor-mor",
+        "corsário",
+        "bandeirante"
+      ]
+    },
+    {
+      "frase": "Tomé de Sousa fundou ___, a primeira capital.",
+      "resposta": "Salvador",
+      "distratores": [
+        "Recife",
+        "São Luís",
+        "Rio de Janeiro"
+      ]
+    },
+    {
+      "frase": "No governo-geral, o ___ cuidava da justiça.",
+      "resposta": "ouvidor-mor",
+      "distratores": [
+        "capitão-mor",
+        "provedor-mor",
+        "donatário"
+      ]
+    },
+    {
+      "frase": "Os ___ criaram as missões para ensinar a religião católica.",
+      "resposta": "jesuítas",
+      "distratores": [
+        "bandeirantes",
+        "holandeses",
+        "tamoios"
+      ]
+    }
+  ],
+  "quemSou": [
+    {
+      "resposta": "Pero Vaz de Caminha",
+      "pistas": [
+        "Cheguei com os portugueses em 1500.",
+        "Contei tudo o que vi na nova terra.",
+        "Escrevi uma carta ao rei de Portugal."
+      ],
+      "distratores": [
+        "Tomé de Sousa",
+        "Mem de Sá",
+        "Martim Afonso de Sousa"
+      ]
+    },
+    {
+      "resposta": "Tomé de Sousa",
+      "pistas": [
+        "Fiz parte do governo-geral.",
+        "Fundei uma cidade em 1549.",
+        "Fundei Salvador, a primeira capital."
+      ],
+      "distratores": [
+        "Estácio de Sá",
+        "Mem de Sá",
+        "Maurício de Nassau"
+      ]
+    },
+    {
+      "resposta": "Maurício de Nassau",
+      "pistas": [
+        "Vim com os holandeses.",
+        "Fiz escolas e teatros.",
+        "Governei Recife e dei liberdade religiosa."
+      ],
+      "distratores": [
+        "Mem de Sá",
+        "Duarte da Costa",
+        "Estácio de Sá"
+      ]
+    },
+    {
+      "resposta": "Mem de Sá",
+      "pistas": [
+        "Governei depois de Duarte da Costa.",
+        "Lutei pela Baía de Guanabara.",
+        "Expulsei os franceses em 1560."
+      ],
+      "distratores": [
+        "Estácio de Sá",
+        "Tomé de Sousa",
+        "Maurício de Nassau"
+      ]
+    },
+    {
+      "resposta": "Pau-brasil",
+      "pistas": [
+        "Franceses e ingleses também vinham me buscar.",
+        "Os indígenas me guardavam nas feitorias.",
+        "Sou a árvore que dá tinta vermelha."
+      ],
+      "distratores": [
+        "Cana-de-açúcar",
+        "Sesmaria",
+        "Caravela"
+      ]
+    }
+  ],
+  "classificar": [
+    {
+      "pergunta": "Franceses ou holandeses?",
+      "grupos": [
+        {
+          "nome": "Franceses",
+          "itens": [
+            "Invadiram a Baía de Guanabara",
+            "Se aliaram aos tamoios",
+            "Fundaram São Luís"
+          ]
+        },
+        {
+          "nome": "Holandeses",
+          "itens": [
+            "Queriam o açúcar do Brasil",
+            "Tomaram Olinda e Recife",
+            "Foram governados por Nassau"
+          ]
+        }
+      ]
+    },
+    {
+      "pergunta": "Jesuítas ou colonos?",
+      "grupos": [
+        {
+          "nome": "Jesuítas",
+          "itens": [
+            "Eram contra a escravidão indígena",
+            "Criaram as missões",
+            "Ensinavam a religião católica"
+          ]
+        },
+        {
+          "nome": "Colonos",
+          "itens": [
+            "Escravizaram indígenas",
+            "Precisavam de trabalhadores"
+          ]
+        }
+      ]
+    }
+  ],
+  "causas": [
+    {
+      "causa": "Faltavam trabalhadores",
+      "consequencia": "Os colonos escravizaram indígenas"
+    },
+    {
+      "causa": "Os holandeses queriam o açúcar",
+      "consequencia": "Tomaram Salvador, Olinda e Recife"
+    },
+    {
+      "causa": "As capitanias passavam de pai para filho",
+      "consequencia": "Eram chamadas de hereditárias"
+    },
+    {
+      "causa": "O rei queria a colônia num comando só",
+      "consequencia": "Foi criado o governo-geral"
+    },
+    {
+      "causa": "Os indígenas cortavam o pau-brasil",
+      "consequencia": "Ganhavam espelhos, tecidos e machados"
     }
   ]
 };

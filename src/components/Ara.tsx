@@ -1,5 +1,20 @@
-// Ará, a arara mascote do Sabidex.
-export function Ara({ tamanho = 120, humor = 'feliz' }: { tamanho?: number; humor?: 'feliz' | 'triste' }) {
+// Ará, a arara mascote do Sabidex: a guia da turma (mochila e lápis), não é um Sabimon.
+// Usa o desenho 3D (public/mascote/ara-<humor>.webp) e, se ele ainda não existir, o desenho simples abaixo.
+import { useState } from 'react';
+
+type Humor = 'feliz' | 'triste' | 'pensando' | 'comemorando';
+
+export function Ara({ tamanho = 120, humor = 'feliz' }: { tamanho?: number; humor?: Humor }) {
+  const [semFoto, setSemFoto] = useState(false);
+  if (!semFoto) {
+    return <img src={`/mascote/ara-${humor}.webp`} alt="Ará, a arara" width={tamanho} height={Math.round((tamanho * 140) / 120)}
+      style={{ objectFit: 'contain', display: 'block' }} draggable={false} onError={() => setSemFoto(true)} />;
+  }
+  return <AraSimples tamanho={tamanho} triste={humor === 'triste'} />;
+}
+
+function AraSimples({ tamanho, triste }: { tamanho: number; triste: boolean }) {
+  const humor = triste ? 'triste' : 'feliz';
   return (
     <svg width={tamanho} height={Math.round((tamanho * 140) / 120)} viewBox="0 0 120 140" role="img" aria-label="Ará, a arara">
       <defs>

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Ara } from '../components/Ara';
+import { Pacote } from '../components/Pacote';
 import { CartaView, ROTULO } from '../components/CartaView';
 import { Icone } from '../components/Icone';
 import { sabimonPorId, sabimons, TOTAL_PLANEJADO } from '../data';
 import type { Raridade, Sabimon } from '../data/tipos';
 import { abrirPacote, garantiaAtiva, guardarCartas, GARANTIA } from '../lib/jogo';
 import { Faixa, Moeda, Saldo } from '../components/Loja';
-import { ESPACOS, PRECO_EVOLUCAO, copiasGastas, evoluir, formaDe, itensDe, podeEvoluir, saldo } from '../lib/loja';
+import { ESPACOS, PRECO_EVOLUCAO, copiasGastas, evoluir, formaDe, itensDe, podeEvoluir, saldo, visualDe } from '../lib/loja';
 import { useConta, evoluirNaConta } from '../lib/conta';
 import { ir } from '../lib/rota';
 import { jogar } from './Inicio';
@@ -23,8 +24,8 @@ export function AbrirPacote() {
     const nNovos = aberto.novos.size;
     const guardar = () => { setEstado((s) => guardarCartas(s, aberto.pacoteId, aberto.cartas)); setAberto(null); };
     return (
-      <main className="tela" style={{ alignItems: 'center', textAlign: 'center', background: 'radial-gradient(circle at 50% 40%, #1E2A63 0%, transparent 65%)' }}>
-        <div className="display pop" style={{ fontSize: 30, color: 'var(--yellow)', textShadow: '0 3px 0 #B45309' }}>
+      <main className="tela" style={{ alignItems: 'center', textAlign: 'center', background: 'radial-gradient(circle at 50% 40%, #FFE7A3 0%, transparent 65%)' }}>
+        <div className="display titulo-premio pop" style={{ fontSize: 30 }}>
           {lendaria ? 'Lendário!' : melhor.raridade === 'epica' ? 'Épico!' : nNovos ? 'Sabimon novo!' : 'Pacote aberto!'}
         </div>
         <div style={{ position: 'relative', display: 'grid', placeItems: 'center', padding: '8px 0', width: '100%', overflow: 'hidden', borderRadius: 24 }}>
@@ -78,17 +79,12 @@ export function AbrirPacote() {
         <button className="voltar" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         <span className="eyebrow">{e.pacotes.length > 1 ? `${e.pacotes.length} pacotes` : 'Pacote'}</span>
       </div>
-      <h1 className="display h1" style={{ color: 'var(--yellow)', textShadow: '0 4px 0 #B45309', marginTop: 12 }}>{epico ? 'Pacote épico!' : 'Novo pacote!'}</h1>
-      <button onClick={abrir} aria-label="Abrir o pacote"
-        style={{ border: 0, borderRadius: 28, padding: 4, background: epico ? 'linear-gradient(135deg,#FACC15,#F472B6)' : 'linear-gradient(135deg,#F472B6,#22D3EE 60%,#FACC15)', boxShadow: '0 20px 50px #22D3EE33' }}>
-        <span style={{ width: 210, height: 280, borderRadius: 24, background: 'linear-gradient(170deg,#26357A,#141B3D)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-          <span className="logo" style={{ fontSize: 24 }}>Sabidex</span>
-          <Ara tamanho={96} />
-          <span className="small" style={{ fontWeight: 800, color: '#C7D0F5' }}>{epico ? '1 Sabimon épico ou lendário' : '1 Sabimon surpresa'}</span>
-        </span>
+      <h1 className="display h1 titulo-premio" style={{ marginTop: 12 }}>{epico ? 'Pacote épico!' : 'Novo pacote!'}</h1>
+      <button onClick={abrir} aria-label="Abrir o pacote" className="pacote-botao">
+        <Pacote epico={epico} texto={epico ? '1 Sabimon épico ou lendário' : '1 Sabimon surpresa'} />
       </button>
       <span className="btn btn-amarelo" aria-hidden="true">Toque para abrir</span>
-      {garantiaAtiva(e) && <p className="small" style={{ color: 'var(--green)', fontWeight: 800, margin: 0 }}>Este pacote garante um Sabimon novo!</p>}
+      {garantiaAtiva(e) && <p className="small" style={{ color: 'var(--t-green)', fontWeight: 800, margin: 0 }}>Este pacote garante um Sabimon novo!</p>}
       {e.pacotes.length > 1 && <p className="muted small">Mais {e.pacotes.length - 1} {e.pacotes.length > 2 ? 'pacotes' : 'pacote'} depois desse</p>}
     </main>
   );
@@ -141,11 +137,11 @@ function Detalhe({ s }: { s: Sabimon }) {
         <button className="voltar" onClick={() => ir('album')}><Icone nome="voltar" tamanho={18} espessura={3} />Álbum</button>
         <Saldo valor={saldo(e)} />
       </div>
-      {evoluiu && <div className="display pop" style={{ fontSize: 30, color: 'var(--yellow)', textShadow: '0 3px 0 #B45309' }}>Evoluiu!</div>}
+      {evoluiu && <div className="display titulo-premio pop" style={{ fontSize: 30 }}>Evoluiu!</div>}
       <div style={{ position: 'relative', display: 'grid', placeItems: 'center', width: '100%', overflow: 'hidden', borderRadius: 24 }}>
         {evoluiu && <div className="raios" aria-hidden="true" />}
         <div key={forma} className={evoluiu ? 'pop' : undefined} style={{ position: 'relative', width: 'min(290px, 100%)' }}>
-          <CartaView carta={s} forma={forma} itens={itens} grande animar />
+          <CartaView carta={s} forma={forma} itens={itens} visual={visualDe(e, s.id)} grande animar />
         </div>
       </div>
       <Faixa itens={itens} onLivre={() => ir('loja', s.id)} />
@@ -198,7 +194,7 @@ export function Album({ id }: { id?: string }) {
           <div className="eyebrow">Álbum</div>
           <h1 className="display h2" style={{ fontSize: 27 }}>Sabimons</h1>
         </div>
-        <div className="display" style={{ fontSize: 28, color: 'var(--green)', fontVariantNumeric: 'tabular-nums', textAlign: 'right', lineHeight: 1 }}>
+        <div className="display" style={{ fontSize: 28, color: 'var(--t-green)', fontVariantNumeric: 'tabular-nums', textAlign: 'right', lineHeight: 1 }}>
           {formas}<span style={{ fontSize: 16, color: 'var(--muted)' }}>/{totalFormas}</span>
           <div className="small" style={{ fontFamily: 'var(--body)', fontWeight: 800, color: 'var(--muted)' }}>formas</div>
         </div>
@@ -212,14 +208,13 @@ export function Album({ id }: { id?: string }) {
       <div className="linha" style={{ gap: 8, flexWrap: 'wrap' }}>
         {FILTROS.map(([k, r]) => (
           <button key={k} onClick={() => setFiltro(k)} aria-pressed={filtro === k} aria-label={k === 'todas' ? 'Todos' : ROTULO[k as Raridade]}
-            style={{ border: 0, borderRadius: 999, padding: '8px 14px', minHeight: 40, fontWeight: 900, fontSize: 14,
-              background: filtro === k ? 'var(--ink)' : 'var(--surface)', color: filtro === k ? 'var(--bg)' : 'var(--ink)', boxShadow: filtro === k ? undefined : 'inset 0 0 0 1.5px var(--line)' }}>{r}</button>
+            className={`filtro ${k}`}>{r}</button>
         ))}
       </div>
       <div className="grade-3">
         {lista.map((c) => (
           <div key={c.id} style={{ position: 'relative' }}>
-            <CartaView carta={c} forma={formaDe(e, c.id)} tem={e.cartas[c.id] > 0} quantidade={e.cartas[c.id]} onClick={() => ir('album', c.id)} />
+            <CartaView carta={c} forma={formaDe(e, c.id)} visual={visualDe(e, c.id)} tem={e.cartas[c.id] > 0} quantidade={e.cartas[c.id]} onClick={() => ir('album', c.id)} />
             {podeEvoluir(e, c).ok && <span className="selo-novo" style={{ background: 'var(--green)' }}>EVOLUIR!</span>}
           </div>
         ))}

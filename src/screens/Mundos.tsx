@@ -1,6 +1,7 @@
 import { Icone } from '../components/Icone';
+import { Pacote } from '../components/Pacote';
 import { capitulos, capituloPorId } from '../data';
-import { FASES, FASE_INFO, chave, liberada } from '../lib/jogo';
+import { EXTRA_INFO, FASES, FASE_INFO, chave, chaveExtra, extrasDo, extrasLiberados, liberada } from '../lib/jogo';
 import { ir } from '../lib/rota';
 import { useEstado } from '../lib/store';
 
@@ -16,7 +17,7 @@ export function Mundos() {
         const n = FASES.filter((f) => e.feitas[chave(c.id, f)]).length;
         return (
           <button key={c.id} className="painel-destaque" onClick={() => ir('mundo', c.id)} style={{ textAlign: 'left', color: 'inherit' }}>
-            <span className="eyebrow" style={{ color: n === 5 ? 'var(--green)' : 'var(--yellow)' }}>Mundo {c.numero}{n === 5 ? ' · completo' : ''}</span>
+            <span className="eyebrow" style={{ color: n === 5 ? 'var(--t-green)' : 'var(--t-yellow)' }}>Mundo {c.numero}{n === 5 ? ' · completo' : ''}</span>
             <span className="display" style={{ fontSize: 24, display: 'block', marginTop: 2 }}>{c.titulo}</span>
             <span className="muted small" style={{ display: 'block' }}>{c.subtitulo}</span>
             <span className="barra barra-verde" style={{ display: 'block', marginTop: 12 }} aria-label={`${n} de 5 fases`}><div style={{ width: `${(n / 5) * 100}%` }} /></span>
@@ -53,20 +54,20 @@ export function Mundo({ id }: { id: string }) {
           const eAgora = f === agora;
           const tam = eAgora ? 78 : 64;
           const estilo: React.CSSProperties = feita
-            ? { background: NO_FEITA, boxShadow: 'inset 0 -4px 0 #15803D, inset 0 2px 0 #DCFCE7' }
+            ? { background: NO_FEITA, border: '3px solid var(--ink)', boxShadow: '3px 3px 0 var(--ink)' }
             : eAgora
-              ? { background: 'linear-gradient(180deg, #FDE68A 0%, #FACC15 45%, #EAB308 100%)', boxShadow: 'inset 0 -5px 0 #CA8A04, inset 0 2px 0 #FEF9C3, 0 0 0 6px #FACC1533, 0 8px 24px #FACC1555' }
-              : { background: 'var(--surface)', border: '1.5px dashed var(--line-2)' };
+              ? { background: 'linear-gradient(180deg, #FDE68A 0%, #FACC15 45%, #EAB308 100%)', border: '3px solid var(--ink)', boxShadow: '4px 4px 0 var(--ink), 0 0 0 8px #FFC21A55, 0 8px 24px #FACC1555' }
+              : { background: 'var(--surface)', border: '3px dashed #10213F66' };
           return (
             <li key={f} style={{ paddingLeft: recuo[i] }}>
               <button disabled={!livre} onClick={() => ir('fase', cap.id, f)} className="linha"
                 style={{ background: 'none', border: 0, padding: 0, textAlign: 'left', gap: 14, cursor: livre ? 'pointer' : 'not-allowed' }}
                 aria-label={`${f === 'prova' ? 'Chefão' : `Fase ${i + 1}`}: ${FASE_INFO[f].titulo}${feita ? ', completa' : livre ? '' : ', bloqueada'}`}>
-                <span style={{ width: tam, height: tam, flex: 'none', borderRadius: '50%', display: 'grid', placeItems: 'center', color: feita ? '#052E16' : eAgora ? 'var(--bg)' : 'var(--muted)', ...estilo }}>
+                <span style={{ width: tam, height: tam, flex: 'none', borderRadius: '50%', display: 'grid', placeItems: 'center', color: feita ? '#052E16' : eAgora ? 'var(--ink)' : 'var(--muted)', ...estilo }}>
                   <Icone nome={feita ? 'check' : livre ? 'play' : 'cadeado'} tamanho={feita ? 30 : 28} cheio={!feita && livre} espessura={feita ? 3.5 : 2.5} />
                 </span>
                 <span style={{ minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 11, fontWeight: 900, letterSpacing: '.06em', textTransform: 'uppercase', color: eAgora ? 'var(--yellow)' : feita ? 'var(--green)' : 'var(--muted)' }}>{f === 'prova' ? 'Chefão' : eAgora ? 'Agora' : `Fase ${i + 1}`}</span>
+                  <span style={{ display: 'block', fontSize: 11, fontWeight: 900, letterSpacing: '.06em', textTransform: 'uppercase', color: eAgora ? 'var(--t-yellow)' : feita ? 'var(--t-green)' : 'var(--muted)' }}>{f === 'prova' ? 'Chefão' : eAgora ? 'Agora' : `Fase ${i + 1}`}</span>
                   <span className="display" style={{ display: 'block', fontSize: 19, color: livre ? 'var(--ink)' : 'var(--muted)' }}>{FASE_INFO[f].titulo}</span>
                   <span className="muted small">{FASE_INFO[f].sub} · +{FASE_INFO[f].xp} XP</span>
                 </span>
@@ -76,9 +77,38 @@ export function Mundo({ id }: { id: string }) {
         })}
       </ol>
 
+      {extrasDo(cap).length > 0 && (
+        <section aria-label="Jogos extras" className="coluna" style={{ gap: 8 }}>
+          <div>
+            <h2 className="display h3" style={{ margin: 0 }}>Jogos extras</h2>
+            <div className="muted small">
+              {extrasLiberados(e, cap.id) ? 'Termine todos para ganhar um pacote' : 'Abrem depois de ouvir os temas'}
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            {extrasDo(cap).map((x) => {
+              const livre = extrasLiberados(e, cap.id);
+              const feito = !!e.feitas[chaveExtra(cap.id, x)];
+              return (
+                <button key={x} disabled={!livre} onClick={() => ir('extra', cap.id, x)} className="painel"
+                  style={{ textAlign: 'left', color: 'inherit', padding: 12, display: 'flex', flexDirection: 'column', gap: 4,
+                    borderColor: feito ? '#22C55E' : livre ? 'var(--line-2)' : 'var(--line)', borderStyle: livre ? 'solid' : 'dashed', opacity: livre ? 1 : 0.6 }}
+                  aria-label={`${EXTRA_INFO[x].titulo}${feito ? ', completo' : livre ? '' : ', bloqueado'}`}>
+                  <span style={{ color: feito ? 'var(--t-green)' : livre ? 'var(--cyan-2)' : 'var(--muted)' }}>
+                    <Icone nome={feito ? 'check' : livre ? 'play' : 'cadeado'} tamanho={20} cheio={!feito && livre} espessura={3} />
+                  </span>
+                  <span className="display" style={{ fontSize: 17 }}>{EXTRA_INFO[x].titulo}</span>
+                  <span className="muted" style={{ fontSize: 12, fontWeight: 700 }}>+{EXTRA_INFO[x].xp} XP</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       <div className="painel-destaque linha" style={{ marginTop: 'auto' }}>
-        <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="10" width="32" height="28" rx="8" fill="#F472B6" /><rect x="19" y="10" width="6" height="28" fill="#FACC15" /><circle cx="22" cy="10" r="5" fill="#FACC15" /></svg>
-        <div><div className="display" style={{ fontSize: 18 }}>Prêmios do mundo</div><div className="muted small">Pacote no jogo da memória, no quiz e um épico na prova</div></div>
+        <Pacote tamanho="mini" />
+        <div><div className="display" style={{ fontSize: 18 }}>Prêmios do mundo</div><div className="muted small">Pacote no jogo da memória, no quiz, nos jogos extras e um épico na prova</div></div>
       </div>
     </main>
   );
