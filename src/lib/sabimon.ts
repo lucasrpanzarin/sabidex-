@@ -33,7 +33,8 @@ export const ROTULO: Record<Raridade, string> = {
 
 const VIDA_BASE: Record<Raridade, number> = { comum: 50, rara: 60, epica: 70, lendaria: 90 };
 const VIDA_FORMA: Record<Forma, number> = { 1: 0, 2: 30, 3: 70 };
-const FORCA_BASE: Record<Raridade, number> = { comum: 10, rara: 20, epica: 30, lendaria: 20 };
+// A lendária é a mais rara e também a mais forte: nunca perde em nenhum número (Lucas, 04/11/2026).
+const FORCA_BASE: Record<Raridade, number> = { comum: 10, rara: 20, epica: 30, lendaria: 40 };
 const FORCA_FORMA: Record<Forma, number> = { 1: 1, 2: 1.7, 3: 2.6 };
 
 export const vida = (s: Sabimon, forma: Forma) => VIDA_BASE[s.raridade] + VIDA_FORMA[forma];

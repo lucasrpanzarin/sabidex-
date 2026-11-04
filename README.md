@@ -9,10 +9,10 @@ App de estudo para crianças: a matéria da escola vira fases de jogo, e cada fa
 - **Jogos extras** em cada mundo: complete a frase, quem sou eu?, separe nos grupos e por que aconteceu? Terminar os quatro dá um pacote.
 - **Revisão do Ará:** as perguntas erradas voltam no dia seguinte e as certas voltam em 3, 7, 21 e 60 dias (repetição espaçada). Revisar também vale o pacote do dia.
 - XP, níveis, dias seguidos e o mascote Ará.
-- Pacotes de 3 cartas (comum, rara, épica e lendária) e álbum com 12 cartas por capítulo.
+- Pacotes com 1 Sabimon (comum, rara, épica ou lendária) e álbum de 60 figurinhas (20 Sabimons × 3 formas). 3 cartas iguais viram a forma 2; 2 da forma 2 viram a forma 3.
 
 **Conta da família (precisa de internet)**
-- Sem conta, o progresso fica só no aparelho. Para guardar de verdade, um adulto cria a **conta da família** em "Sou pai, mãe ou professor" (tem uma conta de multiplicar antes, para a criança não entrar sozinha).
+- Para jogar é preciso entrar numa turma ou numa conta. Um adulto cria a **conta da família** em "Sou pai, mãe ou professor" (tem uma conta de multiplicar antes, para a criança não entrar sozinha).
 - O adulto cria o perfil de cada filho (apelido, cor e PIN) e toca em "Abrir neste aparelho" no celular da criança. O progresso que já estava no aparelho pode ir junto.
 - Irmãos no mesmo aparelho escolhem o próprio perfil e digitam o PIN.
 - O adulto vê o progresso, troca o PIN, tira da turma, apaga um perfil ou apaga a conta inteira.

@@ -3,7 +3,7 @@
 
 import { Hono, type Context } from 'hono';
 import { capitulos } from '../data';
-import { FASES, chaveExtra, extrasDo } from '../lib/jogo';
+import { FASES, POR_PACOTE, chaveExtra, extrasDo } from '../lib/jogo';
 import { idEvolucao, itemPorId, migrarFormas, podeEvoluir, premiosLivres, PRECO_EVOLUCAO, protegido, refCompra } from '../lib/loja';
 import { figurinhaPorId, idCarta, IDS_CARTAS, IDS_PACOTE } from '../lib/figurinhas';
 import {
@@ -145,6 +145,22 @@ function upsertCartas(db: D1Database, id: string, delta: Record<string, number>)
       .bind(id, carta, n));
 }
 
+/**
+ * Proteção simples contra cartas inventadas: cada pacote aberto dá 1 carta,
+ * então o aparelho só pode mandar tantas cartas novas quantos pacotes novos ele abriu.
+ * (A proteção completa é abrir os pacotes no servidor; está no caderno, para antes de publicar nas lojas.)
+ */
+function limitarCartas(delta: Record<string, number>, pacotesNovos: number): Record<string, number> {
+  let resta = Math.max(0, pacotesNovos) * POR_PACOTE;
+  const out: Record<string, number> = {};
+  for (const [carta, n] of Object.entries(delta)) {
+    const pode = Math.min(n, resta);
+    if (pode > 0) { out[carta] = pode; resta -= pode; }
+  }
+  return out;
+}
+const pacotesNovos = (antes: string[], agora: string[]) => { const ja = new Set(antes); return new Set(agora.filter((id) => !ja.has(id))).size; };
+
 /* ---------------- Datas das provas da escola ---------------- */
 
 const CAPITULOS_VALIDOS = new Set(capitulos.map((c) => c.id));
@@ -217,7 +233,7 @@ app.post('/crianca/entrar-turma', async (c) => {
       c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)`)
         .bind(id, t.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semana, Date.now(), Date.now()),
-      ...upsertCartas(c.env.DB, id, sanitizarDelta(b.cartas, IDS_PACOTE)),
+      ...upsertCartas(c.env.DB, id, limitarCartas(sanitizarDelta(b.cartas, IDS_CARTAS), progresso.abertos.length)),
     ]);
   } catch (e) {
     if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já tem alguém com esse apelido na turma. Escolha outro, ou entre com o seu PIN se a conta for sua.');
@@ -343,17 +359,35 @@ app.post('/crianca/sync', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
   const b = await corpo(c);
-  const antes = sanitizar(JSON.parse(k.progresso), FASES_VALIDAS);
-  const m = conferirCompras(antes, mesclar(antes, sanitizar(b.progresso, FASES_VALIDAS)));
-  const semana = semanaDe();
-  const ganho = Math.max(0, m.xp - antes.xp);
-  const xpSemana = (k.semana === semana ? k.xp_semana : 0) + Math.min(ganho, 2000);
-  await c.env.DB.batch([
-    c.env.DB.prepare('UPDATE criancas SET progresso = ?, xp_semana = ?, semana = ?, visto = ? WHERE id = ?')
-      .bind(JSON.stringify(m), xpSemana, semana, Date.now(), k.id),
-    ...upsertCartas(c.env.DB, k.id, sanitizarDelta(b.cartas, IDS_PACOTE)),
-  ]);
-  return c.json(await respostaConta(c.env.DB, k, m));
+  const doAparelho = sanitizar(b.progresso, FASES_VALIDAS);
+  const recebidas = sanitizarDelta(b.cartas, IDS_PACOTE);
+  const db = c.env.DB;
+  // Grava só se ninguém mudou o progresso no meio do caminho (uma evolução, outra aba).
+  // Se mudou, lê de novo e junta outra vez: assim nenhuma evolução ou compra do servidor se perde.
+  let atual = k;
+  for (let tentativa = 0; tentativa < 4; tentativa++) {
+    const antes = sanitizar(JSON.parse(atual.progresso), FASES_VALIDAS);
+    const m = conferirCompras(antes, mesclar(antes, doAparelho));
+    const delta = limitarCartas(recebidas, pacotesNovos(antes.abertos, doAparelho.abertos));
+    const semana = semanaDe();
+    const ganho = Math.max(0, m.xp - antes.xp);
+    const xpSemana = (atual.semana === semana ? atual.xp_semana : 0) + Math.min(ganho, 2000);
+    const novo = JSON.stringify(m);
+    const trava = `EXISTS (SELECT 1 FROM criancas WHERE id = ? AND progresso = ?)`;
+    const res = await db.batch([
+      // As cartas entram primeiro, só se o progresso ainda é o que foi lido (e depois o progresso muda).
+      ...Object.entries(delta).map(([carta, n]) =>
+        db.prepare(`INSERT INTO cartas (crianca_id, carta_id, qtd) SELECT ?, ?, ? WHERE ${trava}
+          ON CONFLICT (crianca_id, carta_id) DO UPDATE SET qtd = qtd + excluded.qtd`).bind(atual.id, carta, n, atual.id, atual.progresso)),
+      db.prepare('UPDATE criancas SET progresso = ?, xp_semana = ?, semana = ?, visto = ? WHERE id = ? AND progresso = ?')
+        .bind(novo, xpSemana, semana, Date.now(), atual.id, atual.progresso),
+    ]);
+    if (res[res.length - 1].meta.changes === 1) return c.json(await respostaConta(db, atual, m));
+    const relido = await db.prepare('SELECT * FROM criancas WHERE id = ?').bind(k.id).first<Crianca>();
+    if (!relido) return erro(c, 401, 'Entre de novo na sua conta.');
+    atual = relido;
+  }
+  return erro(c, 409, 'Muita coisa ao mesmo tempo. Tente de novo.');
 });
 
 /** Evolui uma carta: 3 da forma 1 viram 1 da forma 2; 2 da forma 2 viram 1 da forma 3. Gasta também as Sabicoins. */
@@ -373,14 +407,21 @@ app.post('/crianca/evoluir', async (c) => {
     return erro(c, 409, msg);
   }
   const minimo = p.gasta + (protegido(prog, f.id) ? 1 : 0);
-  const tirou = await db.prepare('UPDATE cartas SET qtd = qtd - ? WHERE crianca_id = ? AND carta_id = ? AND qtd >= ?').bind(p.gasta, k.id, f.id, minimo).run();
-  if (tirou.meta.changes !== 1) return erro(c, 409, 'Faltam cartas para evoluir. Abra mais pacotes!');
   const nova = idCarta(f.s.id, p.forma);
   const novo: ProgressoSync = { ...prog, compras: [...prog.compras, { id: idEvolucao(f.s.id, p.forma), sabimon: refCompra(nova), forma: p.forma, preco: PRECO_EVOLUCAO[p.forma] }] };
-  await db.batch([
-    ...upsertCartas(db, k.id, { [nova]: 1 }),
-    db.prepare('UPDATE criancas SET progresso = ?, visto = ? WHERE id = ?').bind(JSON.stringify(novo), Date.now(), k.id),
+  const novoTexto = JSON.stringify(novo);
+  // Tudo numa transação só: o progresso (com a compra da evolução) só muda se ninguém mexeu nele
+  // e se ainda há cartas; as cartas só mudam se o progresso mudou. Nunca some carta sem evoluir.
+  const feito = `EXISTS (SELECT 1 FROM criancas WHERE id = ? AND progresso = ?)`;
+  const res = await db.batch([
+    db.prepare(`UPDATE criancas SET progresso = ?, visto = ? WHERE id = ? AND progresso = ?
+      AND EXISTS (SELECT 1 FROM cartas WHERE crianca_id = ? AND carta_id = ? AND qtd >= ?)`)
+      .bind(novoTexto, Date.now(), k.id, k.progresso, k.id, f.id, minimo),
+    db.prepare(`UPDATE cartas SET qtd = qtd - ? WHERE crianca_id = ? AND carta_id = ? AND ${feito}`).bind(p.gasta, k.id, f.id, k.id, novoTexto),
+    db.prepare(`INSERT INTO cartas (crianca_id, carta_id, qtd) SELECT ?, ?, 1 WHERE ${feito}
+      ON CONFLICT (crianca_id, carta_id) DO UPDATE SET qtd = qtd + 1`).bind(k.id, nova, k.id, novoTexto),
   ]);
+  if (res[0].meta.changes !== 1) return erro(c, 409, 'Não deu para evoluir agora. Tente de novo.');
   return c.json({ ...(await respostaConta(db, k, novo)), carta: nova });
 });
 
@@ -796,7 +837,7 @@ app.post('/adulto/familia', async (c) => {
       c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, familia_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)`)
         .bind(id, turmaDaFamilia(a.id), a.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semanaDe(), Date.now(), Date.now()),
-      ...upsertCartas(c.env.DB, id, sanitizarDelta(b.cartas, IDS_PACOTE)),
+      ...upsertCartas(c.env.DB, id, limitarCartas(sanitizarDelta(b.cartas, IDS_CARTAS), progresso.abertos.length)),
     ]);
   } catch (e) {
     if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já tem uma criança com esse apelido na sua família.');
