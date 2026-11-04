@@ -5,5 +5,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "sabidex",
   "compatibility_date": "2026-10-01",
+  // Endereço público do app: https://sabidex.fastlabs.workers.dev
+  "workers_dev": true,
+  "preview_urls": true,
   "assets": { "directory": "./dist", "not_found_handling": "single-page-application" }
 }
