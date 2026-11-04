@@ -9,6 +9,7 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 - Todo texto do app é em **português do Brasil**, frases curtas, para uma criança de 10 anos ler sozinha.
 - **Segurança das crianças:** nunca coletar sobrenome, e-mail, foto, telefone ou localização da criança. Só apelido e uma cor de avatar. Nada de chat livre entre crianças: trocas são só propostas de cartas.
 - Conteúdo vem do livro da escola. Cada capítulo novo é um arquivo em `src/data/` seguindo o formato de `src/data/tipos.ts`. Não invente fatos históricos: confira com o livro.
+- Capítulo novo a partir de fotos do livro: siga a skill **capitulo-do-livro** (`.claude/skills/capitulo-do-livro/SKILL.md`), na conversa, sem API paga. Regras de perguntas, jogos e idade: `docs/ESTUDOS.md`.
 - Cartas colecionáveis têm desenhos originais. Nunca usar personagens, nomes ou marcas de outros jogos (Pokémon etc.).
 
 ## Visual (não mudar sem o Lucas pedir)

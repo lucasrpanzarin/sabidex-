@@ -1,5 +1,5 @@
 // Regras de qualidade do conteúdo de estudo, por idade.
-// Usadas pelo robô do livro (scripts/livro.ts) e pelos testes. Explicação completa em docs/ESTUDOS.md.
+// Usadas por `npm run conferir` (scripts/conferir.ts) e pelos testes. Explicação completa em docs/ESTUDOS.md.
 
 import type { Capitulo, Questao, Raridade } from '../data/tipos';
 

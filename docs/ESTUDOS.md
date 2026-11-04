@@ -1,8 +1,8 @@
-# Estudos no Sabidex: como a criança aprende, perguntas, jogos, foco e o robô do livro
+# Estudos no Sabidex: como a criança aprende, perguntas, jogos, foco e do livro para o app
 
 Guia de decisão para a parte de estudo. Serve para o Lucas, para professores e para o Claude
 quando for criar capítulos ou jogos novos. As regras daqui viraram código em `src/lib/conteudo.ts`
-(conferência automática) e `scripts/livro.ts` (robô do livro).
+(conferência automática, `npm run conferir`) e `.claude/skills/capitulo-do-livro/SKILL.md` (roteiro para criar capítulos a partir das fotos).
 
 ---
 
@@ -41,7 +41,7 @@ São os resultados mais firmes da pesquisa sobre aprendizagem. Cada um vira uma 
 
 **Mistura da prova (10 questões):** 3 lembrar, 4 entender, 2 aplicar, 1 analisar.
 
-### Regras de uma boa pergunta (o robô segue e o teste confere)
+### Regras de uma boa pergunta (o Claude segue e `npm run conferir` confere)
 
 1. Uma pergunta, uma ideia. Até ~20 palavras.
 2. **As erradas precisam ser plausíveis**: do mesmo tipo da certa (se a certa é um povo, as outras também são povos do capítulo) e com **tamanho parecido**.
@@ -78,8 +78,6 @@ Nada disso quebra o jogo, mas deixa a prova mais fácil do que parece. Vale corr
 
 ### Jogos novos, por ordem de impacto
 
-O robô do livro **já cria o material** dos jogos 2 a 5 (fica em `livro/<capitulo>/capitulo.json`, parte `extras`).
-
 1. **Revisão do Ará (repetição espaçada).** Todo dia, 5 a 8 perguntas que a criança errou ou acertou há tempo. Acertou: a pergunta volta daqui a mais dias (1 → 3 → 7 → 21). Errou: volta amanhã. É o que mais faz a matéria ficar para a prova da escola. Dá XP e, a cada 5 revisões, um pacote.
 2. **Complete a frase.** Frase do livro com uma lacuna e 4 palavras para escolher. Treina lembrar a palavra exata.
 3. **Quem sou eu?** 3 pistas, uma de cada vez. Acertar na 1ª pista vale mais XP.
@@ -110,36 +108,30 @@ O robô do livro **já cria o material** dos jogos 2 a 5 (fica em `livro/<capitu
 
 ---
 
-## 5. O robô do livro
+## 5. Do livro para o app (feito na conversa, sem custo de API)
 
-Fica em `scripts/livro.ts` e roda no GitHub (`.github/workflows/livro.yml`), igual às vozes e à arte.
-Passo a passo de uso: `livro/LEIAME.md`.
-
-### Como funciona (3 robôs separados)
+O Lucas manda as fotos das páginas na conversa com o Claude, que segue sempre o mesmo roteiro
+(`.claude/skills/capitulo-do-livro/SKILL.md`). Passo a passo para o Lucas: `livro/LEIAME.md`.
 
 ```
-fotos das páginas ──► 1. LEITOR ──► paginas.md (texto fiel do livro)
-                                         │
-                                         ▼
-                                    2. CRIADOR ──► src/data/<capitulo>.ts  (rascunho)
-                                         │          capitulo.json (com a página de cada item)
-                                         ▼
-                                    3. CONFERENTE ──► conferencia.md (erros e avisos)
-                                         +
-                                    conferência automática (src/lib/conteudo.ts)
+fotos na conversa ──► 1. LER ──► livro/<capitulo>/paginas.md (texto fiel do livro)
+                                     │
+                                     ▼
+                                2. CRIAR ──► src/data/<capitulo>.ts + livro/<capitulo>/fontes.md
+                                     │
+                                     ▼
+                                3. CONFERIR ──► npm run conferir + releitura item por item contra o livro
 ```
 
-**1. Como ele lê as imagens.** O Claude olha cada foto (uma por vez, reduzida para 2000 px) e **só copia**:
-títulos, parágrafos, boxes, legendas, datas das linhas do tempo e as atividades do livro. Cada imagem do livro
-vira uma descrição curta (`[IMAGEM: ...]`). Se algo está borrado ou cortado ele escreve `[ILEGÍVEL]` em vez de
-adivinhar, e o resultado avisa qual foto refazer. Separar "ler" de "criar" é o que impede o robô de inventar:
-o criador só enxerga o que foi copiado do livro.
+**1. Como as imagens são lidas.** O Claude olha cada foto e **só copia**: títulos, parágrafos, boxes, legendas,
+datas das linhas do tempo e as atividades do livro. Cada imagem do livro vira uma descrição curta (`[IMAGEM: ...]`).
+O que está borrado ou cortado vira `[ILEGÍVEL]`, e ele pede outra foto em vez de adivinhar. Separar "ler" de
+"criar" é o que impede de inventar: o capítulo é feito só com o que foi copiado do livro.
 
-**2. Como ele escolhe o que é mais importante.** O livro já mostra o que importa. O criador procura:
-palavras em **negrito**, boxes, o que se repete, as atividades do fim do capítulo e o resumo. E cobre
-**todos** os subtítulos, não só o começo.
+**2. Como escolher o que é mais importante.** O livro já mostra o que importa: palavras em **negrito**, boxes,
+o que se repete, as atividades do fim do capítulo e o resumo. E todos os subtítulos entram, não só o começo.
 
-**3. Como ele escreve para cada idade.** O pedido leva o ano escolar (`"ano": 4`). As regras mudam:
+**3. Como escrever para cada idade.** As regras mudam com o ano escolar (`perfilDoAno` em `src/lib/conteudo.ts`):
 
 | Ano | Idade | Frase | Perguntas |
 |---|---|---|---|
@@ -147,26 +139,18 @@ palavras em **negrito**, boxes, o que se repete, as atividades do fim do capítu
 | 3º–5º | 8–11 | até 15–20 palavras, ordem direta, palavra nova explicada | entender, comparar, causa e consequência |
 | 6º–9º | 11–14 | até 25 palavras, termos técnicos definidos | analisar, pontos de vista, fontes |
 
-**4. Como ele gera os textos.** Usa o formato do app (`src/data/tipos.ts`) com as regras da seção 2:
+**4. Como os textos são gerados.** No formato do app (`src/data/tipos.ts`), com as regras da seção 2:
 mistura de níveis na prova, erradas plausíveis, quiz com metade verdadeira, 12 cartas (5 comuns, 3 raras,
-2 épicas, 2 lendárias). Depois o código **espalha as respostas certas** entre A, B, C e D.
+2 épicas, 2 lendárias).
 
-**5. Como ele se confere.** Um segundo robô, que não criou o conteúdo, compara item por item com o livro e
-aponta "erros" (fato fora do livro, resposta errada, duas certas) e "atenção" (frase difícil, distrator óbvio).
-A conferência automática olha tamanhos, quantidades e pegadinhas.
-
-**Importante:** o rascunho nunca entra no app sozinho. Uma pessoa lê a conferência e coloca o capítulo em
-`src/data/index.ts`.
-
-**Custo:** cada capítulo de ~20 páginas deve custar por volta de 1 a 3 dólares de uso do Claude (estimativa;
-o valor real aparece no painel da Anthropic).
-
----
+**5. Como é conferido.** `npm run conferir -- <capitulo> --espalhar` espalha as respostas certas entre A, B, C e D
+e aponta tamanhos, quantidades e pegadinhas. Depois o Claude relê cada item contra o livro como revisor.
+Por último, o Lucas confere datas e nomes principais no livro (`fontes.md` diz a página).
 
 ## 6. Próximos passos sugeridos
 
-1. Testar o robô com um capítulo de verdade (fotos + chave `ANTHROPIC_API_KEY` no GitHub).
+1. Criar o próximo capítulo mandando as fotos na conversa.
 2. Corrigir as questões dos capítulos 9 e 10 apontadas na seção 2.
 3. Criar a **Revisão do Ará** (repetição espaçada): é o jogo que mais ajuda na prova da escola.
-4. Criar "Complete a frase" e "Quem sou eu?" usando os `extras` do robô (precisa acrescentar esses campos em `tipos.ts`).
+4. Criar "Complete a frase" e "Quem sou eu?" (precisa acrescentar esses campos em `tipos.ts`).
 5. Painel do professor: mostrar quais perguntas a turma mais erra.

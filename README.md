@@ -21,7 +21,7 @@ App de estudo para crianças: a matéria da escola vira fases de jogo, e cada fa
 
 ## Como adicionar um capítulo
 
-**Com o robô do livro (recomendado):** tire fotos das páginas e siga `livro/LEIAME.md`. O robô cria o rascunho e uma revisão. Regras de perguntas, jogos e idade: `docs/ESTUDOS.md`.
+**Pela conversa com o Claude (recomendado):** mande as fotos das páginas na conversa e siga `livro/LEIAME.md`. Regras de perguntas, jogos e idade: `docs/ESTUDOS.md`.
 
 **À mão:**
 
@@ -37,6 +37,7 @@ npm install      # instala tudo
 npm run dev      # abre o app no computador (sem servidor)
 npm run build && npm run dev:api   # app + servidor + banco local
 npm test         # testes das regras do jogo e do conteúdo
+npm run conferir -- historia-11   # confere as perguntas de um capítulo
 npm run build    # gera a versão para publicar (pasta dist/)
 ```
 
