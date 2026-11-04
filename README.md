@@ -9,8 +9,16 @@ App de estudo para crianças: a matéria da escola vira fases de jogo, e cada fa
 - XP, níveis, dias seguidos e o mascote Ará.
 - Pacotes de 3 cartas (comum, rara, épica e lendária) e álbum com 12 cartas por capítulo.
 
+**Conta da família (precisa de internet)**
+- Sem conta, o progresso fica só no aparelho. Para guardar de verdade, um adulto cria a **conta da família** em "Sou pai, mãe ou professor" (tem uma conta de multiplicar antes, para a criança não entrar sozinha).
+- O adulto cria o perfil de cada filho (apelido, cor e PIN) e toca em "Abrir neste aparelho" no celular da criança. O progresso que já estava no aparelho pode ir junto.
+- Irmãos no mesmo aparelho escolhem o próprio perfil e digitam o PIN.
+- O adulto vê o progresso, troca o PIN, tira da turma, apaga um perfil ou apaga a conta inteira.
+- Política de privacidade em `#/privacidade`.
+
 **Turma (precisa de internet)**
 - Adultos (pais e professores) criam conta em "Área dos pais e professores", criam turmas e recebem um código (ex.: ARARA-4821).
+- Criança com conta da família entra na turma só com o código e continua com a mesma conta.
 - A criança entra na turma com o código, um apelido e cria um PIN de 4 números. O progresso que ela já tinha vai junto.
 - Em outro aparelho, ela entra com código + apelido + PIN e recupera tudo. 5 PINs errados bloqueiam por 15 minutos.
 - **Trocas:** a criança propõe trocar qualquer carta com um colega da turma; o colega aceita ou recusa. O app avisa quando é a única cópia ou quando a troca é desigual. Não existe chat.
@@ -18,6 +26,17 @@ App de estudo para crianças: a matéria da escola vira fases de jogo, e cada fa
 - O adulto vê as crianças da turma, gera PIN novo e remove crianças. O administrador geral (e-mails em `ADMIN_EMAILS` no `wrangler.jsonc`) vê todas as turmas.
 
 **Privacidade:** das crianças o Sabidex guarda só apelido, cor e progresso no jogo. PINs e senhas ficam embaralhados (hash), nunca em texto.
+
+## Ligar "Entrar com Google", "Entrar com Apple" e "Esqueci minha senha"
+
+O código já está pronto. Cada opção só aparece no app depois de configurada no painel da Cloudflare
+(**Workers & Pages → sabidex → Settings → Variables and Secrets**):
+
+| Opção | O que criar | Nome no painel |
+|---|---|---|
+| Google | Em console.cloud.google.com: "Credenciais" → "ID do cliente OAuth" do tipo **Aplicativo da Web**, com `https://sabidex.com.br` em "Origens JavaScript autorizadas" | `GOOGLE_CLIENT_ID` (texto) |
+| Apple | Em developer.apple.com (conta paga): um **Services ID** com "Sign in with Apple", domínio `sabidex.com.br` e retorno `https://sabidex.com.br/` | `APPLE_CLIENT_ID` (texto, o Services ID) |
+| Esqueci minha senha | Conta no resend.com, com o domínio `sabidex.com.br` verificado, e uma chave de API | `RESEND_API_KEY` (**segredo**) e `EMAIL_REMETENTE` (texto, ex.: `Sabidex <nao-responda@sabidex.com.br>`) |
 
 ## Como adicionar um capítulo
 

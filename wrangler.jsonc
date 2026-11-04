@@ -27,6 +27,9 @@
   },
   // Banco de dados das turmas. Sem "database_id": a Cloudflare cria sozinha no primeiro deploy.
   "d1_databases": [{ "binding": "DB", "database_name": "sabidex" }],
+  // Mantém as variáveis criadas no painel (GOOGLE_CLIENT_ID, APPLE_CLIENT_ID, EMAIL_REMETENTE)
+  // quando a Cloudflare publica uma versão nova.
+  "keep_vars": true,
   "vars": {
     // Quem vê todas as turmas (administrador geral).
     "ADMIN_EMAILS": "lucasrpanzarin@gmail.com,lucas@fastgsa.com"
