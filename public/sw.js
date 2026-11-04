@@ -1,7 +1,8 @@
 // Sabidex: guarda o app e os áudios para funcionar sem internet.
 // Mudou a versão (v3): apaga as cópias antigas, que podiam ter guardado a página do app
 // no lugar de um áudio que ainda não existia (aí tocava a voz antiga).
-const CACHE = 'sabidex-v3';
+// v4: logo e ícone novos.
+const CACHE = 'sabidex-v4';
 self.addEventListener('install', (e) => { self.skipWaiting(); });
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));

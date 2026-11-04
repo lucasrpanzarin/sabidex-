@@ -318,4 +318,7 @@ export function embaralhar<T>(lista: T[], rng: () => number = Math.random): T[] 
 }
 
 /** Nota de 0 a 10, com meio ponto. */
-export const notaDe = (acertos: number, total: number) => Math.round((acertos / total) * 20) / 2;
+export const notaDe = (acertos: number, total: number) => (total > 0 ? Math.round((acertos / total) * 20) / 2 : 0);
+
+/** Estrelas do resultado (iguais em todos os jogos): 3 = nota 10, 2 = nota 7 ou mais, 1 = abaixo de 7. */
+export const estrelasDaNota = (nota: number) => (nota >= 10 ? 3 : nota >= NOTA_MINIMA ? 2 : 1);

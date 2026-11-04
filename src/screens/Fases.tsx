@@ -4,7 +4,7 @@ import { Icone } from '../components/Icone';
 import { Moeda } from '../components/Loja';
 import { capituloPorId } from '../data';
 import type { Capitulo } from '../data/tipos';
-import { FASE_INFO, NOTA_MINIMA, PERDA_POR_ERRO, XP_MINIMO, concluirFase, embaralhar, hoje, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
+import { FASE_INFO, NOTA_MINIMA, PERDA_POR_ERRO, XP_MINIMO, concluirFase, embaralhar, estrelasDaNota, hoje, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
 import { idProva, idQuiz, registrarResposta } from '../lib/revisao';
 import { ir } from '../lib/rota';
 import { jogar, proximaFase } from './Inicio';
@@ -38,13 +38,34 @@ const MOTIVO: Record<MotivoPacote, string> = {
   extras: 'Pacote por terminar todos os jogos extras do mundo',
 };
 
-/** Tela de resultado com XP, nível e pacote ganhos. */
-export function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { cap: Capitulo; r: Resultado; titulo: string; detalhe?: ReactNode; aprovado?: boolean; onDeNovo: () => void }) {
+/** Estrelas do resultado (3 = nota 10, 2 = nota 7 ou mais, 1 = abaixo de 7). */
+export const Estrelas = ({ n }: { n: number }) => (
+  <div className="display" style={{ fontSize: 40, color: 'var(--yellow)', letterSpacing: 4, WebkitTextStroke: '1.5px var(--ink)' }} aria-label={`${n} de 3 estrelas`}>
+    {'★'.repeat(n)}<span style={{ color: 'var(--line)', WebkitTextStroke: '1.5px var(--line)' }}>{'★'.repeat(3 - n)}</span>
+  </div>
+);
+
+/** Placar igual em todos os jogos: estrelas, quantas certas e a nota de 0 a 10. */
+export function Placar({ acertos, total, nome = 'certas' }: { acertos: number; total: number; nome?: string }) {
+  const nota = notaDe(acertos, total);
+  const passou = nota >= NOTA_MINIMA;
+  return (
+    <div className="coluna" style={{ alignItems: 'center', gap: 2 }}>
+      <Estrelas n={estrelasDaNota(nota)} />
+      <div className="display" style={{ fontSize: 24 }}>{acertos} de {total} {nome}</div>
+      <div className="display" style={{ fontSize: 20, color: passou ? 'var(--t-green)' : 'var(--t-pink)' }}>Nota {nota.toLocaleString('pt-BR')}</div>
+    </div>
+  );
+}
+
+/** Tela de resultado com placar, XP, nível e pacote ganhos. */
+export function Fim({ cap, r, titulo, placar, detalhe, aprovado = true, onDeNovo }: { cap: Capitulo; r: Resultado; titulo: string; placar?: { acertos: number; total: number; nome?: string }; detalhe?: ReactNode; aprovado?: boolean; onDeNovo: () => void }) {
   const nv = nivel(r.estado.xp);
   return (
     <main className="tela" style={{ alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
       <div className="pop"><Ara tamanho={120} humor={aprovado ? 'comemorando' : 'triste'} /></div>
       <h1 className={`display h1${aprovado ? ' titulo-premio' : ''}`}>{titulo}</h1>
+      {placar && <Placar {...placar} />}
       {detalhe}
       <div className="painel coluna sobe" style={{ width: '100%', gap: 8, animationDelay: '.15s' }}>
         <div className="linha" style={{ justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
@@ -54,7 +75,7 @@ export function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { ca
         <div className="muted small">XP sobe seu nível. Sabicoins você gasta na lojinha.</div>
         {!!r.erros && r.xpSemErros !== undefined && r.xpSemErros > r.xpGanho && (
           <div className="small" style={{ fontWeight: 800, color: 'var(--t-coral)' }}>
-            {r.erros === 1 ? '1 erro' : `${r.erros} erros`}: você perdeu {r.xpSemErros - r.xpGanho} XP. Sem errar, seriam +{r.xpSemErros}.
+            Valia +{r.xpSemErros}. {r.erros === 1 ? '1 erro' : `${r.erros} erros`}: −{r.xpSemErros - r.xpGanho} XP.
           </div>
         )}
         {r.subiuNivel && <div className="display pop" style={{ fontSize: 22, color: 'var(--t-green)' }}>Subiu para o nível {nv.nivel}!</div>}
@@ -226,53 +247,53 @@ function Memoria({ cap }: { cap: Capitulo }) {
   const palavras = useMemo(() => embaralhar(pares), [pares]);
   const sigs = useMemo(() => embaralhar(pares), [pares]);
   const [sel, setSel] = useState<string | null>(null);
+  // Cada palavra tem uma chance só: errou, o par certo aparece e a palavra fica marcada como erro.
   const [certos, setCertos] = useState<Set<string>>(new Set());
-  const [erros, setErros] = useState(0);
+  const [perdidos, setPerdidos] = useState<Set<string>>(new Set());
   const [errado, setErrado] = useState<string | null>(null);
+  const erros = perdidos.size;
 
   const escolherSig = (palavraDoSig: string) => {
-    if (!sel || certos.has(palavraDoSig)) return;
-    if (sel === palavraDoSig) {
-      const n = new Set(certos).add(sel);
-      setCertos(n); setSel(null);
-      if (n.size === pares.length) setTimeout(() => finalizar(notaDe(n.size, n.size + erros), erros), 500);
-    } else {
-      setErros((x) => x + 1); setErrado(palavraDoSig);
-      setTimeout(() => setErrado(null), 350);
-    }
+    if (!sel || certos.has(palavraDoSig) || perdidos.has(palavraDoSig)) return;
+    const c = new Set(certos), p = new Set(perdidos);
+    if (sel === palavraDoSig) c.add(sel);
+    else { p.add(sel); setErrado(palavraDoSig); setTimeout(() => setErrado(null), 600); }
+    setCertos(c); setPerdidos(p); setSel(null);
+    if (c.size + p.size === pares.length) setTimeout(() => finalizar(notaDe(c.size, pares.length), p.size), 900);
   };
 
   if (res) {
-    const estrelas = erros === 0 ? 3 : erros <= 3 ? 2 : 1;
-    return <Fim cap={cap} r={res} titulo={estrelas === 3 ? 'Perfeito!' : 'Muito bem!'}
-      detalhe={<div className="display" style={{ fontSize: 36, color: 'var(--t-yellow)', letterSpacing: 4 }} aria-label={`${estrelas} estrelas`}>{'★'.repeat(estrelas)}<span style={{ color: 'var(--line-2)' }}>{'★'.repeat(3 - estrelas)}</span></div>}
-      onDeNovo={() => { setRodada((r) => r + 1); setCertos(new Set()); setErros(0); setSel(null); limpar(); }} />;
+    return <Fim cap={cap} r={res} titulo={erros === 0 ? 'Perfeito!' : 'Muito bem!'} placar={{ acertos: certos.size, total: pares.length }}
+      onDeNovo={() => { setRodada((r) => r + 1); setCertos(new Set()); setPerdidos(new Set()); setSel(null); limpar(); }} />;
   }
   return (
     <main className="tela">
       <Topo cap={cap} fase="memoria" extra={<span className="pilula">{certos.size}/{pares.length}</span>} />
-      <p className="muted small" style={{ margin: 0 }}>Toque numa palavra e depois no significado dela.</p>
+      <p className="muted small" style={{ margin: 0 }}>Toque numa palavra e depois no significado dela. <strong>Cada palavra tem uma chance só!</strong></p>
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,0.8fr) minmax(0,1.2fr)', gap: 10 }}>
         <div className="coluna" style={{ gap: 8 }}>
           {palavras.map((p) => {
-            const ok = certos.has(p.palavra);
+            const ok = certos.has(p.palavra), perdeu = perdidos.has(p.palavra);
             return (
-              <button key={p.palavra} disabled={ok} onClick={() => setSel(p.palavra)} aria-pressed={sel === p.palavra}
-                className={`btn ${ok ? 'btn-verde' : sel === p.palavra ? 'btn-amarelo' : 'btn-escuro'}`}
-                style={{ fontSize: 16, minHeight: 64, padding: '8px 10px', opacity: ok ? 0.55 : 1 }}>{p.palavra}</button>
+              <button key={p.palavra} disabled={ok || perdeu} onClick={() => setSel(p.palavra)} aria-pressed={sel === p.palavra}
+                className={`btn ${ok ? 'btn-verde' : perdeu ? 'btn-vermelho' : sel === p.palavra ? 'btn-amarelo' : 'btn-escuro'}`}
+                style={{ fontSize: 16, minHeight: 64, padding: '8px 10px', opacity: ok || perdeu ? 0.55 : 1 }}>{p.palavra}</button>
             );
           })}
         </div>
         <div className="coluna" style={{ gap: 8 }}>
           {sigs.map((p) => {
-            const ok = certos.has(p.palavra);
+            const ok = certos.has(p.palavra), perdeu = perdidos.has(p.palavra);
             return (
-              <button key={p.palavra} disabled={ok} onClick={() => escolherSig(p.palavra)}
+              <button key={p.palavra} disabled={ok || perdeu} onClick={() => escolherSig(p.palavra)}
                 className={errado === p.palavra ? 'treme' : ''}
                 style={{ minHeight: 64, borderRadius: 16, padding: '8px 12px', textAlign: 'left', fontWeight: 700, fontSize: 14, lineHeight: 1.3,
-                  background: ok ? '#DCFCE7' : errado === p.palavra ? '#FFE4E6' : 'var(--surface)',
-                  border: `3px solid ${ok ? '#22C55E' : errado === p.palavra ? 'var(--red)' : sel ? 'var(--line-2)' : 'var(--line)'}`,
-                  opacity: ok ? 0.55 : 1 }}>{p.significado}</button>
+                  background: ok ? '#DCFCE7' : perdeu || errado === p.palavra ? '#FFE4E6' : 'var(--surface)',
+                  border: `3px solid ${ok ? '#22C55E' : perdeu || errado === p.palavra ? 'var(--red)' : sel ? 'var(--line-2)' : 'var(--line)'}`,
+                  opacity: ok ? 0.55 : 1 }}>
+                {(ok || perdeu) && <span className="small" style={{ display: 'block', color: ok ? 'var(--t-green)' : 'var(--t-red)' }}>{perdeu ? `Errou. Era: ${p.palavra}` : p.palavra}</span>}
+                {p.significado}
+              </button>
             );
           })}
         </div>
@@ -289,39 +310,40 @@ function Linha({ cap }: { cap: Capitulo }) {
   const eventos = useMemo(() => embaralhar(cap.linha).slice(0, 5), [cap, rodada]);
   const certa = useMemo(() => [...eventos].sort((a, b) => a.ordem - b.ordem), [eventos]);
   const [postos, setPostos] = useState<typeof eventos>([]);
+  // Cada lugar da linha tem uma chance só: errou, o fato certo entra sozinho, marcado como erro.
+  const [perdidos, setPerdidos] = useState<Set<number>>(new Set());
   const [errado, setErrado] = useState<string | null>(null);
-  const [erros, setErros] = useState(0);
+  const erros = perdidos.size;
 
   const tocar = (ev: (typeof eventos)[number]) => {
-    if (postos.includes(ev)) return;
-    if (certa[postos.length] === ev) {
-      const n = [...postos, ev];
-      setPostos(n);
-      if (n.length === certa.length) setTimeout(() => finalizar(notaDe(n.length, n.length + erros), erros), 600);
-    } else {
-      setErros((x) => x + 1); setErrado(ev.fato);
-      setTimeout(() => setErrado(null), 900);
-    }
+    if (postos.includes(ev) || errado) return;
+    const lugar = postos.length;
+    const n = [...postos, certa[lugar]];
+    const p = new Set(perdidos);
+    if (certa[lugar] !== ev) { p.add(lugar); setPerdidos(p); setErrado(ev.fato); setTimeout(() => setErrado(null), 900); }
+    setPostos(n);
+    if (n.length === certa.length) setTimeout(() => finalizar(notaDe(n.length - p.size, n.length), p.size), 900);
   };
 
-  if (res) return <Fim cap={cap} r={res} titulo={erros === 0 ? 'Sem errar nenhuma!' : 'Linha completa!'}
+  if (res) return <Fim cap={cap} r={res} titulo={erros === 0 ? 'Sem errar nenhuma!' : 'Linha completa!'} placar={{ acertos: certa.length - erros, total: certa.length }}
     detalhe={<ol className="coluna" style={{ width: '100%', gap: 6, padding: 0, listStyle: 'none', textAlign: 'left' }}>{certa.map((ev) => <li key={ev.fato} className="small"><span className="display" style={{ color: 'var(--t-yellow)' }}>{ev.ano}</span> · {ev.fato}</li>)}</ol>}
-    onDeNovo={() => { setRodada((r) => r + 1); setPostos([]); setErros(0); limpar(); }} />;
+    onDeNovo={() => { setRodada((r) => r + 1); setPostos([]); setPerdidos(new Set()); limpar(); }} />;
 
   const restantes = eventos.filter((ev) => !postos.includes(ev));
   return (
     <main className="tela">
       <Topo cap={cap} fase="linha" />
       <div className="aviso" style={{ background: 'var(--surface)', border: '3px solid var(--ink)' }}>
-        Toque nos fatos do <strong>mais antigo</strong> para o <strong>mais novo</strong>.
+        Toque nos fatos do <strong>mais antigo</strong> para o <strong>mais novo</strong>. Cada lugar tem uma chance só!
       </div>
       <ol style={{ listStyle: 'none', margin: 0, padding: '0 0 0 22px', borderLeft: '4px solid var(--line)', display: 'grid', gap: 8 }}>
         {certa.map((_, i) => {
           const ev = postos[i];
+          const perdeu = perdidos.has(i);
           return (
-            <li key={i} className={ev ? 'pop' : ''} style={{ position: 'relative', minHeight: 48, borderRadius: 14, padding: '8px 12px', background: ev ? '#DCFCE7' : 'transparent', border: `1.5px ${ev ? 'solid #22C55E' : 'dashed var(--line)'}` }}>
-              <span aria-hidden="true" style={{ position: 'absolute', left: -35, top: 14, width: 18, height: 18, borderRadius: '50%', background: ev ? 'var(--green)' : 'var(--line)', border: '3px solid var(--bg)' }} />
-              {ev ? <><span className="display" style={{ color: 'var(--t-yellow)', marginRight: 8 }}>{ev.ano}</span><span style={{ fontWeight: 700 }}>{ev.fato}</span></> : <span className="muted small">{i + 1}º lugar</span>}
+            <li key={i} className={ev ? 'pop' : ''} style={{ position: 'relative', minHeight: 48, borderRadius: 14, padding: '8px 12px', background: ev ? (perdeu ? '#FFE4E6' : '#DCFCE7') : 'transparent', border: `1.5px ${ev ? `solid ${perdeu ? 'var(--red)' : '#22C55E'}` : 'dashed var(--line)'}` }}>
+              <span aria-hidden="true" style={{ position: 'absolute', left: -35, top: 14, width: 18, height: 18, borderRadius: '50%', background: ev ? (perdeu ? 'var(--red)' : 'var(--green)') : 'var(--line)', border: '3px solid var(--bg)' }} />
+              {ev ? <>{perdeu && <span className="small" style={{ display: 'block', fontWeight: 800, color: 'var(--t-red)' }}>Errou. O certo era este:</span>}<span className="display" style={{ color: 'var(--t-yellow)', marginRight: 8 }}>{ev.ano}</span><span style={{ fontWeight: 700 }}>{ev.fato}</span></> : <span className="muted small">{i + 1}º lugar</span>}
             </li>
           );
         })}
@@ -331,7 +353,7 @@ function Linha({ cap }: { cap: Capitulo }) {
           <button key={ev.fato} onClick={() => tocar(ev)} className={errado === ev.fato ? 'treme' : ''}
             style={{ minHeight: 56, borderRadius: 16, padding: '10px 14px', textAlign: 'left', fontWeight: 800, background: errado === ev.fato ? '#FFE4E6' : 'var(--surface)', border: `3px solid ${errado === ev.fato ? 'var(--red)' : 'var(--line-2)'}` }}>
             {ev.fato}
-            {errado === ev.fato && <span style={{ display: 'block', fontSize: 13, color: 'var(--t-red)' }}>Ainda não! Tem um fato mais antigo.</span>}
+            {errado === ev.fato && <span style={{ display: 'block', fontSize: 13, color: 'var(--t-red)' }}>Não! Tinha um fato mais antigo.</span>}
           </button>
         ))}
       </div>
@@ -380,8 +402,8 @@ function Quiz({ cap }: { cap: Capitulo }) {
     if (i + 1 >= lista.length) { fim.current = true; finalizar(notaDe(acertos, lista.length), respondidas - acertos); } else setI(i + 1);
   };
 
-  if (res) return <Fim cap={cap} r={res} titulo={acertos >= lista.length * 0.8 ? 'Relâmpago!' : 'Bom jogo!'}
-    detalhe={<><div className="display" style={{ fontSize: 26 }}>{acertos} de {respondidas} certas{respondidas < lista.length ? ` · deu tempo de ${respondidas} de ${lista.length}` : ''}</div>{errou && AVISO_REVISAO}</>}
+  if (res) return <Fim cap={cap} r={res} titulo={acertos >= lista.length * 0.8 ? 'Relâmpago!' : 'Bom jogo!'} placar={{ acertos, total: lista.length }}
+    detalhe={<>{respondidas < lista.length && <div className="muted small">O tempo acabou: deu para responder {respondidas} de {lista.length}.</div>}{errou && AVISO_REVISAO}</>}
     onDeNovo={() => { setRodada((r) => r + 1); setI(0); setAcertos(0); setErrou(false); setRespondidas(0); setResto(TEMPO); setComecou(false); setRetorno(null); fim.current = false; limpar(); }} />;
 
   if (!comecou) return (
@@ -449,10 +471,9 @@ function Prova({ cap }: { cap: Capitulo }) {
     const passou = nota >= NOTA_MINIMA;
     return (
       <>
-        <Fim cap={cap} r={res} aprovado={passou} titulo={passou ? 'Chefão vencido!' : 'Quase lá!'}
+        <Fim cap={cap} r={res} aprovado={passou} titulo={passou ? 'Chefão vencido!' : 'Quase lá!'} placar={{ acertos, total: qs.length }}
           detalhe={<div className="coluna" style={{ alignItems: 'center', gap: 0 }}>
-            <div className="display" style={{ fontSize: 64, lineHeight: 1, color: passou ? 'var(--t-green)' : 'var(--t-pink)' }}>{nota.toLocaleString('pt-BR')}</div>
-            <div className="muted">{acertos} de {qs.length} certas{passou ? '' : ` · precisa de nota ${NOTA_MINIMA} para o pacote`}</div>
+            {!passou && <div className="muted">Precisa de nota {NOTA_MINIMA} para passar e ganhar o pacote épico.</div>}
             {acertos < qs.length && AVISO_REVISAO}
           </div>}
           onDeNovo={() => { setI(0); setRespostas([]); setTentativa((t) => t + 1); limpar(); }} />

@@ -5,6 +5,7 @@
 
 import type { CSSProperties } from 'react';
 import { Ara } from './Ara';
+import { Logo } from './Logo';
 
 interface Props {
   tamanho?: 'grande' | 'mini';
@@ -31,7 +32,7 @@ export function Pacote({ tamanho = 'grande', epico = false, texto }: Props) {
     <span className={`pacote${epico ? ' epico' : ''}`} style={estilo}>
       <img className="pacote-foto" src={img} alt="" draggable={false} />
       <span className="pacote-brilho" aria-hidden="true" />
-      <span className="pacote-logo">Sabidex</span>
+      <span className="pacote-logo"><Logo tamanho={epico ? 31 : 34} /></span>
       <span className="pacote-arte"><Ara tamanho={epico ? 92 : 100} /></span>
       <span className="pacote-sub">{epico ? 'Pacote épico' : 'Pacote de Sabimons'}</span>
       {texto && <span className="pacote-chip">{texto}</span>}

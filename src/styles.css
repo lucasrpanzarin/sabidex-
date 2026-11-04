@@ -79,7 +79,16 @@ a { color: inherit; }
 .eyebrow { font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--t-pink); }
 .muted { color: var(--muted); font-weight: 700; }
 .small { font-size: 13px; }
-.logo { font-family: var(--display); font-size: 30px; color: var(--coral); -webkit-text-stroke: 1.5px var(--ink); paint-order: stroke fill; text-shadow: 2px 3px 0 var(--ink); }
+/* Logo: cada letra é uma figurinha colorida, colada meio torta (as 5 cores do álbum) */
+.logo { display: inline-flex; font-family: var(--display); font-size: 30px; line-height: 1; padding: .08em .06em .14em; }
+.logo > span { display: inline-block; -webkit-text-stroke: .12em var(--ink); paint-order: stroke fill; text-shadow: .055em .07em 0 var(--ink); }
+.logo > span:nth-child(1) { color: var(--coral);  transform: rotate(-8deg); }
+.logo > span:nth-child(2) { color: var(--yellow); transform: rotate(5deg) translateY(.05em); }
+.logo > span:nth-child(3) { color: var(--cyan);   transform: rotate(-4deg); }
+.logo > span:nth-child(4) { color: var(--pink);   transform: rotate(7deg) translateY(.04em); }
+.logo > span:nth-child(5) { color: var(--green);  transform: rotate(-6deg); }
+.logo > span:nth-child(6) { color: var(--coral);  transform: rotate(4deg) translateY(.05em); }
+.logo > span:nth-child(7) { color: var(--yellow); transform: rotate(-7deg); }
 strong { color: var(--t-coral); font-weight: 900; }
 /* Título de prêmio ("Comprado!", "Evoluiu!"): letra amarela com contorno, como figurinha brilhante */
 .titulo-premio { color: var(--yellow); -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; text-shadow: 3px 4px 0 var(--ink); }
@@ -346,9 +355,7 @@ strong { color: var(--t-coral); font-weight: 900; }
   background: linear-gradient(105deg, transparent 38%, #FFFFFFD9 48%, #FFFFFF 50%, #FFFFFFD9 52%, transparent 62%) 0 0 / 300% 100% no-repeat;
   animation: brilho-pacote 3.4s ease-in-out infinite; }
 @keyframes brilho-pacote { 0% { background-position: 100% 0; } 60%, 100% { background-position: 0% 0; } }
-.pacote-logo { position: absolute; left: 0; right: 0; top: 7.4%; text-align: center; font-family: var(--display); font-size: 34px; line-height: 1; color: var(--yellow);
-  -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; text-shadow: 2px 3px 0 var(--ink); transform: rotate(-3deg); }
-.pacote.epico .pacote-logo { color: #FF5A36; font-size: 31px; }
+.pacote-logo { position: absolute; left: 0; right: 0; top: 6.4%; display: flex; justify-content: center; transform: rotate(-3deg); }
 .pacote-arte { position: absolute; left: 0; right: 0; top: 34%; display: grid; place-items: center; }
 .pacote.epico .pacote-arte { top: 37%; }
 .pacote-arte img { filter: drop-shadow(0 4px 0 #10213F40); }
@@ -445,8 +452,8 @@ button.painel:active, button.painel-destaque:active, .item-carta:active, .aviso-
 .verso-canto { position: absolute; font-size: 18px; line-height: 1; color: #FFC21A; text-shadow: 0 0 8px #FFC21A99; }
 .verso-canto.c1 { top: 8px; left: 10px; } .verso-canto.c2 { top: 8px; right: 10px; }
 .verso-canto.c3 { bottom: 8px; left: 10px; } .verso-canto.c4 { bottom: 8px; right: 10px; }
-/* O logo é o mesmo do app (.logo); aqui só muda o tamanho. */
-.verso-logo { font-size: 40px; line-height: 1; }
+/* O logo é o mesmo do app (componente Logo, letras-figurinha coloridas). */
+.verso-logo { display: block; line-height: 0; }
 .verso-medalha { position: relative; width: 62%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
   background: radial-gradient(circle, #FFE58A 0 30%, transparent 62%),
     repeating-conic-gradient(from 0deg, #FFC21A 0 10deg, #FF9F1C 10deg 20deg);

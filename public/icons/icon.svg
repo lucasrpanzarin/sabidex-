@@ -1,16 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Ícone do Sabidex: mini carta lendária (borda holográfica) com o "S" do logo. -->
   <defs>
-    <radialGradient id="bg" cx=".5" cy=".2" r=".9"><stop offset="0" stop-color="#26357A"/><stop offset="1" stop-color="#0B1026"/></radialGradient>
-    <linearGradient id="c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF6B6B"/><stop offset="1" stop-color="#DC2626"/></linearGradient>
-    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67E8F9"/><stop offset="1" stop-color="#0891B2"/></linearGradient>
+    <linearGradient id="holo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFC21A"/><stop offset=".35" stop-color="#F472B6"/>
+      <stop offset=".65" stop-color="#22C3D6"/><stop offset="1" stop-color="#22B35E"/>
+    </linearGradient>
+    <path id="s" d="M76 244Q95 229 141.5 203.0Q188 177 230.5 177.0Q273 177 273 210Q273 225 261.0 236.5Q249 248 217.0 263.0Q185 278 169.0 286.5Q153 295 126.5 314.5Q100 334 86 355Q46 412 46.0 500.0Q46 588 111.5 648.5Q177 709 283 709Q355 709 416.0 693.5Q477 678 479 653Q479 650 479 647Q479 612 457.0 558.5Q435 505 426 499Q362 532 311.5 532.0Q261 532 261 496Q261 474 298 457Q306 453 321.0 446.0Q336 439 355.5 429.5Q375 420 397.5 405.5Q420 391 446 367Q499 317 499 235Q499 128 440.0 60.0Q381 -8 258 -10Q198 -10 149.5 0.0Q101 10 65.0 39.0Q29 68 29.0 109.0Q29 150 44.0 190.5Q59 231 76 244Z"/>
   </defs>
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <path d="M120 330c-40 30-40 90-10 120 40-10 70-60 60-110z" fill="url(#a)"/>
-  <circle cx="256" cy="250" r="150" fill="url(#c)"/>
-  <path d="M170 120c20-60 90-80 120-40-40 0-70 20-80 50z" fill="#FF6B6B"/>
-  <ellipse cx="200" cy="230" rx="52" ry="58" fill="#fff"/><ellipse cx="312" cy="230" rx="52" ry="58" fill="#fff"/>
-  <circle cx="210" cy="240" r="28" fill="#0B1026"/><circle cx="322" cy="240" r="28" fill="#0B1026"/>
-  <circle cx="220" cy="226" r="10" fill="#fff"/><circle cx="332" cy="226" r="10" fill="#fff"/>
-  <path d="M206 300c20-20 80-20 100 0 0 50-30 90-50 100-20-10-50-50-50-100z" fill="#334155"/>
-  <path d="M216 304c20-10 60-10 80 0-10 20-70 20-80 0z" fill="#94A3B8"/>
+  <rect width="512" height="512" fill="url(#holo)"/>
+  <g transform="rotate(-6 256 256)">
+    <rect x="128" y="96" width="272" height="336" rx="40" fill="#10213F"/>
+    <rect x="112" y="80" width="272" height="336" rx="40" fill="#FFC21A" stroke="#10213F" stroke-width="14"/>
+    <g transform="translate(250 256) scale(.3 -.3) translate(-264 -350)">
+      <use href="#s" fill="#10213F" stroke="#10213F" stroke-width="50" stroke-linejoin="round" transform="translate(30 -36)"/>
+      <use href="#s" fill="#FFFFFF" stroke="#10213F" stroke-width="50" stroke-linejoin="round" paint-order="stroke fill"/>
+    </g>
+  </g>
 </svg>
