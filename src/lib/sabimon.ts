@@ -10,6 +10,20 @@ export const COR_TIPO: Record<TipoSabimon, string> = {
   Vento: '#5EEAD4', Areia: '#E7C89A', Gelo: '#7DD3FC', Som: '#F472B6', Estrela: '#818CF8',
 };
 
+/** Cores do corpo da carta por tipo: claro (em cima) e escuro (embaixo). */
+export const TEMA_TIPO: Record<TipoSabimon, { claro: string; escuro: string; classe: string }> = {
+  Fogo: { claro: '#FDBA74', escuro: '#C2410C', classe: 'fogo' },
+  Água: { claro: '#7DD3FC', escuro: '#1D4ED8', classe: 'agua' },
+  Planta: { claro: '#86EFAC', escuro: '#15803D', classe: 'planta' },
+  Raio: { claro: '#FDE68A', escuro: '#CA8A04', classe: 'raio' },
+  Pedra: { claro: '#D6B48C', escuro: '#7C4A26', classe: 'pedra' },
+  Vento: { claro: '#99F6E4', escuro: '#0F766E', classe: 'vento' },
+  Areia: { claro: '#F5DEB3', escuro: '#A16207', classe: 'areia' },
+  Gelo: { claro: '#E0F2FE', escuro: '#3B82C4', classe: 'gelo' },
+  Som: { claro: '#F9A8D4', escuro: '#BE185D', classe: 'som' },
+  Estrela: { claro: '#A5B4FC', escuro: '#1E1B6B', classe: 'estrela' },
+};
+
 export const ROTULO: Record<Raridade, string> = {
   comum: '★ Comum', rara: '★★ Rara', epica: '★★★ Épica', lendaria: '★★★★ Lendária',
 };

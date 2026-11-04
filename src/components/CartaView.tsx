@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from 'react';
 import type { Sabimon } from '../data/tipos';
-import { COR_TIPO, ROTULO, forca, vida, type Forma } from '../lib/sabimon';
+import { COR_TIPO, ROTULO, TEMA_TIPO, forca, vida, type Forma } from '../lib/sabimon';
 import { bonus } from '../lib/loja';
 
 export { ROTULO };
@@ -32,8 +32,9 @@ export function CartaView({ carta, forma = 1, itens = [], tem = true, quantidade
   const f = carta.formas[forma - 1];
   const extra = bonus(itens);
   const nome = tem ? f.nome : '???';
-  const estilo = { '--tipo': COR_TIPO[carta.tipo] } as CSSProperties;
-  const classe = `carta ${tem ? carta.raridade : 'vazia'}${grande ? ' grande' : ''}${animar && tem && carta.raridade === 'lendaria' ? ' holo' : ''}`;
+  const tema = TEMA_TIPO[carta.tipo];
+  const estilo = { '--tipo': COR_TIPO[carta.tipo], '--tipo-claro': tema.claro, '--tipo-escuro': tema.escuro } as CSSProperties;
+  const classe = `carta ${tem ? `${carta.raridade} t-${tema.classe}` : 'vazia'}${grande ? ' grande' : ''}${animar && tem && carta.raridade === 'lendaria' ? ' holo' : ''}`;
 
   if (grande) {
     return (
