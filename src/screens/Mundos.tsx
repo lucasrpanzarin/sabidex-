@@ -1,4 +1,5 @@
 import { Icone } from '../components/Icone';
+import { Pacote } from '../components/Pacote';
 import { capitulos, capituloPorId } from '../data';
 import { FASES, FASE_INFO, chave, liberada } from '../lib/jogo';
 import { ir } from '../lib/rota';
@@ -77,7 +78,7 @@ export function Mundo({ id }: { id: string }) {
       </ol>
 
       <div className="painel-destaque linha" style={{ marginTop: 'auto' }}>
-        <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="10" width="32" height="28" rx="8" fill="#F472B6" /><rect x="19" y="10" width="6" height="28" fill="#FACC15" /><circle cx="22" cy="10" r="5" fill="#FACC15" /></svg>
+        <Pacote tamanho="mini" />
         <div><div className="display" style={{ fontSize: 18 }}>Prêmios do mundo</div><div className="muted small">Pacote no jogo da memória, no quiz e um épico na prova</div></div>
       </div>
     </main>

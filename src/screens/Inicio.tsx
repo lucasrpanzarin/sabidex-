@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Ara } from '../components/Ara';
+import { Pacote } from '../components/Pacote';
 import { Icone } from '../components/Icone';
 import { capitulos } from '../data';
 import { FASES, FASE_INFO, chave, nivel, sequencia } from '../lib/jogo';
@@ -114,9 +115,8 @@ export function Inicio() {
       </div>
 
       {e.pacotes.length > 0 && (
-        <button className="linha" onClick={() => ir('pacote')}
-          style={{ border: 0, textAlign: 'left', borderRadius: 22, padding: '12px 14px', background: 'linear-gradient(110deg,#F472B6,#A78BFA 40%,#22D3EE 75%)', color: 'var(--bg)', boxShadow: 'inset 0 2px 0 #FFFFFF66' }}>
-          <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="10" width="32" height="28" rx="8" fill="#0B1026" /><rect x="9" y="13" width="26" height="22" rx="6" fill="#FACC15" /><rect x="19" y="10" width="6" height="28" fill="#F472B6" /><circle cx="22" cy="10" r="5" fill="#F472B6" /></svg>
+        <button className="aviso-pacote linha" onClick={() => ir('pacote')}>
+          <Pacote tamanho="mini" epico={e.pacotes.some((p) => p.tipo === 'epico')} />
           <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 19, display: 'block' }}>{e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'} para abrir</span><span className="small" style={{ fontWeight: 800 }}>{e.pacotes.some((p) => p.tipo === 'epico') ? 'Tem pacote épico!' : 'Toque para abrir'}</span></span>
           <Icone nome="seguir" espessura={3} />
         </button>
@@ -156,7 +156,7 @@ export function Inicio() {
             <span className="muted small">{capitulos.length} capítulos</span>
           </button>
           {['Ciências', 'Geografia'].map((m) => (
-            <div key={m} className="painel" style={{ textAlign: 'center', borderStyle: 'dashed', background: '#10163A', padding: 12, color: 'var(--muted)' }}>
+            <div key={m} className="painel painel-breve" style={{ textAlign: 'center', padding: 12, color: 'var(--muted)' }}>
               <span className="display" style={{ fontSize: 17, display: 'block' }}>{m}</span>
               <span className="small" style={{ fontWeight: 700 }}>Em breve</span>
             </div>
