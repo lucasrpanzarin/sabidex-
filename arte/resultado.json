@@ -1,16 +1,24 @@
 {
-  "quando": "2026-11-04T16:52:41.399Z",
+  "quando": "2026-11-04T16:56:31.130Z",
   "imagens": [
     {
       "nome": "006-2",
-      "sabimon": "Rajadinho",
+      "pulado": "já existe"
+    },
+    {
+      "nome": "010-2",
+      "pulado": "já existe"
+    },
+    {
+      "nome": "006-3",
+      "sabimon": "Furacolibri",
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
     },
     {
-      "nome": "010-2",
-      "sabimon": "Constelão",
+      "nome": "010-3",
+      "sabimon": "Galaxiá",
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
@@ -27,6 +35,5 @@
       "010"
     ]
   },
-  "ok": false,
-  "erro": "Error: Higgsfield recusou (failed): {\"status\":\"failed\",\"error\":\"Generation failed\",\"request_id\":\"01a1a77c-325d-7703-a668-df5c0b17aaee\",\"status_url\":\"https://api.higgsfield.ai/requests/01a1a77c-325d-7703-a668-df5c0b17aaee/status\",\"cancel_url\":\"https://api.higgsfield.ai/requests/01a1a77c-325d-7703-a668-df5c0b17aaee/cancel\",\"expires_at\":\"2026-11-11T16:55:09.371193+00:00\"}"
+  "ok": true
 }
