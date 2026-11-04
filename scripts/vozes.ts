@@ -8,7 +8,7 @@ import { capitulos } from '../src/data/index';
 const KEY = process.env.ELEVENLABS_API_KEY;
 const API = 'https://api.elevenlabs.io';
 interface Voz { nome: string; id?: string; dono?: string; busca?: string; modelo?: string }
-interface Pedido { acao: 'listar' | 'amostra' | 'gerar'; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[] }
+interface Pedido { acao: 'listar' | 'minhas' | 'amostra' | 'gerar'; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[] }
 
 const resultado: Record<string, unknown> = { quando: new Date().toISOString() };
 const salvarResultado = () => writeFileSync('vozes/resultado.json', JSON.stringify(resultado, null, 2) + '\n');
@@ -66,6 +66,18 @@ async function main() {
     mkdirSync('vozes', { recursive: true });
     writeFileSync('vozes/lista.json', JSON.stringify(lista, null, 2) + '\n');
     resultado.total = lista.length;
+  }
+
+  if (p.acao === 'minhas') {
+    // Vozes da conta (inclui as adicionadas da biblioteca) e, se der, as favoritas da biblioteca.
+    const minhas = await (await api('/v2/voices?page_size=100')).json() as { voices: Record<string, unknown>[] };
+    resultado.minhas = minhas.voices.map((v) => ({ nome: v.name, id: v.voice_id, categoria: v.category, criada: v.created_at_unix, rotulos: v.labels }));
+    for (const q of ['favorites=true', 'favorited=true', 'is_favorited=true']) {
+      try {
+        const f = await (await api(`/v1/shared-voices?page_size=50&${q}`)).json() as { voices: Record<string, unknown>[] };
+        (resultado as Record<string, unknown>)[`favoritas_${q}`] = f.voices.slice(0, 20).map((v) => ({ nome: v.name, id: v.voice_id, dono: v.public_owner_id }));
+      } catch (e) { (resultado as Record<string, unknown>)[`favoritas_${q}`] = String(e).slice(0, 160); }
+    }
   }
 
   if (p.acao === 'amostra' || p.acao === 'gerar') {
