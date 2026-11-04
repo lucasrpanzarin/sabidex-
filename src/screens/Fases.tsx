@@ -8,7 +8,7 @@ import { FASE_INFO, NOTA_MINIMA, PERDA_POR_ERRO, XP_MINIMO, concluirFase, embara
 import { idProva, idQuiz, registrarResposta } from '../lib/revisao';
 import { ir } from '../lib/rota';
 import { jogar, proximaFase } from './Inicio';
-import { getEstado, setEstado } from '../lib/store';
+import { getEstado, setEstado, useEstado } from '../lib/store';
 import { VOZES, audioDaVoz, setVoz, useVoz } from '../lib/voz';
 
 /** Transforma **negrito** em <strong>. */
@@ -115,9 +115,19 @@ function useFinalizar(cap: Capitulo, fase: Fase) {
 /* ---------- Fase 1: ouvir ---------- */
 function Ouvir({ cap }: { cap: Capitulo }) {
   const { res, finalizar, limpar } = useFinalizar(cap, 'ouvir');
-  const [ouvidos, setOuvidos] = useState<Set<number>>(new Set());
+  // Temas já ouvidos ficam salvos: se a criança sair e voltar, não precisa ouvir de novo.
+  const salvos = useEstado().ouvidos?.[cap.id];
+  const ouvidos = useMemo(() => new Set(salvos ?? []), [salvos]);
+  const setOuvidos = (f: (s: Set<number>) => Set<number>) => setEstado((e) => {
+    const atual = new Set(e.ouvidos?.[cap.id] ?? []);
+    const novo = [...f(atual)].sort((a, b) => a - b);
+    if (novo.length === atual.size) return e;
+    return { ...e, ouvidos: { ...e.ouvidos, [cap.id]: novo } };
+  });
+  const esquecerOuvidos = () => setEstado((e) => { const { [cap.id]: _, ...resto } = e.ouvidos ?? {}; return { ...e, ouvidos: resto }; });
   const [tocando, setTocando] = useState<number | null>(null);
-  const [aberto, setAberto] = useState<number | null>(0);
+  // Abre o primeiro tema que ainda falta ouvir.
+  const [aberto, setAberto] = useState<number | null>(() => { const i = cap.temas.findIndex((_, j) => !ouvidos.has(j)); return i < 0 ? null : i; });
   const audio = useRef<HTMLAudioElement | null>(null);
   const voz = useVoz();
 
@@ -142,7 +152,7 @@ function Ouvir({ cap }: { cap: Capitulo }) {
     a.play().then(() => { setTocando(i); setAberto(i); }).catch(() => setTocando(null));
   };
 
-  if (res) return <Fim cap={cap} r={res} titulo="Você ouviu tudo!" onDeNovo={() => { setOuvidos(new Set()); limpar(); }} />;
+  if (res) return <Fim cap={cap} r={res} titulo="Você ouviu tudo!" onDeNovo={limpar} />;
   const total = cap.temas.length;
   return (
     <main className="tela">
@@ -192,7 +202,7 @@ function Ouvir({ cap }: { cap: Capitulo }) {
           </article>
         ))}
       </div>
-      <button className="btn btn-amarelo btn-bloco" disabled={ouvidos.size < total} onClick={() => { audio.current?.pause(); finalizar(); }}>
+      <button className="btn btn-amarelo btn-bloco" disabled={ouvidos.size < total} onClick={() => { audio.current?.pause(); finalizar(); esquecerOuvidos(); }}>
         {ouvidos.size < total ? (total - ouvidos.size === 1 ? "Falta 1 tema" : `Faltam ${total - ouvidos.size} temas`) : 'Terminar fase'}
       </button>
     </main>

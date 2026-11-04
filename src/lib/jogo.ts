@@ -129,10 +129,12 @@ export interface Estado {
   desejo: string | null;
   /** Revisão do Ará: id da pergunta → caixa (0–4) e dia em que ela volta. Fica só no aparelho. */
   revisao: Record<string, { caixa: number; proxima: string }>;
+  /** Fase "ouvir" pela metade: id do capítulo → temas já ouvidos. Fica só no aparelho; some ao terminar a fase. */
+  ouvidos: Record<string, number[]>;
 }
 
 export const estadoInicial = (): Estado => ({
-  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [], semNovo: 0, pacoteDia: '', compras: [], desejo: null, revisao: {},
+  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [], semNovo: 0, pacoteDia: '', compras: [], desejo: null, revisao: {}, ouvidos: {},
 });
 
 export function nivel(xp: number) {
