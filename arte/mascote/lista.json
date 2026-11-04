@@ -1,0 +1,25 @@
+[
+  {
+    "arquivo": "ara-feliz",
+    "humor": "feliz",
+    "prompt": "Original friendly mascot character for a kids learning app: Ará, a young scarlet macaw (Brazilian parrot) who is the class guide and teacher's helper. Stylized 3D game character render, same polished style as creature-collecting adventure game characters, big expressive eyes, warm smile, bright red body feathers, yellow and blue wing feathers, pale beak with dark lower part. She wears a small turquoise school backpack and has a yellow pencil tucked behind her head feathers, which makes her look like a student guide, not a wild creature. Pose: standing, one wing raised waving hello. Full body, centered, plain pure white background, no text, no logo, no frame, no scenery. Cute and cheerful, for kids aged 9 to 11. Original design, not based on any existing movie, game or franchise character."
+  },
+  {
+    "arquivo": "ara-pensando",
+    "humor": "pensando",
+    "ref": "ara-feliz",
+    "prompt": "The same macaw mascot from the reference image, same colors, same backpack and same pencil. New pose: thinking, one wing tip touching her beak, eyes looking up, small curious smile. Full body, centered, plain pure white background, no text, no scenery. Do not copy the reference pose."
+  },
+  {
+    "arquivo": "ara-comemorando",
+    "humor": "comemorando",
+    "ref": "ara-feliz",
+    "prompt": "The same macaw mascot from the reference image, same colors, same backpack and same pencil. New pose: celebrating, jumping with both wings wide open, beak open in a big happy laugh, eyes closed with joy. Full body, centered, plain pure white background, no text, no scenery, no confetti. Do not copy the reference pose."
+  },
+  {
+    "arquivo": "ara-triste",
+    "humor": "triste",
+    "ref": "ara-feliz",
+    "prompt": "The same macaw mascot from the reference image, same colors, same backpack and same pencil. New pose: a little sad but kind, head tilted down, wings lowered, small pout, eyebrows sad. Not crying, still cute and encouraging. Full body, centered, plain pure white background, no text, no scenery. Do not copy the reference pose."
+  }
+]

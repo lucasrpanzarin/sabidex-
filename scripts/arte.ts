@@ -8,6 +8,9 @@
 //   - imagens que já existem não são refeitas, a não ser com "refazer": true.
 //   { "acao": "cenarios", "tipos": ["fogo", ...] }
 //   - gera os cenários atrás dos bichos (arte/cenarios/lista.json) em arte/cenarios/originais/.
+//   { "acao": "mascote", "tipos": ["ara-feliz", ...] }
+//   - gera as caras da Ará (arte/mascote/lista.json) em arte/mascote/originais/.
+//     A primeira nasce só do texto; as outras usam a "ref" como imagem de referência (mesma personagem).
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 
 const BASE = process.env.HIGGSFIELD_BASE ?? 'https://platform.higgsfield.ai';
@@ -19,7 +22,7 @@ const chave = process.env.HIGGSFIELD_API_KEY
 
 interface Sabimon { numero: string; nomes: string[]; tipo: string; formas: string[] }
 interface Pedido {
-  acao: 'gerar' | 'modelos' | 'cenarios';
+  acao: 'gerar' | 'modelos' | 'cenarios' | 'mascote';
   formas: number[];
   /** só para "cenarios": quais arquivos gerar (sem isso, todos) */
   tipos?: string[];
@@ -197,6 +200,36 @@ async function main() {
         }
       }
       feitos.push({ nome: c.arquivo, tipo: c.tipo, modelo: gerado.modelo, ...(await baixarPng(gerado.url, destino)) });
+      salvar();
+    }
+    resultado.ok = true;
+    return;
+  }
+  if (p.acao === 'mascote') {
+    const caras: { arquivo: string; prompt: string; ref?: string }[] = JSON.parse(readFileSync('arte/mascote/lista.json', 'utf8'));
+    const pasta = 'arte/mascote/originais';
+    mkdirSync(pasta, { recursive: true });
+    const feitos = resultado.imagens as unknown[];
+    // As sem referência primeiro (a "ref" precisa existir antes).
+    for (const c of [...caras].sort((a, b) => Number(!!a.ref) - Number(!!b.ref)).filter((x) => !p.tipos || p.tipos.includes(x.arquivo))) {
+      const destino = `${pasta}/${c.arquivo}.png`;
+      if (existsSync(destino) && !p.refazer) { feitos.push({ nome: c.arquivo, pulado: 'já existe' }); continue; }
+      const corpo: Record<string, unknown> = { prompt: c.prompt, aspect_ratio: '1:1', resolution: '2k', ...(p.extra ?? {}) };
+      if (c.ref) {
+        const url = refs[c.ref];
+        if (!url) throw new Error(`Gere primeiro a ${c.ref} (é a referência da ${c.arquivo}).`);
+        corpo.image_urls = [url];
+      }
+      let gerado: { url: string; modelo: string } | undefined;
+      for (let tentativa = 1; !gerado; tentativa++) {
+        try { gerado = c.ref ? await gerarComCandidatos('ref', comRef, corpo) : await gerarComCandidatos('texto', texto, corpo); } catch (e) {
+          if (tentativa >= 3 || !String(e).includes('(failed)')) throw e;
+          await espera(5000);
+        }
+      }
+      feitos.push({ nome: c.arquivo, modelo: gerado.modelo, ...(await baixarPng(gerado.url, destino)) });
+      refs[c.arquivo] = gerado.url;
+      writeFileSync(REFS, JSON.stringify(refs, null, 2) + '\n');
       salvar();
     }
     resultado.ok = true;

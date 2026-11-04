@@ -41,7 +41,7 @@ function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { cap: Capi
   const nv = nivel(r.estado.xp);
   return (
     <main className="tela" style={{ alignItems: 'center', textAlign: 'center', justifyContent: 'center' }}>
-      <div className="pop"><Ara tamanho={120} humor={aprovado ? 'feliz' : 'triste'} /></div>
+      <div className="pop"><Ara tamanho={120} humor={aprovado ? 'comemorando' : 'triste'} /></div>
       <h1 className={`display h1${aprovado ? ' titulo-premio' : ''}`}>{titulo}</h1>
       {detalhe}
       <div className="painel coluna sobe" style={{ width: '100%', gap: 8, animationDelay: '.15s' }}>
@@ -435,7 +435,7 @@ export function TelaFase({ capId, fase }: { capId: string; fase: Fase }) {
   if (!liberada(getEstado(), cap.id, fase)) {
     return (
       <main className="tela" style={{ alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-        <Ara tamanho={110} humor="triste" />
+        <Ara tamanho={110} humor="pensando" />
         <div className="balao">Essa fase ainda está trancada. Termine a anterior primeiro!</div>
         <button className="btn btn-amarelo" onClick={() => ir('mundo', cap.id)}>Voltar ao mundo</button>
       </main>
