@@ -32,7 +32,9 @@
   "keep_vars": true,
   "vars": {
     // Quem vê todas as turmas (administrador geral).
-    "ADMIN_EMAILS": "lucasrpanzarin@gmail.com,lucas@fastgsa.com"
+    "ADMIN_EMAILS": "lucasrpanzarin@gmail.com,lucas@fastgsa.com",
+    // Remetente do e-mail de "Esqueci minha senha" (a chave RESEND_API_KEY fica como segredo no painel).
+    "EMAIL_REMETENTE": "Sabidex <nao-responda@sabidex.com.br>"
   },
   "observability": { "enabled": true },
   // Versões de teste de cada pull request (comando "wrangler preview" da Cloudflare).
@@ -40,7 +42,9 @@
   // O jogo funciona normalmente na prévia; só as partes de turma (login, trocas, ranking) ficam sem servidor.
   "previews": {
     "vars": {
-      "ADMIN_EMAILS": "lucasrpanzarin@gmail.com,lucas@fastgsa.com"
+      "ADMIN_EMAILS": "lucasrpanzarin@gmail.com,lucas@fastgsa.com",
+    // Remetente do e-mail de "Esqueci minha senha" (a chave RESEND_API_KEY fica como segredo no painel).
+    "EMAIL_REMETENTE": "Sabidex <nao-responda@sabidex.com.br>"
     }
   }
 }
