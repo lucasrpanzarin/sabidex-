@@ -12,6 +12,7 @@ import { useConta, evoluirNaConta } from '../lib/conta';
 import { ir } from '../lib/rota';
 import { jogar } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
+import { Logo } from '../components/Logo';
 
 type FaseAbrir = 'fechado' | 'abrindo' | 'verso' | 'revelado';
 
@@ -91,7 +92,7 @@ export function AbrirPacote() {
             aria-label={fase === 'verso' ? 'Toque na carta para virar' : `${melhor.formas[0].nome}, ${ROTULO[melhor.raridade]}`}>
             <span className="carta-flip-dentro">
               <span className="carta-flip-verso" aria-hidden="true">
-                <span className="logo" style={{ fontSize: 30 }}>Sabidex</span>
+                <Logo tamanho={30} />
                 <span className="pacote-palco"><Ara tamanho={86} /></span>
               </span>
               <span className="carta-flip-frente">

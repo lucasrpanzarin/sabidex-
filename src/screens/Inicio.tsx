@@ -15,6 +15,7 @@ import { formaDe, podeEvoluir, saldo } from '../lib/loja';
 import { Desejo } from './Loja';
 import { EscolherPerfil } from '../components/Perfis';
 import { EntrarTurma } from './Turma';
+import { Logo } from '../components/Logo';
 
 export const CORES = ['#22D3EE', '#F472B6', '#FACC15', '#4ADE80', '#FB923C', '#A78BFA'];
 
@@ -29,7 +30,7 @@ export function BoasVindas() {
   const escolherPerfil = perfis.length > 0 && !outra && !entrando;
   return (
     <main className="tela" style={{ justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-      <div className="logo" style={{ fontSize: 44 }}>Sabidex</div>
+      <Logo tamanho={48} />
       <Ara tamanho={130} />
       <div className="balao" style={{ maxWidth: 320 }}>
         {entrando
@@ -116,7 +117,7 @@ export function Inicio() {
   return (
     <main className="tela">
       <div className="linha" style={{ justifyContent: 'space-between' }}>
-        <div className="logo">Sabidex</div>
+        <Logo />
         <span className="linha" style={{ gap: 8 }}>
         <button onClick={() => ir('loja')} style={{ border: 0, background: 'none', padding: 0, color: 'inherit', font: 'inherit' }} aria-label={`${saldo(e)} Sabicoins. Abrir a lojinha`}><Saldo valor={saldo(e)} /></button>
         <span className="pilula" title="Dias seguidos estudando">

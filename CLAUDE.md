@@ -20,6 +20,7 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 ## Visual (não mudar sem o Lucas pedir)
 
 - Visual **"álbum de figurinhas"** (escolhido pelo Lucas em 04/11/2026): fundo de papel claro (`--bg`), contorno escuro grosso (`--ink`) e sombra "de adesivo" em painéis, botões e cartas. Cores de preencher: coral `--coral`, amarelo `--yellow`, turquesa `--cyan`, rosa `--pink`, verde `--green`. Para **texto colorido** use as versões escuras (`--t-coral`, `--t-yellow` etc.), senão não dá para ler no papel. Nada de roxo como cor principal (fica parecido com o app Baobab).
+- Logo: letras-figurinha coloridas e tortas (`src/components/Logo.tsx`), escolhido pelo Lucas em 04/11/2026.
 - Títulos e botões na fonte **Lilita One**; textos em **Nunito**.
 - Botões "de jogo": cor viva, contorno escuro e "chão" embaixo (`.btn` em `src/styles.css`).
 - Animação só em momentos de prêmio (abrir pacote, subir de nível, acertar). Telas paradas não tremem nem piscam. Sempre respeitar `prefers-reduced-motion`.

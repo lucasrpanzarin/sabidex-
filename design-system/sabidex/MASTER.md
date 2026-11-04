@@ -17,6 +17,9 @@ Estilo "massinha" da skill (borda grossa 3px, cantos 16–24px, sombra dupla) no
 - Figurinhas pequenas do álbum ficam levemente tortas; vaga vazia é tracejada e diz "falta!".
 - Pacote: moldura holográfica + verso azul-noite do Sabidex (o único lugar escuro, de propósito).
 
+## Logo (Lucas, 04/11/2026)
+"Letras-figurinha": cada letra do Sabidex é uma figurinha colorida (coral, amarelo, turquesa, rosa, verde, coral, amarelo), em Lilita One com contorno escuro e sombra de adesivo, cada uma levemente torta. Sempre usar o componente `src/components/Logo.tsx` (nunca escrever "Sabidex" com `className="logo"` à mão).
+
 ## Por que não parece o Baobab
 Sem roxo/lilás, sem fundo pastel liso: o que marca o Sabidex é o contorno escuro + sombra de adesivo + papel.
 
