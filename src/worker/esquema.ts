@@ -62,4 +62,9 @@ export const ESQUEMA = [
     ref_id TEXT NOT NULL,
     expira INTEGER NOT NULL
   )`,
+  // As cartas antigas dos capítulos (ids "h-…") foram substituídas pelos Sabimons.
+  // No aparelho, quem tinha cartas antigas ganha pacotes de Sabimons no lugar.
+  `DELETE FROM cartas WHERE carta_id LIKE 'h-%'`,
+  `UPDATE trocas SET status = 'cancelada', resolvido = unixepoch() * 1000
+    WHERE status = 'pendente' AND (carta_dar LIKE 'h-%' OR carta_receber LIKE 'h-%')`,
 ];

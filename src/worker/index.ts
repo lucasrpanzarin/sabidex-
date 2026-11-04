@@ -2,7 +2,7 @@
 // Roda na Cloudflare (Worker + banco D1). Tudo fora de /api/* é o app (arquivos estáticos).
 
 import { Hono, type Context } from 'hono';
-import { capitulos, todasCartas } from '../data';
+import { capitulos, sabimons } from '../data';
 import { FASES } from '../lib/jogo';
 import {
   gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
@@ -16,7 +16,7 @@ type C = Context<{ Bindings: Env }>;
 
 const DIA = 86_400_000;
 const FASES_VALIDAS = new Set(capitulos.flatMap((c) => FASES.map((f) => `${c.id}:${f}`)));
-const CARTAS_VALIDAS = new Set(todasCartas.map((c) => c.id));
+const CARTAS_VALIDAS = new Set(sabimons.map((c) => c.id));
 const COR = /^#[0-9A-Fa-f]{6}$/;
 const MAX_FALHAS = 5;
 const BLOQUEIO_MS = 15 * 60_000;

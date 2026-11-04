@@ -3,7 +3,7 @@ import { Ara } from '../components/Ara';
 import { Icone } from '../components/Icone';
 import { capituloPorId } from '../data';
 import type { Capitulo } from '../data/tipos';
-import { FASE_INFO, NOTA_MINIMA, concluirFase, embaralhar, liberada, nivel, notaDe, type Fase, type Resultado } from '../lib/jogo';
+import { FASE_INFO, NOTA_MINIMA, concluirFase, embaralhar, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
 import { ir } from '../lib/rota';
 import { jogar, proximaFase } from './Inicio';
 import { getEstado, setEstado } from '../lib/store';
@@ -28,6 +28,13 @@ function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: ReactNo
   );
 }
 
+const MOTIVO: Record<MotivoPacote, string> = {
+  fase: 'Pacote por terminar uma fase nova',
+  prova: 'Pacote épico por passar na prova: 1 épico ou lendário',
+  dia: 'Pacote do dia, por estudar hoje',
+  nivel: 'Pacote de presente pelo nível novo',
+};
+
 /** Tela de resultado com XP, nível e pacote ganhos. */
 function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { cap: Capitulo; r: Resultado; titulo: string; detalhe?: ReactNode; aprovado?: boolean; onDeNovo: () => void }) {
   const nv = nivel(r.estado.xp);
@@ -41,15 +48,17 @@ function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { cap: Capi
         {r.subiuNivel && <div className="display pop" style={{ fontSize: 22, color: 'var(--green)' }}>Subiu para o nível {nv.nivel}!</div>}
         {!r.primeiraVez && aprovado && <div className="muted small">Fase repetida: metade do XP.</div>}
       </div>
-      {r.pacoteGanho && (
-        <div className="painel-destaque sobe" style={{ width: '100%', animationDelay: '.3s', borderColor: 'var(--pink)' }}>
-          <div className="display" style={{ fontSize: 22 }}>Você ganhou um pacote{r.pacoteGanho === 'epico' ? ' épico' : ''}!</div>
-          <div className="muted small">{r.pacoteGanho === 'epico' ? '3 cartas, uma delas épica ou lendária' : '3 cartas para o seu álbum'}</div>
+      {r.pacotesGanhos.length > 0 && (
+        <div className="painel-destaque sobe coluna" style={{ width: '100%', animationDelay: '.3s', borderColor: 'var(--pink)', gap: 4 }}>
+          <div className="display" style={{ fontSize: 22 }}>
+            {r.pacotesGanhos.length > 1 ? `Você ganhou ${r.pacotesGanhos.length} pacotes!` : `Você ganhou um pacote${r.pacotesGanhos[0].tipo === 'epico' ? ' épico' : ''}!`}
+          </div>
+          {r.pacotesGanhos.map((p, i) => <div key={i} className="muted small">{MOTIVO[p.motivo]}</div>)}
         </div>
       )}
       <div className="coluna" style={{ width: '100%', marginTop: 8 }}>
-        {r.pacoteGanho
-          ? <button className="btn btn-amarelo btn-bloco" onClick={() => ir('pacote')}>Abrir pacote</button>
+        {r.pacotesGanhos.length > 0
+          ? <button className="btn btn-amarelo btn-bloco" onClick={() => ir('pacote')}>{r.pacotesGanhos.length > 1 ? 'Abrir pacotes' : 'Abrir pacote'}</button>
           : aprovado
             ? <button className="btn btn-amarelo btn-bloco" onClick={jogar}>{proximaFase(r.estado.feitas) ? 'Próxima fase' : 'Continuar'}</button>
             : <button className="btn btn-amarelo btn-bloco" onClick={onDeNovo}>Tentar de novo</button>}

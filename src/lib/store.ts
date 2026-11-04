@@ -3,7 +3,8 @@
 // até o servidor confirmar; assim nenhuma carta se perde nem é contada duas vezes.
 
 import { useSyncExternalStore } from 'react';
-import { estadoInicial, type Estado } from './jogo';
+import { estadoInicial, migrarCartasAntigas, type Estado } from './jogo';
+import { sabimons } from '../data/sabimons';
 import { mesclar, type ProgressoSync } from '../shared/sync';
 
 const CHAVE = 'sabidex:v1';
@@ -15,8 +16,14 @@ const ler = <T,>(k: string, padrao: T): T => {
 };
 const gravar = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* ignora */ } };
 
-let estado: Estado = { ...estadoInicial(), ...ler<Partial<Estado>>(CHAVE, {}) };
-let pendente: Record<string, number> = ler(CHAVE_PENDENTE, {});
+const VALIDOS = new Set(sabimons.map((s) => s.id));
+const soValidos = (c: Record<string, number>) => Object.fromEntries(Object.entries(c).filter(([id]) => VALIDOS.has(id)));
+
+// As cartas antigas dos capítulos viram pacotes de Sabimons (veja migrarCartasAntigas).
+let estado: Estado = migrarCartasAntigas({ ...estadoInicial(), ...ler<Partial<Estado>>(CHAVE, {}) }, VALIDOS);
+let pendente: Record<string, number> = soValidos(ler(CHAVE_PENDENTE, {}));
+gravar(CHAVE, estado);
+gravar(CHAVE_PENDENTE, pendente);
 let registrarCartas = false;
 const ouvintes = new Set<() => void>();
 const avisar = () => ouvintes.forEach((f) => f());
@@ -67,7 +74,7 @@ export function aplicarServidor(
   pendente = resto;
   gravar(CHAVE_PENDENTE, pendente);
   const prog = substituir ? r.progresso : mesclar(r.progresso, progressoDe(estado));
-  const cartas: Record<string, number> = { ...r.cartas };
+  const cartas: Record<string, number> = soValidos(r.cartas);
   for (const [id, n] of Object.entries(resto)) cartas[id] = (cartas[id] ?? 0) + n;
   estado = { ...estado, ...prog, cartas, perfil: { nome: r.conta.apelido, cor: r.conta.cor } };
   gravar(CHAVE, estado);
