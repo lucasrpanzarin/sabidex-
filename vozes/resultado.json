@@ -1,0 +1,23 @@
+{
+  "quando": "2026-11-04T15:08:43.685Z",
+  "acao": "amostra",
+  "encontradas": [
+    {
+      "busca": "Michael Almeida",
+      "nome": "Michael Almeida - Instuctional",
+      "id": "UP5aPvvfM4UCXZrr3fdX"
+    },
+    {
+      "busca": "Michael Almeida",
+      "nome": "Michael Almeida - Instuctional",
+      "id": "UP5aPvvfM4UCXZrr3fdX"
+    }
+  ],
+  "amostras": [
+    "michael-padrao",
+    "michael-v3",
+    "yasmin-padrao",
+    "yasmin-v3"
+  ],
+  "ok": true
+}
