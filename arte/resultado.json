@@ -1,76 +1,6 @@
 {
-  "quando": "2026-11-04T19:01:34.391Z",
+  "quando": "2026-11-04T19:39:10.583Z",
   "imagens": [
-    {
-      "nome": "011-1",
-      "sabimon": "Bolhudo",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "012-1",
-      "sabimon": "Folhapé",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "013-1",
-      "sabimon": "Tucanuvem",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "014-1",
-      "sabimon": "Areiruga",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "015-1",
-      "sabimon": "Faiscaraqué",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "016-1",
-      "sabimon": "Guarabrasa",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "017-1",
-      "sabimon": "Antarocha",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "018-1",
-      "sabimon": "Geladim",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "019-1",
-      "sabimon": "Bugiurro",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "020-1",
-      "sabimon": "Oncelestre",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
     {
       "nome": "011-2",
       "sabimon": "Bolhão",
@@ -215,10 +145,10 @@
   "pedido": {
     "acao": "gerar",
     "formas": [
-      1,
       2,
       3
     ],
+    "refazer": true,
     "numeros": [
       "011",
       "012",
