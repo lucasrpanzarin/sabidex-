@@ -1,6 +1,7 @@
 // Pacote que a criança rasga arrastando o dedo pela linha tracejada do topo.
 // A aba de cima acompanha o dedo; soltando antes do fim, ela volta. No fim, a aba voa longe.
-// Teclado: Enter ou espaço rasgam sozinhos. Tocar sem arrastar mostra a dica; no 3º toque, rasga sozinho.
+// Teclado: Enter ou espaço rasgam sozinhos. Tocar sem arrastar mostra a dica; no 2º toque, rasga sozinho.
+// Basta arrastar metade da largura (de qualquer ponto do pacote); soltando depois de 60%, termina sozinho.
 // Com movimento reduzido no aparelho, um toque abre.
 
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
@@ -47,15 +48,17 @@ export function RasgarPacote({ epico, texto, abrindo, aoRasgar }: Props) {
   const rasgarSozinho = () => {
     if (feito.current) return;
     const t0 = performance.now();
+    const de = p; // continua de onde o dedo parou
     const passo = (t: number) => {
-      const q = Math.min(1, (t - t0) / 450);
+      const q = Math.min(1, de + (t - t0) / 450);
       setP(q);
       if (q < 1) requestAnimationFrame(passo); else terminar();
     };
     requestAnimationFrame(passo);
   };
 
-  const largura = () => (caixa.current?.getBoundingClientRect().width ?? 214) * 0.78;
+  // Distância para rasgar: metade da largura (antes era quase toda, difícil para dedo pequeno).
+  const largura = () => (caixa.current?.getBoundingClientRect().width ?? 214) * 0.5;
 
   const baixar = (ev: PointerEvent<HTMLDivElement>) => {
     if (feito.current) return;
@@ -73,6 +76,8 @@ export function RasgarPacote({ epico, texto, abrindo, aoRasgar }: Props) {
     if (!i || feito.current) return;
     const dx = ev.clientX - i.x;
     if (!i.moveu && Math.abs(dx) < 6) return;
+    // Arrastou pro outro lado depois de começar: conta a partir dali, sem precisar soltar.
+    if (i.moveu && dx * lado < 0) { i.x = ev.clientX; setLado(dx >= 0 ? 1 : -1); setP(0); return; }
     if (!i.moveu) { i.moveu = true; setLado(dx >= 0 ? 1 : -1); setArrastando(true); }
     const q = Math.max(0, Math.min(1, (dx * (dx >= 0 ? 1 : -1)) / largura()));
     setP(q);
@@ -88,11 +93,11 @@ export function RasgarPacote({ epico, texto, abrindo, aoRasgar }: Props) {
       let reduzido = false;
       try { reduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { /* sem matchMedia */ }
       if (reduzido) { terminar(); return; }
-      if (dica >= 2) { rasgarSozinho(); return; }
+      if (dica >= 1) { rasgarSozinho(); return; }
       setDica((n) => n + 1);
       return;
     }
-    if (p > 0.85) terminar(); else setP(0);
+    if (p > 0.6) rasgarSozinho(); else setP(0);
   };
   const tecla = (ev: KeyboardEvent<HTMLDivElement>) => {
     if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); rasgarSozinho(); }
