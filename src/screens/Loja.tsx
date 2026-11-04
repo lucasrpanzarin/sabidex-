@@ -15,7 +15,7 @@ const ERROS = {
   item: 'Esse item não existe mais.',
   sabimon: 'Você não tem esse Sabimon.',
   repetido: 'Esse Sabimon já tem esse item.',
-  cheio: 'Os 3 espaços desse Sabimon já estão cheios.',
+  cheio: 'Os 3 espaços dessa carta já estão cheios.',
   moedas: 'Faltam Sabicoins para comprar.',
   premio: 'Complete um mundo inteiro para ganhar uma coroa.',
 };
@@ -137,7 +137,7 @@ export function Loja({ sabimonId }: { sabimonId?: string }) {
       {alvo && escolhido ? (
         <p className="muted small" style={{ margin: 0 }}>Escolha um item para o <strong style={{ color: 'var(--ink)' }}>{alvo.s.formas[alvo.forma - 1].nome}</strong>.</p>
       ) : (
-        <p className="muted small" style={{ margin: 0 }}>Cada Sabimon tem 3 espaços para itens. Toque num item para ver mais.</p>
+        <p className="muted small" style={{ margin: 0 }}>Cada carta tem 3 espaços para itens. Toque num item para ver mais.</p>
       )}
       <Desejo />
       {meus.length === 0 && (

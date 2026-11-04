@@ -4,6 +4,12 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 
 O dono do projeto é o Lucas, que não é programador. Explique mudanças em português simples, sem jargão.
 
+## Caderno do projeto (leia primeiro)
+
+- No começo de cada conversa, leia **`docs/PROJETO.md`**: tudo o que já existe, as decisões do Lucas, as ideias já trocadas e os pontos em aberto.
+- Quando o Lucas trouxer uma ideia, confira o caderno antes de fazer. Se já existe, se já foi testada e trocada, ou se vai contra uma regra daqui, **diga isso a ele primeiro** (com o que existe hoje) e pergunte se quer mudar mesmo.
+- Ao terminar uma mudança, atualize o caderno: a lista do que existe e uma linha no "Registro de mudanças" (data, o que mudou, quem decidiu).
+
 ## Regras do produto
 
 - Todo texto do app é em **português do Brasil**, frases curtas, para uma criança de 10 anos ler sozinha.
@@ -41,5 +47,5 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 - Entrar com Google/Apple e "Esqueci minha senha" só aparecem quando o servidor está configurado (`GOOGLE_CLIENT_ID`, `APPLE_CLIENT_ID`, `RESEND_API_KEY` + `EMAIL_REMETENTE`; veja o README). O app pergunta em `/api/config`.
 - Adulto que entrou com Google/Apple pode não ter senha (`tem_senha = 0`): para apagar a conta, escreve APAGAR.
 - Exigências das lojas já atendidas: pergunta "só para adultos" antes da área dos adultos, botão "Apagar minha conta", política de privacidade em `#/privacidade` (`src/screens/Privacidade.tsx`; ao mudar o texto, mudar `VERSAO_PRIVACIDADE` no servidor).
-- Áudios de narração em `public/audio/<capitulo>-<tema>.mp3` (voz Kokoro pm_alex).
+- Áudios de narração em `public/audio/<voz>/c<capitulo>-<tema>.mp3`, com 3 vozes do ElevenLabs: `nina`, `otto`, `graziella` (`src/lib/voz.ts`, pedido em `vozes/`). Os mp3 soltos em `public/audio/` são da voz antiga.
 - Antes de publicar: `npm test` e `npm run build` precisam passar.

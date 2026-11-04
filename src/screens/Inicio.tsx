@@ -174,7 +174,7 @@ export function Inicio() {
       {e.desejo ? <Desejo onClick={() => ir('loja')} /> : (
         <button className="painel linha" onClick={() => ir('loja')} style={{ textAlign: 'left', color: 'inherit', width: '100%' }}>
           <Moeda tamanho={40} />
-          <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 19, display: 'block' }}>Lojinha</span><span className="muted small">Medalhas, escudos e coroas para seus Sabimons</span></span>
+          <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 19, display: 'block' }}>Lojinha</span><span className="muted small">Frutas, cristais e molduras para suas cartas</span></span>
           <Icone nome="seguir" espessura={3} />
         </button>
       )}
