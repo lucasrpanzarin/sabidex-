@@ -370,3 +370,53 @@ strong { color: var(--t-coral); font-weight: 900; }
 button.painel, button.painel-destaque, .item-carta, .aviso-pacote, .destaque-dia, .filtro, .pacote-botao, .abas button { transition: transform .2s ease-out, box-shadow .2s ease-out; }
 button.painel:active, button.painel-destaque:active, .item-carta:active, .aviso-pacote:active, .destaque-dia:active, .filtro:active, .abas button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
 .pacote-botao:active { transform: scale(.97); }
+
+/* ===== Abrir pacote: rasgar, a carta pula de costas, vira ===== */
+.tela-pacote { overflow-x: hidden; }
+.palco-abrir { position: relative; width: 100%; min-height: 470px; display: grid; place-items: center; }
+.palco-abrir > * { grid-area: 1 / 1; }
+.rasgar-area { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.rasgar { position: relative; width: 214px; height: 296px; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; border-radius: 26px; }
+.rasgar:focus-visible { outline: 3px solid var(--cyan); outline-offset: 6px; }
+.rasgar-corpo, .rasgar-aba { position: absolute; inset: 0; pointer-events: none; }
+.rasgar-aba { z-index: 2; filter: drop-shadow(0 4px 0 #10213F55); }
+.rasgar-linha { position: absolute; left: 10px; right: 10px; height: 0; border-top: 3px dashed #FFFFFFCC; z-index: 3; pointer-events: none; filter: drop-shadow(0 1px 0 var(--ink)); }
+.rasgar-feito { position: absolute; height: 5px; margin-top: -1px; z-index: 4; pointer-events: none; border-radius: 3px;
+  background: #FFFDF5; box-shadow: 0 0 10px #FFF6C4, 0 0 2px var(--ink); }
+.rasgar-etiqueta { position: absolute; left: 50%; transform: translateX(-50%) rotate(-3deg); z-index: 5; pointer-events: none; white-space: nowrap;
+  font-family: var(--display); font-size: 15px; color: var(--ink); background: var(--yellow); border: 2.5px solid var(--ink); border-radius: 999px; padding: 2px 12px; box-shadow: 2px 2px 0 var(--ink); }
+.rasgar-ajuda { margin: 0; font-weight: 800; font-size: 15px; color: var(--t-cyan, #0E7490); min-height: 1.4em; }
+.rasgar.dica { animation: balanca .45s ease-in-out; }
+@keyframes balanca { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
+/* a aba voa e o pacote cai */
+.rasgar.abrindo .rasgar-aba { animation: aba-voa .5s ease-in forwards; }
+.rasgar.abrindo .rasgar-corpo { animation: pacote-cai .75s .3s ease-in forwards; }
+@keyframes aba-voa { to { transform: translate(140px, -260px) rotate(55deg); opacity: 0; } }
+@keyframes pacote-cai { 0% { transform: none; } 20% { transform: translateX(-5px) rotate(-2deg); } 40% { transform: translateX(5px) rotate(2deg); } 100% { transform: translateY(240px) rotate(6deg); opacity: 0; } }
+/* luz saindo do pacote, na cor da raridade */
+.luz-pacote { width: 260px; height: 260px; margin-top: -170px; border-radius: 50%; pointer-events: none; z-index: 1;
+  background: radial-gradient(circle, var(--luz) 0%, color-mix(in srgb, var(--luz) 55%, transparent) 30%, transparent 70%);
+  animation: luz-sobe 1.1s ease-out forwards; }
+@keyframes luz-sobe { 0% { transform: scale(.2); opacity: 0; } 30% { opacity: 1; } 100% { transform: scale(2.2); opacity: 0; } }
+/* carta: pula do pacote de costas e depois vira */
+.carta-flip { position: relative; z-index: 3; width: min(290px, 88vw); border: 0; padding: 0; background: none; perspective: 1200px; cursor: default; }
+.carta-flip.fase-verso { cursor: pointer; }
+.carta-flip:focus-visible { outline: 3px solid var(--cyan); outline-offset: 6px; border-radius: 22px; }
+.carta-flip.fase-abrindo { animation: carta-pula .7s .45s cubic-bezier(.2, 1.4, .4, 1) both; }
+@keyframes carta-pula { from { transform: translateY(-40px) scale(.2) rotate(-14deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.carta-flip-dentro { position: relative; display: block; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.3, 1.3, .5, 1); transform: rotateY(180deg); }
+.carta-flip.fase-revelado .carta-flip-dentro { transform: rotateY(0); }
+.carta-flip-frente, .carta-flip-verso { backface-visibility: hidden; -webkit-backface-visibility: hidden; display: block; }
+.carta-flip-frente { position: relative; }
+.carta-flip-verso { position: absolute; inset: 0; transform: rotateY(180deg); border-radius: 22px; border: 7px solid var(--luz); background: var(--verso);
+  box-shadow: 0 0 0 3px var(--ink), 6px 6px 0 3px var(--ink), 0 0 34px var(--luz);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+.carta-flip-verso .logo { color: var(--yellow); }
+.carta-flip.fase-verso .carta-flip-verso { animation: brilho-verso 1.6s ease-in-out infinite; }
+@keyframes brilho-verso { 50% { box-shadow: 0 0 0 3px var(--ink), 6px 6px 0 3px var(--ink), 0 0 60px var(--luz); } }
+.pisca-suave { animation: pisca-suave 1.6s ease-in-out infinite; }
+@keyframes pisca-suave { 50% { opacity: .55; } }
+/* confete */
+.confete { position: absolute; inset: -40px 0 0; pointer-events: none; z-index: 4; overflow: hidden; }
+.confete span { position: absolute; top: -16px; width: 9px; height: 14px; border-radius: 2px; border: 1.5px solid var(--ink); animation: confete 1.4s ease-in both; }
+@keyframes confete { from { transform: translateY(0) rotate(0); opacity: 1; } to { transform: translateY(520px) rotate(var(--giro)); opacity: 0; } }

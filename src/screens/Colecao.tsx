@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Ara } from '../components/Ara';
-import { Pacote } from '../components/Pacote';
+import { RasgarPacote } from '../components/RasgarPacote';
 import { CartaView, ROTULO } from '../components/CartaView';
 import { Icone } from '../components/Icone';
 import { sabimonPorId, sabimons, TOTAL_PLANEJADO } from '../data';
@@ -13,52 +13,27 @@ import { ir } from '../lib/rota';
 import { jogar } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 
+type FaseAbrir = 'fechado' | 'abrindo' | 'verso' | 'revelado';
+
+const semMovimento = () => {
+  try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; }
+};
+
+/** Cor da luz que sai do pacote: dá uma dica da raridade antes de virar a carta. */
+const LUZ: Record<Raridade, string> = { comum: '#FFFFFF', rara: '#22D3EE', epica: '#F472B6', lendaria: '#FFC21A' };
+
 export function AbrirPacote() {
   const e = useEstado();
-  const [aberto, setAberto] = useState<{ pacoteId: string; cartas: Sabimon[]; novos: Set<string> } | null>(null);
+  const [aberto, setAberto] = useState<{ pacoteId: string; epico: boolean; cartas: Sabimon[]; novos: Set<string> } | null>(null);
+  const [fase, setFase] = useState<FaseAbrir>('fechado');
   const pacote = e.pacotes[0];
 
-  if (aberto) {
-    const melhor = aberto.cartas[aberto.cartas.length - 1];
-    const lendaria = melhor.raridade === 'lendaria';
-    const nNovos = aberto.novos.size;
-    const guardar = () => { setEstado((s) => guardarCartas(s, aberto.pacoteId, aberto.cartas)); setAberto(null); };
-    return (
-      <main className="tela" style={{ alignItems: 'center', textAlign: 'center', background: 'radial-gradient(circle at 50% 40%, #FFE7A3 0%, transparent 65%)' }}>
-        <div className="display titulo-premio pop" style={{ fontSize: 30 }}>
-          {lendaria ? 'Lendário!' : melhor.raridade === 'epica' ? 'Épico!' : nNovos ? 'Sabimon novo!' : 'Pacote aberto!'}
-        </div>
-        <div style={{ position: 'relative', display: 'grid', placeItems: 'center', padding: '8px 0', width: '100%', overflow: 'hidden', borderRadius: 24 }}>
-          {(lendaria || melhor.raridade === 'epica') && <div className="raios" aria-hidden="true" />}
-          <div className="pop" style={{ position: 'relative', boxShadow: lendaria ? '0 0 50px #FACC1555' : undefined, borderRadius: 20, width: 'min(290px, 100%)' }}>
-            <CartaView carta={melhor} grande animar />
-            {aberto.cartas.length === 1 && aberto.novos.has(melhor.id) && <span className="selo-novo" style={{ fontSize: 14, padding: '4px 10px', top: -10, right: -8 }}>NOVO</span>}
-          </div>
-        </div>
-        {aberto.cartas.length > 1 && <div className="grade-3" style={{ width: '100%' }}>
-          {aberto.cartas.map((c, i) => (
-            <div key={c.id} className="sobe" style={{ animationDelay: `${0.4 + i * 0.15}s`, position: 'relative' }}>
-              <CartaView carta={c} />
-              {aberto.novos.has(c.id) && <span className="selo-novo">NOVO</span>}
-            </div>
-          ))}
-        </div>}
-        <p className="muted small" style={{ margin: 0 }}>
-          {nNovos ? (aberto.cartas.length > 1 ? `${nNovos} Sabimons novos no álbum!` : 'Novo no seu álbum!') : `Repetido! Você tem ${(e.cartas[melhor.id] ?? 0) + 1} cópias. Elas ajudam a evoluir e servem para trocar.`}
-        </p>
-        {e.pacotes.length > 1 ? (
-          <button className="btn btn-amarelo btn-bloco" style={{ marginTop: 'auto' }} onClick={guardar}>Guardar e abrir o próximo</button>
-        ) : (
-          <div className="coluna" style={{ width: '100%', marginTop: 'auto' }}>
-            <button className="btn btn-amarelo btn-bloco" onClick={() => { guardar(); jogar(); }}>Guardar e continuar jogando</button>
-            <button className="btn btn-escuro btn-bloco" onClick={() => { guardar(); ir('album'); }}>Guardar e ver o álbum</button>
-          </div>
-        )}
-      </main>
-    );
-  }
+  // Linha do tempo da abertura: a aba voa, a carta pula de costas; depois a criança vira.
+  useEffect(() => {
+    if (fase === 'abrindo') { const t = setTimeout(() => setFase('verso'), 1150); return () => clearTimeout(t); }
+  }, [fase]);
 
-  if (!pacote) {
+  if (!pacote && !aberto) {
     return (
       <main className="tela" style={{ alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
         <Ara tamanho={110} />
@@ -68,25 +43,102 @@ export function AbrirPacote() {
     );
   }
 
-  const epico = pacote.tipo === 'epico';
-  const abrir = () => {
+  const epico = aberto ? aberto.epico : pacote.tipo === 'epico';
+  const sortear = () => {
     const cartas = abrirPacote(sabimons, pacote.tipo, Math.random, { tem: e.cartas, garantia: garantiaAtiva(e) });
-    setAberto({ pacoteId: pacote.id, cartas, novos: new Set(cartas.filter((c) => !(e.cartas[c.id] > 0)).map((c) => c.id)) });
+    setAberto({ pacoteId: pacote.id, epico: pacote.tipo === 'epico', cartas, novos: new Set(cartas.filter((c) => !(e.cartas[c.id] > 0)).map((c) => c.id)) });
+    // Guarda na hora: fechar o app no meio não devolve o pacote para sortear de novo.
+    setEstado((s) => guardarCartas(s, pacote.id, cartas));
+    setFase(semMovimento() ? 'revelado' : 'abrindo');
   };
+  const virar = () => {
+    setFase('revelado');
+    if (aberto && aberto.cartas[aberto.cartas.length - 1].raridade === 'lendaria') { try { navigator.vibrate?.([40, 60, 40]); } catch { /* sem vibração */ } }
+  };
+  /** O Sabimon já foi guardado ao rasgar; aqui só volta para o próximo pacote. */
+  const guardar = () => { setAberto(null); setFase('fechado'); };
+
+  const melhor = aberto?.cartas[aberto.cartas.length - 1];
+  const raro = melhor && (melhor.raridade === 'lendaria' || melhor.raridade === 'epica');
+  const novo = !!melhor && !!aberto?.novos.has(melhor.id);
+  const nNovos = aberto?.novos.size ?? 0;
+  const luz = melhor ? LUZ[melhor.raridade] : '#FFFFFF';
+  const sobra = e.pacotes.length;
+
   return (
-    <main className="tela" style={{ alignItems: 'center', textAlign: 'center' }}>
-      <div className="linha" style={{ alignSelf: 'stretch', justifyContent: 'space-between' }}>
+    <main className="tela tela-pacote" style={{ alignItems: 'center', textAlign: 'center', ['--luz' as string]: luz }}>
+      <div className="linha" style={{ alignSelf: 'stretch', justifyContent: 'space-between', visibility: fase === 'fechado' ? 'visible' : 'hidden' }}>
         <button className="voltar" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         <span className="eyebrow">{e.pacotes.length > 1 ? `${e.pacotes.length} pacotes` : 'Pacote'}</span>
       </div>
-      <h1 className="display h1 titulo-premio" style={{ marginTop: 12 }}>{epico ? 'Pacote épico!' : 'Novo pacote!'}</h1>
-      <button onClick={abrir} aria-label="Abrir o pacote" className="pacote-botao">
-        <Pacote epico={epico} texto={epico ? '1 Sabimon épico ou lendário' : '1 Sabimon surpresa'} />
-      </button>
-      <span className="btn btn-amarelo" aria-hidden="true">Toque para abrir</span>
-      {garantiaAtiva(e) && <p className="small" style={{ color: 'var(--t-green)', fontWeight: 800, margin: 0 }}>Este pacote garante um Sabimon novo!</p>}
-      {e.pacotes.length > 1 && <p className="muted small">Mais {e.pacotes.length - 1} {e.pacotes.length > 2 ? 'pacotes' : 'pacote'} depois desse</p>}
+
+      <h1 className={`display h1 titulo-premio${fase === 'revelado' ? ' pop' : ''}`} style={{ marginTop: 4, minHeight: '1.2em', visibility: fase === 'abrindo' ? 'hidden' : 'visible' }}>
+        {fase === 'fechado' && (epico ? 'Pacote épico!' : 'Novo pacote!')}
+        {fase === 'verso' && 'O que será?'}
+        {fase === 'revelado' && melhor && (melhor.raridade === 'lendaria' ? 'Lendário!' : melhor.raridade === 'epica' ? 'Épico!' : novo ? 'Sabimon novo!' : 'Repetido!')}
+      </h1>
+
+      <div className="palco-abrir">
+        {(fase === 'fechado' || fase === 'abrindo') && (
+          <RasgarPacote key={pacote?.id ?? 'x'} epico={epico} texto={epico ? '1 Sabimon épico ou lendário' : '1 Sabimon surpresa'}
+            abrindo={fase === 'abrindo'} aoRasgar={sortear} />
+        )}
+        {fase === 'abrindo' && <span className="luz-pacote" aria-hidden="true" />}
+        {fase === 'revelado' && raro && <div className="raios" aria-hidden="true" />}
+        {fase === 'revelado' && (novo || raro) && <Confete />}
+        {aberto && melhor && fase !== 'fechado' && (
+          <button className={`carta-flip fase-${fase}`} onClick={fase === 'verso' ? virar : undefined} disabled={fase !== 'verso'}
+            aria-label={fase === 'verso' ? 'Toque na carta para virar' : `${melhor.formas[0].nome}, ${ROTULO[melhor.raridade]}`}>
+            <span className="carta-flip-dentro">
+              <span className="carta-flip-verso" aria-hidden="true">
+                <span className="logo" style={{ fontSize: 30 }}>Sabidex</span>
+                <span className="pacote-palco"><Ara tamanho={86} /></span>
+              </span>
+              <span className="carta-flip-frente">
+                <CartaView carta={melhor} grande animar={fase === 'revelado'} />
+                {novo && fase === 'revelado' && <span className="selo-novo" style={{ fontSize: 14, padding: '4px 10px', top: -10, right: -8 }}>NOVO</span>}
+              </span>
+            </span>
+          </button>
+        )}
+      </div>
+
+      {fase === 'fechado' && garantiaAtiva(e) && <p className="small" style={{ color: 'var(--t-green)', fontWeight: 800, margin: 0 }}>Este pacote garante um Sabimon novo!</p>}
+      {fase === 'fechado' && e.pacotes.length > 1 && <p className="muted small" style={{ margin: 0 }}>Mais {e.pacotes.length - 1} {e.pacotes.length > 2 ? 'pacotes' : 'pacote'} depois desse</p>}
+      {fase === 'verso' && <p className="rasgar-ajuda pisca-suave">Toque na carta para virar!</p>}
+
+      {fase === 'revelado' && aberto && melhor && (
+        <div className="coluna sobe" style={{ width: '100%', marginTop: 'auto', animationDelay: '.5s' }}>
+          <p className="muted small" style={{ margin: 0 }}>
+            {nNovos ? (aberto.cartas.length > 1 ? `${nNovos} Sabimons novos no álbum!` : 'Novo no seu álbum!') : `Você tem ${e.cartas[melhor.id] ?? 1} cópias. Elas ajudam a evoluir e servem para trocar.`}
+          </p>
+          {sobra > 0 ? (
+            <button className="btn btn-amarelo btn-bloco" onClick={guardar}>Abrir o próximo</button>
+          ) : (
+            <>
+              <button className="btn btn-amarelo btn-bloco" onClick={() => { guardar(); jogar(); }}>Continuar jogando</button>
+              <button className="btn btn-escuro btn-bloco" onClick={() => { guardar(); ir('album'); }}>Ver no álbum</button>
+            </>
+          )}
+        </div>
+      )}
     </main>
+  );
+}
+
+const CORES_CONFETE = ['#FF5A36', '#FFC21A', '#22C3D6', '#F472B6', '#22B35E'];
+
+/** Confete que cai uma vez quando a carta vira (só em momento de prêmio). */
+function Confete() {
+  const pedacos = Array.from({ length: 26 }, (_, i) => ({
+    x: (i * 37) % 100, atraso: (i % 7) * 0.06, dur: 1.1 + ((i * 13) % 9) / 10, giro: (i * 47) % 360, cor: CORES_CONFETE[i % CORES_CONFETE.length],
+  }));
+  return (
+    <div className="confete" aria-hidden="true">
+      {pedacos.map((c, i) => (
+        <span key={i} style={{ left: `${c.x}%`, background: c.cor, animationDelay: `${c.atraso}s`, animationDuration: `${c.dur}s`, ['--giro' as string]: `${c.giro}deg` }} />
+      ))}
+    </div>
   );
 }
 
