@@ -1,21 +1,6 @@
 {
-  "quando": "2026-11-04T16:56:31.130Z",
+  "quando": "2026-11-04T17:03:20.692Z",
   "imagens": [
-    {
-      "nome": "006-2",
-      "pulado": "já existe"
-    },
-    {
-      "nome": "010-2",
-      "pulado": "já existe"
-    },
-    {
-      "nome": "006-3",
-      "sabimon": "Furacolibri",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
     {
       "nome": "010-3",
       "sabimon": "Galaxiá",
@@ -27,11 +12,9 @@
   "pedido": {
     "acao": "gerar",
     "formas": [
-      2,
       3
     ],
     "numeros": [
-      "006",
       "010"
     ]
   },
