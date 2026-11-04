@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from 'react';
 import type { Sabimon } from '../data/tipos';
-import { COR_TIPO, ROTULO, TEMA_TIPO, forca, vida, type Forma } from '../lib/sabimon';
+import { CENARIOS, COR_TIPO, ROTULO, TEMA_TIPO, forca, vida, type Forma } from '../lib/sabimon';
 import { bonus } from '../lib/loja';
 
 export { ROTULO };
@@ -33,8 +33,10 @@ export function CartaView({ carta, forma = 1, itens = [], tem = true, quantidade
   const extra = bonus(itens);
   const nome = tem ? f.nome : '???';
   const tema = TEMA_TIPO[carta.tipo];
-  const estilo = { '--tipo': COR_TIPO[carta.tipo], '--tipo-claro': tema.claro, '--tipo-escuro': tema.escuro } as CSSProperties;
-  const classe = `carta ${tem ? `${carta.raridade} t-${tema.classe}` : 'vazia'}${grande ? ' grande' : ''}${animar && tem && carta.raridade === 'lendaria' ? ' holo' : ''}`;
+  const estilo = { '--tipo': COR_TIPO[carta.tipo], '--tipo-claro': tema.claro, '--tipo-escuro': tema.escuro,
+    ...(CENARIOS.has(tema.classe) ? { '--cenario': `url(/cenarios/${tema.classe}.webp)` } : {}) } as CSSProperties;
+  const comCenario = tem && CENARIOS.has(tema.classe);
+  const classe = `carta ${tem ? `${carta.raridade} t-${tema.classe}` : 'vazia'}${grande ? ' grande' : ''}${animar && tem && carta.raridade === 'lendaria' ? ' holo' : ''}${comCenario ? ' com-cenario' : ''}`;
 
   if (grande) {
     return (

@@ -266,3 +266,7 @@ strong { color: var(--yellow); font-weight: 900; }
 .t-estrela .palco { background: radial-gradient(circle at 50% 50%, #67E8F955 0%, transparent 55%), linear-gradient(180deg, #0B1026, #1E1B6B 60%, #312E81); }
 .t-estrela .palco::before { background-image: radial-gradient(circle, #FFFFFF 1.2px, transparent 1.6px), radial-gradient(circle, #FDE68A 1px, transparent 1.4px); background-size: 37px 41px, 23px 29px; background-position: 3px 5px, 11px 17px; opacity: .9; }
 .carta.grande.t-estrela .palco::before { background-size: 47px 53px, 31px 37px; }
+
+/* Cenário desenhado (public/cenarios/<tipo>.webp) no lugar do feito só com cores */
+.carta.com-cenario .palco { background: var(--cenario) center / cover no-repeat, var(--tipo-escuro); }
+.carta.com-cenario .palco::before { background: radial-gradient(circle at 50% 55%, transparent 35%, #0B102633 100%); }

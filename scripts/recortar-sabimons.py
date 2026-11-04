@@ -3,6 +3,7 @@
 #      python3 scripts/recortar-sabimons.py --tudo   (refaz todas)
 # Lê arte/sabimons/originais/<número>-<forma>.png e grava public/sabimons/<número>-<forma>.webp
 # Só refaz as imagens novas ou que mudaram. Depois, atualize a lista em src/data/sabimons.ts.
+# Também prepara os cenários: arte/cenarios/originais/<tipo>.png → public/cenarios/<tipo>.webp
 import sys
 from collections import deque
 from pathlib import Path
@@ -63,4 +64,15 @@ for src in sorted(ORIGEM.glob('*.png')):
     if '--tudo' not in sys.argv and dst.exists() and dst.stat().st_mtime >= src.stat().st_mtime:
         continue
     recortar(src, dst)
+    print('ok', dst)
+
+# Cenários atrás dos bichos: não precisam de recorte, só ficar leves.
+CEN_ORIGEM = Path('arte/cenarios/originais')
+CEN_DESTINO = Path('public/cenarios')
+CEN_DESTINO.mkdir(parents=True, exist_ok=True)
+for src in sorted(CEN_ORIGEM.glob('*.png')):
+    dst = CEN_DESTINO / (src.stem + '.webp')
+    if '--tudo' not in sys.argv and dst.exists() and dst.stat().st_mtime >= src.stat().st_mtime:
+        continue
+    Image.open(src).convert('RGB').resize((520, 520), Image.LANCZOS).save(dst, 'WEBP', quality=76)
     print('ok', dst)

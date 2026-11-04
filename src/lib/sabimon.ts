@@ -10,7 +10,10 @@ export const COR_TIPO: Record<TipoSabimon, string> = {
   Vento: '#5EEAD4', Areia: '#E7C89A', Gelo: '#7DD3FC', Som: '#F472B6', Estrela: '#818CF8',
 };
 
-/** Cores do corpo da carta por tipo: claro (em cima) e escuro (embaixo). */
+/**
+ * Cores do corpo da carta por tipo: claro (em cima) e escuro (embaixo).
+ * `classe` também é o nome do cenário em public/cenarios/<classe>.webp (lista em CENARIOS).
+ */
 export const TEMA_TIPO: Record<TipoSabimon, { claro: string; escuro: string; classe: string }> = {
   Fogo: { claro: '#FDBA74', escuro: '#C2410C', classe: 'fogo' },
   Água: { claro: '#7DD3FC', escuro: '#1D4ED8', classe: 'agua' },
@@ -41,3 +44,6 @@ export const forca = (s: Sabimon, forma: Forma, i: 0 | 1) =>
 
 /** Total de cópias necessárias para chegar em cada forma (a 1ª cópia já é a forma 1). */
 export const COPIAS_PARA: Record<Forma, number> = { 1: 1, 2: 3, 3: 6 };
+
+/** Tipos que já têm cenário desenhado em public/cenarios/. Os outros usam o cenário feito só com cores. */
+export const CENARIOS = new Set<string>([]);
