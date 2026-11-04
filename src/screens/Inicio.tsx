@@ -4,7 +4,7 @@ import { Icone } from '../components/Icone';
 import { capitulos } from '../data';
 import { FASES, FASE_INFO, chave, nivel, sequencia } from '../lib/jogo';
 import { ir } from '../lib/rota';
-import { setEstado, useEstado } from '../lib/store';
+import { getEstado, setEstado, useEstado } from '../lib/store';
 import { useConta } from '../lib/conta';
 
 export const CORES = ['#22D3EE', '#F472B6', '#FACC15', '#4ADE80', '#FB923C', '#A78BFA'];
@@ -46,6 +46,12 @@ export function BoasVindas() {
 export function proximaFase(feitas: Record<string, true>) {
   for (const c of capitulos) for (const f of FASES) if (!feitas[chave(c.id, f)]) return { cap: c, fase: f };
   return null;
+}
+
+/** Leva para a próxima fase a fazer (ou para a lista de mundos, se tudo já foi feito). */
+export function jogar() {
+  const p = proximaFase(getEstado().feitas);
+  if (p) ir('fase', p.cap.id, p.fase); else ir('mundos');
 }
 
 export function Inicio() {

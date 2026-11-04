@@ -6,6 +6,7 @@ import { capitulos, capituloPorId } from '../data';
 import type { Carta, Raridade } from '../data/tipos';
 import { abrirPacote, guardarCartas } from '../lib/jogo';
 import { ir } from '../lib/rota';
+import { jogar } from './Inicio';
 import { setEstado, useEstado } from '../lib/store';
 
 export function AbrirPacote() {
@@ -34,10 +35,23 @@ export function AbrirPacote() {
           ))}
         </div>
         <p className="muted small" style={{ margin: 0 }}>{novas.length ? `${novas.length} ${novas.length > 1 ? 'cartas novas' : 'carta nova'} no álbum` : 'Todas repetidas: guarde para trocar com os amigos'}</p>
-        <button className="btn btn-amarelo btn-bloco" style={{ marginTop: 'auto' }}
-          onClick={() => { setEstado((s) => guardarCartas(s, aberto.pacoteId, aberto.cartas)); setAberto(null); if (e.pacotes.length <= 1) ir('album'); }}>
-          {e.pacotes.length > 1 ? 'Guardar e abrir o próximo' : 'Guardar no álbum'}
-        </button>
+        {e.pacotes.length > 1 ? (
+          <button className="btn btn-amarelo btn-bloco" style={{ marginTop: 'auto' }}
+            onClick={() => { setEstado((s) => guardarCartas(s, aberto.pacoteId, aberto.cartas)); setAberto(null); }}>
+            Guardar e abrir o próximo
+          </button>
+        ) : (
+          <div className="coluna" style={{ width: '100%', marginTop: 'auto' }}>
+            <button className="btn btn-amarelo btn-bloco"
+              onClick={() => { setEstado((s) => guardarCartas(s, aberto.pacoteId, aberto.cartas)); setAberto(null); jogar(); }}>
+              Guardar e continuar jogando
+            </button>
+            <button className="btn btn-escuro btn-bloco"
+              onClick={() => { setEstado((s) => guardarCartas(s, aberto.pacoteId, aberto.cartas)); setAberto(null); ir('album'); }}>
+              Guardar e ver o álbum
+            </button>
+          </div>
+        )}
       </main>
     );
   }

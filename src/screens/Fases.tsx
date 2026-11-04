@@ -5,6 +5,7 @@ import { capituloPorId } from '../data';
 import type { Capitulo } from '../data/tipos';
 import { FASE_INFO, NOTA_MINIMA, concluirFase, embaralhar, liberada, nivel, notaDe, type Fase, type Resultado } from '../lib/jogo';
 import { ir } from '../lib/rota';
+import { jogar, proximaFase } from './Inicio';
 import { getEstado, setEstado } from '../lib/store';
 
 /** Transforma **negrito** em <strong>. */
@@ -48,8 +49,11 @@ function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { cap: Capi
       <div className="coluna" style={{ width: '100%', marginTop: 8 }}>
         {r.pacoteGanho
           ? <button className="btn btn-amarelo btn-bloco" onClick={() => ir('pacote')}>Abrir pacote</button>
-          : <button className="btn btn-amarelo btn-bloco" onClick={() => ir('mundo', cap.id)}>Continuar</button>}
-        <button className="btn btn-escuro btn-bloco" onClick={onDeNovo}>Jogar de novo</button>
+          : aprovado
+            ? <button className="btn btn-amarelo btn-bloco" onClick={jogar}>{proximaFase(r.estado.feitas) ? 'Próxima fase' : 'Continuar'}</button>
+            : <button className="btn btn-amarelo btn-bloco" onClick={onDeNovo}>Tentar de novo</button>}
+        <button className="btn btn-escuro btn-bloco" onClick={() => ir('mundo', cap.id)}>Ver o mundo {cap.numero}</button>
+        {aprovado && <button className="btn btn-escuro btn-bloco" onClick={onDeNovo}>Jogar de novo</button>}
       </div>
     </main>
   );
