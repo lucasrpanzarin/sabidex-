@@ -1,75 +1,45 @@
 {
-  "quando": "2026-11-04T18:19:37.648Z",
+  "quando": "2026-11-04T18:44:48.795Z",
   "imagens": [
     {
       "nome": "fogo",
-      "tipo": "Fogo",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
+      "pulado": "já existe"
     },
     {
       "nome": "agua",
-      "tipo": "Água",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
+      "pulado": "já existe"
     },
     {
       "nome": "planta",
-      "tipo": "Planta",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
+      "pulado": "já existe"
     },
     {
       "nome": "raio",
-      "tipo": "Raio",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
+      "pulado": "já existe"
     },
     {
       "nome": "pedra",
-      "tipo": "Pedra",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
+      "pulado": "já existe"
     },
     {
       "nome": "vento",
-      "tipo": "Vento",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
+      "pulado": "já existe"
     },
     {
       "nome": "areia",
-      "tipo": "Areia",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
+      "pulado": "já existe"
     },
     {
       "nome": "gelo",
-      "tipo": "Gelo",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
+      "pulado": "já existe"
     },
     {
       "nome": "som",
-      "tipo": "Som",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
+      "pulado": "já existe"
     },
     {
       "nome": "estrela",
-      "tipo": "Estrela",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
+      "pulado": "já existe"
     }
   ],
   "pedido": {
