@@ -21,7 +21,7 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 - Botões "de jogo": cor viva, contorno escuro e "chão" embaixo (`.btn` em `src/styles.css`).
 - Animação só em momentos de prêmio (abrir pacote, subir de nível, acertar). Telas paradas não tremem nem piscam. Sempre respeitar `prefers-reduced-motion`.
 - Raridades: comum ★ (cinza), rara ★★ (turquesa), épica ★★★ (rosa), lendária ★★★★ (amarelo, borda holográfica).
-- Mascote: Ará, a arara (`src/components/Ara.tsx`).
+- Mascote: Ará, a arara (`src/components/Ara.tsx`): guia da turma, com mochila e lápis (não é um Sabimon). Desenhos 3D em `public/mascote/ara-<humor>.webp` (feliz, pensando, comemorando, triste), feitos pelo pedido `{"acao": "mascote"}` em `arte/pedido.json`.
 - Para decisões de design, use a skill **ui-ux-pro-max** (fica em `.claude/skills/ui-ux-pro-max/`; busca: `python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<busca>" --domain <área>`). As decisões já tomadas estão em `design-system/sabidex/MASTER.md`: leia antes de mudar o visual.
 
 ## Técnica
