@@ -860,6 +860,19 @@ app.onError((e, c) => { console.error(e); return c.json({ erro: 'Algo deu errado
 const PRINCIPAL = 'sabidex.com.br';
 const REDIRECIONAR = new Set(['sabidex.com', 'www.sabidex.com', 'www.sabidex.com.br']);
 
+// Arquivo que não existe (áudio, imagem, script) responde "não encontrado".
+// Sem isso, a Cloudflare devolve a página do app no lugar, e o aparelho guardava
+// essa página como se fosse o áudio (aí tocava a narração antiga, de reserva).
+async function arquivo(req: Request, env: Env) {
+  const r = await env.ASSETS.fetch(req);
+  const ultimo = new URL(req.url).pathname.split('/').pop() ?? '';
+  const temExtensao = /\.[a-z0-9]+$/i.test(ultimo) && !ultimo.endsWith('.html');
+  if (temExtensao && (r.headers.get('content-type') ?? '').includes('text/html')) {
+    return new Response('Não encontrado.', { status: 404 });
+  }
+  return r;
+}
+
 export default {
   fetch(req: Request, env: Env, ctx: ExecutionContext) {
     const url = new URL(req.url);
@@ -869,6 +882,6 @@ export default {
       return Response.redirect(url.toString(), 301);
     }
     if (url.pathname === '/api' || url.pathname.startsWith('/api/')) return app.fetch(req, env, ctx);
-    return env.ASSETS.fetch(req);
+    return arquivo(req, env);
   },
 } satisfies ExportedHandler<Env>;

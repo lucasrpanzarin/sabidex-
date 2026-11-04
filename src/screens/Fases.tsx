@@ -8,7 +8,7 @@ import { FASE_INFO, NOTA_MINIMA, PERDA_POR_ERRO, XP_MINIMO, concluirFase, embara
 import { idProva, idQuiz, registrarResposta } from '../lib/revisao';
 import { ir } from '../lib/rota';
 import { jogar, proximaFase } from './Inicio';
-import { getEstado, setEstado } from '../lib/store';
+import { getEstado, setEstado, useEstado } from '../lib/store';
 import { VOZES, audioDaVoz, setVoz, useVoz } from '../lib/voz';
 
 /** Transforma **negrito** em <strong>. */
@@ -136,34 +136,53 @@ function useFinalizar(cap: Capitulo, fase: Fase) {
 /* ---------- Fase 1: ouvir ---------- */
 function Ouvir({ cap }: { cap: Capitulo }) {
   const { res, finalizar, limpar } = useFinalizar(cap, 'ouvir');
-  const [ouvidos, setOuvidos] = useState<Set<number>>(new Set());
+  // Temas já ouvidos ficam salvos: se a criança sair e voltar, não precisa ouvir de novo.
+  const salvos = useEstado().ouvidos?.[cap.id];
+  const ouvidos = useMemo(() => new Set(salvos ?? []), [salvos]);
+  const setOuvidos = (f: (s: Set<number>) => Set<number>) => setEstado((e) => {
+    const atual = new Set(e.ouvidos?.[cap.id] ?? []);
+    const novo = [...f(atual)].sort((a, b) => a - b);
+    if (novo.length === atual.size) return e;
+    return { ...e, ouvidos: { ...e.ouvidos, [cap.id]: novo } };
+  });
+  const esquecerOuvidos = () => setEstado((e) => { const { [cap.id]: _, ...resto } = e.ouvidos ?? {}; return { ...e, ouvidos: resto }; });
   const [tocando, setTocando] = useState<number | null>(null);
-  const [aberto, setAberto] = useState<number | null>(0);
+  const [carregando, setCarregando] = useState<number | null>(null);
+  // Abre o primeiro tema que ainda falta ouvir.
+  const [aberto, setAberto] = useState<number | null>(() => { const i = cap.temas.findIndex((_, j) => !ouvidos.has(j)); return i < 0 ? null : i; });
   const audio = useRef<HTMLAudioElement | null>(null);
   const voz = useVoz();
 
   useEffect(() => () => audio.current?.pause(), []);
-  useEffect(() => { audio.current?.pause(); setTocando(null); }, [voz]);
+  useEffect(() => { audio.current?.pause(); audio.current = null; setTocando(null); setCarregando(null); }, [voz]);
 
   const tocar = (i: number) => {
     const t = cap.temas[i];
     if (!t.audio) return;
     if (tocando === i) { audio.current?.pause(); setTocando(null); return; }
+    // Ainda carregando este tema: espera, em vez de começar tudo de novo a cada toque.
+    if (carregando === i) return;
     audio.current?.pause();
     const a = new Audio(import.meta.env.BASE_URL + audioDaVoz(t.audio, voz));
     audio.current = a;
+    const minha = () => audio.current === a; // ignora avisos de um áudio que já foi trocado
+    setCarregando(i);
+    const comecou = () => { if (minha()) { setCarregando(null); setTocando(i); setAberto(i); } };
+    const parou = () => { if (minha()) { setCarregando(null); setTocando(null); } };
     let tentouReserva = false;
-    a.ontimeupdate = () => { if (a.duration && a.currentTime / a.duration > 0.8) setOuvidos((s) => new Set(s).add(i)); };
-    a.onended = () => { setTocando(null); setOuvidos((s) => new Set(s).add(i)); };
+    a.ontimeupdate = () => { if (minha() && a.duration && a.currentTime / a.duration > 0.8) setOuvidos((s) => new Set(s).add(i)); };
+    a.onended = () => { if (!minha()) return; setTocando(null); setOuvidos((s) => new Set(s).add(i)); };
     a.onerror = () => {
+      if (!minha()) return;
       // Se o áudio dessa voz ainda não existir, toca a narração antiga.
-      if (!tentouReserva && t.audio) { tentouReserva = true; a.src = import.meta.env.BASE_URL + t.audio; void a.play().catch(() => setTocando(null)); }
-      else setTocando(null);
+      if (!tentouReserva && t.audio) { tentouReserva = true; a.src = import.meta.env.BASE_URL + t.audio; a.play().then(comecou).catch(() => { /* o onerror avisa */ }); }
+      else parou();
     };
-    a.play().then(() => { setTocando(i); setAberto(i); }).catch(() => setTocando(null));
+    // Se der erro de arquivo, quem cuida é o onerror (que tenta a reserva).
+    a.play().then(comecou).catch((e: unknown) => { if (!(e instanceof DOMException && e.name === 'NotSupportedError')) parou(); });
   };
 
-  if (res) return <Fim cap={cap} r={res} titulo="Você ouviu tudo!" onDeNovo={() => { setOuvidos(new Set()); limpar(); }} />;
+  if (res) return <Fim cap={cap} r={res} titulo="Você ouviu tudo!" onDeNovo={limpar} />;
   const total = cap.temas.length;
   return (
     <main className="tela">
@@ -187,9 +206,9 @@ function Ouvir({ cap }: { cap: Capitulo }) {
         {cap.temas.map((t, i) => (
           <article key={i} className="painel" style={{ padding: 14, borderColor: tocando === i ? 'var(--yellow)' : ouvidos.has(i) ? '#22C55E' : undefined }}>
             <div className="linha">
-              <button onClick={() => tocar(i)} aria-label={tocando === i ? `Pausar ${t.titulo}` : `Ouvir ${t.titulo}`}
+              <button onClick={() => tocar(i)} aria-label={tocando === i ? `Pausar ${t.titulo}` : carregando === i ? `Carregando ${t.titulo}` : `Ouvir ${t.titulo}`} aria-busy={carregando === i}
                 className={`btn ${tocando === i ? 'btn-amarelo' : ouvidos.has(i) ? 'btn-verde' : 'btn-ciano'}`} style={{ width: 52, height: 52, padding: 0, borderRadius: '50%', flex: 'none' }}>
-                <Icone nome={tocando === i ? 'pause' : ouvidos.has(i) ? 'check' : 'play'} cheio={!ouvidos.has(i) || tocando === i} espessura={3} />
+                <Icone nome={tocando === i ? 'pause' : carregando === i ? 'relogio' : ouvidos.has(i) ? 'check' : 'play'} cheio={!ouvidos.has(i) || tocando === i} espessura={3} />
               </button>
               <button onClick={() => setAberto(aberto === i ? null : i)} style={{ flex: 1, background: 'none', border: 0, textAlign: 'left', padding: 0 }} aria-expanded={aberto === i}>
                 <span className="eyebrow" style={{ color: 'var(--muted)' }}>Tema {i + 1}</span>
@@ -213,7 +232,7 @@ function Ouvir({ cap }: { cap: Capitulo }) {
           </article>
         ))}
       </div>
-      <button className="btn btn-amarelo btn-bloco" disabled={ouvidos.size < total} onClick={() => { audio.current?.pause(); finalizar(); }}>
+      <button className="btn btn-amarelo btn-bloco" disabled={ouvidos.size < total} onClick={() => { audio.current?.pause(); finalizar(); esquecerOuvidos(); }}>
         {ouvidos.size < total ? (total - ouvidos.size === 1 ? "Falta 1 tema" : `Faltam ${total - ouvidos.size} temas`) : 'Terminar fase'}
       </button>
     </main>
