@@ -51,6 +51,54 @@ function urlDaImagem(j: Record<string, any>): string | undefined {
   return j.images?.[0]?.url ?? j.image?.url ?? j.output?.images?.[0]?.url ?? j.results?.[0]?.url ?? j.jobs?.[0]?.results?.raw?.url;
 }
 
+// Nomes possíveis dos modelos no Higgsfield (o primeiro que existir é usado).
+const TEXTO: Candidato[] = [
+  { modelo: 'bytedance/seedream/v4/text-to-image' },
+  { modelo: 'bytedance/seedream/v4.5/text-to-image' },
+  { modelo: 'bytedance/seedream/v4' },
+  { modelo: 'seedream/v4/text-to-image' },
+  { modelo: 'google/nano-banana-pro/text-to-image' },
+  { modelo: 'google/nano-banana/text-to-image' },
+  { modelo: 'nano-banana-pro/text-to-image' },
+  { modelo: 'higgsfield-ai/soul/standard', extra: { resolution: '1080p' } },
+];
+const COM_REFERENCIA: Candidato[] = [
+  { modelo: 'bytedance/seedream/v4/edit' },
+  { modelo: 'bytedance/seedream/v4.5/edit' },
+  { modelo: 'seedream/v4/edit' },
+  { modelo: 'google/nano-banana-pro/edit' },
+  { modelo: 'google/nano-banana/edit' },
+  { modelo: 'nano-banana-pro/edit' },
+];
+interface Candidato { modelo: string; extra?: Record<string, unknown> }
+const escolhido: Record<string, Candidato> = {};
+
+/** Tenta os nomes de modelo até achar um que exista (nome errado não gasta crédito). */
+async function gerarComCandidatos(tipo: 'texto' | 'ref', lista: Candidato[], corpo: Record<string, unknown>) {
+  const tentativas = escolhido[tipo] ? [escolhido[tipo]] : lista;
+  const falhas: string[] = [];
+  for (const c of tentativas) {
+    try {
+      const url = await gerarImagem(c.modelo, { ...corpo, ...(c.extra ?? {}) });
+      escolhido[tipo] = c;
+      return { url, modelo: c.modelo };
+    } catch (e) {
+      if (!String(e).includes('model_not_found')) throw e;
+      falhas.push(c.modelo);
+    }
+  }
+  throw new Error(`Nenhum nome de modelo existe: ${falhas.join(', ')}`);
+}
+
+/** Pergunta ao Higgsfield a lista de modelos, se ele tiver esse endereço. */
+async function sondar() {
+  const achados: Record<string, unknown> = {};
+  for (const c of ['/models', '/v1/models', '/api/models']) {
+    try { achados[c] = JSON.stringify(await api(c)).slice(0, 3000); } catch (e) { achados[c] = String(e).slice(0, 200); }
+  }
+  resultado.sondagem = achados;
+}
+
 /** Manda o pedido e espera a imagem ficar pronta. Devolve o endereço da imagem. */
 async function gerarImagem(modelo: string, corpo: Record<string, unknown>) {
   const envio = await api(`/${modelo}`, { method: 'POST', body: JSON.stringify(corpo) });
@@ -107,8 +155,10 @@ async function main() {
   if (!chave) throw new Error('Falta o segredo HIGGSFIELD_API_KEY no GitHub.');
   const lista: Sabimon[] = JSON.parse(readFileSync('arte/sabimons/lista.json', 'utf8'));
   const refs: Record<string, string> = existsSync(REFS) ? JSON.parse(readFileSync(REFS, 'utf8')) : {};
-  const modelo = p.modelo ?? 'bytedance/seedream/v4/text-to-image';
-  const modeloRef = p.modeloRef ?? 'bytedance/seedream/v4/edit';
+  const texto = p.modelo ? [{ modelo: p.modelo }] : TEXTO;
+  const comRef = p.modeloRef ? [{ modelo: p.modeloRef }] : COM_REFERENCIA;
+  await sondar();
+  salvar();
   mkdirSync(PASTA, { recursive: true });
 
   const feitos = resultado.imagens as unknown[];
@@ -119,13 +169,13 @@ async function main() {
       if (existsSync(destino) && !p.refazer) { feitos.push({ nome, pulado: 'já existe' }); continue; }
       const prompt = `${ESTILO} ${s.formas[forma - 1]}`;
       const corpo: Record<string, unknown> = { prompt, aspect_ratio: '1:1', resolution: '2K', ...(p.extra ?? {}) };
-      let usado = modelo;
       if (forma > 1) {
         corpo.prompt = `${prompt} ${MESMO_BICHO}`;
         corpo.image_urls = [await referencia(s.numero, refs)];
-        usado = modeloRef;
       }
-      const url = await gerarImagem(usado, corpo);
+      const { url, modelo: usado } = forma > 1
+        ? await gerarComCandidatos('ref', comRef, corpo)
+        : await gerarComCandidatos('texto', texto, corpo);
       const tamanho = await baixarPng(url, destino);
       refs[nome] = url;
       writeFileSync(REFS, JSON.stringify(refs, null, 2) + '\n');
