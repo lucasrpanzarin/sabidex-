@@ -98,6 +98,96 @@ export const sabimons: Sabimon[] = [
       { nome: 'Galaxiá', poderes: ['Explosão Estelar', 'Galáxia Giratória'], imagem: img('010', 3) },
     ],
   },
+  {
+    id: 's011', numero: 11, tipo: 'Água', raridade: 'comum',
+    fato: 'O peixe-boi é um mamífero que vive na água e só come plantas.',
+    formas: [
+      { nome: 'Bolhudo', poderes: ['Rajada de Bolhas', 'Rabo Remador'], imagem: img('011', 1) },
+      { nome: 'Bolhão', poderes: ['Escudo de Água', 'Anel de Onda'], imagem: img('011', 2) },
+      { nome: 'Maremanso', poderes: ['Redemoinho Gigante', 'Coroa das Águas'], imagem: img('011', 3) },
+    ],
+  },
+  {
+    id: 's012', numero: 12, tipo: 'Planta', raridade: 'comum',
+    fato: 'Muitas pererecas têm ventosas nos dedos, que ajudam a grudar em folhas e galhos.',
+    formas: [
+      { nome: 'Folhapé', poderes: ['Pulo de Folha', 'Cipó Grudento'], imagem: img('012', 1) },
+      { nome: 'Saltifolha', poderes: ['Capa de Folhas', 'Salto Florido'], imagem: img('012', 2) },
+      { nome: 'Pereflora', poderes: ['Jardim Vivo', 'Chicote de Orquídea'], imagem: img('012', 3) },
+    ],
+  },
+  {
+    id: 's013', numero: 13, tipo: 'Vento', raridade: 'comum',
+    fato: 'O bico do tucano é enorme, mas é leve, porque por dentro é cheio de espaços com ar.',
+    formas: [
+      { nome: 'Tucanuvem', poderes: ['Sopro de Bico', 'Pena Ligeira'], imagem: img('013', 1) },
+      { nome: 'Bicorrente', poderes: ['Mergulho do Vento', 'Nuvem Giratória'], imagem: img('013', 2) },
+      { nome: 'Tucaventania', poderes: ['Ciclone de Penas', 'Bico Ventania'], imagem: img('013', 3) },
+    ],
+  },
+  {
+    id: 's014', numero: 14, tipo: 'Areia', raridade: 'comum',
+    fato: 'A tartaruga-marinha passa a vida no mar, mas volta à praia para botar os ovos na areia.',
+    formas: [
+      { nome: 'Areiruga', poderes: ['Nadadeira de Areia', 'Casco Espiral'], imagem: img('014', 1) },
+      { nome: 'Conchaduna', poderes: ['Chuva de Conchas', 'Redemoinho Dourado'], imagem: img('014', 2) },
+      { nome: 'Tartamaré', poderes: ['Duna Gigante', 'Anel de Areia'], imagem: img('014', 3) },
+    ],
+  },
+  {
+    id: 's015', numero: 15, tipo: 'Raio', raridade: 'rara',
+    fato: 'O poraquê é um peixe da Amazônia que dá choques elétricos para se defender e para caçar.',
+    formas: [
+      { nome: 'Faiscaraqué', poderes: ['Choque de Rio', 'Corpo Faísca'], imagem: img('015', 1) },
+      { nome: 'Voltaraqué', poderes: ['Espiral Elétrica', 'Barbatana Raio'], imagem: img('015', 2) },
+      { nome: 'Trovaraqué', poderes: ['Coroa de Trovão', 'Arco Relâmpago'], imagem: img('015', 3) },
+    ],
+  },
+  {
+    id: 's016', numero: 16, tipo: 'Fogo', raridade: 'rara',
+    fato: 'O lobo-guará vive no Cerrado. As pernas compridas ajudam ele a enxergar por cima do capim alto.',
+    formas: [
+      { nome: 'Guarabrasa', poderes: ['Juba de Brasa', 'Corrida do Cerrado'], imagem: img('016', 1) },
+      { nome: 'Juballama', poderes: ['Crista de Chamas', 'Pata Fogosa'], imagem: img('016', 2) },
+      { nome: 'Guaravulcão', poderes: ['Armadura de Lava', 'Uivo Vulcânico'], imagem: img('016', 3) },
+    ],
+  },
+  {
+    id: 's017', numero: 17, tipo: 'Pedra', raridade: 'rara',
+    fato: 'A anta é o maior mamífero terrestre do Brasil. A tromba curta ajuda a pegar folhas e frutas.',
+    formas: [
+      { nome: 'Antarocha', poderes: ['Tromba Pedrada', 'Pedrinhas Voadoras'], imagem: img('017', 1) },
+      { nome: 'Pedranta', poderes: ['Investida de Pedra', 'Espinha de Cristal'], imagem: img('017', 2) },
+      { nome: 'Montanta', poderes: ['Serra de Cristal', 'Chuva de Rochas'], imagem: img('017', 3) },
+    ],
+  },
+  {
+    id: 's018', numero: 18, tipo: 'Gelo', raridade: 'epica',
+    fato: 'O pinguim-de-magalhães vive mais ao sul, mas às vezes aparece no litoral do Brasil no inverno.',
+    formas: [
+      { nome: 'Geladim', poderes: ['Escorregão Gelado', 'Bafo de Gelo'], imagem: img('018', 1) },
+      { nome: 'Pinguigelo', poderes: ['Asa Lâmina', 'Nevasca Rodopiante'], imagem: img('018', 2) },
+      { nome: 'Glaciguim', poderes: ['Espinhos de Geleira', 'Anel de Flocos'], imagem: img('018', 3) },
+    ],
+  },
+  {
+    id: 's019', numero: 19, tipo: 'Som', raridade: 'epica',
+    fato: 'O ronco do bugio é tão forte que pode ser ouvido a quilômetros de distância.',
+    formas: [
+      { nome: 'Bugiurro', poderes: ['Ronco Forte', 'Rabo Laço'], imagem: img('019', 1) },
+      { nome: 'Ecobugio', poderes: ['Anéis de Som', 'Eco da Mata'], imagem: img('019', 2) },
+      { nome: 'Bugitroante', poderes: ['Onda de Choque', 'Coroa Sonora'], imagem: img('019', 3) },
+    ],
+  },
+  {
+    id: 's020', numero: 20, tipo: 'Estrela', raridade: 'lendaria',
+    fato: 'A onça-pintada é o maior felino das Américas e nada muito bem.',
+    formas: [
+      { nome: 'Oncelestre', poderes: ['Pintas Brilhantes', 'Bote Estrelado'], imagem: img('020', 1) },
+      { nome: 'Onçastral', poderes: ['Salto da Lua', 'Poeira de Estrelas'], imagem: img('020', 2) },
+      { nome: 'Constelonça', poderes: ['Galáxia Pintada', 'Chuva de Cometas'], imagem: img('020', 3) },
+    ],
+  },
 ];
 
 /** Quantos Sabimons a coleção completa vai ter. */
