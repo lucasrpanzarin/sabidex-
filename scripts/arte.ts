@@ -17,7 +17,7 @@ const chave = process.env.HIGGSFIELD_API_KEY
 
 interface Sabimon { numero: string; nomes: string[]; tipo: string; formas: string[] }
 interface Pedido {
-  acao: 'gerar';
+  acao: 'gerar' | 'modelos';
   formas: number[];
   numeros?: string[];
   refazer?: boolean;
@@ -157,8 +157,22 @@ async function main() {
   const refs: Record<string, string> = existsSync(REFS) ? JSON.parse(readFileSync(REFS, 'utf8')) : {};
   const texto = p.modelo ? [{ modelo: p.modelo }] : TEXTO;
   const comRef = p.modeloRef ? [{ modelo: p.modeloRef }] : COM_REFERENCIA;
-  await sondar();
-  salvar();
+  if (p.acao === 'modelos') {
+    // Salva a lista completa de modelos de imagem (com o formato de pedido de cada um).
+    const todos: Record<string, any>[] = [];
+    for (let pagina = 1; pagina <= 10; pagina++) {
+      const r = await api(`/models?page=${pagina}&page_size=100`);
+      const itens = (r.items ?? r.models ?? []) as Record<string, any>[];
+      todos.push(...itens.filter((m) => !todos.some((t) => t.slug === m.slug)));
+      if (itens.length === 0 || todos.length >= (r.total ?? 0)) break;
+    }
+    const imagem = todos.filter((m) => m.output_type !== 'video');
+    writeFileSync('arte/modelos.json', JSON.stringify(imagem, null, 2) + '\n');
+    resultado.total = todos.length;
+    resultado.imagem = imagem.map((m) => `${m.slug} | ${m.title} | ${m.base_credits}`);
+    resultado.ok = true;
+    return;
+  }
   mkdirSync(PASTA, { recursive: true });
 
   const feitos = resultado.imagens as unknown[];
