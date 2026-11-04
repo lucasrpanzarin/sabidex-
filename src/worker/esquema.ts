@@ -92,6 +92,13 @@ export const MIGRACOES = [
     criado INTEGER NOT NULL
   )`,
   `CREATE INDEX IF NOT EXISTS recuperacoes_adulto ON recuperacoes (adulto_id, criado)`,
+  // Data da prova da escola de cada capítulo. turma_id é a turma ou 'familia:<id do adulto>'.
+  `CREATE TABLE IF NOT EXISTS datas_prova (
+    turma_id TEXT NOT NULL,
+    capitulo TEXT NOT NULL,
+    data TEXT NOT NULL,
+    PRIMARY KEY (turma_id, capitulo)
+  )`,
 ];
 
 export const SEM_TURMA = 'familia:';
