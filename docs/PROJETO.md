@@ -83,7 +83,9 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - **Não existe jogar sem conta** (desde 04/11/2026). A primeira tela tem só: "Entrar na minha turma", "Já tenho conta" e "Sou pai, mãe ou professor".
 - **Conta da família**: o adulto (e-mail + senha, ou Google/Apple quando ligados) cria os perfis dos filhos (apelido + cor + PIN de 4 números). Até 6 filhos.
 - **Turma**: o professor cria e recebe um código fácil (ex.: ARARA-4821). Até 60 crianças por turma; até 20 turmas por adulto.
-- **Trocas**: só propostas de carta por carta, com colegas da mesma turma. Até 5 propostas esperando. **Não existe chat.**
+- **Trocas**: só propostas de carta por carta, com colegas da mesma turma. Até 5 propostas esperando.
+- **Chat da turma supervisionado** (Lucas, 04/11/2026): um grupo único da turma da escola, sem mensagem privada nem gente de fora. Começa desligado: um administrador da turma liga e escolhe o horário (padrão 7h–21h) **e** o responsável autoriza cada filho (criança sem família não escreve). Pais e professor leem tudo, e a criança é avisada disso. Bloqueia palavrões, telefones, endereços, links, e-mails e redes sociais; sem foto nem áudio; até 200 letras e 5 mensagens a cada 30 segundos. Botão "Avisar um adulto"; administradores apagam mensagens e pausam um aluno. As mensagens somem em 60 dias. Também tem **"Estudando agora"** (só para a turma; adultos podem desligar). Arquivos: `src/shared/chat.ts`, `src/screens/Chat.tsx`.
+- **Vários administradores na turma**: o dono convida outros adultos com um código `ADM-XXXX-XXXX` (vale 7 dias, uma vez só). Só o dono convida ou remove administradores. Se o dono apagar a conta, a turma passa para o administrador mais antigo.
 - **Ranking da semana** (XP e cartas), zera toda segunda.
 - Pergunta de conta (ex.: "Quanto é 6 × 15?") antes da área dos adultos.
 - 5 PINs errados bloqueiam 15 minutos.
@@ -130,6 +132,7 @@ Guia de arte: `docs/ARTE-SABIMONS.md`.
 | Tentar de novo no mesmo item até acertar | Uma chance por item, o certo aparece | 04/11/2026 |
 | Pacote sem pedir nota | Pacote só com nota 7 ou mais | 04/11/2026 |
 | Botão "Já li este tema" com áudio | Precisa ouvir o áudio | 04/11/2026 |
+| Nenhum chat entre crianças (só propostas de troca) | Chat da turma supervisionado, desligado no começo | 04/11/2026 |
 | Voz única (Kokoro) | 3 vozes ElevenLabs: Nina, Otto, Graziella | 04/11/2026 |
 | Logo de texto simples | Letras-figurinha coloridas | 04/11/2026 |
 | Visual com roxo | Álbum de figurinhas (papel + contorno escuro) | 04/11/2026 |
@@ -156,6 +159,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
+
+- **04/11/2026** · Chat da turma supervisionado, "Estudando agora" e vários administradores por turma (Lucas).
 
 - **04/11/2026** · Lendárias mais fortes (força base 40) e com brilho (Lucas). Proteção contra cartas inventadas: o servidor só aceita 1 carta nova por pacote aberto; de quebra, cartas mandadas duas vezes (internet caiu no meio) não contam em dobro. Quem jogava sem conta e evoluiu no aparelho não perde mais a forma 2/3 ao entrar numa turma ou família.
 
