@@ -22,7 +22,7 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 - Animação só em momentos de prêmio (abrir pacote, subir de nível, acertar). Telas paradas não tremem nem piscam. Sempre respeitar `prefers-reduced-motion`.
 - Raridades: comum ★ (cinza), rara ★★ (turquesa), épica ★★★ (rosa), lendária ★★★★ (amarelo, borda holográfica).
 - Mascote: Ará, a arara (`src/components/Ara.tsx`).
-- Para decisões de design, use a skill **ui-ux-pro-max**.
+- Para decisões de design, use a skill **ui-ux-pro-max** (fica em `.claude/skills/ui-ux-pro-max/`; busca: `python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<busca>" --domain <área>`). As decisões já tomadas estão em `design-system/sabidex/MASTER.md`: leia antes de mudar o visual.
 
 ## Técnica
 
