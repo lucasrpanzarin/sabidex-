@@ -95,7 +95,7 @@ export function VersoCarta() {
     <span className="verso">
       <span className="verso-moldura">
         {['c1', 'c2', 'c3', 'c4'].map((c) => <span key={c} className={`verso-canto ${c}`}>✦</span>)}
-        <span className="verso-logo">Sabidex</span>
+        <span className="logo verso-logo">Sabidex</span>
         <span className="verso-medalha"><img src="/mascote/ara-feliz.webp" alt="" draggable={false} /></span>
         <span className="verso-faixa">Sabimons do Brasil</span>
         <span className="verso-estrelas">

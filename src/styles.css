@@ -445,8 +445,8 @@ button.painel:active, button.painel-destaque:active, .item-carta:active, .aviso-
 .verso-canto { position: absolute; font-size: 18px; line-height: 1; color: #FFC21A; text-shadow: 0 0 8px #FFC21A99; }
 .verso-canto.c1 { top: 8px; left: 10px; } .verso-canto.c2 { top: 8px; right: 10px; }
 .verso-canto.c3 { bottom: 8px; left: 10px; } .verso-canto.c4 { bottom: 8px; right: 10px; }
-.verso-logo { font-family: var(--display); font-size: 38px; line-height: 1; color: var(--yellow); letter-spacing: .5px;
-  -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 0 4px 0 var(--ink); }
+/* O logo é o mesmo do app (.logo); aqui só muda o tamanho. */
+.verso-logo { font-size: 40px; line-height: 1; }
 .verso-medalha { position: relative; width: 62%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
   background: radial-gradient(circle, #FFE58A 0 30%, transparent 62%),
     repeating-conic-gradient(from 0deg, #FFC21A 0 10deg, #FF9F1C 10deg 20deg);
