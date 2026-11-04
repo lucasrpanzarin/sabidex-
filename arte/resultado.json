@@ -1,49 +1,236 @@
 {
-  "quando": "2026-11-04T18:44:48.795Z",
+  "quando": "2026-11-04T19:01:34.391Z",
   "imagens": [
     {
-      "nome": "fogo",
-      "pulado": "já existe"
+      "nome": "011-1",
+      "sabimon": "Bolhudo",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "agua",
-      "pulado": "já existe"
+      "nome": "012-1",
+      "sabimon": "Folhapé",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "planta",
-      "pulado": "já existe"
+      "nome": "013-1",
+      "sabimon": "Tucanuvem",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "raio",
-      "pulado": "já existe"
+      "nome": "014-1",
+      "sabimon": "Areiruga",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "pedra",
-      "pulado": "já existe"
+      "nome": "015-1",
+      "sabimon": "Faiscaraqué",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "vento",
-      "pulado": "já existe"
+      "nome": "016-1",
+      "sabimon": "Guarabrasa",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "areia",
-      "pulado": "já existe"
+      "nome": "017-1",
+      "sabimon": "Antarocha",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "gelo",
-      "pulado": "já existe"
+      "nome": "018-1",
+      "sabimon": "Geladim",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "som",
-      "pulado": "já existe"
+      "nome": "019-1",
+      "sabimon": "Bugiurro",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "estrela",
-      "pulado": "já existe"
+      "nome": "020-1",
+      "sabimon": "Oncelestre",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "011-2",
+      "sabimon": "Bolhão",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "012-2",
+      "sabimon": "Saltifolha",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "013-2",
+      "sabimon": "Bicorrente",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "014-2",
+      "sabimon": "Conchaduna",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "015-2",
+      "sabimon": "Voltaraqué",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "016-2",
+      "sabimon": "Juballama",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "017-2",
+      "sabimon": "Pedranta",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "018-2",
+      "sabimon": "Pinguigelo",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "019-2",
+      "sabimon": "Ecobugio",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "020-2",
+      "sabimon": "Onçastral",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "011-3",
+      "sabimon": "Maremanso",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "012-3",
+      "sabimon": "Pereflora",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "013-3",
+      "sabimon": "Tucaventania",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "014-3",
+      "sabimon": "Tartamaré",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "015-3",
+      "sabimon": "Trovaraqué",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "016-3",
+      "sabimon": "Guaravulcão",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "017-3",
+      "sabimon": "Montanta",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "018-3",
+      "sabimon": "Glaciguim",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "019-3",
+      "sabimon": "Bugitroante",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "020-3",
+      "sabimon": "Constelonça",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
     }
   ],
   "pedido": {
-    "acao": "cenarios"
+    "acao": "gerar",
+    "formas": [
+      1,
+      2,
+      3
+    ],
+    "numeros": [
+      "011",
+      "012",
+      "013",
+      "014",
+      "015",
+      "016",
+      "017",
+      "018",
+      "019",
+      "020"
+    ]
   },
   "ok": true
 }
