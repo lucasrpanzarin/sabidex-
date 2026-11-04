@@ -23,6 +23,8 @@ CONTORNO = {
 }
 # Desenhos com sombra cinza no chão: o recorte também tira o cinza claro (não usar em bicho branco).
 TIRAR_SOMBRA = {'004-1', '016-2'}
+# Desenhos com um clarão de luz no chão (entre as patas): tira o claro só no quarto de baixo da imagem.
+TIRAR_CHAO = {'016-2'}
 
 def contorno(img: Image.Image, cor) -> Image.Image:
     """Desenha uma luz da cor dada em volta do bicho, por trás dele."""
@@ -44,6 +46,10 @@ def recortar(src: Path, dst: Path):
     h, w, _ = a.shape
     limite = 185 if src.stem in TIRAR_SOMBRA else 228
     claro = (a.min(axis=2) > limite) & ((a.max(axis=2) - a.min(axis=2)) < 22)
+    if src.stem in TIRAR_CHAO:
+        chao = np.zeros_like(claro)
+        chao[int(h * 0.75):] = True
+        claro |= chao & (a.min(axis=2) > 170)
     fundo = np.zeros((h, w), bool)
     fila = deque([(y, x) for y in range(h) for x in (0, w - 1)] + [(y, x) for x in range(w) for y in (0, h - 1)])
     while fila:
