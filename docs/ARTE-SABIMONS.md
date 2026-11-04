@@ -12,26 +12,54 @@ e serão 99 no total. Todos são **inspirados em bichos brasileiros** e precisam
 
 Guia completo (regras, tipos, raridades): https://claude.ai/artifact/9tkM6RnY4cqX4djDaSxQG5
 
-## Estilo (igual para todos os 99)
+## Estilo (igual para todos os 99) — atualizado em 04/11/2026
 
-- Personagem **3D fofo estilo brinquedo de vinil**, formas arredondadas, olhos grandes e brilhantes, rosto simpático.
-- Cores vivas e saturadas (o app tem fundo azul-noite com neon turquesa, rosa e amarelo).
-- **Um bicho por imagem**, corpo inteiro, de frente/três-quartos, centralizado.
-- Forma 1 = pequena e fofa · Forma 2 = jovem e confiante · Forma 3 = grande e poderosa.
-  **Mesmo rosto, mesmas cores e mesmos traços nas 3 formas**, para dar para reconhecer a evolução.
-  Gere a forma 1 primeiro e use-a como imagem de referência para as formas 2 e 3.
-- Formato **quadrado 1:1**, mínimo **1024 × 1024**, **fundo branco liso** (o recorte do fundo é feito depois).
-- **Sem texto, sem logo, sem moldura, sem cenário.**
+O primeiro teste ("brinquedo de vinil fofo") ficou com cara de chaveiro. O Lucas escolheu o **estilo de batalha**:
+
+- Personagem de **jogo de aventura de criaturas**, render 3D estilizado, **pose de ação**, olhar **valente e determinado**
+  (empolgante, mas sem dar medo: nada de sangue nem cara de monstro).
+- **Poder do tipo bem visível** (fogo saindo, água girando, raios estalando), silhueta forte e fácil de reconhecer pequena.
+- Cores vivas. **Nada de roxo como cor principal** (use rosa e turquesa no lugar).
+- Bichos escuros (azul-marinho, preto) ganham **contorno de luz** turquesa ou dourado, senão somem no fundo azul-noite do app.
+- **Um bicho por imagem**, corpo inteiro, centralizado, quadrado 1:1 (saem com 1536 × 1536), **fundo branco liso**,
+  sem texto, logo, moldura ou cenário.
+
+### Regras de evolução
+
+- **Muda de verdade:** a forma 2 fica 2× maior e atlética; a forma 3 é um gigante imponente. Pode mudar a **pose**
+  (ficar em pé, voar, mergulhar), ganhar **partes novas** (armadura, coroa, asas extras, pinças enormes) e até **mudar de cor**,
+  sempre dentro da cor do tipo (fogo continua quente, gelo continua frio).
+- **Fica igual:** o rosto, os olhos e a **marca registrada** de cada um (ex.: focinho do tamanduá, nota musical do uirapuru).
+- Escreva cada pedido em duas partes: `CHANGE: ...` (o que muda) e `KEEP: ...` (o que fica).
+- **Em corrente:** a forma 2 usa a forma 1 como imagem de referência e a forma 3 usa a forma 2.
+- Com imagem de referência, o Higgsfield tende a **copiar a pose**. Se a pose precisa mudar muito, peça uma pose
+  totalmente diferente com todas as letras (ou gere sem referência, descrevendo rosto e cores em palavras).
+- **Cuidado com semelhança:** tartaruga em pé lembra personagens famosos (Pokémon, Tartarugas Ninja); bicho laranja
+  com cauda de fogo também. Sempre confira lado a lado antes de aprovar.
+
+## Como gerar
+
+- Modelo: **Qwen Image 3** no Higgsfield (`alibaba/qwen-image-3/text-to-image` para a forma 1 e
+  `alibaba/qwen-image-3/edit` com imagem de referência para as formas 2 e 3), resolução `2k`, formato `1:1`.
+- Pelo GitHub: as descrições ficam em `arte/sabimons/lista.json`, o pedido em `arte/pedido.json`
+  e o gerador em `scripts/arte.ts` (veja `arte/LEIAME.md`). A chave fica no segredo `HIGGSFIELD_API_KEY`.
 
 ## Pedido-modelo
 
-Troque `[DESCRIÇÃO]` pela descrição da tabela:
-
 ```
-Cute collectible creature character, 3D vinyl toy style, soft rounded shapes, big shiny expressive eyes, friendly face, vibrant saturated colors, smooth soft studio lighting, full body, front three-quarter view, centered, plain white background, no text, no logo, no frame. Original design, not based on any existing franchise. [DESCRIÇÃO]
+Original creature for a creature-collecting adventure game, stylized 3D game character render, dynamic action pose ready for battle, brave determined expression, big expressive eyes, strong readable silhouette, its elemental power clearly visible as glowing effects, vibrant saturated colors, dramatic rim lighting, full body, centered, plain pure white background, no text, no logo, no frame, no scenery. Exciting but friendly for kids aged 9 to 11, not scary, no blood. Original design, not based on any existing franchise or character. [DESCRIÇÃO]
 ```
 
-## Os 10 primeiros (30 imagens)
+Nas formas 2 e 3, depois da descrição (`CHANGE: ... KEEP: ...`), acrescente:
+
+```
+This is a big evolution of the creature in the reference image. Follow the CHANGE list: new pose, bigger body, new parts, and the new colors if any. Follow the KEEP list so it is clearly recognizable as the same creature line. Do not copy the reference pose. Isolated character on a plain pure white background: absolutely no environment, no scenery, no dark background.
+```
+
+## Os 10 primeiros (30 imagens) — prontos
+
+A tabela abaixo é a ideia original. As descrições finais usadas (estilo de batalha) estão em `arte/sabimons/lista.json`.
+Mudanças: o Arenito virou **maria-farinha → guaiamum**; o Ventilu termina com o corpo virando tornado; o Pedrolho termina como golem de cristal.
 
 | Nº | Nomes (forma 1 → 2 → 3) | Tipo | Forma 1 | Forma 2 | Forma 3 |
 | --- | --- | --- | --- | --- | --- |
