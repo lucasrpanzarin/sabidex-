@@ -40,7 +40,8 @@ async function resolver(v: Voz) {
   const achada = r.voices[0];
   if (!achada) throw new Error(`Não achei a voz "${v.busca ?? v.nome}" na biblioteca.`);
   v.id = achada.voice_id; v.dono = achada.public_owner_id;
-  (resultado.encontradas as unknown[] ??= []).push({ busca: v.busca, nome: achada.name, id: achada.voice_id });
+  const lista = (resultado.encontradas ??= []) as unknown[];
+  lista.push({ busca: v.busca, nome: achada.name, id: achada.voice_id });
 }
 
 async function adicionarSeCompartilhada(v: Voz) {
