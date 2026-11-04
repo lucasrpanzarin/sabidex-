@@ -1,35 +1,55 @@
 {
-  "quando": "2026-11-04T17:34:02.718Z",
+  "quando": "2026-11-04T17:41:50.220Z",
   "imagens": [
     {
-      "nome": "004-2",
-      "pulado": "já existe"
-    },
-    {
-      "nome": "006-2",
-      "sabimon": "Rajadinho",
+      "nome": "005-2",
+      "sabimon": "Cristabuti",
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
     },
     {
-      "nome": "007-2",
+      "nome": "006-2",
       "pulado": "já existe"
     },
     {
-      "nome": "004-3",
-      "sabimon": "Trovalume",
+      "nome": "007-2",
+      "sabimon": "Dunasiri",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "009-2",
+      "sabimon": "Melodiru",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "005-3",
+      "sabimon": "Montabuti",
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
     },
     {
       "nome": "006-3",
-      "pulado": "já existe"
+      "sabimon": "Furacolibri",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
     },
     {
       "nome": "007-3",
       "sabimon": "Tempestasiri",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "009-3",
+      "sabimon": "Sinfonuru",
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
@@ -42,9 +62,10 @@
       3
     ],
     "numeros": [
-      "004",
+      "005",
       "006",
-      "007"
+      "007",
+      "009"
     ]
   },
   "ok": true
