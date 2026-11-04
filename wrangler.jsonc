@@ -8,12 +8,13 @@
   // Endereço público do app: https://sabidex.com.br
   // (sabidex.com e os "www" redirecionam para ele; o código está em src/worker/index.ts).
   // O endereço antigo https://sabidex.fastlabs.workers.dev continua funcionando.
-  // Os dois domínios precisam estar na mesma conta da Cloudflare deste Worker.
+  // Os domínios precisam estar na mesma conta da Cloudflare deste Worker.
   "routes": [
     { "pattern": "sabidex.com.br", "custom_domain": true },
-    { "pattern": "www.sabidex.com.br", "custom_domain": true },
-    { "pattern": "sabidex.com", "custom_domain": true },
-    { "pattern": "www.sabidex.com", "custom_domain": true }
+    { "pattern": "www.sabidex.com.br", "custom_domain": true }
+    // Quando o sabidex.com estiver ativo na Cloudflare, acrescentar:
+    // { "pattern": "sabidex.com", "custom_domain": true },
+    // { "pattern": "www.sabidex.com", "custom_domain": true }
   ],
   "workers_dev": true,
   "preview_urls": true,
