@@ -1,4 +1,22 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(bash .claude/scripts/d1-ler.sh:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/superpowers-inicio.sh\""
+          }
+        ]
+      }
+    ]
+  },
   "extraKnownMarketplaces": {
     "ui-ux-pro-max-skill": {
       "source": { "source": "github", "repo": "nextlevelbuilder/ui-ux-pro-max-skill" }
