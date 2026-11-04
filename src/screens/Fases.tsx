@@ -4,7 +4,7 @@ import { Icone } from '../components/Icone';
 import { Moeda } from '../components/Loja';
 import { capituloPorId } from '../data';
 import type { Capitulo } from '../data/tipos';
-import { FASE_INFO, NOTA_MINIMA, concluirFase, embaralhar, hoje, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
+import { FASE_INFO, NOTA_MINIMA, PERDA_POR_ERRO, XP_MINIMO, concluirFase, embaralhar, hoje, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
 import { idProva, idQuiz, registrarResposta } from '../lib/revisao';
 import { ir } from '../lib/rota';
 import { jogar, proximaFase } from './Inicio';
@@ -52,9 +52,17 @@ export function Fim({ cap, r, titulo, detalhe, aprovado = true, onDeNovo }: { ca
           <span className="display linha" style={{ fontSize: 30, color: 'var(--t-yellow)', gap: 6 }}><Moeda tamanho={26} />+{r.xpGanho}</span>
         </div>
         <div className="muted small">XP sobe seu nível. Sabicoins você gasta na lojinha.</div>
+        {!!r.erros && r.xpSemErros !== undefined && r.xpSemErros > r.xpGanho && (
+          <div className="small" style={{ fontWeight: 800, color: 'var(--t-coral)' }}>
+            {r.erros === 1 ? '1 erro' : `${r.erros} erros`}: você perdeu {r.xpSemErros - r.xpGanho} XP. Sem errar, seriam +{r.xpSemErros}.
+          </div>
+        )}
         {r.subiuNivel && <div className="display pop" style={{ fontSize: 22, color: 'var(--t-green)' }}>Subiu para o nível {nv.nivel}!</div>}
         {!r.primeiraVez && aprovado && <div className="muted small">Fase repetida: metade do XP e das Sabicoins.</div>}
       </div>
+      {r.faltouPacote && (
+        <div className="balao small">O pacote desta fase ainda está esperando! Acerte <strong>7 de cada 10</strong> para ganhar. Jogue de novo!</div>
+      )}
       {r.pacotesGanhos.length > 0 && (
         <div className="painel-destaque sobe coluna" style={{ width: '100%', animationDelay: '.3s', borderColor: 'var(--pink)', gap: 4 }}>
           <div className="display" style={{ fontSize: 22 }}>
@@ -82,12 +90,22 @@ function lembrar(ids: [string, boolean][]) {
   setEstado((e) => ({ ...e, revisao: ids.reduce((rev, [id, ok]) => registrarResposta(rev, id, ok, dia), e.revisao) }));
 }
 
+/** Mostra os erros e quanto de XP já foi perdido (cada erro tira 10%). */
+export function ContaErros({ erros }: { erros: number }) {
+  const perda = Math.round(Math.min(1 - XP_MINIMO, PERDA_POR_ERRO * erros) * 100);
+  return (
+    <div className="muted small" style={{ textAlign: 'center' }}>
+      Erros: {erros}{erros > 0 ? ` · −${perda}% de XP` : ' · cada erro tira 10% do XP'}
+    </div>
+  );
+}
+
 const AVISO_REVISAO = <div className="balao small" style={{ marginTop: 4 }}>As perguntas que você errou voltam na <strong>Revisão do Ará</strong> amanhã.</div>;
 
 function useFinalizar(cap: Capitulo, fase: Fase) {
   const [res, setRes] = useState<Resultado | null>(null);
-  const finalizar = (nota?: number) => {
-    const r = concluirFase(getEstado(), cap.id, fase, nota);
+  const finalizar = (nota?: number, erros = 0) => {
+    const r = concluirFase(getEstado(), cap.id, fase, nota, new Date(), erros);
     setEstado(r.estado);
     setRes(r);
   };
@@ -198,7 +216,7 @@ function Memoria({ cap }: { cap: Capitulo }) {
     if (sel === palavraDoSig) {
       const n = new Set(certos).add(sel);
       setCertos(n); setSel(null);
-      if (n.size === pares.length) setTimeout(() => finalizar(), 500);
+      if (n.size === pares.length) setTimeout(() => finalizar(notaDe(n.size, n.size + erros), erros), 500);
     } else {
       setErros((x) => x + 1); setErrado(palavraDoSig);
       setTimeout(() => setErrado(null), 350);
@@ -240,7 +258,7 @@ function Memoria({ cap }: { cap: Capitulo }) {
           })}
         </div>
       </div>
-      <div className="muted small" style={{ textAlign: 'center' }}>Erros: {erros}</div>
+      <ContaErros erros={erros} />
     </main>
   );
 }
@@ -260,7 +278,7 @@ function Linha({ cap }: { cap: Capitulo }) {
     if (certa[postos.length] === ev) {
       const n = [...postos, ev];
       setPostos(n);
-      if (n.length === certa.length) setTimeout(() => finalizar(), 600);
+      if (n.length === certa.length) setTimeout(() => finalizar(notaDe(n.length, n.length + erros), erros), 600);
     } else {
       setErros((x) => x + 1); setErrado(ev.fato);
       setTimeout(() => setErrado(null), 900);
@@ -299,6 +317,7 @@ function Linha({ cap }: { cap: Capitulo }) {
         ))}
       </div>
       <p className="muted small" style={{ margin: 0 }}>Dica: os anos aparecem quando você acerta.</p>
+      <ContaErros erros={erros} />
     </main>
   );
 }
@@ -325,7 +344,7 @@ function Quiz({ cap }: { cap: Capitulo }) {
   }, [comecou, res, retorno]);
 
   useEffect(() => {
-    if (comecou && resto <= 0 && !fim.current) { fim.current = true; finalizar(); }
+    if (comecou && resto <= 0 && !fim.current) { fim.current = true; finalizar(notaDe(acertos, lista.length), respondidas - acertos); }
   }, [resto, comecou]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const responder = (v: boolean) => {
@@ -339,7 +358,7 @@ function Quiz({ cap }: { cap: Capitulo }) {
   };
   const proxima = () => {
     setRetorno(null);
-    if (i + 1 >= lista.length) { fim.current = true; finalizar(); } else setI(i + 1);
+    if (i + 1 >= lista.length) { fim.current = true; finalizar(notaDe(acertos, lista.length), respondidas - acertos); } else setI(i + 1);
   };
 
   if (res) return <Fim cap={cap} r={res} titulo={acertos >= lista.length * 0.8 ? 'Relâmpago!' : 'Bom jogo!'}
@@ -399,7 +418,8 @@ function Prova({ cap }: { cap: Capitulo }) {
     setRespostas(r); setEscolha(null);
     if (r.length === qs.length) {
       lembrar(qs.map((q, k) => [idProva(cap.id, k), r[k] === q.certa]));
-      finalizar(notaDe(r.filter((x, k) => x === qs[k].certa).length, qs.length));
+      const acertos = r.filter((x, k) => x === qs[k].certa).length;
+      finalizar(notaDe(acertos, qs.length), qs.length - acertos);
     }
     else setI(i + 1);
   };

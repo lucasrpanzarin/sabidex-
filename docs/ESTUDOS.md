@@ -98,6 +98,7 @@ bantos x diáspora). Nenhum fato novo entrou. Além disso, a prova agora **embar
 - **Meta clara do dia:** "Hoje: 1 revisão + 1 fase". Barra de progresso sempre visível.
 - **Trocar de atividade** a cada 2–3 minutos (ouvir → ligar → ordenar → responder).
 - **Prêmio por aprender, não por tempo de tela:** XP e pacotes vêm de acertar e terminar fases, nunca de ficar mais tempo.
+- **Chutar não compensa:** cada erro tira 10% do XP da fase (sobra no mínimo 20%). Pacote da fase (memória, quiz), pacote do dia e pacote épico da prova só vêm com nota 7 ou mais (7 de cada 10 certas). Se a nota não der, o pacote da fase fica esperando: ela joga de novo e ganha quando tirar 7.
 - **Surpresa boa:** o pacote de Sabimons e o lendário são o "momento uau"; animação só nesses momentos.
 - **O Ará reage** ao acerto, ao erro ("quase! olha a dica") e ao recorde; fala na 2ª pessoa e chama pelo apelido.
 - **Começar fácil:** a primeira pergunta de cada fase é a mais fácil, para entrar no ritmo.
