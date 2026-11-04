@@ -53,6 +53,29 @@ describe('fases', () => {
     expect(motivos(r)).toEqual(['nivel']);
   });
 
+  it('cada erro tira 10% do XP, até sobrar 20%', () => {
+    expect(concluirFase(estadoInicial(), 'h9', 'linha', 10, dia, 0).xpGanho).toBe(60);
+    expect(concluirFase(estadoInicial(), 'h9', 'linha', 7.5, dia, 2).xpGanho).toBe(48);
+    expect(concluirFase(estadoInicial(), 'h9', 'quiz', 3, dia, 7).xpGanho).toBe(24);
+    expect(concluirFase(estadoInicial(), 'h9', 'quiz', 0, dia, 15).xpGanho).toBe(16);
+  });
+
+  it('quiz com nota baixa não dá pacote; o pacote espera a nota 7', () => {
+    const r1 = concluirFase(estadoInicial(), 'h9', 'quiz', 3, dia, 7);
+    expect(r1.pacotesGanhos).toEqual([]);
+    expect(r1.faltouPacote).toBe(true);
+    expect(r1.estado.feitas['h9:quiz']).toBe(true);
+    const r2 = concluirFase(r1.estado, 'h9', 'quiz', 8, dia, 2);
+    expect(motivos(r2)).toEqual(['fase', 'dia']);
+    const r3 = concluirFase(r2.estado, 'h9', 'quiz', 10, dia);
+    expect(r3.pacotesGanhos).toEqual([]);
+  });
+
+  it('quem já ganhou o pacote antes da regra nova não ganha de novo', () => {
+    const e = { ...estadoInicial(), feitas: { 'h9:memoria': true as const } };
+    expect(concluirFase(e, 'h9', 'memoria', 10, dia).pacotesGanhos.map((p) => p.motivo)).not.toContain('fase');
+  });
+
   it('prova só conta com nota 7 ou mais', () => {
     const reprovou = concluirFase(estadoInicial(), 'h9', 'prova', 6.5);
     expect(reprovou.estado.feitas['h9:prova']).toBeUndefined();

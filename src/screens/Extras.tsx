@@ -4,10 +4,10 @@ import { Ara } from '../components/Ara';
 import { Icone } from '../components/Icone';
 import { capituloPorId } from '../data';
 import type { Capitulo } from '../data/tipos';
-import { EXTRA_INFO, concluirExtra, embaralhar, extrasDo, extrasLiberados, type Extra, type Resultado } from '../lib/jogo';
+import { EXTRA_INFO, notaDe, concluirExtra, embaralhar, extrasDo, extrasLiberados, type Extra, type Resultado } from '../lib/jogo';
 import { ir } from '../lib/rota';
 import { getEstado, setEstado } from '../lib/store';
-import { Fim } from './Fases';
+import { ContaErros, Fim } from './Fases';
 
 const LETRAS = ['A', 'B', 'C', 'D'];
 
@@ -28,7 +28,11 @@ function useFim(cap: Capitulo, x: Extra) {
   const [res, setRes] = useState<Resultado | null>(null);
   return {
     res,
-    finalizar: () => { const r = concluirExtra(getEstado(), cap, x); setEstado(r.estado); setRes(r); },
+    /** acertos e erros dão a nota (7 ou mais libera o pacote do dia); cada erro tira 10% do XP */
+    finalizar: (acertos: number, erros: number) => {
+      const r = concluirExtra(getEstado(), cap, x, new Date(), erros, notaDe(acertos, acertos + erros));
+      setEstado(r.estado); setRes(r);
+    },
     limpar: () => setRes(null),
   };
 }
@@ -94,7 +98,7 @@ function Lacunas({ cap }: { cap: Capitulo }) {
       {escolha && (
         <div className="coluna sobe" style={{ marginTop: 'auto' }}>
           <div className={`aviso ${acertou ? 'aviso-ok' : 'aviso-erro'}`}><span className="display" style={{ fontSize: 18 }}>{acertou ? 'Acertou!' : `A palavra era "${l.resposta}".`}</span></div>
-          <button className="btn btn-amarelo btn-bloco" onClick={() => { if (i + 1 < itens.length) { setI(i + 1); setEscolha(null); } else finalizar(); }}>
+          <button className="btn btn-amarelo btn-bloco" onClick={() => { if (i + 1 < itens.length) { setI(i + 1); setEscolha(null); } else finalizar(acertos, itens.length - acertos); }}>
             {i + 1 < itens.length ? 'Próxima' : 'Terminar'}
           </button>
         </div>
@@ -113,13 +117,14 @@ function QuemSou({ cap }: { cap: Capitulo }) {
   const [erradas, setErradas] = useState<string[]>([]);
   const [acabou, setAcabou] = useState<'acertou' | 'errou' | null>(null);
   const [pontos, setPontos] = useState(0);
+  const [erros, setErros] = useState(0);
 
   const total = itens.length * 3;
   if (res) {
     const n = pontos >= total * 0.85 ? 3 : pontos >= total * 0.5 ? 2 : 1;
     return <Fim cap={cap} r={res} titulo={n === 3 ? 'Detetive!' : 'Muito bem!'}
       detalhe={<><Estrelas n={n} /><div className="display" style={{ fontSize: 22 }}>{pontos} de {total} pontos</div></>}
-      onDeNovo={() => { setRodada((r) => r + 1); setI(0); setPistas(1); setErradas([]); setAcabou(null); setPontos(0); limpar(); }} />;
+      onDeNovo={() => { setRodada((r) => r + 1); setI(0); setPistas(1); setErradas([]); setAcabou(null); setPontos(0); setErros(0); limpar(); }} />;
   }
 
   const q = itens[i];
@@ -127,6 +132,7 @@ function QuemSou({ cap }: { cap: Capitulo }) {
     if (acabou) return;
     if (o === q.resposta) { setAcabou('acertou'); setPontos((p) => p + (4 - pistas)); return; }
     setErradas((e) => [...e, o]);
+    setErros((n) => n + 1);
     if (pistas < 3) setPistas(pistas + 1); else setAcabou('errou');
   };
   const valendo = 4 - pistas;
@@ -162,7 +168,7 @@ function QuemSou({ cap }: { cap: Capitulo }) {
             <span className="display" style={{ fontSize: 18 }}>{acabou === 'acertou' ? `+${4 - pistas} ${4 - pistas > 1 ? 'pontos' : 'ponto'}!` : 'Dessa vez não deu.'}</span>
           </div>
           <button className="btn btn-amarelo btn-bloco" onClick={() => {
-            if (i + 1 < itens.length) { setI(i + 1); setPistas(1); setErradas([]); setAcabou(null); } else finalizar();
+            if (i + 1 < itens.length) { setI(i + 1); setPistas(1); setErradas([]); setAcabou(null); } else finalizar(itens.length, erros);
           }}>{i + 1 < itens.length ? 'Próximo' : 'Terminar'}</button>
         </div>
       )}
@@ -194,7 +200,7 @@ function Grupos({ cap }: { cap: Capitulo }) {
     if (gi !== atual.gi) { setErros((e) => e + 1); setErrado(gi); setTimeout(() => setErrado(null), 500); return; }
     if (k + 1 < tela.fila.length) setK(k + 1);
     else if (ti + 1 < telas.length) { setTi(ti + 1); setK(0); }
-    else { setPronto(true); setTimeout(finalizar, 400); }
+    else { setPronto(true); setTimeout(() => finalizar(telas.reduce((n, t) => n + t.fila.length, 0), erros), 400); }
   };
   const feitos = tela.fila.slice(0, pronto ? k + 1 : k);
   const cores = ['var(--cyan)', 'var(--pink)', 'var(--yellow)'];
@@ -221,6 +227,7 @@ function Grupos({ cap }: { cap: Capitulo }) {
         ))}
       </div>
       <p className="muted small" style={{ margin: 0, textAlign: 'center' }}>Toque no grupo certo para essa frase.</p>
+      <ContaErros erros={erros} />
     </main>
   );
 }
@@ -248,7 +255,7 @@ function Causas({ cap }: { cap: Capitulo }) {
     if (sel === causaDoEfeito) {
       const n = new Set(certos).add(sel);
       setCertos(n); setSel(null);
-      if (n.size === pares.length) setTimeout(finalizar, 500);
+      if (n.size === pares.length) setTimeout(() => finalizar(pares.length, erros), 500);
     } else { setErros((x) => x + 1); setErrado(causaDoEfeito); setTimeout(() => setErrado(null), 400); }
   };
   return (
@@ -283,7 +290,7 @@ function Causas({ cap }: { cap: Capitulo }) {
           );
         })}
       </div>
-      <div className="muted small" style={{ textAlign: 'center' }}>Erros: {erros}</div>
+      <ContaErros erros={erros} />
     </main>
   );
 }
