@@ -7,6 +7,7 @@ import { FASE_INFO, NOTA_MINIMA, concluirFase, embaralhar, liberada, nivel, nota
 import { ir } from '../lib/rota';
 import { jogar, proximaFase } from './Inicio';
 import { getEstado, setEstado } from '../lib/store';
+import { VOZES, audioDaVoz, setVoz, useVoz } from '../lib/voz';
 
 /** Transforma **negrito** em <strong>. */
 export function Texto({ t }: { t: string }) {
@@ -76,19 +77,26 @@ function Ouvir({ cap }: { cap: Capitulo }) {
   const [tocando, setTocando] = useState<number | null>(null);
   const [aberto, setAberto] = useState<number | null>(0);
   const audio = useRef<HTMLAudioElement | null>(null);
+  const voz = useVoz();
 
   useEffect(() => () => audio.current?.pause(), []);
+  useEffect(() => { audio.current?.pause(); setTocando(null); }, [voz]);
 
   const tocar = (i: number) => {
     const t = cap.temas[i];
     if (!t.audio) return;
     if (tocando === i) { audio.current?.pause(); setTocando(null); return; }
     audio.current?.pause();
-    const a = new Audio(import.meta.env.BASE_URL + t.audio);
+    const a = new Audio(import.meta.env.BASE_URL + audioDaVoz(t.audio, voz));
     audio.current = a;
+    let tentouReserva = false;
     a.ontimeupdate = () => { if (a.duration && a.currentTime / a.duration > 0.8) setOuvidos((s) => new Set(s).add(i)); };
     a.onended = () => { setTocando(null); setOuvidos((s) => new Set(s).add(i)); };
-    a.onerror = () => setTocando(null);
+    a.onerror = () => {
+      // Se o áudio dessa voz ainda não existir, toca a narração antiga.
+      if (!tentouReserva && t.audio) { tentouReserva = true; a.src = import.meta.env.BASE_URL + t.audio; void a.play().catch(() => setTocando(null)); }
+      else setTocando(null);
+    };
     a.play().then(() => { setTocando(i); setAberto(i); }).catch(() => setTocando(null));
   };
 
@@ -98,6 +106,20 @@ function Ouvir({ cap }: { cap: Capitulo }) {
     <main className="tela">
       <Topo cap={cap} fase="ouvir" extra={<span className="pilula">{ouvidos.size}/{total}</span>} />
       <div className="barra barra-verde"><div style={{ width: `${(ouvidos.size / total) * 100}%` }} /></div>
+      <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
+        <legend className="muted small" style={{ marginBottom: 6 }}>Quem vai ler para você?</legend>
+        <div className="grade-3">
+          {VOZES.map((v) => (
+            <button key={v.id} onClick={() => setVoz(v.id)} aria-pressed={voz === v.id}
+              style={{ borderRadius: 16, padding: '8px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                background: voz === v.id ? 'var(--surface-2)' : 'var(--surface)', border: `2px solid ${voz === v.id ? v.cor : 'var(--line)'}` }}>
+              <span aria-hidden="true" style={{ width: 36, height: 36, borderRadius: '50%', background: v.cor, color: 'var(--bg)', display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: 18 }}>{v.nome[0]}</span>
+              <span className="display" style={{ fontSize: 15 }}>{v.nome}</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)' }}>{v.descricao}</span>
+            </button>
+          ))}
+        </div>
+      </fieldset>
       <div className="coluna">
         {cap.temas.map((t, i) => (
           <article key={i} className="painel" style={{ padding: 14, borderColor: tocando === i ? 'var(--yellow)' : ouvidos.has(i) ? '#22C55E' : undefined }}>
