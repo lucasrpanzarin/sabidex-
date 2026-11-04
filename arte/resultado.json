@@ -1,65 +1,9 @@
 {
-  "quando": "2026-11-04T16:23:32.579Z",
+  "quando": "2026-11-04T16:52:41.399Z",
   "imagens": [
-    {
-      "nome": "001-2",
-      "sabimon": "Brasão",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "002-2",
-      "sabimon": "Botorrão",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "003-2",
-      "sabimon": "Tatuflora",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "004-2",
-      "sabimon": "Faiscaluz",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "005-2",
-      "sabimon": "Cristabuti",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
     {
       "nome": "006-2",
       "sabimon": "Rajadinho",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "007-2",
-      "sabimon": "Dunasiri",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "008-2",
-      "sabimon": "Friozão",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "009-2",
-      "sabimon": "Melodiru",
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
@@ -70,76 +14,6 @@
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
-    },
-    {
-      "nome": "001-3",
-      "sabimon": "Fornalhuda",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "002-3",
-      "sabimon": "Marabotão",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "003-3",
-      "sabimon": "Matatu",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "004-3",
-      "sabimon": "Trovalume",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "005-3",
-      "sabimon": "Montabuti",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "006-3",
-      "sabimon": "Furacolibri",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "007-3",
-      "sabimon": "Tempestasiri",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "008-3",
-      "sabimon": "Glaciaré",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "009-3",
-      "sabimon": "Sinfonuru",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "010-3",
-      "sabimon": "Galaxiá",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
     }
   ],
   "pedido": {
@@ -147,7 +21,12 @@
     "formas": [
       2,
       3
+    ],
+    "numeros": [
+      "006",
+      "010"
     ]
   },
-  "ok": true
+  "ok": false,
+  "erro": "Error: Higgsfield recusou (failed): {\"status\":\"failed\",\"error\":\"Generation failed\",\"request_id\":\"01a1a77c-325d-7703-a668-df5c0b17aaee\",\"status_url\":\"https://api.higgsfield.ai/requests/01a1a77c-325d-7703-a668-df5c0b17aaee/status\",\"cancel_url\":\"https://api.higgsfield.ai/requests/01a1a77c-325d-7703-a668-df5c0b17aaee/cancel\",\"expires_at\":\"2026-11-11T16:55:09.371193+00:00\"}"
 }
