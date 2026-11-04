@@ -1,6 +1,28 @@
 {
-  "quando": "2026-11-04T15:50:48.861Z",
-  "imagens": [],
+  "quando": "2026-11-04T15:51:25.458Z",
+  "imagens": [
+    {
+      "nome": "001-1",
+      "sabimon": "Brasinho",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "004-1",
+      "sabimon": "Zapinho",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "010-1",
+      "sabimon": "Estrelim",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    }
+  ],
   "pedido": {
     "acao": "gerar",
     "formas": [
@@ -12,6 +34,5 @@
       "010"
     ]
   },
-  "ok": false,
-  "erro": "Error: POST https://platform.higgsfield.ai/alibaba/qwen-image-3/text-to-image: HTTP 400 {\"detail\":\"resolution: '2K' is not one of ['1k', '2k']\"}"
+  "ok": true
 }
