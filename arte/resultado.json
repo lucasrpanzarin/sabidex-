@@ -1,0 +1,12 @@
+{
+  "quando": "2026-11-04T15:29:02.152Z",
+  "imagens": [],
+  "pedido": {
+    "acao": "gerar",
+    "formas": [
+      1
+    ]
+  },
+  "ok": false,
+  "erro": "Error: Falta o segredo HIGGSFIELD_API_KEY no GitHub."
+}
