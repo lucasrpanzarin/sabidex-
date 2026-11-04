@@ -7,7 +7,7 @@ import { capitulos } from '../src/data/index';
 
 const KEY = process.env.ELEVENLABS_API_KEY;
 const API = 'https://api.elevenlabs.io';
-interface Voz { nome: string; id: string; dono?: string }
+interface Voz { nome: string; id?: string; dono?: string; busca?: string; modelo?: string }
 interface Pedido { acao: 'listar' | 'amostra' | 'gerar'; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[] }
 
 const resultado: Record<string, unknown> = { quando: new Date().toISOString() };
@@ -25,7 +25,7 @@ function texto(t: { titulo: string; pontos: string[] }) {
 }
 
 async function falar(voz: Voz, frase: string, modelo: string) {
-  const r = await api(`/v1/text-to-speech/${voz.id}?output_format=mp3_44100_64`, {
+  const r = await api(`/v1/text-to-speech/${voz.id!}?output_format=mp3_44100_64`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: frase, model_id: modelo, language_code: 'pt', voice_settings: { stability: 0.45, similarity_boost: 0.8, style: 0.35, use_speaker_boost: true } }),
@@ -33,10 +33,20 @@ async function falar(voz: Voz, frase: string, modelo: string) {
   return Buffer.from(await r.arrayBuffer());
 }
 
+/** Acha a voz pelo nome na biblioteca quando não temos o id. */
+async function resolver(v: Voz) {
+  if (v.id) return;
+  const r = await (await api(`/v1/shared-voices?page_size=20&language=pt&search=${encodeURIComponent(v.busca ?? v.nome)}`)).json() as { voices: Record<string, string>[] };
+  const achada = r.voices[0];
+  if (!achada) throw new Error(`Não achei a voz "${v.busca ?? v.nome}" na biblioteca.`);
+  v.id = achada.voice_id; v.dono = achada.public_owner_id;
+  (resultado.encontradas as unknown[] ??= []).push({ busca: v.busca, nome: achada.name, id: achada.voice_id });
+}
+
 async function adicionarSeCompartilhada(v: Voz) {
   if (!v.dono) return;
   try {
-    await api(`/v1/voices/add/${v.dono}/${v.id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ new_name: `Sabidex ${v.nome}` }) });
+    await api(`/v1/voices/add/${v.dono}/${v.id!}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ new_name: `Sabidex ${v.nome}` }) });
   } catch (e) { if (!String(e).includes('already')) console.log('aviso ao adicionar voz:', String(e).slice(0, 200)); }
 }
 
@@ -58,7 +68,7 @@ async function main() {
   }
 
   if (p.acao === 'amostra' || p.acao === 'gerar') {
-    for (const v of p.vozes ?? []) await adicionarSeCompartilhada(v);
+    for (const v of p.vozes ?? []) { await resolver(v); await adicionarSeCompartilhada(v); }
   }
 
   if (p.acao === 'amostra') {
@@ -66,7 +76,7 @@ async function main() {
     const frase = p.frase ?? 'Oi! Eu sou o Ará. Hoje vamos aprender sobre os khoi-khoi e os san, os povos mais antigos da África. Eles não escreviam: deixaram pinturas rupestres nas rochas!';
     const feitos: string[] = [];
     for (const v of p.vozes ?? []) {
-      writeFileSync(`vozes/amostras/${v.nome}.mp3`, await falar(v, frase, modelo));
+      writeFileSync(`vozes/amostras/${v.nome}.mp3`, await falar(v, frase, v.modelo ?? modelo));
       feitos.push(v.nome);
     }
     resultado.amostras = feitos;
@@ -82,7 +92,7 @@ async function main() {
           const arquivo = (t.audio ?? `audio/${cap.id}-${i}.mp3`).replace(/^audio\//, '');
           const frase = texto(t);
           caracteres += frase.length;
-          writeFileSync(`public/audio/${v.nome}/${arquivo}`, await falar(v, frase, modelo));
+          writeFileSync(`public/audio/${v.nome}/${arquivo}`, await falar(v, frase, v.modelo ?? modelo));
         }
       }
     }
