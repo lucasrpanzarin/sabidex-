@@ -20,6 +20,15 @@ export const FASES_COM_PACOTE: Fase[] = ['memoria', 'quiz'];
 export const NOTA_MINIMA = 7;
 export const XP_POR_NIVEL = 300;
 
+/** Cada erro tira 10% do XP da fase, até sobrar no mínimo 20% (quem termina sempre ganha algo). */
+export const PERDA_POR_ERRO = 0.1;
+export const XP_MINIMO = 0.2;
+/** XP de uma fase ou jogo depois de descontar os erros. */
+export function xpComErros(base: number, erros = 0): number {
+  const fator = Math.max(XP_MINIMO, 1 - PERDA_POR_ERRO * Math.max(0, erros));
+  return Math.round(base * fator);
+}
+
 /* ---------- Jogos extras ---------- */
 
 export type Extra = 'lacunas' | 'quemsou' | 'grupos' | 'causas';
@@ -52,11 +61,11 @@ export const extrasLiberados = (e: Estado, cap: string) => !!e.feitas[chave(cap,
  */
 export function premiar(
   e: Estado, cap: string, xpGanho: number, extras: Resultado['pacotesGanhos'], primeiraVez: boolean,
-  feitas: Estado['feitas'] = e.feitas, agora = new Date(),
+  feitas: Estado['feitas'] = e.feitas, agora = new Date(), passou = true,
 ): Resultado {
   const d = hoje(agora);
   const pacotesGanhos = [...extras];
-  const ganhaDoDia = e.pacoteDia !== d;
+  const ganhaDoDia = passou && e.pacoteDia !== d;
   if (ganhaDoDia) pacotesGanhos.push({ tipo: 'normal', motivo: 'dia' });
   const subiuNivel = nivel(e.xp + xpGanho).nivel > nivel(e.xp).nivel;
   if (subiuNivel) pacotesGanhos.push({ tipo: 'normal', motivo: 'nivel' });
@@ -72,17 +81,21 @@ export function premiar(
 }
 
 /**
- * Termina um jogo extra. 1ª vez: XP cheio; depois, metade.
+ * Termina um jogo extra. 1ª vez: XP cheio; depois, metade. Cada erro tira 10% do XP.
+ * O pacote do dia só vem com nota 7 ou mais.
  * Quem termina todos os extras do capítulo pela 1ª vez ganha um pacote.
  */
-export function concluirExtra(e: Estado, cap: Capitulo, x: Extra, agora = new Date()): Resultado {
+export function concluirExtra(e: Estado, cap: Capitulo, x: Extra, agora = new Date(), erros = 0, nota?: number): Resultado {
   const k = chaveExtra(cap.id, x);
   const primeiraVez = !e.feitas[k];
-  const xpGanho = primeiraVez ? EXTRA_INFO[x].xp : Math.round(EXTRA_INFO[x].xp / 2);
+  const cheio = primeiraVez ? EXTRA_INFO[x].xp : Math.round(EXTRA_INFO[x].xp / 2);
+  const xpGanho = xpComErros(cheio, erros);
   const feitas = { ...e.feitas, [k]: true as const };
   const todos = extrasDo(cap);
   const completou = primeiraVez && todos.length > 0 && todos.every((y) => feitas[chaveExtra(cap.id, y)]);
-  return premiar(e, cap.id, xpGanho, completou ? [{ tipo: 'normal', motivo: 'extras' }] : [], primeiraVez, feitas, agora);
+  const passou = nota === undefined || nota >= NOTA_MINIMA;
+  const r = premiar(e, cap.id, xpGanho, completou ? [{ tipo: 'normal', motivo: 'extras' }] : [], primeiraVez, feitas, agora, passou);
+  return { ...r, erros, xpSemErros: cheio };
 }
 
 export type TipoPacote = 'normal' | 'epico';
@@ -159,6 +172,12 @@ export interface Resultado {
   /** pacotes ganhos nesta fase (pode ser mais de um) */
   pacotesGanhos: { tipo: TipoPacote; motivo: MotivoPacote }[];
   primeiraVez: boolean;
+  /** quantos erros a criança teve (cada um tira 10% do XP) */
+  erros?: number;
+  /** XP que ganharia sem nenhum erro */
+  xpSemErros?: number;
+  /** a fase tem pacote esperando, mas faltou nota 7 para ganhar */
+  faltouPacote?: boolean;
 }
 
 let contador = 0;
@@ -166,21 +185,31 @@ export const novoId = () => `p${Date.now().toString(36)}${(contador++).toString(
 
 /**
  * Registra uma fase terminada. Na primeira vez dá XP cheio (e pacote, se for o caso);
- * repetir a fase dá metade do XP. A prova só conta como feita com nota ≥ 7.
- * Pacotes: memória e quiz na 1ª vez (normal), prova aprovada na 1ª vez (épico),
- * a 1ª fase terminada de cada dia (normal) e cada nível novo (normal).
+ * repetir a fase dá metade do XP. Cada erro tira 10% do XP (mínimo 20%).
+ * A prova só conta como feita com nota ≥ 7.
+ * Pacotes: memória e quiz com nota 7 ou mais (normal, uma vez só), prova aprovada na 1ª vez (épico),
+ * a 1ª fase do dia com nota 7 ou mais (normal) e cada nível novo (normal).
  */
-export function concluirFase(e: Estado, cap: string, f: Fase, nota?: number, agora = new Date()): Resultado {
+export function concluirFase(e: Estado, cap: string, f: Fase, nota?: number, agora = new Date(), erros = 0): Resultado {
   const k = chave(cap, f);
-  const aprovado = f !== 'prova' || (nota ?? 0) >= NOTA_MINIMA;
+  // Nota 7 ou mais (7 de cada 10 certas) para ganhar pacote. Fase sem nota (ouvir) sempre passa.
+  const passou = nota === undefined || nota >= NOTA_MINIMA;
+  const aprovado = f !== 'prova' || passou;
   const primeiraVez = aprovado && !e.feitas[k];
   const base = FASE_INFO[f].xp;
-  const xpGanho = aprovado ? (primeiraVez ? base : Math.round(base / 2)) : Math.round(base / 4);
+  const cheio = aprovado ? (primeiraVez ? base : Math.round(base / 2)) : Math.round(base / 4);
+  // Prova reprovada já ganha só 1/4: não desconta de novo pelos erros.
+  const xpGanho = aprovado ? xpComErros(cheio, erros) : cheio;
   const d = hoje(agora);
   const pacotesGanhos: Resultado['pacotesGanhos'] = [];
-  if (primeiraVez && FASES_COM_PACOTE.includes(f)) pacotesGanhos.push({ tipo: 'normal', motivo: 'fase' });
+  // O pacote da fase (memória, quiz) fica guardado até a criança tirar nota 7.
+  // notas['cap:fase'] guarda a melhor nota; abaixo de 7 quer dizer que o pacote ainda está esperando.
+  const nk = `${cap}:${f}`;
+  const temPacote = FASES_COM_PACOTE.includes(f);
+  const pacoteEsperando = primeiraVez || (e.notas[nk] !== undefined && e.notas[nk] < NOTA_MINIMA);
+  if (temPacote && pacoteEsperando && passou) pacotesGanhos.push({ tipo: 'normal', motivo: 'fase' });
   if (primeiraVez && f === 'prova') pacotesGanhos.push({ tipo: 'epico', motivo: 'prova' });
-  const ganhaDoDia = aprovado && e.pacoteDia !== d;
+  const ganhaDoDia = passou && e.pacoteDia !== d;
   if (ganhaDoDia) pacotesGanhos.push({ tipo: 'normal', motivo: 'dia' });
   const subiuNivel = nivel(e.xp + xpGanho).nivel > nivel(e.xp).nivel;
   if (subiuNivel) pacotesGanhos.push({ tipo: 'normal', motivo: 'nivel' });
@@ -189,12 +218,15 @@ export function concluirFase(e: Estado, cap: string, f: Fase, nota?: number, ago
     ...e,
     xp: e.xp + xpGanho,
     feitas: aprovado ? { ...e.feitas, [k]: true } : e.feitas,
-    notas: f === 'prova' && nota !== undefined ? { ...e.notas, [cap]: Math.max(nota, e.notas[cap] ?? 0) } : e.notas,
+    notas: nota === undefined ? e.notas
+      : f === 'prova' ? { ...e.notas, [cap]: Math.max(nota, e.notas[cap] ?? 0) }
+      : temPacote ? { ...e.notas, [nk]: Math.max(nota, e.notas[nk] ?? 0) } : e.notas,
     pacotes: [...e.pacotes, ...pacotesGanhos.map((p) => ({ id: novoId(), tipo: p.tipo, capitulo: cap }))],
     dias: e.dias.includes(d) ? e.dias : [...e.dias, d],
     pacoteDia: ganhaDoDia ? d : e.pacoteDia,
   };
-  return { estado, xpGanho, subiuNivel, pacotesGanhos, primeiraVez };
+  return { estado, xpGanho, subiuNivel, pacotesGanhos, primeiraVez, erros: aprovado ? erros : 0, xpSemErros: cheio,
+    faltouPacote: temPacote && pacoteEsperando && !passou };
 }
 
 export const PESOS: Record<Raridade, number> = { comum: 62, rara: 26, epica: 9, lendaria: 3 };

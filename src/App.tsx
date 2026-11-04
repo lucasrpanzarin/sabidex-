@@ -12,11 +12,13 @@ import { TelaExtra } from './screens/Extras';
 import { EXTRAS, type Extra } from './lib/jogo';
 import { Loja } from './screens/Loja';
 import { Privacidade } from './screens/Privacidade';
-import { EntrarConta, MinhaConta, Ranking, Trocas } from './screens/Turma';
+import { ContaCriada, EntrarConta, MinhaConta, Ranking, Trocas } from './screens/Turma';
+import { useConta } from './lib/conta';
 
 export function App() {
   const e = useEstado();
   const [pagina = '', a, b] = useRota();
+  const { contaNova } = useConta();
 
   // Telas que não precisam do perfil da criança
   if (pagina === 'nova-senha') return <div className="app"><NovaSenha token={a ?? ''} /></div>;
@@ -24,6 +26,8 @@ export function App() {
   if (pagina === 'adulto') return <div className="app"><Adulto turmaId={a} /></div>;
   if (pagina === 'entrar') return <div className="app"><EntrarConta aoTerminar={() => ir()} aoVoltar={() => (e.perfil ? ir('trocas') : ir())} /></div>;
   if (!e.perfil) return <div className="app"><BoasVindas /></div>;
+  // Logo depois de criar a conta na turma: mostra código, apelido e PIN para um adulto anotar.
+  if (contaNova) return <div className="app"><ContaCriada /></div>;
 
   let tela;
   let aba = pagina;

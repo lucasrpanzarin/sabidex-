@@ -52,10 +52,13 @@ export function EntrarTurma() {
   const [codigo, setCodigo] = useState('');
   const [turma, setTurma] = useState('');
   const [apelido, setApelido] = useState(conta?.apelido ?? e.perfil?.nome ?? '');
+  const [cor, setCor] = useState(e.perfil?.cor ?? CORES[0]);
   const [pin, setPin] = useState('');
   const [pin2, setPin2] = useState('');
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
+  /** Criança nova neste aparelho: ainda escolhe a cor. */
+  const novo = !e.perfil && !conta;
 
   const conferirCodigo = async () => {
     setOcupado(true); setErro(null);
@@ -81,7 +84,7 @@ export function EntrarTurma() {
     if (pin2 !== pin) { setErro('Os PINs não são iguais. Vamos tentar de novo.'); setPin(''); setPin2(''); setPasso('pin'); return; }
     (async () => {
       setOcupado(true); setErro(null);
-      const msg = await entrarNaTurma(codigo, apelido, e.perfil?.cor ?? CORES[0], pin);
+      const msg = await entrarNaTurma(codigo, apelido, cor, pin);
       setOcupado(false);
       if (msg) { setErro(msg); setPin(''); setPin2(''); setPasso(msg.includes('apelido') ? 'apelido' : 'pin'); }
     })();
@@ -103,7 +106,8 @@ export function EntrarTurma() {
           <div className="aviso aviso-ok">Turma encontrada: <strong>{turma}</strong></div>
           <label htmlFor="apelido-turma" className="display h3">Seu apelido na turma</label>
           <input id="apelido-turma" value={apelido} maxLength={14} onChange={(ev) => setApelido(ev.target.value)} autoComplete="off" style={{ ...campo, textAlign: 'center' }} />
-          <p className="muted small" style={{ margin: 0 }}>Os colegas vão ver esse apelido no ranking e nas trocas.</p>
+          <p className="muted small" style={{ margin: 0 }}>Só o apelido, não o nome completo. Os colegas vão ver esse apelido no ranking e nas trocas.</p>
+          {novo && <EscolherCor cor={cor} aoEscolher={setCor} />}
           <button className="btn btn-amarelo btn-bloco" disabled={apelido.trim().length < 2 || ocupado}>{conta ? (ocupado ? 'Entrando…' : 'Entrar na turma') : 'Continuar'}</button>
           {conta && <p className="muted small" style={{ margin: 0 }}>Você continua com a mesma conta, as mesmas cartas e o mesmo PIN.</p>}
         </form>
@@ -111,6 +115,20 @@ export function EntrarTurma() {
       {passo === 'pin' && <Pin valor={pin} onChange={setPin} rotulo="Crie um PIN de 4 números" />}
       {passo === 'pin2' && <Pin valor={pin2} onChange={setPin2} rotulo={ocupado ? 'Entrando…' : 'Digite o PIN de novo'} />}
     </div>
+  );
+}
+
+export function EscolherCor({ cor, aoEscolher }: { cor: string; aoEscolher: (c: string) => void }) {
+  return (
+    <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
+      <legend className="muted small" style={{ marginBottom: 8, marginInline: 'auto' }}>Escolha sua cor</legend>
+      <div className="linha" style={{ justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
+        {CORES.map((c) => (
+          <button key={c} type="button" aria-label={`Cor ${c}`} aria-pressed={cor === c} onClick={() => aoEscolher(c)}
+            style={{ width: 44, height: 44, borderRadius: '50%', border: 0, background: c, boxShadow: cor === c ? '0 0 0 3px var(--bg), 0 0 0 6px var(--ink)' : 'inset 0 -3px 0 #00000033' }} />
+        ))}
+      </div>
+    </fieldset>
   );
 }
 
