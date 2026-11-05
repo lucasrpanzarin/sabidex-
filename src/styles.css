@@ -590,6 +590,26 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
 .reta-tick.ponta { top: -11px; height: 24px; }
 .reta-rotulos span { position: absolute; top: 52px; transform: translateX(-50%); font-family: var(--display); font-size: 20px; }
 .reta-seta { position: absolute; top: 2px; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 16px solid var(--coral); filter: drop-shadow(0 0 0 var(--ink)); }
+.tecla-virgula { font-size: 36px; font-weight: 900; line-height: 0.6; }
+.teclado-virgula .tecla-ok-larga { grid-column: 1 / -1; min-height: 52px; }
+/* Centésimos: quadrado de 10 × 10 (unidade 8). */
+.quadriculado { margin: 4px 0 0; width: 100%; max-width: 200px; aspect-ratio: 1; display: grid; grid-template-columns: repeat(10, 1fr); border: 3px solid var(--ink); border-radius: 8px; overflow: hidden; background: #D6D3CD; box-shadow: var(--adesivo); }
+.quadriculado span { border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.quadriculado span:nth-child(10n) { border-right: 0; }
+.quadriculado span:nth-child(n + 91) { border-bottom: 0; }
+.quadriculado span.pintada { background: var(--yellow); }
+/* Dinheiro (unidade 8): moedas redondas e cédulas retangulares, desenho simples e original. */
+.moedas { margin: 4px 0 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; }
+.moeda, .cedula { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid var(--ink); box-shadow: var(--adesivo); color: var(--ink); line-height: 1; }
+.moeda { width: 62px; height: 62px; border-radius: 50%; background: #E2C15A; }
+.moeda b, .cedula b { font-family: var(--display); font-size: 22px; font-weight: 400; }
+.moeda small, .cedula small { font-size: 10px; font-weight: 800; }
+.moeda-1, .moeda-5 { background: #D79B6B; }
+.moeda-50 { background: #D4D9DF; }
+.moeda-100 { background: radial-gradient(circle, #D4D9DF 0 52%, #E2C15A 54%); }
+.cedula { width: 84px; height: 48px; border-radius: 8px; background: #E9E4F5; }
+.cedula-2 { background: #BFD7F2; } .cedula-5 { background: #DCC8EE; } .cedula-10 { background: #F5C7BE; } .cedula-20 { background: #F7DFA0; }
+.cedula-50 { background: #EAD7BB; } .cedula-100 { background: #BDE5EC; } .cedula-200 { background: #D9D9D2; }
 .resposta-fracao { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .caixa-fracao { min-width: 76px; min-height: 44px; padding: 0 12px; color: var(--ink); cursor: pointer; }
 .caixa-fracao .display { font-size: 28px; }
@@ -611,6 +631,9 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
   .peso { min-width: 40px; height: 36px; line-height: 30px; font-size: 17px; }
   .balanca-pesos { min-height: 38px; }
   .balanca-pe { height: 20px; }
+  .quadriculado { max-width: 150px; }
+  .moeda { width: 54px; height: 54px; }
+  .teclado-virgula .tecla-ok-larga { min-height: 46px; }
 }
 /* Celular bem baixo (ex.: 375 × 667): esconde o que é só apoio para o teclado caber sem rolar. */
 @media (max-height: 700px) {
@@ -624,6 +647,8 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
   .tecla { min-height: 46px; }
   .resposta-caixa { min-height: 46px; }
   .resposta-caixa .display { font-size: 28px; }
+  .quadriculado { max-width: 120px; }
+  .teclado-virgula .tecla { min-height: 42px; }
 }
 
 /* ---------- Chamar a atenção para o próximo passo de estudo (Lucas, 05/11/2026) ----------

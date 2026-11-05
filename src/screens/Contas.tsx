@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Ara } from '../components/Ara';
 import type { Capitulo } from '../data/tipos';
-import { TIPOS_PAPEL, confere, ehFracao, gerarConta, gerarContas, textoResposta, type Conta, type Resposta, type Visual } from '../lib/contas';
+import { TIPOS_PAPEL, confere, ehFracao, gerarConta, gerarContas, textoCerto, textoResposta, type Conta, type Resposta, type Visual } from '../lib/contas';
 import { NOTA_MINIMA, notaDe, type Fase } from '../lib/jogo';
 import { idConta } from '../lib/revisao';
 import { AVISO_REVISAO, ContaErros, Fim, Topo, lembrar, useFinalizar } from './Fases';
@@ -96,8 +96,31 @@ function Reta({ v }: { v: Extract<Visual, { tipo: 'reta' }> }) {
   );
 }
 
+/** Quadrado de 10 × 10 (a unidade): cada quadradinho é um centésimo, como na p. 63 do livro. */
+function Quadriculado({ v }: { v: Extract<Visual, { tipo: 'quadriculado' }> }) {
+  return (
+    <figure className="quadriculado" role="img" aria-label={`Quadrado dividido em 100 quadradinhos, com ${v.pintadas} pintado${v.pintadas === 1 ? '' : 's'}.`}>
+      {Array.from({ length: 100 }, (_, i) => <span key={i} className={i < v.pintadas ? 'pintada' : ''} />)}
+    </figure>
+  );
+}
+
+/** Moedas (redondas) e cédulas (retângulos) do real, desenhadas de um jeito simples. */
+function Moedas({ v }: { v: Extract<Visual, { tipo: 'moedas' }> }) {
+  const nome = (c: number) => (c >= 200 ? `cédula de ${c / 100} reais` : c === 100 ? 'moeda de 1 real' : `moeda de ${c} ${c === 1 ? 'centavo' : 'centavos'}`);
+  return (
+    <figure className="moedas" role="img" aria-label={`${v.valores.map(nome).join(', ')}.`}>
+      {v.valores.map((c, i) => c >= 200
+        ? <span key={i} className={`cedula cedula-${c / 100}`}><b>{c / 100}</b><small>reais</small></span>
+        : <span key={i} className={`moeda moeda-${c}`}><b>{c === 100 ? 1 : c}</b><small>{c === 100 ? 'real' : c === 1 ? 'centavo' : 'centavos'}</small></span>)}
+    </figure>
+  );
+}
+
 function Desenho({ v }: { v?: Visual }) {
   if (!v) return null;
+  if (v.tipo === 'quadriculado') return <Quadriculado v={v} />;
+  if (v.tipo === 'moedas') return <Moedas v={v} />;
   if (v.tipo === 'balanca') return <Balanca v={v} />;
   if (v.tipo === 'barra') return <Barra v={v} />;
   if (v.tipo === 'reta') return <Reta v={v} />;
@@ -106,31 +129,55 @@ function Desenho({ v }: { v?: Visual }) {
 
 /* ---------- Teclado de números ---------- */
 
-function Teclado({ valor, setValor, onConferir, pronto, onTrocar }: {
-  valor: string; setValor: (s: string) => void; onConferir: () => void; pronto: boolean; onTrocar?: () => void;
+/** Põe uma tecla no número digitado. Com vírgula: no máximo uma vírgula e 2 algarismos depois dela. */
+function digitar(valor: string, tecla: string, virgula: boolean): string {
+  if (tecla === ',') {
+    if (!virgula || valor.includes(',')) return valor;
+    return (valor || '0') + ',';
+  }
+  if (valor.includes(',') && valor.split(',')[1].length >= 2) return valor;
+  return valor.length < (virgula ? 7 : 5) ? valor + tecla : valor;
+}
+
+function Teclado({ valor, setValor, onConferir, pronto, onTrocar, virgula = false }: {
+  valor: string; setValor: (s: string) => void; onConferir: () => void; pronto: boolean; onTrocar?: () => void; virgula?: boolean;
 }) {
-  // Também dá para usar o teclado do computador ("/" troca de caixa na fração; Tab continua andando pela tela).
+  // Também dá para usar o teclado do computador ("/" troca de caixa na fração; "," ou "." põe a vírgula; Tab continua andando pela tela).
   useEffect(() => {
     const f = (ev: KeyboardEvent) => {
-      if (/^\d$/.test(ev.key)) setValor(valor.length < 5 ? valor + ev.key : valor);
+      if (/^\d$/.test(ev.key)) setValor(digitar(valor, ev.key, virgula));
+      else if ((ev.key === ',' || ev.key === '.') && virgula) setValor(digitar(valor, ',', virgula));
       else if (ev.key === 'Backspace') setValor(valor.slice(0, -1));
       else if (ev.key === 'Enter' && pronto) onConferir();
       else if (ev.key === '/' && onTrocar) { ev.preventDefault(); onTrocar(); }
     };
     window.addEventListener('keydown', f);
     return () => window.removeEventListener('keydown', f);
-  }, [valor, setValor, onConferir, pronto, onTrocar]);
+  }, [valor, setValor, onConferir, pronto, onTrocar, virgula]);
   const tecla = (d: string) => (
-    <button key={d} className="btn btn-escuro tecla" onClick={() => setValor(valor.length < 5 ? valor + d : valor)}>{d}</button>
+    <button key={d} className="btn btn-escuro tecla" onClick={() => setValor(digitar(valor, d, virgula))}>{d}</button>
   );
+  const apagar = <button className="btn btn-escuro tecla tecla-texto" onClick={() => setValor(valor.slice(0, -1))} disabled={!valor}>Apagar</button>;
+  const ok = <button className={`btn btn-verde tecla${virgula ? ' tecla-ok-larga' : ''}`} aria-label="OK, conferir" onClick={onConferir} disabled={!pronto}>OK</button>;
   return (
     <div className="coluna" style={{ gap: 10 }}>
-      <div className="teclado">
-        {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(tecla)}
-        <button className="btn btn-escuro tecla tecla-texto" onClick={() => setValor(valor.slice(0, -1))} disabled={!valor}>Apagar</button>
-        {tecla('0')}
-        <button className="btn btn-verde tecla" aria-label="OK, conferir" onClick={onConferir} disabled={!pronto}>OK</button>
-      </div>
+      {virgula ? (
+        // Com vírgula: a vírgula fica onde o Apagar ficava, e o OK ganha uma linha inteira.
+        <div className="teclado teclado-virgula">
+          {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(tecla)}
+          <button className="btn btn-escuro tecla tecla-virgula" aria-label="vírgula" onClick={() => setValor(digitar(valor, ',', true))} disabled={valor.includes(',')}>,</button>
+          {tecla('0')}
+          {apagar}
+          {ok}
+        </div>
+      ) : (
+        <div className="teclado">
+          {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(tecla)}
+          {apagar}
+          {tecla('0')}
+          {ok}
+        </div>
+      )}
     </div>
   );
 }
@@ -150,13 +197,14 @@ export function Pergunta({ conta, corrigirNaHora = true, rotuloProxima, onRespos
   const [valores, setValores] = useState<[string, string]>(['', '']);
   const [ativa, setAtiva] = useState<0 | 1>(0);
   const [respondida, setRespondida] = useState<{ ok: boolean } | null>(null);
-  const pronto = fracao ? !!valores[0] && !!valores[1] : !!valores[0];
+  // Com vírgula, "12," ainda não está pronto (falta o número depois da vírgula).
+  const pronto = fracao ? !!valores[0] && !!valores[1] : !!valores[0] && !valores[0].endsWith(',');
   const setValor = (v: string) => setValores((x) => (ativa === 0 ? [v, x[1]] : [x[0], v]));
   const conferir = () => {
     if (!pronto || respondida) return;
-    const digitado: Resposta = fracao ? [Number(valores[0]), Number(valores[1])] : Number(valores[0]);
+    const digitado: Resposta = fracao ? [Number(valores[0]), Number(valores[1])] : Number(valores[0].replace(',', '.'));
     const ok = confere(conta, digitado);
-    onResposta(ok, textoResposta(digitado));
+    onResposta(ok, conta.decimal ? `${conta.reais ? 'R$ ' : ''}${valores[0]}` : textoResposta(digitado));
     if (corrigirNaHora) setRespondida({ ok });
     else onProxima();
   };
@@ -169,7 +217,7 @@ export function Pergunta({ conta, corrigirNaHora = true, rotuloProxima, onRespos
   );
   const caixaNumero = (
     <div className={`resposta-caixa${estado}`} role="group" aria-labelledby="rotulo-resposta">
-      <span className="display">{valores[0] || '?'}</span>{conta.unidade && <span className="muted small"> {conta.unidade}</span>}
+      {conta.reais && <span className="muted small">R$ </span>}<span className="display">{valores[0] || '?'}</span>{conta.unidade && <span className="muted small"> {conta.unidade}</span>}
     </div>
   );
   return (
@@ -200,14 +248,14 @@ export function Pergunta({ conta, corrigirNaHora = true, rotuloProxima, onRespos
         {respondida ? (
           <div className="coluna sobe" style={{ gap: 10 }}>
             <div className={`aviso ${respondida.ok ? 'aviso-ok' : 'aviso-erro'}`} role="status">
-              <span className="display" style={{ fontSize: 18 }}>{respondida.ok ? 'Acertou! ' : <>Era <TextoMat t={textoResposta(conta.resposta)} />{conta.unidade ? ' ' + conta.unidade : ''}. </>}</span>
+              <span className="display" style={{ fontSize: 18 }}>{respondida.ok ? 'Acertou! ' : <>Era <TextoMat t={textoCerto(conta)} />. </>}</span>
               <TextoMat t={conta.explicacao} />
             </div>
             <button className="btn btn-amarelo btn-bloco" onClick={onProxima}>{rotuloProxima}</button>
           </div>
         ) : (
           <Teclado valor={valores[ativa]} setValor={setValor} onConferir={conferir} pronto={pronto}
-            onTrocar={fracao ? () => setAtiva((x) => (x === 0 ? 1 : 0)) : undefined} />
+            onTrocar={fracao ? () => setAtiva((x) => (x === 0 ? 1 : 0)) : undefined} virgula={!!conta.decimal} />
         )}
       </div>
     </>
@@ -343,7 +391,7 @@ export function FaseContas({ cap, fase }: { cap: Capitulo; fase: 'memoria' | 'li
                 <div key={k} className={`aviso ${certo ? 'aviso-ok' : 'aviso-erro'}`}>
                   <div className="display" style={{ fontSize: 16 }}>{k + 1}. <TextoMat t={c.enunciado + (c.sentenca ? ` ${c.sentenca}` : '')} /></div>
                   {!certo && <div className="small" style={{ color: 'var(--t-red)' }}>Você digitou: <TextoMat t={respostas[k]?.texto ?? ''} /></div>}
-                  <div className="small">Certa: <strong><TextoMat t={textoResposta(c.resposta)} />{c.unidade ? ` ${c.unidade}` : ''}</strong></div>
+                  <div className="small">Certa: <strong><TextoMat t={textoCerto(c)} /></strong></div>
                   <div className="small muted"><TextoMat t={c.explicacao} /></div>
                 </div>
               );
