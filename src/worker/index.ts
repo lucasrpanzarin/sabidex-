@@ -184,6 +184,14 @@ function tirarDaTurma(db: D1Database, cid: string, familiaId: string) {
 const contarNaTurma = async (db: D1Database, turmaId: string) =>
   (await db.prepare('SELECT COUNT(*) n FROM criancas WHERE turma_id = ?').bind(turmaId).first<{ n: number }>())?.n ?? 0;
 
+/** Já tem alguém com esse apelido na turma? (a própria criança não conta) */
+const apelidoOcupado = async (db: D1Database, turmaId: string, apelido: string, exceto = '') =>
+  !!(await db.prepare('SELECT 1 FROM criancas WHERE turma_id = ? AND apelido_chave = ? AND id != ?').bind(turmaId, chaveApelido(apelido), exceto).first());
+
+/** Aviso quando o apelido já existe na turma: o responsável escolhe outro (Lucas, 05/11/2026). */
+const msgApelidoRepetido = (apelido: string) =>
+  `Já tem alguém chamado ${apelido} nessa turma. Troque o apelido (em "Trocar apelido", no perfil da criança) e tente de novo.`;
+
 async function cartasDe(db: D1Database, id: string) {
   const r = await db.prepare('SELECT carta_id, qtd FROM cartas WHERE crianca_id = ? AND qtd > 0').bind(id).all<{ carta_id: string; qtd: number }>();
   return Object.fromEntries(r.results.map((x) => [x.carta_id, x.qtd]));
@@ -1076,12 +1084,13 @@ app.post('/adulto/dono/criancas/:cid/turma', async (c) => {
   if (!a.admin) return erro(c, 404, 'Não encontrado.');
   const db = c.env.DB;
   const b = await corpo(c);
-  const k = await db.prepare('SELECT id, turma_id FROM criancas WHERE id = ?').bind(c.req.param('cid')).first<{ id: string; turma_id: string }>();
+  const k = await db.prepare('SELECT id, apelido, turma_id FROM criancas WHERE id = ?').bind(c.req.param('cid')).first<{ id: string; apelido: string; turma_id: string }>();
   if (!k) return erro(c, 404, 'Criança não encontrada.');
   const t = await db.prepare('SELECT id, nome FROM turmas WHERE id = ?').bind(String(b.turma ?? '')).first<{ id: string; nome: string }>();
   if (!t) return erro(c, 404, 'Turma não encontrada.');
   if (k.turma_id === t.id) return c.json({ ok: true, turma: t.nome });
   if (await contarNaTurma(db, t.id) >= MAX_NA_TURMA) return erro(c, 409, `A turma já tem ${MAX_NA_TURMA} crianças.`);
+  if (await apelidoOcupado(db, t.id, k.apelido, k.id)) return erro(c, 409, `Já tem alguém chamado ${k.apelido} nessa turma. Peça para o responsável trocar o apelido.`);
   try { await db.batch(await moverParaTurma(db, [k.id], t.id)); } catch (e) {
     if (String(e).includes('UNIQUE')) return erro(c, 409, 'Não deu certo agora. Tente de novo.');
     throw e;
@@ -1267,7 +1276,7 @@ app.post('/adulto/familia', async (c) => {
   } catch (e) {
     if (String(e).includes('UNIQUE')) {
       return erro(c, 409, codigo
-        ? `Já tem alguém chamado ${apelido} nessa turma. Se for o seu filho, toque em "Já tem conta na turma". Se não for, escolha outro apelido.`
+        ? `Já tem alguém chamado ${apelido} nessa turma. Escolha outro apelido. (Se essa conta já é do seu filho, toque em "Já tem conta na turma".)`
         : 'Já tem uma criança com esse apelido na sua família.');
     }
     throw e;
@@ -1301,6 +1310,27 @@ app.post('/adulto/familia/:cid/aparelho', async (c) => {
   if (!k) return erro(c, 404, 'Criança não encontrada.');
   await c.env.DB.prepare('UPDATE criancas SET falhas = 0, bloqueado_ate = 0, visto = ? WHERE id = ?').bind(Date.now(), k.id).run();
   return c.json({ token: await novaSessao(c.env.DB, 'crianca', k.id), ...(await respostaConta(c.env.DB, k, sanitizar(JSON.parse(k.progresso), FASES_VALIDAS))) });
+});
+
+/** O responsável troca o apelido do filho (precisa ser único na turma dele). */
+app.post('/adulto/familia/:cid/apelido', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const b = await corpo(c);
+  const apelido = normalizarApelido(String(b.apelido ?? ''));
+  if (apelido.length < 2) return erro(c, 400, 'O apelido precisa ter pelo menos 2 letras.');
+  const k = await doAdulto(c, a.id);
+  if (!k) return erro(c, 404, 'Criança não encontrada.');
+  const naEscola = !k.turma_id.startsWith('familia:');
+  const repetido = `Já tem alguém chamado ${apelido} ${naEscola ? 'na turma' : 'na sua família'}. Escolha outro.`;
+  if (await apelidoOcupado(c.env.DB, k.turma_id, apelido, k.id)) return erro(c, 409, repetido);
+  try {
+    await c.env.DB.prepare('UPDATE criancas SET apelido = ?, apelido_chave = ? WHERE id = ?').bind(apelido, chaveApelido(apelido), k.id).run();
+  } catch (e) {
+    if (String(e).includes('UNIQUE')) return erro(c, 409, repetido);
+    throw e;
+  }
+  return c.json({ apelido });
 });
 
 /** O responsável escolhe um PIN novo (ou o servidor sorteia um). */
@@ -1337,7 +1367,8 @@ const administra = async (db: D1Database, turmaId: string, a: { id: string; admi
     .bind(turmaId, a.id).first());
 
 /**
- * Leva as crianças para outra turma sem perder nada. Apelido repetido ganha um número ("Ana 2").
+ * Leva as crianças para outra turma sem perder nada. Quando uma criança só muda de turma, o apelido repetido
+ * já foi barrado antes; ao juntar duas turmas inteiras, o repetido ganha um número ("Ana 2").
  * Trocas e duelos que estavam esperando são cancelados (eram com os colegas da turma antiga).
  */
 async function moverParaTurma(db: D1Database, ids: string[], turmaId: string) {
@@ -1366,10 +1397,11 @@ async function cumprirPedido(db: D1Database, p: Pedido): Promise<string | null> 
   const naTurma = await contarNaTurma(db, p.turma_id);
   let ops: D1PreparedStatement[];
   if (p.tipo === 'crianca') {
-    const k = await db.prepare('SELECT id, turma_id, familia_id FROM criancas WHERE id = ?').bind(p.crianca_id).first<{ id: string; turma_id: string; familia_id: string | null }>();
+    const k = await db.prepare('SELECT id, apelido, turma_id, familia_id FROM criancas WHERE id = ?').bind(p.crianca_id).first<{ id: string; apelido: string; turma_id: string; familia_id: string | null }>();
     if (!k || k.familia_id !== p.adulto_id) { await cancelar(); return 'Esse pedido não vale mais (a criança saiu da família).'; }
     if (k.turma_id === p.turma_id) { await cancelar(); return null; }
     if (naTurma >= MAX_NA_TURMA) return `A turma já tem ${MAX_NA_TURMA} crianças.`;
+    if (await apelidoOcupado(db, p.turma_id, k.apelido, k.id)) return `Já tem alguém chamado ${k.apelido} nessa turma. Peça para o responsável trocar o apelido e pedir de novo.`;
     ops = await moverParaTurma(db, [k.id], p.turma_id);
   } else {
     const o = await db.prepare('SELECT id FROM turmas WHERE id = ?').bind(p.origem_id).first<{ id: string }>();
@@ -1443,6 +1475,7 @@ app.post('/adulto/pedidos', async (c) => {
     const k = await db.prepare('SELECT id, apelido, turma_id FROM criancas WHERE id = ? AND familia_id = ?').bind(String(b.crianca), a.id).first<{ id: string; apelido: string; turma_id: string }>();
     if (!k) return erro(c, 404, 'Criança não encontrada.');
     if (k.turma_id === t.id) return erro(c, 409, `${k.apelido} já está nessa turma.`);
+    if (await apelidoOcupado(db, t.id, k.apelido, k.id)) return erro(c, 409, msgApelidoRepetido(k.apelido));
     p = { turma_id: t.id, tipo: 'crianca', adulto_id: a.id, crianca_id: k.id, origem_id: null };
   } else if (b.origem) {
     const o = await db.prepare('SELECT id, dono_id FROM turmas WHERE id = ?').bind(String(b.origem)).first<{ id: string; dono_id: string }>();
