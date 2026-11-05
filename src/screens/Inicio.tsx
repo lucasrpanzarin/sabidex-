@@ -143,7 +143,7 @@ export function Inicio() {
         </span>
       </div>
 
-      <button className="painel linha" aria-label="Minha conta e nível" onClick={() => ir('conta')} style={{ textAlign: 'left', color: 'inherit', width: '100%' }}>
+      <button className="painel linha" aria-label="Meu perfil, nível e conquistas" onClick={() => ir('conta')} style={{ textAlign: 'left', color: 'inherit', width: '100%' }}>
         <div style={{ width: 60, height: 60, flex: 'none', borderRadius: '50%', background: e.perfil!.cor, display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: 26, color: 'var(--ink)', boxShadow: 'inset 0 -3px 0 #00000033, inset 0 2px 0 #FFFFFF88' }}>
           {e.perfil!.nome[0].toUpperCase()}
         </div>
