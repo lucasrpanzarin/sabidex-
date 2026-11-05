@@ -14,6 +14,9 @@ import { ESQUEMA, MIGRACOES, temTurma, turmaDaFamilia } from './esquema';
 import { dataValida, type DatasProva } from '../lib/provas';
 import { conferirMensagem, dentroDoHorario, GUARDAR_DIAS, JANELA_LIMITE, LIMITE_MENSAGENS, MOTIVO as MOTIVO_CHAT, ONLINE_MS } from '../shared/chat';
 import { APPLE, conferirCracha, GOOGLE } from './jwt';
+import {
+  corrigir, DUELOS_COM_XP_POR_DIA, diaBrasilia, MAX_DESAFIOS_ESPERANDO, montarDuelo, mundosEmComum, VALIDADE_DUELO_MS, vencedorDe,
+} from '../shared/duelo';
 import { aleatorio, hashSegredo, iguais, pinAleatorio, sha256 } from './seguranca';
 
 interface Env {
@@ -114,6 +117,7 @@ function apagarCrianca(db: D1Database, cid: string) {
     db.prepare(`UPDATE trocas SET status = 'cancelada', resolvido = ? WHERE (de_id = ? OR para_id = ?) AND status = 'pendente'`).bind(Date.now(), cid, cid),
     db.prepare(`DELETE FROM sessoes WHERE tipo = 'crianca' AND ref_id = ?`).bind(cid),
     db.prepare('DELETE FROM mensagens WHERE crianca_id = ?').bind(cid),
+    db.prepare('DELETE FROM duelos WHERE de_id = ? OR para_id = ?').bind(cid, cid),
     db.prepare('DELETE FROM avisos_chat WHERE por_id = ?').bind(cid),
     db.prepare('DELETE FROM criancas WHERE id = ?').bind(cid),
   ];
@@ -122,6 +126,7 @@ function apagarCrianca(db: D1Database, cid: string) {
 /** Tira a criança da turma sem apagar a conta: ela volta a ser só da família. */
 function tirarDaTurma(db: D1Database, cid: string, familiaId: string) {
   return [
+    db.prepare(`UPDATE duelos SET status = 'cancelado', resolvido = ? WHERE (de_id = ? OR para_id = ?) AND status IN ('novo', 'esperando')`).bind(Date.now(), cid, cid),
     db.prepare(`UPDATE trocas SET status = 'cancelada', resolvido = ? WHERE (de_id = ? OR para_id = ?) AND status = 'pendente'`).bind(Date.now(), cid, cid),
     // Se um irmão já usa o mesmo apelido, a chave ganha um final diferente (o apelido mostrado não muda).
     db.prepare(`UPDATE criancas SET turma_id = ?1, apelido_chave = CASE
@@ -509,9 +514,12 @@ app.get('/crianca/ranking', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
   if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
+  const inicioSemana = Date.parse(`${semanaDe()}T03:00:00Z`);
   const r = await c.env.DB.prepare(`SELECT id, apelido, cor, CASE WHEN semana = ? THEN xp_semana ELSE 0 END AS xp,
-    (SELECT COUNT(*) FROM cartas WHERE crianca_id = criancas.id AND qtd > 0) AS cartas
-    FROM criancas WHERE turma_id = ?`).bind(semanaDe(), k.turma_id).all();
+    (SELECT COUNT(*) FROM cartas WHERE crianca_id = criancas.id AND qtd > 0) AS cartas,
+    (SELECT COUNT(*) FROM duelos d WHERE d.turma_id = criancas.turma_id AND d.status = 'feito' AND d.resolvido >= ?
+      AND ((d.vencedor = 'de' AND d.de_id = criancas.id) OR (d.vencedor = 'para' AND d.para_id = criancas.id))) AS vitorias
+    FROM criancas WHERE turma_id = ?`).bind(semanaDe(), inicioSemana, k.turma_id).all();
   return c.json({ eu: k.id, semana: semanaDe(), participantes: r.results });
 });
 
@@ -608,12 +616,147 @@ app.post('/crianca/trocas/:id/:acao', async (c) => {
   return c.json({ ok: true, cartas: await cartasDe(db, k.id) });
 });
 
+/* ---------------- Duelo do Saber ---------------- */
+// Os dois respondem as mesmas 10 perguntas (cada um quando puder). O servidor corrige e decide quem venceu.
+// Ninguém perde carta. Só colegas da mesma turma, sem mensagem nenhuma entre eles.
+
+interface Duelo {
+  id: string; turma_id: string; de_id: string; para_id: string; perguntas: string; carta_de: string; carta_para: string | null;
+  resp_de: string | null; resp_para: string | null; acertos_de: number | null; acertos_para: number | null;
+  jogou_de: number | null; jogou_para: number | null; status: string; vencedor: string | null; criado: number; resolvido: number | null;
+}
+
+/** O que a criança pode ver do duelo: as respostas e os acertos do colega só aparecem depois que ela também jogou. */
+function dueloParaCrianca(d: Duelo & { de_apelido?: string; de_cor?: string; para_apelido?: string; para_cor?: string }, eu: string) {
+  const fim = d.status === 'feito';
+  const souDe = d.de_id === eu;
+  const ler = (s: string | null) => (s ? JSON.parse(s) as number[] : null);
+  return {
+    id: d.id, status: d.status, criado: d.criado, resolvido: d.resolvido, vencedor: d.vencedor,
+    de_id: d.de_id, para_id: d.para_id, de_apelido: d.de_apelido, de_cor: d.de_cor, para_apelido: d.para_apelido, para_cor: d.para_cor,
+    perguntas: JSON.parse(d.perguntas) as string[], carta_de: d.carta_de, carta_para: d.carta_para,
+    resp_de: souDe || fim ? ler(d.resp_de) : null, resp_para: !souDe || fim ? ler(d.resp_para) : null,
+    acertos_de: souDe || fim ? d.acertos_de : null, acertos_para: !souDe || fim ? d.acertos_para : null,
+  };
+}
+
+async function temCarta(db: D1Database, criancaId: string, carta: string) {
+  if (!CARTAS_VALIDAS.has(carta)) return false;
+  const r = await db.prepare('SELECT qtd FROM cartas WHERE crianca_id = ? AND carta_id = ?').bind(criancaId, carta).first<{ qtd: number }>();
+  return (r?.qtd ?? 0) > 0;
+}
+
+/** Quantos duelos a criança já jogou hoje (horário de Brasília). Só os 3 primeiros do dia dão XP. */
+async function duelosDeHoje(db: D1Database, criancaId: string) {
+  const inicio = Date.parse(`${diaBrasilia(Date.now())}T03:00:00Z`);
+  const r = await db.prepare(`SELECT COUNT(*) n FROM duelos WHERE (de_id = ?1 AND jogou_de >= ?2) OR (para_id = ?1 AND jogou_para >= ?2)`)
+    .bind(criancaId, inicio).first<{ n: number }>();
+  return r?.n ?? 0;
+}
+
+async function buscarDuelo(db: D1Database, id: string) {
+  return db.prepare(`SELECT d.*, de.apelido AS de_apelido, de.cor AS de_cor, pa.apelido AS para_apelido, pa.cor AS para_cor
+    FROM duelos d LEFT JOIN criancas de ON de.id = d.de_id LEFT JOIN criancas pa ON pa.id = d.para_id WHERE d.id = ?`).bind(id).first<Duelo>();
+}
+
+app.get('/crianca/duelos', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
+  const db = c.env.DB;
+  const agora = Date.now();
+  // Desafios velhos vencem sozinhos: sem resposta em 7 dias, ou que quem desafiou nem chegou a jogar (1 dia).
+  await db.batch([
+    db.prepare(`UPDATE duelos SET status = 'expirado', resolvido = ? WHERE status = 'esperando' AND criado < ? AND (de_id = ?3 OR para_id = ?3)`).bind(agora, agora - VALIDADE_DUELO_MS, k.id),
+    db.prepare(`UPDATE duelos SET status = 'cancelado', resolvido = ? WHERE status = 'novo' AND criado < ? AND de_id = ?`).bind(agora, agora - DIA, k.id),
+  ]);
+  const r = await db.prepare(`SELECT d.*, de.apelido AS de_apelido, de.cor AS de_cor, pa.apelido AS para_apelido, pa.cor AS para_cor
+    FROM duelos d LEFT JOIN criancas de ON de.id = d.de_id LEFT JOIN criancas pa ON pa.id = d.para_id
+    WHERE d.turma_id = ?1 AND ((d.de_id = ?2 AND d.status IN ('novo', 'esperando')) OR (d.para_id = ?2 AND d.status = 'esperando')
+      OR ((d.de_id = ?2 OR d.para_id = ?2) AND d.resolvido > ?3))
+    ORDER BY d.criado DESC LIMIT 40`).bind(k.turma_id, k.id, agora - VALIDADE_DUELO_MS).all<Duelo>();
+  return c.json({ eu: k.id, duelos: r.results.map((d) => dueloParaCrianca(d, k.id)), comXpHoje: Math.max(0, DUELOS_COM_XP_POR_DIA - await duelosDeHoje(db, k.id)) });
+});
+
+/** Cria um desafio. Quem desafia joga primeiro; o colega só vê o desafio depois disso. */
+app.post('/crianca/duelos', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
+  const b = await corpo(c);
+  const para = String(b.para ?? ''), carta = String(b.carta ?? '');
+  const db = c.env.DB;
+  if (para === k.id) return erro(c, 400, 'Escolha um colega.');
+  const colega = await db.prepare('SELECT id, progresso FROM criancas WHERE id = ? AND turma_id = ?').bind(para, k.turma_id).first<{ id: string; progresso: string }>();
+  if (!colega) return erro(c, 404, 'Colega não encontrado.');
+  if (!await temCarta(db, k.id, carta)) return erro(c, 409, 'Escolha um Sabimon do seu álbum.');
+  const pend = await db.prepare(`SELECT COUNT(*) n FROM duelos WHERE de_id = ? AND status IN ('novo', 'esperando')`).bind(k.id).first<{ n: number }>();
+  if ((pend?.n ?? 0) >= MAX_DESAFIOS_ESPERANDO) return erro(c, 429, `Você já tem ${MAX_DESAFIOS_ESPERANDO} desafios esperando. Espere seus colegas jogarem.`);
+  const ja = await db.prepare(`SELECT 1 FROM duelos WHERE status IN ('novo', 'esperando') AND ((de_id = ?1 AND para_id = ?2) OR (de_id = ?2 AND para_id = ?1))`).bind(k.id, para).first();
+  if (ja) return erro(c, 409, 'Vocês dois já têm um duelo esperando. Terminem esse primeiro!');
+  const meu = sanitizar(JSON.parse(k.progresso), FASES_VALIDAS);
+  const dele = sanitizar(JSON.parse(colega.progresso), FASES_VALIDAS);
+  const comum = mundosEmComum(capitulos, meu.feitas, dele.feitas);
+  if (!comum.length) return erro(c, 409, 'Vocês ainda não estudaram um mesmo mundo. Para duelar, os dois precisam ter ouvido os temas do mesmo mundo.');
+  const id = aleatorio(8);
+  const perguntas = montarDuelo(comum);
+  await db.prepare(`INSERT INTO duelos (id, turma_id, de_id, para_id, perguntas, carta_de, status, criado) VALUES (?, ?, ?, ?, ?, ?, 'novo', ?)`)
+    .bind(id, k.turma_id, k.id, para, JSON.stringify(perguntas), carta, Date.now()).run();
+  const d = await buscarDuelo(db, id);
+  return c.json({ duelo: dueloParaCrianca(d!, k.id) });
+});
+
+/** Manda as respostas. Quem desafiou: o desafio vai para o colega. O colega: o servidor decide quem venceu. */
+app.post('/crianca/duelos/:id/responder', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  const db = c.env.DB;
+  const d = await buscarDuelo(db, c.req.param('id'));
+  if (!d || d.turma_id !== k.turma_id || (d.de_id !== k.id && d.para_id !== k.id)) return erro(c, 404, 'Duelo não encontrado.');
+  const b = await corpo(c);
+  const perguntas = JSON.parse(d.perguntas) as string[];
+  const acertos = corrigir(perguntas, b.respostas, capitulos);
+  if (acertos === null) return erro(c, 400, 'Respostas inválidas.');
+  const respostas = JSON.stringify(b.respostas);
+  const agora = Date.now();
+  const valeXp = await duelosDeHoje(db, k.id) < DUELOS_COM_XP_POR_DIA;
+  let res;
+  if (d.de_id === k.id) {
+    if (d.status !== 'novo') return erro(c, 409, 'Você já jogou este duelo.');
+    res = await db.prepare(`UPDATE duelos SET resp_de = ?, acertos_de = ?, jogou_de = ?, status = 'esperando' WHERE id = ? AND status = 'novo'`)
+      .bind(respostas, acertos, agora, d.id).run();
+  } else {
+    if (d.status === 'novo') return erro(c, 409, 'Ainda não é a sua vez neste duelo.');
+    if (d.status !== 'esperando') return erro(c, 409, 'Esse duelo não está mais esperando você.');
+    const carta = String(b.carta ?? '');
+    if (!await temCarta(db, k.id, carta)) return erro(c, 409, 'Escolha um Sabimon do seu álbum.');
+    const vencedor = vencedorDe(d.acertos_de ?? 0, acertos);
+    res = await db.prepare(`UPDATE duelos SET carta_para = ?, resp_para = ?, acertos_para = ?, jogou_para = ?, status = 'feito', vencedor = ?, resolvido = ?
+      WHERE id = ? AND status = 'esperando'`).bind(carta, respostas, acertos, agora, vencedor, agora, d.id).run();
+  }
+  if (res.meta.changes !== 1) return erro(c, 409, 'Esse duelo mudou. Abra de novo.');
+  return c.json({ duelo: dueloParaCrianca((await buscarDuelo(db, d.id))!, k.id), acertos, valeXp });
+});
+
+app.post('/crianca/duelos/:id/:acao', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  const acao = c.req.param('acao');
+  if (acao !== 'recusar' && acao !== 'cancelar') return erro(c, 400, 'Ação inválida.');
+  const d = await buscarDuelo(c.env.DB, c.req.param('id'));
+  if (!d || (acao === 'recusar' ? d.para_id : d.de_id) !== k.id) return erro(c, 404, 'Duelo não encontrado.');
+  const r = await c.env.DB.prepare(`UPDATE duelos SET status = ?, resolvido = ? WHERE id = ? AND status IN (${acao === 'recusar' ? `'esperando'` : `'novo', 'esperando'`})`)
+    .bind(acao === 'recusar' ? 'recusado' : 'cancelado', Date.now(), d.id).run();
+  if (r.meta.changes !== 1) return erro(c, 409, 'Esse duelo não está mais esperando.');
+  return c.json({ ok: true });
+});
+
 /* ============================ Adultos ============================ */
 
 interface Adulto { id: string; nome: string; email: string; senha_hash: string; senha_sal: string; falhas: number; bloqueado_ate: number; aceite_versao: string; tem_senha: number }
 
 /** Versão da política de privacidade aceita no cadastro (mudar quando o texto mudar). */
-const VERSAO_PRIVACIDADE = '2026-11-chat';
+const VERSAO_PRIVACIDADE = '2026-11-duelo';
 const MAX_FILHOS = 6;
 
 const emailValido = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 120;

@@ -95,7 +95,8 @@ export function concluirExtra(e: Estado, cap: Capitulo, x: Extra, agora = new Da
   const completou = primeiraVez && todos.length > 0 && todos.every((y) => feitas[chaveExtra(cap.id, y)]);
   const passou = nota === undefined || nota >= NOTA_MINIMA;
   const r = premiar(e, cap.id, xpGanho, completou ? [{ tipo: 'normal', motivo: 'extras' }] : [], primeiraVez, feitas, agora, passou);
-  return { ...r, erros, xpSemErros: cheio };
+  const estado = nota === undefined ? r.estado : { ...r.estado, notas: { ...r.estado.notas, [k]: Math.max(nota, e.notas[k] ?? 0) } };
+  return { ...r, estado, erros, xpSemErros: cheio };
 }
 
 export type TipoPacote = 'normal' | 'epico';
@@ -110,7 +111,7 @@ export interface Estado {
   xp: number;
   /** chave "capitulo:fase" → fase concluída */
   feitas: Record<string, true>;
-  /** maior nota (0–10) na prova de cada capítulo */
+  /** maior nota (0–10): "capitulo" = prova; "capitulo:fase" e "capitulo:extra-x" = outras fases e jogos extras */
   notas: Record<string, number>;
   pacotes: Pacote[];
   /** id da carta → quantas a criança tem */
@@ -222,7 +223,7 @@ export function concluirFase(e: Estado, cap: string, f: Fase, nota?: number, ago
     feitas: aprovado ? { ...e.feitas, [k]: true } : e.feitas,
     notas: nota === undefined ? e.notas
       : f === 'prova' ? { ...e.notas, [cap]: Math.max(nota, e.notas[cap] ?? 0) }
-      : temPacote ? { ...e.notas, [nk]: Math.max(nota, e.notas[nk] ?? 0) } : e.notas,
+      : { ...e.notas, [nk]: Math.max(nota, e.notas[nk] ?? 0) },
     pacotes: [...e.pacotes, ...pacotesGanhos.map((p) => ({ id: novoId(), tipo: p.tipo, capitulo: cap }))],
     dias: e.dias.includes(d) ? e.dias : [...e.dias, d],
     pacoteDia: ganhaDoDia ? d : e.pacoteDia,
@@ -322,3 +323,24 @@ export const notaDe = (acertos: number, total: number) => (total > 0 ? Math.roun
 
 /** Estrelas do resultado (iguais em todos os jogos): 3 = nota 10, 2 = nota 7 ou mais, 1 = abaixo de 7. */
 export const estrelasDaNota = (nota: number) => (nota >= 10 ? 3 : nota >= NOTA_MINIMA ? 2 : 1);
+
+/** Melhor nota guardada de uma fase ou jogo extra (a prova fica na chave do capítulo). Ouvir não tem nota. */
+export function melhorNota(e: Estado, cap: string, item: Fase | Extra): number | undefined {
+  if (item === 'prova') return e.notas[cap];
+  if (item === 'ouvir') return undefined;
+  return e.notas[(EXTRAS as string[]).includes(item) ? chaveExtra(cap, item as Extra) : chave(cap, item as Fase)];
+}
+
+/** Estrelas da melhor vez (0 = ainda não tem nota). A prova só conta depois de aprovada. */
+export function estrelasDe(e: Estado, cap: string, item: Fase | Extra): number {
+  const n = melhorNota(e, cap, item);
+  if (n === undefined) return 0;
+  if (item === 'prova' && !e.feitas[chave(cap, 'prova')]) return 0;
+  return estrelasDaNota(n);
+}
+
+/** Estrelas juntadas no mundo (fases com nota + jogos extras) e o máximo possível. */
+export function estrelasDoMundo(e: Estado, cap: Capitulo) {
+  const itens: (Fase | Extra)[] = [...FASES.filter((f) => f !== 'ouvir'), ...extrasDo(cap)];
+  return { tem: itens.reduce((s, i) => s + estrelasDe(e, cap.id, i), 0), max: itens.length * 3 };
+}

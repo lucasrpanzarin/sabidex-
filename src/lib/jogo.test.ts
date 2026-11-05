@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GARANTIA, abrirPacote, concluirFase, estadoInicial, garantiaAtiva, guardarCartas, liberada, migrarCartasAntigas, nivel, notaDe, sequencia } from './jogo';
+import { GARANTIA, abrirPacote, concluirFase, estadoInicial, estrelasDe, garantiaAtiva, guardarCartas, liberada, migrarCartasAntigas, nivel, notaDe, sequencia } from './jogo';
 import { sabimons } from '../data/sabimons';
 const desenhos = import.meta.glob('/public/sabimons/*.webp');
 import { historia9 } from '../data/historia9';
@@ -191,5 +191,23 @@ describe('jogos extras', () => {
     const repetido = concluirExtra(ultimo.estado, historia9, 'causas');
     expect(repetido.xpGanho).toBe(20);
     expect(repetido.pacotesGanhos.map((p) => p.motivo)).not.toContain('extras');
+  });
+});
+
+describe('estrelas no mapa', () => {
+  it('guarda a melhor nota de cada fase e mostra as estrelas da melhor vez', () => {
+    let e = concluirFase(estadoInicial(), 'h9', 'linha', 8).estado;
+    expect(estrelasDe(e, 'h9', 'linha')).toBe(2);
+    e = concluirFase(e, 'h9', 'linha', 10).estado;
+    e = concluirFase(e, 'h9', 'linha', 5).estado;
+    expect(e.notas['h9:linha']).toBe(10);
+    expect(estrelasDe(e, 'h9', 'linha')).toBe(3);
+    expect(estrelasDe(e, 'h9', 'ouvir')).toBe(0);
+  });
+
+  it('prova reprovada não mostra estrela', () => {
+    const e = concluirFase(estadoInicial(), 'h9', 'prova', 6).estado;
+    expect(estrelasDe(e, 'h9', 'prova')).toBe(0);
+    expect(estrelasDe(concluirFase(e, 'h9', 'prova', 9).estado, 'h9', 'prova')).toBe(2);
   });
 });

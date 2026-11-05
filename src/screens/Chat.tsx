@@ -73,7 +73,7 @@ export function Chat() {
     if (r.erro) setErro(r.erro); else setAvisados((s) => new Set(s).add(id));
   };
 
-  const voltar = <button className="voltar" onClick={() => ir('trocas')}><Icone nome="voltar" tamanho={18} espessura={3} />Trocas</button>;
+  const voltar = <button className="voltar" onClick={() => ir('trocas')}><Icone nome="voltar" tamanho={18} espessura={3} />Turma</button>;
 
   if (!conta?.codigo) {
     return (

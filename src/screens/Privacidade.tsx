@@ -39,13 +39,13 @@ export function Privacidade() {
       </Parte>
       <Parte titulo="O que guardamos da criança">
         Só um <strong>apelido</strong>, uma <strong>cor</strong>, um <strong>PIN</strong> de 4 números (embaralhado) e o <strong>progresso no jogo</strong>:
-        fases feitas, notas, XP, cartas, compras na lojinha do jogo e propostas de troca de cartas.
+        fases feitas, notas, XP, cartas, compras na lojinha do jogo, propostas de troca de cartas e as respostas dos duelos (Duelo do Saber).
         Se o chat da turma estiver ligado, guardamos também as <strong>mensagens</strong> que a criança escreve, por 60 dias.
         Nunca pedimos nome completo, e-mail, telefone, foto, endereço ou localização da criança.
       </Parte>
       <Parte titulo="Quem vê o quê">
         O adulto responsável vê o progresso dos filhos. Os administradores da turma (quem criou a turma e os adultos que ele convidar, como o professor ou outro responsável) veem o apelido e o progresso dos alunos da turma.
-        Colegas da mesma turma veem só o apelido, a cor, as cartas, o XP da semana e, se os adultos deixarem, se a criança está estudando agora.
+        Colegas da mesma turma veem só o apelido, a cor, as cartas, o XP da semana, as vitórias e os resultados dos duelos com ela e, se os adultos deixarem, se a criança está estudando agora.
       </Parte>
       <Parte titulo="Chat da turma">
         Existe um chat escrito só entre colegas da <strong>mesma turma da escola</strong>, num grupo único (não há mensagem privada).

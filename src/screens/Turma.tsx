@@ -17,11 +17,11 @@ const nomeDe = (id: string) => { const f = figurinhaPorId.get(id); return f?.s.f
 const NIVEL = { comum: 1, rara: 2, epica: 3, lendaria: 4 } as const;
 const campo: React.CSSProperties = { font: 'inherit', fontWeight: 800, fontSize: 18, padding: '14px 16px', borderRadius: 16, border: '3px solid var(--ink)', background: 'var(--surface)', color: 'var(--ink)', width: '100%' };
 
-function Avatar({ nome, cor, tamanho = 40 }: { nome: string; cor: string; tamanho?: number }) {
+export function Avatar({ nome, cor, tamanho = 40 }: { nome: string; cor: string; tamanho?: number }) {
   return <span aria-hidden="true" style={{ width: tamanho, height: tamanho, flex: 'none', borderRadius: '50%', background: cor, display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: tamanho * 0.45, color: 'var(--ink)', boxShadow: 'inset 0 -3px 0 #00000033, inset 0 2px 0 #FFFFFF88' }}>{nome[0]?.toUpperCase()}</span>;
 }
 
-function Erro({ texto }: { texto: string | null }) {
+export function Erro({ texto }: { texto: string | null }) {
   return texto ? <div className="aviso aviso-erro" role="alert">{texto}</div> : null;
 }
 
@@ -295,12 +295,12 @@ function SemTurma({ titulo, texto }: { titulo: string; texto: ReactNode }) {
 }
 
 /* ---------------- Ranking ---------------- */
-interface Participante { id: string; apelido: string; cor: string; xp: number; cartas: number }
+interface Participante { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias?: number }
 
 export function Ranking() {
   const { conta, contaNova: contaNovaR } = useConta();
   const e = useEstado();
-  const [aba, setAba] = useState<'xp' | 'cartas'>('xp');
+  const [aba, setAba] = useState<'xp' | 'cartas' | 'vitorias'>('xp');
   const [dados, setDados] = useState<{ eu: string; participantes: Participante[] } | null>(null);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -316,11 +316,13 @@ export function Ranking() {
   if (contaNovaR) return <ContaCriada />;
   if (!conta?.codigo) return <SemTurma titulo="Quem estudou mais?" texto={<>Entre na sua <strong>turma</strong> para ver o placar da semana com os colegas!</>} />;
 
-  const lista = (dados?.participantes ?? []).slice().sort((a, b) => (aba === 'xp' ? b.xp - a.xp : b.cartas - a.cartas) || a.apelido.localeCompare(b.apelido));
-  const valor = (p: Participante) => aba === 'xp' ? `${p.xp} XP` : `${p.cartas} ${p.cartas === 1 ? 'carta' : 'cartas'}`;
+  const num = (p: Participante) => (aba === 'xp' ? p.xp : aba === 'cartas' ? p.cartas : p.vitorias ?? 0);
+  const lista = (dados?.participantes ?? []).slice().sort((a, b) => num(b) - num(a) || a.apelido.localeCompare(b.apelido));
+  const unidade = (n: number) => (aba === 'xp' ? `${n} XP` : aba === 'cartas' ? `${n} ${n === 1 ? 'carta' : 'cartas'}` : `${n} ${n === 1 ? 'vitória' : 'vitórias'}`);
+  const valor = (p: Participante) => unidade(num(p));
   const meuIdx = lista.findIndex((p) => p.id === dados?.eu);
   const frente = meuIdx > 0 ? lista[meuIdx - 1] : null;
-  const falta = frente && meuIdx >= 0 ? (aba === 'xp' ? frente.xp - lista[meuIdx].xp + 1 : frente.cartas - lista[meuIdx].cartas + 1) : 0;
+  const falta = frente && meuIdx >= 0 ? num(frente) - num(lista[meuIdx]) + 1 : 0;
   const ouro = [['linear-gradient(180deg,#FDE68A 0%,#FACC15 45%,#EAB308 100%)', '#CA8A04', '#FACC15'], ['linear-gradient(180deg,#F1F5F9,#94A3B8)', '#64748B', '#CBD5E1'], ['linear-gradient(180deg,#FDBA74,#EA580C)', '#C2410C', '#FB923C']];
 
   return (
@@ -330,8 +332,8 @@ export function Ranking() {
         <h1 className="display h1">Ranking da semana</h1>
       </div>
       <div className="linha" role="tablist" style={{ gap: 8 }}>
-        {(['xp', 'cartas'] as const).map((k) => (
-          <button key={k} role="tab" aria-selected={aba === k} onClick={() => setAba(k)} className={`btn ${aba === k ? 'btn-rosa' : 'btn-escuro'}`} style={{ flex: 1, fontSize: 17, minHeight: 46 }}>{k === 'xp' ? 'Mais XP' : 'Mais cartas'}</button>
+        {(['xp', 'cartas', 'vitorias'] as const).map((k) => (
+          <button key={k} role="tab" aria-selected={aba === k} onClick={() => setAba(k)} className={`btn ${aba === k ? 'btn-rosa' : 'btn-escuro'}`} style={{ flex: 1, fontSize: 16, minHeight: 46, padding: '6px 8px' }}>{{ xp: 'Mais XP', cartas: 'Mais cartas', vitorias: 'Duelos' }[k]}</button>
         ))}
       </div>
       <Erro texto={erro} />
@@ -367,10 +369,10 @@ export function Ranking() {
           );
         })}
       </ol>
-      {frente && falta > 1 && <div className="painel" style={{ borderColor: 'var(--pink)', padding: 12, fontWeight: 700 }}>Faltam <strong>{aba === 'xp' ? `${falta} XP` : `${falta} ${falta === 1 ? 'carta' : 'cartas'}`}</strong> para você passar {frente.apelido}!</div>}
-      {frente && falta === 1 && <div className="painel" style={{ borderColor: 'var(--pink)', padding: 12, fontWeight: 700 }}>Você está <strong>empatado</strong> com {frente.apelido}. {aba === 'xp' ? 'Jogue uma fase' : 'Ganhe mais uma carta'} e passe na frente!</div>}
+      {frente && falta > 1 && <div className="painel" style={{ borderColor: 'var(--pink)', padding: 12, fontWeight: 700 }}>Faltam <strong>{unidade(falta)}</strong> para você passar {frente.apelido}!</div>}
+      {frente && falta === 1 && <div className="painel" style={{ borderColor: 'var(--pink)', padding: 12, fontWeight: 700 }}>Você está <strong>empatado</strong> com {frente.apelido}. {aba === 'xp' ? 'Jogue uma fase' : aba === 'cartas' ? 'Ganhe mais uma carta' : 'Vença mais um duelo'} e passe na frente!</div>}
       {meuIdx === 0 && lista.length > 1 && <div className="painel" style={{ borderColor: 'var(--yellow)', padding: 12, fontWeight: 700 }}>Você está em <strong>1º lugar</strong>! Continue estudando para não perder.</div>}
-      <p className="muted small" style={{ textAlign: 'center', margin: 0 }}>O XP da semana zera toda segunda-feira.</p>
+      <p className="muted small" style={{ textAlign: 'center', margin: 0 }}>{aba === 'vitorias' ? 'Vitórias no Duelo do Saber nesta semana. ' : ''}O placar da semana zera toda segunda-feira.</p>
     </main>
   );
 }
@@ -385,7 +387,7 @@ function Mini({ id }: { id: string }) {
 }
 
 export function Trocas() {
-  const { conta, contaNova: contaNovaT } = useConta();
+  const { conta, contaNova: contaNovaT, desafiosNovos } = useConta();
   const e = useEstado();
   const [modo, setModo] = useState<'lista' | 'nova'>('lista');
   const [dados, setDados] = useState<{ eu: string; trocas: TrocaApi[] } | null>(null);
@@ -435,15 +437,19 @@ export function Trocas() {
     <main className="tela">
       <div>
         <div className="eyebrow">{conta.turma}</div>
-        <h1 className="display h1">Trocas</h1>
+        <h1 className="display h1">Minha turma</h1>
       </div>
       <button className="btn btn-amarelo btn-bloco" onClick={() => { setAviso(null); setModo('nova'); }}>Propor uma troca</button>
+      <button className="btn btn-rosa btn-bloco" onClick={() => ir('duelos')} style={{ position: 'relative' }}>
+        Duelo do Saber
+        {desafiosNovos > 0 && <span className="badge" aria-label={`${desafiosNovos} ${desafiosNovos > 1 ? 'desafios' : 'desafio'} para você`}>{desafiosNovos}</span>}
+      </button>
       <button className="btn btn-escuro btn-bloco" onClick={() => ir('chat')}>Conversa da turma</button>
       {aviso && <div className="aviso aviso-ok pop" role="status">{aviso}</div>}
       <Erro texto={erro} />
 
       <section className="coluna" aria-label="Propostas para você">
-        <h2 className="display h3">Propostas para você {recebidas.length > 0 && <span className="pilula" style={{ marginLeft: 6, borderColor: 'var(--pink)' }}>{recebidas.length}</span>}</h2>
+        <h2 className="display h3">Propostas de troca {recebidas.length > 0 && <span className="pilula" style={{ marginLeft: 6, borderColor: 'var(--pink)' }}>{recebidas.length}</span>}</h2>
         {dados && recebidas.length === 0 && <p className="muted small" style={{ margin: 0 }}>Nenhuma agora.</p>}
         {recebidas.map((t) => {
           const minhas = e.cartas[t.carta_receber] ?? 0;

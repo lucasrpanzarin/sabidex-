@@ -25,6 +25,8 @@ let token = ler(K_TOKEN);
 let conta: Conta | null = (() => { try { return JSON.parse(ler(K_CONTA) ?? 'null'); } catch { return null; } })();
 let perfis: PerfilAparelho[] = (() => { try { const p = JSON.parse(ler(K_PERFIS) ?? '[]'); return Array.isArray(p) ? p : []; } catch { return []; } })();
 let propostasNovas = 0;
+/** Desafios do Duelo do Saber esperando a criança jogar. */
+let desafiosNovos = 0;
 /** Dados mostrados uma vez logo depois de criar a conta (para anotar o PIN). */
 let contaNova: { codigo: string; apelido: string; pin: string } | null = null;
 setRegistrarCartas(!!token);
@@ -36,7 +38,7 @@ const mudou = () => { versao++; avisar(); };
 
 export function useConta() {
   useSyncExternalStore((f) => { ouvintes.add(f); return () => ouvintes.delete(f); }, () => versao);
-  return { conta, propostasNovas, contaNova, perfis };
+  return { conta, propostasNovas, desafiosNovos, contaNova, perfis };
 }
 export function esquecerContaNova() { contaNova = null; mudou(); }
 export const getConta = () => conta;
@@ -210,7 +212,9 @@ export async function verPropostas() {
   const r = await api<{ eu: string; trocas: { para_id: string; status: string }[] }>('/crianca/trocas');
   if (r.erro) return;
   const n = r.trocas.filter((t) => t.para_id === r.eu && t.status === 'pendente').length;
-  if (n !== propostasNovas) { propostasNovas = n; mudou(); }
+  const d = await api<{ eu: string; duelos: { para_id: string; status: string }[] }>('/crianca/duelos');
+  const nd = d.erro ? desafiosNovos : d.duelos.filter((x) => x.para_id === d.eu && x.status === 'esperando').length;
+  if (n !== propostasNovas || nd !== desafiosNovos) { propostasNovas = n; desafiosNovos = nd; mudou(); }
 }
 
 /** Liga a sincronização automática: ao mudar algo, ao voltar a internet e a cada minuto. */
