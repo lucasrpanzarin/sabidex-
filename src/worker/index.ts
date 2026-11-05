@@ -19,6 +19,9 @@ import {
 } from '../shared/duelo';
 import { diaBR, sortearPacote, type Contadores } from '../shared/pacotes';
 import { aleatorio, hashSegredo, iguais, pinAleatorio, sha256 } from './seguranca';
+import {
+  apelidoLivre, MAX_NA_TURMA, MAX_PEDIDOS_ESPERANDO, MAX_RESULTADOS, MOSTRAR_RESPONDIDOS_MS, normalizarEscola, termosBusca, textoBusca,
+} from '../shared/pedidos';
 
 interface Env {
   DB: D1Database; ASSETS: Fetcher; ADMIN_EMAILS?: string;
@@ -55,6 +58,9 @@ app.use('*', async (c, next) => {
     for (const m of MIGRACOES) {
       try { await c.env.DB.prepare(m).run(); } catch (e) { if (!String(e).includes('duplicate column')) throw e; }
     }
+    // Turmas antigas ainda sem o texto da busca.
+    const semBusca = (await c.env.DB.prepare(`SELECT id, nome, escola FROM turmas WHERE busca = ''`).all<{ id: string; nome: string; escola: string }>()).results;
+    if (semBusca.length) await c.env.DB.batch(semBusca.map((t) => c.env.DB.prepare('UPDATE turmas SET busca = ? WHERE id = ?').bind(textoBusca(t.nome, t.escola), t.id)));
     esquemaPronto = true;
   }
   await next();
@@ -839,7 +845,7 @@ app.post('/crianca/duelos/:id/:acao', async (c) => {
 interface Adulto { id: string; nome: string; email: string; senha_hash: string; senha_sal: string; falhas: number; bloqueado_ate: number; aceite_versao: string; tem_senha: number }
 
 /** Versão da política de privacidade aceita no cadastro (mudar quando o texto mudar). */
-const VERSAO_PRIVACIDADE = '2026-11-duelo';
+const VERSAO_PRIVACIDADE = '2026-11-busca-turmas';
 const MAX_FILHOS = 6;
 
 const emailValido = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 120;
@@ -990,7 +996,8 @@ app.get('/adulto/eu', async (c) => {
 app.get('/adulto/turmas', async (c) => {
   const a = await adulto(c);
   if (!a) return erro(c, 401, 'Entre de novo.');
-  const sql = `SELECT t.id, t.nome, t.codigo, t.criado, d.nome AS dono, t.dono_id = ?1 AS sou_dono, (SELECT COUNT(*) FROM criancas WHERE turma_id = t.id) AS criancas
+  const sql = `SELECT t.id, t.nome, t.escola, t.codigo, t.criado, d.nome AS dono, t.dono_id = ?1 AS sou_dono, (SELECT COUNT(*) FROM criancas WHERE turma_id = t.id) AS criancas,
+    (SELECT COUNT(*) FROM pedidos_turma p WHERE p.turma_id = t.id AND p.status = 'pendente') AS pedidos
     FROM turmas t JOIN adultos d ON d.id = t.dono_id
     ${a.admin ? '' : 'WHERE t.dono_id = ?1 OR EXISTS (SELECT 1 FROM turma_admins WHERE turma_id = t.id AND adulto_id = ?1)'} ORDER BY t.criado DESC`;
   const r = await c.env.DB.prepare(sql).bind(a.id).all();
@@ -1002,6 +1009,7 @@ app.post('/adulto/turmas', async (c) => {
   if (!a) return erro(c, 401, 'Entre de novo.');
   const b = await corpo(c);
   const nome = String(b.nome ?? '').trim().slice(0, 50);
+  const escola = normalizarEscola(String(b.escola ?? ''));
   if (nome.length < 2) return erro(c, 400, 'Dê um nome para a turma, por exemplo "4º ano B".');
   const n = await c.env.DB.prepare('SELECT COUNT(*) n FROM turmas WHERE dono_id = ?').bind(a.id).first<{ n: number }>();
   if ((n?.n ?? 0) >= 20 && !a.admin) return erro(c, 429, 'Limite de 20 turmas por adulto.');
@@ -1009,8 +1017,9 @@ app.post('/adulto/turmas', async (c) => {
     const id = aleatorio(8), codigo = await codigoLivre(c.env.DB);
     if (!codigo) continue;
     try {
-      await c.env.DB.prepare('INSERT INTO turmas (id, codigo, nome, dono_id, criado) VALUES (?, ?, ?, ?, ?)').bind(id, codigo, nome, a.id, Date.now()).run();
-      return c.json({ turma: { id, nome, codigo } });
+      await c.env.DB.prepare('INSERT INTO turmas (id, codigo, nome, escola, busca, dono_id, criado) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .bind(id, codigo, nome, escola, textoBusca(nome, escola), a.id, Date.now()).run();
+      return c.json({ turma: { id, nome, escola, codigo } });
     } catch (e) { if (!String(e).includes('UNIQUE')) throw e; }
   }
   return erro(c, 409, 'Não consegui gerar um código. Tente de novo.');
@@ -1018,10 +1027,10 @@ app.post('/adulto/turmas', async (c) => {
 
 /** A turma, se o adulto é o dono, um administrador convidado ou o administrador geral. `dono` diz se pode mexer nos administradores. */
 async function turmaDoAdulto(c: C, a: { id: string; admin: boolean }) {
-  const t = await c.env.DB.prepare(`SELECT id, nome, codigo, dono_id FROM turmas WHERE id = ?1 AND (?2 = 1 OR dono_id = ?3
+  const t = await c.env.DB.prepare(`SELECT id, nome, escola, na_busca, codigo, dono_id FROM turmas WHERE id = ?1 AND (?2 = 1 OR dono_id = ?3
       OR EXISTS (SELECT 1 FROM turma_admins WHERE turma_id = turmas.id AND adulto_id = ?3))`)
-    .bind(c.req.param('id'), a.admin ? 1 : 0, a.id).first<{ id: string; nome: string; codigo: string; dono_id: string }>();
-  return t ? { id: t.id, nome: t.nome, codigo: t.codigo, dono: t.dono_id === a.id || a.admin } : null;
+    .bind(c.req.param('id'), a.admin ? 1 : 0, a.id).first<{ id: string; nome: string; escola: string; na_busca: number; codigo: string; dono_id: string }>();
+  return t ? { id: t.id, nome: t.nome, escola: t.escola, na_busca: t.na_busca, codigo: t.codigo, dono: t.dono_id === a.id || a.admin } : null;
 }
 
 app.get('/adulto/turmas/:id', async (c) => {
@@ -1034,7 +1043,7 @@ app.get('/adulto/turmas/:id', async (c) => {
     chat_ok, mudo_ate, (ativo > ?) AS online
     FROM criancas WHERE turma_id = ? ORDER BY apelido_chave`).bind(semanaDe(), Date.now() - ONLINE_MS, t.id).all();
   const avisos = await c.env.DB.prepare('SELECT COUNT(DISTINCT mensagem_id) n FROM avisos_chat WHERE turma_id = ? AND resolvido = 0').bind(t.id).first<{ n: number }>();
-  return c.json({ turma: t, chat: await turmaChat(c.env.DB, t.id), avisos: avisos?.n ?? 0, criancas: r.results, provas: await datasDe(c.env.DB, [t.id]) });
+  return c.json({ turma: t, chat: await turmaChat(c.env.DB, t.id), avisos: avisos?.n ?? 0, criancas: r.results, provas: await datasDe(c.env.DB, [t.id]), pedidos: await pedidosRecebidos(c.env.DB, t.id) });
 });
 
 app.post('/adulto/turmas/:id/provas', async (c) => {
@@ -1182,6 +1191,208 @@ app.post('/adulto/familia/:cid/sair-turma', async (c) => {
   return c.json({ ok: true });
 });
 
+/* ---------------- Busca de turmas e pedidos para entrar (Lucas, 05/11/2026) ---------------- */
+// Só adultos buscam. A busca mostra nome, escola e quantas crianças, nunca os apelidos.
+// Um administrador da turma aprova. A criança muda de turma com tudo: cartas, XP e Sabicoins.
+
+const primeiroNome = (s: string | null) => (s ?? '').trim().split(/\s+/)[0] ?? '';
+
+/** Adulto é dono ou administrador da turma? */
+const administra = async (db: D1Database, turmaId: string, a: { id: string; admin: boolean }) =>
+  a.admin || !!(await db.prepare(`SELECT 1 FROM turmas WHERE id = ?1 AND (dono_id = ?2 OR EXISTS (SELECT 1 FROM turma_admins WHERE turma_id = ?1 AND adulto_id = ?2))`)
+    .bind(turmaId, a.id).first());
+
+/**
+ * Leva as crianças para outra turma sem perder nada. Apelido repetido ganha um número ("Ana 2").
+ * Trocas e duelos que estavam esperando são cancelados (eram com os colegas da turma antiga).
+ */
+async function moverParaTurma(db: D1Database, ids: string[], turmaId: string) {
+  if (!ids.length) return [];
+  const usados = new Set((await db.prepare('SELECT apelido_chave FROM criancas WHERE turma_id = ?').bind(turmaId).all<{ apelido_chave: string }>()).results.map((r) => r.apelido_chave));
+  const ks = (await db.prepare(`SELECT id, apelido FROM criancas WHERE id IN (${ids.map(() => '?').join(',')})`).bind(...ids).all<{ id: string; apelido: string }>()).results;
+  const agora = Date.now();
+  return ks.flatMap((k) => {
+    const apelido = apelidoLivre(k.apelido, usados, chaveApelido);
+    usados.add(chaveApelido(apelido));
+    return [
+      db.prepare(`UPDATE duelos SET status = 'cancelado', resolvido = ? WHERE (de_id = ? OR para_id = ?) AND status IN ('novo', 'esperando')`).bind(agora, k.id, k.id),
+      db.prepare(`UPDATE trocas SET status = 'cancelada', resolvido = ? WHERE (de_id = ? OR para_id = ?) AND status = 'pendente'`).bind(agora, k.id, k.id),
+      db.prepare(`UPDATE pedidos_turma SET status = 'cancelado', resolvido = ? WHERE crianca_id = ? AND status = 'pendente'`).bind(agora, k.id),
+      db.prepare('UPDATE criancas SET turma_id = ?, apelido = ?, apelido_chave = ? WHERE id = ?').bind(turmaId, apelido, chaveApelido(apelido), k.id),
+    ];
+  });
+}
+
+interface Pedido { id: string; turma_id: string; tipo: 'crianca' | 'juntar'; adulto_id: string; crianca_id: string | null; origem_id: string | null; status: string }
+
+/** Faz o que o pedido pede. Devolve a mensagem de erro, ou null se deu certo. */
+async function cumprirPedido(db: D1Database, p: Pedido): Promise<string | null> {
+  const agora = Date.now();
+  const cancelar = () => db.prepare(`UPDATE pedidos_turma SET status = 'cancelado', resolvido = ? WHERE id = ?`).bind(agora, p.id).run();
+  const naTurma = await contarNaTurma(db, p.turma_id);
+  let ops: D1PreparedStatement[];
+  if (p.tipo === 'crianca') {
+    const k = await db.prepare('SELECT id, turma_id, familia_id FROM criancas WHERE id = ?').bind(p.crianca_id).first<{ id: string; turma_id: string; familia_id: string | null }>();
+    if (!k || k.familia_id !== p.adulto_id) { await cancelar(); return 'Esse pedido não vale mais (a criança saiu da família).'; }
+    if (k.turma_id === p.turma_id) { await cancelar(); return null; }
+    if (naTurma >= MAX_NA_TURMA) return `A turma já tem ${MAX_NA_TURMA} crianças.`;
+    ops = await moverParaTurma(db, [k.id], p.turma_id);
+  } else {
+    const o = await db.prepare('SELECT id FROM turmas WHERE id = ?').bind(p.origem_id).first<{ id: string }>();
+    if (!o || o.id === p.turma_id) { await cancelar(); return 'A outra turma não existe mais.'; }
+    const ids = (await db.prepare('SELECT id FROM criancas WHERE turma_id = ?').bind(o.id).all<{ id: string }>()).results.map((k) => k.id);
+    if (naTurma + ids.length > MAX_NA_TURMA) return `Juntas, as turmas passariam de ${MAX_NA_TURMA} crianças.`;
+    ops = [
+      ...(await moverParaTurma(db, ids, p.turma_id)),
+      // A turma repetida some: a conversa, as datas de prova, os administradores e os convites dela também.
+      db.prepare('DELETE FROM mensagens WHERE turma_id = ?').bind(o.id),
+      db.prepare('DELETE FROM avisos_chat WHERE turma_id = ?').bind(o.id),
+      db.prepare('DELETE FROM datas_prova WHERE turma_id = ?').bind(o.id),
+      db.prepare('DELETE FROM turma_admins WHERE turma_id = ?').bind(o.id),
+      db.prepare('DELETE FROM convites_admin WHERE turma_id = ?').bind(o.id),
+      db.prepare(`UPDATE pedidos_turma SET status = 'cancelado', resolvido = ?1 WHERE (turma_id = ?2 OR origem_id = ?2) AND status = 'pendente' AND id != ?3`).bind(agora, o.id, p.id),
+      db.prepare('DELETE FROM turmas WHERE id = ?').bind(o.id),
+    ];
+  }
+  // Marca primeiro (assim dois cliques ao mesmo tempo não fazem duas vezes).
+  const r = await db.prepare(`UPDATE pedidos_turma SET status = 'aceito', resolvido = ? WHERE id = ? AND status = 'pendente'`).bind(agora, p.id).run();
+  if (!r.meta.changes) return 'Esse pedido já foi respondido.';
+  try { await db.batch(ops); } catch (e) {
+    await db.prepare(`UPDATE pedidos_turma SET status = 'pendente', resolvido = NULL WHERE id = ?`).bind(p.id).run();
+    if (String(e).includes('UNIQUE')) return 'Não deu certo agora. Tente de novo.';
+    throw e;
+  }
+  return null;
+}
+
+/** Pedidos esperando resposta numa turma (para os administradores). Pedidos que não valem mais não aparecem. */
+async function pedidosRecebidos(db: D1Database, turmaId: string) {
+  const r = await db.prepare(`SELECT p.id, p.tipo, p.criado, a.nome AS quem, k.apelido, k.cor,
+      json_extract(k.progresso, '$.xp') AS xp, o.nome AS origem, o.escola AS origem_escola,
+      (SELECT COUNT(*) FROM criancas WHERE turma_id = o.id) AS origem_criancas
+    FROM pedidos_turma p JOIN adultos a ON a.id = p.adulto_id
+    LEFT JOIN criancas k ON k.id = p.crianca_id LEFT JOIN turmas o ON o.id = p.origem_id
+    WHERE p.turma_id = ? AND p.status = 'pendente'
+      AND ((p.tipo = 'crianca' AND k.familia_id = p.adulto_id AND k.turma_id != p.turma_id) OR (p.tipo = 'juntar' AND o.id IS NOT NULL))
+    ORDER BY p.criado`).bind(turmaId).all<{ quem: string }>();
+  return r.results.map((p) => ({ ...p, quem: primeiroNome(p.quem) }));
+}
+
+/** O adulto busca turmas pelo nome ou pela escola (pelo menos 3 letras; até 10 resultados). */
+app.get('/adulto/buscar-turmas', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const termos = termosBusca(c.req.query('q') ?? '');
+  if (!termos.length) return c.json({ turmas: [] });
+  const r = await c.env.DB.prepare(`SELECT t.id, t.nome, t.escola, d.nome AS dono, (SELECT COUNT(*) FROM criancas WHERE turma_id = t.id) AS criancas,
+      (t.dono_id = ?1 OR EXISTS (SELECT 1 FROM turma_admins WHERE turma_id = t.id AND adulto_id = ?1)) AS minha
+    FROM turmas t JOIN adultos d ON d.id = t.dono_id
+    WHERE t.na_busca = 1 AND ${termos.map((_, i) => `t.busca LIKE ?${i + 2}`).join(' AND ')}
+    ORDER BY t.criado DESC LIMIT ${MAX_RESULTADOS}`).bind(a.id, ...termos.map((w) => `%${w}%`)).all<{ dono: string }>();
+  return c.json({ turmas: r.results.map((t) => ({ ...t, dono: primeiroNome(t.dono) })) });
+});
+
+/**
+ * Pedir para entrar: { turma, crianca } (o filho entra) ou { turma, origem } (juntar a turma repetida com essa).
+ * Se o adulto já administra a turma, entra na hora.
+ */
+app.post('/adulto/pedidos', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const b = await corpo(c);
+  const db = c.env.DB;
+  const t = await db.prepare('SELECT id, nome, na_busca FROM turmas WHERE id = ?').bind(String(b.turma ?? '')).first<{ id: string; nome: string; na_busca: number }>();
+  const souAdmin = !!t && await administra(db, t.id, a);
+  if (!t || (!t.na_busca && !souAdmin)) return erro(c, 404, 'Turma não encontrada.');
+  let p: Omit<Pedido, 'id' | 'status'>;
+  if (b.crianca) {
+    const k = await db.prepare('SELECT id, apelido, turma_id FROM criancas WHERE id = ? AND familia_id = ?').bind(String(b.crianca), a.id).first<{ id: string; apelido: string; turma_id: string }>();
+    if (!k) return erro(c, 404, 'Criança não encontrada.');
+    if (k.turma_id === t.id) return erro(c, 409, `${k.apelido} já está nessa turma.`);
+    p = { turma_id: t.id, tipo: 'crianca', adulto_id: a.id, crianca_id: k.id, origem_id: null };
+  } else if (b.origem) {
+    const o = await db.prepare('SELECT id, dono_id FROM turmas WHERE id = ?').bind(String(b.origem)).first<{ id: string; dono_id: string }>();
+    if (!o) return erro(c, 404, 'Turma não encontrada.');
+    if (o.dono_id !== a.id && !a.admin) return erro(c, 403, 'Só quem criou a turma pode pedir para juntar com outra.');
+    if (o.id === t.id) return erro(c, 400, 'Escolha outra turma.');
+    p = { turma_id: t.id, tipo: 'juntar', adulto_id: a.id, crianca_id: null, origem_id: o.id };
+  } else return erro(c, 400, 'Escolha quem vai entrar na turma.');
+
+  const id = aleatorio(8);
+  if (souAdmin) {
+    // Quem administra a turma não precisa pedir para si mesmo.
+    await db.prepare(`INSERT INTO pedidos_turma (id, turma_id, tipo, adulto_id, crianca_id, origem_id, status, criado) VALUES (?, ?, ?, ?, ?, ?, 'pendente', ?)`)
+      .bind(id, p.turma_id, p.tipo, p.adulto_id, p.crianca_id, p.origem_id, Date.now()).run();
+    const falha = await cumprirPedido(db, { ...p, id, status: 'pendente' });
+    if (falha) { await db.prepare(`UPDATE pedidos_turma SET status = 'cancelado', resolvido = ? WHERE id = ?`).bind(Date.now(), id).run(); return erro(c, 409, falha); }
+    return c.json({ ok: true, entrou: true, turma: t.nome });
+  }
+  const n = await db.prepare(`SELECT COUNT(*) n FROM pedidos_turma WHERE adulto_id = ? AND status = 'pendente'`).bind(a.id).first<{ n: number }>();
+  // Um pedido novo para a mesma criança (ou a mesma turma repetida) troca o anterior.
+  const mesmo = p.crianca_id ? ['crianca_id', p.crianca_id] : ['origem_id', p.origem_id!];
+  const anterior = await db.prepare(`SELECT 1 FROM pedidos_turma WHERE ${mesmo[0]} = ? AND status = 'pendente'`).bind(mesmo[1]).first();
+  if ((n?.n ?? 0) >= MAX_PEDIDOS_ESPERANDO && !anterior) return erro(c, 429, `Você já tem ${MAX_PEDIDOS_ESPERANDO} pedidos esperando resposta. Espere ou cancele um.`);
+  await db.batch([
+    db.prepare(`UPDATE pedidos_turma SET status = 'cancelado', resolvido = ? WHERE ${mesmo[0]} = ? AND status = 'pendente'`).bind(Date.now(), mesmo[1]),
+    db.prepare(`INSERT INTO pedidos_turma (id, turma_id, tipo, adulto_id, crianca_id, origem_id, status, criado) VALUES (?, ?, ?, ?, ?, ?, 'pendente', ?)`)
+      .bind(id, p.turma_id, p.tipo, p.adulto_id, p.crianca_id, p.origem_id, Date.now()),
+  ]);
+  return c.json({ ok: true, entrou: false, turma: t.nome });
+});
+
+/** Os pedidos que o adulto fez (os esperando e os respondidos nos últimos 7 dias). */
+app.get('/adulto/pedidos', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const r = await c.env.DB.prepare(`SELECT p.id, p.tipo, p.status, p.criado, p.resolvido, p.crianca_id, p.origem_id, t.nome AS turma, t.escola, k.apelido, o.nome AS origem
+    FROM pedidos_turma p LEFT JOIN turmas t ON t.id = p.turma_id LEFT JOIN criancas k ON k.id = p.crianca_id LEFT JOIN turmas o ON o.id = p.origem_id
+    WHERE p.adulto_id = ? AND ((p.status = 'pendente' AND t.id IS NOT NULL) OR (p.status IN ('aceito', 'recusado') AND p.resolvido > ?))
+    ORDER BY p.criado DESC LIMIT 20`).bind(a.id, Date.now() - MOSTRAR_RESPONDIDOS_MS).all();
+  return c.json({ pedidos: r.results });
+});
+
+app.post('/adulto/pedidos/:pid/cancelar', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  await c.env.DB.prepare(`UPDATE pedidos_turma SET status = 'cancelado', resolvido = ? WHERE id = ? AND adulto_id = ? AND status = 'pendente'`)
+    .bind(Date.now(), c.req.param('pid'), a.id).run();
+  return c.json({ ok: true });
+});
+
+/** Um administrador da turma aceita ou recusa o pedido. */
+app.post('/adulto/turmas/:id/pedidos/:pid/:acao', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const t = await turmaDoAdulto(c, a);
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  const db = c.env.DB;
+  const p = await db.prepare(`SELECT * FROM pedidos_turma WHERE id = ? AND turma_id = ? AND status = 'pendente'`).bind(c.req.param('pid'), t.id).first<Pedido>();
+  if (!p) return erro(c, 404, 'Esse pedido já foi respondido.');
+  const acao = c.req.param('acao');
+  if (acao === 'recusar') {
+    await db.prepare(`UPDATE pedidos_turma SET status = 'recusado', resolvido = ? WHERE id = ? AND status = 'pendente'`).bind(Date.now(), p.id).run();
+  } else if (acao === 'aceitar') {
+    const falha = await cumprirPedido(db, p);
+    if (falha) return erro(c, 409, falha);
+  } else return erro(c, 400, 'Ação inválida.');
+  return c.json({ ok: true, pedidos: await pedidosRecebidos(db, t.id) });
+});
+
+/** Nome, escola e se a turma aparece na busca. */
+app.post('/adulto/turmas/:id/dados', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const t = await turmaDoAdulto(c, a);
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  const b = await corpo(c);
+  const nome = typeof b.nome === 'string' ? b.nome.trim().slice(0, 50) : t.nome;
+  const escola = typeof b.escola === 'string' ? normalizarEscola(b.escola) : t.escola;
+  const naBusca = typeof b.na_busca === 'boolean' ? Number(b.na_busca) : t.na_busca;
+  if (nome.length < 2) return erro(c, 400, 'Dê um nome para a turma, por exemplo "4º ano B".');
+  await c.env.DB.prepare('UPDATE turmas SET nome = ?, escola = ?, na_busca = ?, busca = ? WHERE id = ?').bind(nome, escola, naBusca, textoBusca(nome, escola), t.id).run();
+  return c.json({ turma: { ...t, nome, escola, na_busca: naBusca } });
+});
+
 /** Apaga o perfil do filho e tudo dele, para sempre. */
 app.delete('/adulto/familia/:cid', async (c) => {
   const a = await adulto(c);
@@ -1230,6 +1441,7 @@ app.post('/adulto/apagar-conta', async (c) => {
     ]),
     ...turmas.flatMap((t) => [db.prepare('DELETE FROM turma_admins WHERE turma_id = ?').bind(t), db.prepare('DELETE FROM convites_admin WHERE turma_id = ?').bind(t)]),
     db.prepare('DELETE FROM turma_admins WHERE adulto_id = ?').bind(a.id),
+    db.prepare(`UPDATE pedidos_turma SET status = 'cancelado', resolvido = ? WHERE adulto_id = ? AND status = 'pendente'`).bind(Date.now(), a.id),
     db.prepare(`DELETE FROM sessoes WHERE tipo = 'adulto' AND ref_id = ?`).bind(a.id),
     db.prepare('DELETE FROM adultos WHERE id = ?').bind(a.id),
   ]);
