@@ -213,6 +213,8 @@ export const MIGRACOES = [
   )`,
   `CREATE INDEX IF NOT EXISTS pedidos_turma_destino ON pedidos_turma (turma_id, status)`,
   `CREATE INDEX IF NOT EXISTS pedidos_turma_adulto ON pedidos_turma (adulto_id, status)`,
+  // Painel do dono do app (Lucas, 05/11/2026): última vez que o adulto entrou ou abriu a área dos adultos.
+  `ALTER TABLE adultos ADD COLUMN visto INTEGER NOT NULL DEFAULT 0`,
 ];
 
 /** Muda sozinha quando uma tabela ou migração nova entra (o servidor só confere tudo de novo quando ela muda). */

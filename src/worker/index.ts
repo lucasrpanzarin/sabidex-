@@ -10,7 +10,7 @@ import {
   comBoasVindas, gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
 } from '../shared/sync';
-import { ESQUEMA, MIGRACOES, temTurma, turmaDaFamilia, VERSAO_ESQUEMA } from './esquema';
+import { ESQUEMA, MIGRACOES, SEM_TURMA, temTurma, turmaDaFamilia, VERSAO_ESQUEMA } from './esquema';
 import { dataValida, type DatasProva } from '../lib/provas';
 import { conferirMensagem, dentroDoHorario, GUARDAR_DIAS, JANELA_LIMITE, LIMITE_MENSAGENS, MOTIVO as MOTIVO_CHAT, ONLINE_MS } from '../shared/chat';
 import { APPLE, conferirCracha, GOOGLE } from './jwt';
@@ -87,6 +87,7 @@ async function novaSessao(db: D1Database, tipo: 'crianca' | 'adulto', ref: strin
   const validade = tipo === 'crianca' ? 180 * DIA : 30 * DIA;
   await db.prepare('INSERT INTO sessoes (token_hash, tipo, ref_id, expira) VALUES (?, ?, ?, ?)')
     .bind(await sha256(token), tipo, ref, Date.now() + validade).run();
+  if (tipo === 'adulto') await db.prepare('UPDATE adultos SET visto = ? WHERE id = ?').bind(Date.now(), ref).run();
   return token;
 }
 
@@ -1011,7 +1012,79 @@ app.post('/adulto/sair', sairSessao);
 app.get('/adulto/eu', async (c) => {
   const a = await adulto(c);
   if (!a) return erro(c, 401, 'Entre de novo.');
+  await c.env.DB.prepare('UPDATE adultos SET visto = ? WHERE id = ?').bind(Date.now(), a.id).run();
   return c.json({ adulto: dadosAdulto(c.env, a) });
+});
+
+/* ---------------- Painel do dono do app (Lucas, 05/11/2026) ---------------- */
+// Só para os e-mails em ADMIN_EMAILS. Mostra quem usou o app, onde cada criança está
+// (turma ou só na família) e os pedidos para entrar em turma que ainda esperam resposta.
+// Nunca mostra PIN, senha nem progresso detalhado.
+
+const HORA_BRASILIA = -3 * 3_600_000;
+/** Meia-noite de hoje no horário de Brasília. */
+const inicioDoDia = (agora = Date.now()) => agora - ((agora + HORA_BRASILIA) % DIA + DIA) % DIA;
+
+app.get('/adulto/dono', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  if (!a.admin) return erro(c, 404, 'Não encontrado.');
+  const db = c.env.DB;
+  const agora = Date.now(), hoje = inicioDoDia(agora), ontem = hoje - DIA, semana = agora - 7 * DIA;
+  // Quem saiu da conta não tem mais sessão; quem entrou antes desta versão não tem "visto". Usa o que tiver.
+  const vistoAdulto = `MAX(a.visto, COALESCE((SELECT MAX(s.expira) - ${30 * DIA} FROM sessoes s WHERE s.tipo = 'adulto' AND s.ref_id = a.id), 0))`;
+  const vistoCrianca = 'MAX(k.visto, k.ativo)';
+  const [resumo, criancas, adultos, pedidos, turmas] = await db.batch([
+    db.prepare(`SELECT
+        (SELECT COUNT(*) FROM adultos) AS adultos,
+        (SELECT COUNT(*) FROM adultos WHERE criado >= ?2) AS adultos_novos,
+        (SELECT COUNT(*) FROM criancas) AS criancas,
+        (SELECT COUNT(*) FROM criancas WHERE criado >= ?2) AS criancas_novas,
+        (SELECT COUNT(*) FROM criancas WHERE turma_id LIKE '${SEM_TURMA}%') AS sem_turma,
+        (SELECT COUNT(*) FROM criancas k WHERE ${vistoCrianca} >= ?1) AS ativas_hoje,
+        (SELECT COUNT(*) FROM criancas k WHERE ${vistoCrianca} >= ?3) AS ativas_semana,
+        (SELECT COUNT(*) FROM turmas) AS turmas,
+        (SELECT COUNT(*) FROM pedidos_turma WHERE status = 'pendente') AS pedidos`).bind(hoje, semana, semana),
+    db.prepare(`SELECT k.id, k.apelido, k.cor, k.criado, ${vistoCrianca} AS visto, json_extract(k.progresso, '$.xp') AS xp,
+        CASE WHEN k.turma_id LIKE '${SEM_TURMA}%' THEN NULL ELSE k.turma_id END AS turma_id, t.nome AS turma, t.escola AS escola,
+        r.nome AS responsavel, r.email AS responsavel_email
+      FROM criancas k LEFT JOIN turmas t ON t.id = k.turma_id LEFT JOIN adultos r ON r.id = k.familia_id
+      WHERE ${vistoCrianca} >= ?1 OR k.criado >= ?1 ORDER BY visto DESC LIMIT 300`).bind(agora - 30 * DIA),
+    db.prepare(`SELECT a.id, a.nome, a.email, a.criado, ${vistoAdulto} AS visto,
+        (SELECT COUNT(*) FROM criancas WHERE familia_id = a.id) AS filhos,
+        (SELECT COUNT(*) FROM criancas WHERE familia_id = a.id AND turma_id LIKE '${SEM_TURMA}%') AS filhos_sem_turma,
+        (SELECT COUNT(*) FROM turmas t WHERE t.dono_id = a.id OR EXISTS (SELECT 1 FROM turma_admins WHERE turma_id = t.id AND adulto_id = a.id)) AS turmas
+      FROM adultos a ORDER BY visto DESC, a.criado DESC LIMIT 300`),
+    db.prepare(`SELECT p.id, p.tipo, p.criado, p.turma_id, t.nome AS turma, t.escola AS escola, a.nome AS quem, k.apelido, k.cor, o.nome AS origem
+      FROM pedidos_turma p JOIN turmas t ON t.id = p.turma_id JOIN adultos a ON a.id = p.adulto_id
+      LEFT JOIN criancas k ON k.id = p.crianca_id LEFT JOIN turmas o ON o.id = p.origem_id
+      WHERE p.status = 'pendente'
+        AND ((p.tipo = 'crianca' AND k.familia_id = p.adulto_id AND k.turma_id != p.turma_id) OR (p.tipo = 'juntar' AND o.id IS NOT NULL))
+      ORDER BY p.criado`),
+    db.prepare(`SELECT t.id, t.nome, t.escola, (SELECT COUNT(*) FROM criancas WHERE turma_id = t.id) AS criancas FROM turmas t ORDER BY t.nome COLLATE NOCASE`),
+  ]);
+  return c.json({ hoje, ontem, resumo: resumo.results[0], criancas: criancas.results, adultos: adultos.results, pedidos: pedidos.results, turmas: turmas.results });
+});
+
+// O dono do app coloca uma criança numa turma sem esperar o pedido do responsável (Lucas, 05/11/2026).
+// A criança leva tudo (cartas, XP, Sabicoins); trocas, duelos e pedidos que esperavam são cancelados.
+app.post('/adulto/dono/criancas/:cid/turma', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  if (!a.admin) return erro(c, 404, 'Não encontrado.');
+  const db = c.env.DB;
+  const b = await corpo(c);
+  const k = await db.prepare('SELECT id, turma_id FROM criancas WHERE id = ?').bind(c.req.param('cid')).first<{ id: string; turma_id: string }>();
+  if (!k) return erro(c, 404, 'Criança não encontrada.');
+  const t = await db.prepare('SELECT id, nome FROM turmas WHERE id = ?').bind(String(b.turma ?? '')).first<{ id: string; nome: string }>();
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  if (k.turma_id === t.id) return c.json({ ok: true, turma: t.nome });
+  if (await contarNaTurma(db, t.id) >= MAX_NA_TURMA) return erro(c, 409, `A turma já tem ${MAX_NA_TURMA} crianças.`);
+  try { await db.batch(await moverParaTurma(db, [k.id], t.id)); } catch (e) {
+    if (String(e).includes('UNIQUE')) return erro(c, 409, 'Não deu certo agora. Tente de novo.');
+    throw e;
+  }
+  return c.json({ ok: true, turma: t.nome });
 });
 
 app.get('/adulto/turmas', async (c) => {

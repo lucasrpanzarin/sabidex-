@@ -112,6 +112,7 @@ export function Adulto({ turmaId }: { turmaId?: string }) {
       {!passou ? <Portao aoPassar={() => setPassou(true)} />
         : !token ? <Acesso aoEntrar={entrou} /> : !eu ? <p className="muted">Carregando…</p>
         : eu.precisaAceite ? <AceitePendente token={token} aoAceitar={() => setEu({ ...eu, precisaAceite: false })} aoSair={sair} />
+        : turmaId === 'dono' && eu.admin ? <PainelDono token={token} />
         : turmaId ? <DetalheTurma token={token} id={turmaId} />
         : <Painel token={token} eu={eu} aoSair={sair} aoApagar={saiu} />}
     </main>
@@ -331,6 +332,15 @@ function Painel({ token, eu, aoSair, aoApagar }: { token: string; eu: Eu; aoSair
         <div className="eyebrow">Olá, {eu.nome}{eu.admin ? ' · administrador' : ''}</div>
         <h1 className="display h1">Minha família</h1>
       </div>
+      {eu.admin && (
+        <button className="painel-destaque linha" onClick={() => ir('adulto', 'dono')} style={{ textAlign: 'left', color: 'inherit' }}>
+          <span style={{ flex: 1 }}>
+            <span className="display" style={{ fontSize: 20, display: 'block' }}>Painel do dono do app</span>
+            <span className="muted small">Quem usou o Sabidex, quem está sem turma e os pedidos esperando.</span>
+          </span>
+          <Icone nome="seguir" />
+        </button>
+      )}
       <Familia token={token} aoSair={aoSair} />
       <Turmas token={token} admin={eu.admin} />
       <ApagarConta token={token} temSenha={eu.temSenha} aoApagar={aoApagar} />
@@ -1222,5 +1232,189 @@ function DadosDaTurma({ token, turma, criancas, aoMudar }: { token: string; turm
       ))}
       {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
     </section>
+  );
+}
+
+/* ---------------- Painel do dono do app (Lucas, 05/11/2026) ---------------- */
+// Só aparece para os e-mails em ADMIN_EMAILS (wrangler.jsonc). O servidor confere de novo.
+
+interface DonoCrianca { id: string; apelido: string; cor: string; criado: number; visto: number; xp: number | null; turma_id: string | null; turma: string | null; escola: string | null; responsavel: string | null; responsavel_email: string | null }
+interface DonoAdulto { id: string; nome: string; email: string; criado: number; visto: number; filhos: number; filhos_sem_turma: number; turmas: number }
+interface DonoPedido { id: string; tipo: 'crianca' | 'juntar'; criado: number; turma_id: string; turma: string; escola: string; quem: string; apelido: string | null; cor: string | null; origem: string | null }
+interface DonoResumo { adultos: number; adultos_novos: number; criancas: number; criancas_novas: number; sem_turma: number; ativas_hoje: number; ativas_semana: number; turmas: number; pedidos: number }
+interface DonoTurma { id: string; nome: string; escola: string; criancas: number }
+interface DonoDados { hoje: number; ontem: number; resumo: DonoResumo; criancas: DonoCrianca[]; adultos: DonoAdulto[]; pedidos: DonoPedido[]; turmas: DonoTurma[] }
+
+const FUSO = 'America/Sao_Paulo';
+const diaDe = (ms: number) => new Date(ms).toLocaleDateString('pt-BR', { timeZone: FUSO });
+/** "hoje, 14:32", "ontem, 09:10" ou "03/11, 18:00". */
+function quandoFoi(ms: number) {
+  if (!ms) return 'nunca';
+  const hora = new Date(ms).toLocaleTimeString('pt-BR', { timeZone: FUSO, hour: '2-digit', minute: '2-digit' });
+  const d = diaDe(ms);
+  if (d === diaDe(Date.now())) return `hoje, ${hora}`;
+  if (d === diaDe(Date.now() - 86_400_000)) return `ontem, ${hora}`;
+  return `${d.slice(0, 5)}, ${hora}`;
+}
+
+type Periodo = 'hoje' | 'ontem' | '7' | '30';
+const PERIODOS: { id: Periodo; nome: string }[] = [{ id: 'hoje', nome: 'Hoje' }, { id: 'ontem', nome: 'Ontem' }, { id: '7', nome: '7 dias' }, { id: '30', nome: '30 dias' }];
+
+function PainelDono({ token }: { token: string }) {
+  const [dados, setDados] = useState<DonoDados | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [aba, setAba] = useState<'criancas' | 'adultos' | 'pedidos'>('criancas');
+  const [periodo, setPeriodo] = useState<Periodo>('7');
+  const [semTurma, setSemTurma] = useState(false);
+  const [ocupado, setOcupado] = useState<string | null>(null);
+  const [colocando, setColocando] = useState<string | null>(null);
+  const [destino, setDestino] = useState('');
+  const [feito, setFeito] = useState<string | null>(null);
+  const carregar = () => api<DonoDados>('/adulto/dono', { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : (setErro(null), setDados(r))));
+  useEffect(() => { void carregar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!dados) return erro ? <div className="aviso aviso-erro" role="alert">{erro}</div> : <p className="muted">Carregando…</p>;
+  const { resumo } = dados;
+  const desde = periodo === 'hoje' ? dados.hoje : periodo === 'ontem' ? dados.ontem : Date.now() - Number(periodo) * 86_400_000;
+  const ate = periodo === 'ontem' ? dados.hoje : Infinity;
+  const criancas = dados.criancas.filter((k) => k.visto >= desde && k.visto < ate && (!semTurma || !k.turma_id));
+  const adultos = dados.adultos.filter((x) => (x.visto >= desde && x.visto < ate) || (x.criado >= desde && x.criado < ate));
+
+  const responder = async (p: DonoPedido, acao: 'aceitar' | 'recusar') => {
+    setOcupado(p.id); setErro(null);
+    const r = await api(`/adulto/turmas/${p.turma_id}/pedidos/${p.id}/${acao}`, { corpo: {}, tokenProprio: token });
+    setOcupado(null);
+    if (r.erro) setErro(r.erro);
+    void carregar();
+  };
+
+  const colocar = async (k: DonoCrianca) => {
+    setOcupado(k.id); setErro(null); setFeito(null);
+    const r = await api<{ turma: string }>(`/adulto/dono/criancas/${k.id}/turma`, { corpo: { turma: destino }, tokenProprio: token });
+    setOcupado(null);
+    if (r.erro) return setErro(r.erro);
+    setColocando(null); setDestino('');
+    setFeito(`${k.apelido} agora está na turma ${r.turma}, com todas as cartas e o XP.`);
+    void carregar();
+  };
+
+  const numero = (n: number, texto: string, alerta = false) => (
+    <div className="painel coluna" style={{ gap: 2, padding: 12, flex: '1 1 140px' }}>
+      <span className="display" style={{ fontSize: 28, color: alerta && n ? 'var(--t-coral)' : undefined }}>{n}</span>
+      <span className="small" style={{ fontWeight: 700 }}>{texto}</span>
+    </div>
+  );
+
+  return (
+    <>
+      <div>
+        <div className="eyebrow">Só você vê isto</div>
+        <h1 className="display h1">Painel do dono</h1>
+      </div>
+      <div className="linha" style={{ flexWrap: 'wrap', gap: 8 }}>
+        {numero(resumo.ativas_hoje, 'crianças usaram hoje')}
+        {numero(resumo.ativas_semana, 'crianças nos últimos 7 dias')}
+        {numero(resumo.sem_turma, 'crianças só na família, sem turma', true)}
+        {numero(resumo.pedidos, 'pedidos esperando aprovação', true)}
+        {numero(resumo.adultos, `adultos (${resumo.adultos_novos} novos em 7 dias)`)}
+        {numero(resumo.turmas, 'turmas')}
+      </div>
+      {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+      {feito && <div className="aviso" role="status">{feito}</div>}
+
+      <div className="abas" role="tablist" aria-label="O que ver">
+        <button role="tab" aria-selected={aba === 'criancas'} onClick={() => setAba('criancas')}>Crianças</button>
+        <button role="tab" aria-selected={aba === 'adultos'} onClick={() => setAba('adultos')}>Adultos</button>
+        <button role="tab" aria-selected={aba === 'pedidos'} onClick={() => setAba('pedidos')}>Pedidos{dados.pedidos.length ? ` (${dados.pedidos.length})` : ''}</button>
+      </div>
+
+      {aba !== 'pedidos' && (
+        <div className="linha" style={{ flexWrap: 'wrap', gap: 8 }}>
+          {PERIODOS.map((p) => <button key={p.id} className="filtro" aria-pressed={periodo === p.id} onClick={() => setPeriodo(p.id)}>{p.nome}</button>)}
+          {aba === 'criancas' && <button className="filtro" aria-pressed={semTurma} onClick={() => setSemTurma(!semTurma)}>Só sem turma</button>}
+        </div>
+      )}
+
+      {aba === 'criancas' && (
+        <section className="coluna" style={{ gap: 8 }} aria-label="Crianças que usaram o app">
+          <p className="muted small" style={{ margin: 0 }}>{plural(criancas.length, 'criança usou', 'crianças usaram')} o app nesse período. "Sem turma" quer dizer que a criança está só na conta da família: ela joga, mas não aparece em nenhuma turma.</p>
+          {criancas.map((k) => (
+            <div key={k.id} className="painel-destaque coluna" style={{ gap: 8 }}>
+              <div className="linha" style={{ gap: 10, cursor: k.turma_id ? 'pointer' : undefined }} onClick={() => k.turma_id && ir('adulto', k.turma_id)}>
+                <Bolinha nome={k.apelido} cor={k.cor} tamanho={36} />
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span className="display" style={{ fontSize: 18, display: 'block' }}>{k.apelido}</span>
+                  <span className="small" style={{ display: 'block', fontWeight: 800, color: k.turma_id ? undefined : 'var(--t-coral)' }}>{k.turma_id ? `Turma ${comEscola(k.turma, k.escola)}` : 'Sem turma (só na família)'}</span>
+                  <span className="muted small" style={{ display: 'block', overflowWrap: 'anywhere' }}>
+                    Usou {quandoFoi(k.visto)} · {k.xp ?? 0} XP · conta criada {quandoFoi(k.criado)}
+                    {k.responsavel ? ` · responsável ${k.responsavel} (${k.responsavel_email})` : ' · sem responsável (entrou só pela turma)'}
+                  </span>
+                </span>
+                {k.turma_id && <Icone nome="seguir" />}
+              </div>
+              {colocando === k.id ? (
+                <div className="coluna" style={{ gap: 8 }}>
+                  <label htmlFor={`destino-${k.id}`} style={rotulo}>{k.turma_id ? 'Mudar para a turma' : 'Colocar na turma'}</label>
+                  <select id={`destino-${k.id}`} style={campo} value={destino} onChange={(ev) => setDestino(ev.target.value)}>
+                    <option value="">Escolha a turma…</option>
+                    {dados.turmas.filter((t) => t.id !== k.turma_id).map((t) => <option key={t.id} value={t.id}>{comEscola(t.nome, t.escola)} ({plural(t.criancas, 'criança', 'crianças')})</option>)}
+                  </select>
+                  <span className="muted small">{k.apelido} leva junto as cartas, o XP e as Sabicoins.{k.responsavel ? ' O responsável não precisa aprovar.' : ''}</span>
+                  <div className="linha" style={{ gap: 8 }}>
+                    <button className="btn btn-escuro" style={botaoPequeno} onClick={() => { setColocando(null); setDestino(''); }}>Cancelar</button>
+                    <button className="btn btn-verde" style={botaoPequeno} disabled={!destino || ocupado === k.id} onClick={() => void colocar(k)}>Confirmar</button>
+                  </div>
+                </div>
+              ) : (
+                <button className={`btn ${k.turma_id ? 'btn-escuro' : 'btn-amarelo'}`} style={{ minHeight: 40, fontSize: 15 }} onClick={() => { setColocando(k.id); setDestino(''); setFeito(null); }}>
+                  {k.turma_id ? 'Mudar de turma' : 'Colocar numa turma'}
+                </button>
+              )}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {aba === 'adultos' && (
+        <section className="coluna" style={{ gap: 8 }} aria-label="Adultos">
+          <p className="muted small" style={{ margin: 0 }}>{plural(adultos.length, 'adulto entrou ou criou conta', 'adultos entraram ou criaram conta')} nesse período.</p>
+          {adultos.map((x) => (
+            <div key={x.id} className="painel-destaque coluna" style={{ gap: 2 }}>
+              <span className="display" style={{ fontSize: 18 }}>{x.nome}</span>
+              <span className="muted small" style={{ overflowWrap: 'anywhere' }}>{x.email}</span>
+              <span className="small" style={{ fontWeight: 700 }}>
+                Entrou {quandoFoi(x.visto)} · conta criada {quandoFoi(x.criado)}
+              </span>
+              <span className="small" style={{ fontWeight: 700 }}>
+                {plural(x.filhos, 'filho', 'filhos')}
+                {x.filhos_sem_turma ? <span style={{ color: 'var(--t-coral)' }}> ({x.filhos_sem_turma} sem turma)</span> : null}
+                {` · ${plural(x.turmas, 'turma', 'turmas')} que administra`}
+              </span>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {aba === 'pedidos' && (
+        <section className="coluna" style={{ gap: 8 }} aria-label="Pedidos para entrar">
+          {!dados.pedidos.length && <p className="muted" style={{ margin: 0 }}>Nenhum pedido esperando.</p>}
+          {dados.pedidos.map((p) => (
+            <div key={p.id} className="painel-destaque coluna" style={{ gap: 8 }}>
+              <span className="small" style={{ fontWeight: 700 }}>
+                {p.tipo === 'crianca'
+                  ? <>{p.quem} pediu para <strong>{p.apelido}</strong> entrar na turma <strong>{comEscola(p.turma, p.escola)}</strong></>
+                  : <>{p.quem} pediu para juntar a turma <strong>{p.origem}</strong> com <strong>{comEscola(p.turma, p.escola)}</strong></>}
+                <span className="muted"> · {quandoFoi(p.criado)}</span>
+              </span>
+              <div className="linha" style={{ gap: 8 }}>
+                <button className="btn btn-escuro" style={botaoPequeno} disabled={ocupado === p.id} onClick={() => void responder(p, 'recusar')}>Recusar</button>
+                <button className="btn btn-verde" style={botaoPequeno} disabled={ocupado === p.id} onClick={() => void responder(p, 'aceitar')}>{p.tipo === 'crianca' ? 'Aceitar' : 'Juntar turmas'}</button>
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+      <button className="btn btn-escuro btn-bloco" onClick={() => void carregar()}>Atualizar</button>
+    </>
   );
 }
