@@ -3,8 +3,10 @@ import { useState } from 'react';
 import { Ara } from '../components/Ara';
 import { Pacote } from '../components/Pacote';
 import { Icone } from '../components/Icone';
-import { capitulos } from '../data';
-import { FASES, FASE_INFO, chave, hoje, nivel, sequencia } from '../lib/jogo';
+import { capitulos, materias } from '../data';
+
+const COR_MATERIA = ['var(--pink)', 'var(--cyan)', 'var(--green)', 'var(--yellow)'];
+import { FASES, chave, hoje, infoFase, nivel, sequencia } from '../lib/jogo';
 import { quantasHoje, MAX_POR_REVISAO } from '../lib/revisao';
 import { missoesDeHoje, quantasFeitas } from '../lib/missoes';
 import { ir } from '../lib/rota';
@@ -209,7 +211,7 @@ export function Inicio() {
             {provaProx && <SeloProva s={provaProx} />}
           </span>
           <span className="display" style={{ fontSize: 26, display: 'block', marginTop: 4 }}>Cap. {prox.cap.numero} · {prox.cap.titulo}</span>
-          <span className="muted small" style={{ display: 'block' }}>Próxima: {FASE_INFO[prox.fase].titulo}</span>
+          <span className="muted small" style={{ display: 'block' }}>Próxima: {infoFase(prox.fase, prox.cap).titulo}</span>
           <span className="linha" style={{ marginTop: 12 }}>
             <span style={{ flex: 1, display: 'flex', gap: 6 }} aria-label={`${feitasCap} de 5 fases`}>
               {FASES.map((f) => <span key={f} style={{ flex: 1, height: 10, borderRadius: 999, background: e.feitas[chave(prox.cap.id, f)] ? 'var(--green)' : 'var(--line)' }} />)}
@@ -221,12 +223,17 @@ export function Inicio() {
 
       <section aria-label="Matérias">
         <h2 className="display h3" style={{ marginBottom: 8 }}>Matérias</h2>
-        <div className="grade-3">
-          <button className="painel" onClick={() => ir('mundos')} style={{ textAlign: 'center', borderColor: 'var(--pink)', padding: 12, color: 'inherit' }}>
-            <span className="display" style={{ fontSize: 17, display: 'block' }}>História</span>
-            <span className="muted small">{capitulos.length} capítulos</span>
-          </button>
-          {['Ciências', 'Geografia'].map((m) => (
+        <div className="grade-2">
+          {materias.map((m, i) => {
+            const n = capitulos.filter((c) => c.materia === m).length;
+            return (
+              <button key={m} className="painel" onClick={() => ir('mundos', m)} style={{ textAlign: 'center', borderColor: COR_MATERIA[i % COR_MATERIA.length], padding: 12, color: 'inherit' }}>
+                <span className="display" style={{ fontSize: 17, display: 'block' }}>{m}</span>
+                <span className="muted small">{n} {n === 1 ? 'capítulo' : 'capítulos'}</span>
+              </button>
+            );
+          })}
+          {['Ciências', 'Geografia'].filter((m) => !materias.includes(m)).map((m) => (
             <div key={m} className="painel painel-breve" style={{ textAlign: 'center', padding: 12, color: 'var(--muted)' }}>
               <span className="display" style={{ fontSize: 17, display: 'block' }}>{m}</span>
               <span className="small" style={{ fontWeight: 700 }}>Em breve</span>

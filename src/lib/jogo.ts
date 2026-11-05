@@ -15,6 +15,12 @@ export const FASE_INFO: Record<Fase, { titulo: string; sub: string; xp: number }
   prova: { titulo: 'Prova do capítulo', sub: 'Nota 7 ou mais libera o pacote épico', xp: 120 },
 };
 
+/** Nome e explicação da fase para este capítulo (em Matemática, a linha do tempo vira "Passo a passo"). */
+export function infoFase(f: Fase, cap?: { passos?: boolean }) {
+  if (f === 'linha' && cap?.passos) return { ...FASE_INFO.linha, titulo: 'Passo a passo', sub: 'Coloque os passos na ordem certa' };
+  return FASE_INFO[f];
+}
+
 /** Fases que dão um pacote normal na primeira vez que a criança termina. */
 export const FASES_COM_PACOTE: Fase[] = ['memoria', 'quiz'];
 export const NOTA_MINIMA = 7;

@@ -1,7 +1,7 @@
 import { Icone } from '../components/Icone';
 import { Pacote } from '../components/Pacote';
-import { capitulos, capituloPorId } from '../data';
-import { EXTRA_INFO, FASES, FASE_INFO, chave, chaveExtra, estrelasDe, estrelasDoMundo, extrasDo, extrasLiberados, hoje, liberada } from '../lib/jogo';
+import { capitulos, capituloPorId, materias } from '../data';
+import { EXTRA_INFO, FASES, FASE_INFO, chave, chaveExtra, estrelasDe, estrelasDoMundo, extrasDo, extrasLiberados, hoje, infoFase, liberada } from '../lib/jogo';
 import { useConta } from '../lib/conta';
 import { diaMes, ordenarCapitulos, situacao } from '../lib/provas';
 import { ir } from '../lib/rota';
@@ -9,11 +9,14 @@ import { useEstado } from '../lib/store';
 import type { Capitulo } from '../data/tipos';
 import { SeloProva } from './Inicio';
 
-export function Mundos() {
+export function Mundos({ materia }: { materia?: string }) {
   const e = useEstado();
   const { conta } = useConta();
   const dia = hoje();
-  const lista = ordenarCapitulos(capitulos, conta?.provas, dia);
+  // Com uma matéria escolhida (tocou nela no Início), mostra só os mundos dela.
+  const daMateria = materia && materias.includes(materia) ? capitulos.filter((c) => c.materia === materia) : capitulos;
+  const lista = ordenarCapitulos(daMateria, conta?.provas, dia);
+  const titulo = daMateria === capitulos ? (materias.length === 1 ? materias[0] : 'Todas as matérias') : materia;
   // Capítulos que já tiveram prova na escola continuam abertos e valendo tudo: ficam numa parte separada, no fim.
   const atuais = lista.filter((c) => situacao(conta?.provas, c.id, dia).tipo !== 'passou');
   const passadas = lista.filter((c) => situacao(conta?.provas, c.id, dia).tipo === 'passou');
@@ -23,7 +26,7 @@ export function Mundos() {
     return (
       <button key={c.id} className="painel-destaque" onClick={() => ir('mundo', c.id)} style={{ textAlign: 'left', color: 'inherit' }}>
         <span className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
-          <span className="eyebrow" style={{ color: n === 5 ? 'var(--t-green)' : 'var(--t-yellow)' }}>Mundo {c.numero}{n === 5 ? ' · completo' : ''}</span>
+          <span className="eyebrow" style={{ color: n === 5 ? 'var(--t-green)' : 'var(--t-yellow)' }}>{daMateria === capitulos && materias.length > 1 ? `${c.materia} · ` : ''}Mundo {c.numero}{n === 5 ? ' · completo' : ''}</span>
           <SeloProva s={s} />
         </span>
         <span className="display" style={{ fontSize: 24, display: 'block', marginTop: 2 }}>{c.titulo}</span>
@@ -35,7 +38,7 @@ export function Mundos() {
   return (
     <main className="tela">
       <div>
-        <div className="eyebrow">História</div>
+        <div className="eyebrow">{titulo}</div>
         <h1 className="display h1">Escolha o mundo</h1>
       </div>
       {atuais.map(cartao)}
@@ -76,7 +79,7 @@ export function Mundo({ id }: { id: string }) {
   return (
     <main className="tela">
       <div className="coluna" style={{ gap: 2 }}>
-        <button className="voltar" onClick={() => ir('mundos')}><Icone nome="voltar" tamanho={18} espessura={3} />{cap.materia}</button>
+        <button className="voltar" onClick={() => ir('mundos', cap.materia)}><Icone nome="voltar" tamanho={18} espessura={3} />{cap.materia}</button>
         <div className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
           <div className="eyebrow">Mundo {cap.numero}</div>
           <SeloProva s={situacao(conta?.provas, cap.id, hoje())} />
@@ -107,7 +110,7 @@ export function Mundo({ id }: { id: string }) {
             <li key={f} style={{ paddingLeft: recuo[i] }}>
               <button disabled={!livre} onClick={() => ir('fase', cap.id, f)} className="linha"
                 style={{ background: 'none', border: 0, padding: 0, textAlign: 'left', gap: 14, cursor: livre ? 'pointer' : 'not-allowed' }}
-                aria-label={`${f === 'prova' ? 'Chefão' : `Fase ${i + 1}`}: ${FASE_INFO[f].titulo}${feita ? `, completa${temNota ? `, ${nEstrelas} de 3 estrelas` : ''}` : livre ? '' : ', bloqueada'}`}>
+                aria-label={`${f === 'prova' ? 'Chefão' : `Fase ${i + 1}`}: ${infoFase(f, cap).titulo}${feita ? `, completa${temNota ? `, ${nEstrelas} de 3 estrelas` : ''}` : livre ? '' : ', bloqueada'}`}>
                 <span style={{ position: 'relative', width: tam, height: tam, flex: 'none', borderRadius: '50%', display: 'grid', placeItems: 'center', color: feita ? '#052E16' : eAgora ? 'var(--ink)' : 'var(--muted)', ...estilo }}>
                   <span style={{ display: 'grid', transform: temNota ? 'translateY(-5px)' : undefined }}>
                     <Icone nome={feita ? 'check' : livre ? 'play' : 'cadeado'} tamanho={feita ? 30 : 28} cheio={!feita && livre} espessura={feita ? 3.5 : 2.5} />
@@ -116,8 +119,8 @@ export function Mundo({ id }: { id: string }) {
                 </span>
                 <span style={{ minWidth: 0 }}>
                   <span style={{ display: 'block', fontSize: 11, fontWeight: 900, letterSpacing: '.06em', textTransform: 'uppercase', color: eAgora ? 'var(--t-yellow)' : feita ? 'var(--t-green)' : 'var(--muted)' }}>{f === 'prova' ? 'Chefão' : eAgora ? 'Agora' : `Fase ${i + 1}`}</span>
-                  <span className="display" style={{ display: 'block', fontSize: 19, color: livre ? 'var(--ink)' : 'var(--muted)' }}>{FASE_INFO[f].titulo}</span>
-                  <span className="muted small">{FASE_INFO[f].sub} · +{FASE_INFO[f].xp} XP</span>
+                  <span className="display" style={{ display: 'block', fontSize: 19, color: livre ? 'var(--ink)' : 'var(--muted)' }}>{infoFase(f, cap).titulo}</span>
+                  <span className="muted small">{infoFase(f, cap).sub} · +{FASE_INFO[f].xp} XP</span>
                 </span>
               </button>
             </li>

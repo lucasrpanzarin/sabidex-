@@ -220,6 +220,7 @@ strong { color: var(--t-coral); font-weight: 900; }
 .carta.grande .rar { font-size: 11px; }
 
 .grade-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.grade-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .linha { display: flex; align-items: center; gap: 12px; }
 .coluna { display: flex; flex-direction: column; gap: 12px; }
 

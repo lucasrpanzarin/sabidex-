@@ -92,6 +92,8 @@ export interface Capitulo {
   numero: number;
   titulo: string;
   subtitulo: string;
+  /** true quando a "linha" não tem datas e sim etapas de um processo (ex.: Matemática): a fase vira "Passo a passo". */
+  passos?: boolean;
   temas: Tema[];
   pares: Par[];
   linha: Evento[];

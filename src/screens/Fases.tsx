@@ -4,7 +4,7 @@ import { Icone } from '../components/Icone';
 import { Moeda } from '../components/Loja';
 import { capituloPorId } from '../data';
 import type { Capitulo } from '../data/tipos';
-import { FASE_INFO, NOTA_MINIMA, PERDA_POR_ERRO, XP_MINIMO, concluirFase, embaralhar, estrelasDaNota, hoje, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
+import { NOTA_MINIMA, infoFase, PERDA_POR_ERRO, XP_MINIMO, concluirFase, embaralhar, estrelasDaNota, hoje, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
 import { idProva, idQuiz, registrarResposta } from '../lib/revisao';
 import { aplicarMissoes } from '../lib/missoes';
 import { ir } from '../lib/rota';
@@ -25,8 +25,8 @@ function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: ReactNo
         <button className="voltar" onClick={() => ir('mundo', cap.id)}><Icone nome="voltar" tamanho={18} espessura={3} />Mundo {cap.numero}</button>
         {extra}
       </div>
-      <h1 className="display h2">{FASE_INFO[fase].titulo}</h1>
-      <div className="muted small">{FASE_INFO[fase].sub}</div>
+      <h1 className="display h2">{infoFase(fase, cap).titulo}</h1>
+      <div className="muted small">{infoFase(fase, cap).sub}</div>
     </div>
   );
 }

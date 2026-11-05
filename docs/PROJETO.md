@@ -7,7 +7,7 @@ O Claude lê este arquivo no começo de cada conversa (está pedido no `CLAUDE.m
 - Quando o Lucas der uma ideia nova, o Claude confere aqui antes e avisa: "isso já existe", "isso já foi testado e trocado por X" ou "isso vai contra a regra Y".
 - Ao terminar qualquer mudança, o Claude atualiza este caderno (o que mudou, a data e quem decidiu).
 
-Última revisão geral: **04/11/2026**. Última mudança: **05/11/2026** (missões do dia e marcos de sequência).
+Última revisão geral: **04/11/2026**. Última mudança: **05/11/2026** (Matemática, unidade 9).
 
 ---
 
@@ -37,7 +37,8 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 ## 3. O que já existe (confira aqui antes de criar algo "novo")
 
 ### Estudo
-- **Mundos** = capítulos do livro. Hoje: **História cap. 9** ("Um continente chamado África") e **cap. 10** ("Terra à vista!"). Ciências e Geografia aparecem como "Em breve".
+- **Mundos** = capítulos do livro. Hoje: **História cap. 9** ("Um continente chamado África") e **cap. 10** ("Terra à vista!") e **Matemática unidade 9** ("O preparo de alimentos e o pensamento algébrico"). Ciências e Geografia aparecem como "Em breve".
+- **Matérias** (05/11/2026): o Início mostra um botão para cada matéria que já tem capítulo; tocar abre só os mundos dela (`#/mundos/<matéria>`). Em capítulos com `passos: true` (Matemática), a fase "Linha do tempo" vira **"Passo a passo"** (pôr as etapas na ordem), sem datas. Nas narrações, os sinais de conta (×, ÷, +, −, =) viram palavras (`scripts/vozes.ts`).
 - Cada mundo tem **5 fases** em ordem (uma libera a próxima):
   1. **Ouvir os temas** (áudio com 3 vozes: Nina, Otto, Graziella; o app lembra os temas já ouvidos)
   2. **Jogo da memória** (ligar palavra e significado)
@@ -165,7 +166,7 @@ Decididos pelo Lucas em 04/11/2026, depois da revisão geral:
    - XP de dois aparelhos sem internet (fica o maior, não a soma): **fica como está**.
    - Cartas inventadas: **feita a proteção pequena** (o servidor só aceita 1 carta nova por pacote novo aberto). A proteção completa está na lista abaixo.
 
-Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geografia só "Em breve".
+Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geografia só "Em breve"; narrações da Matemática unidade 9 ainda não foram gravadas (por enquanto a criança lê e toca em "Já li este tema").
 
 ### Antes de publicar nas lojas (ou ter muitas escolas)
 - [ ] **Abrir os pacotes no servidor** (não no aparelho). Assim ninguém consegue inventar cartas. Abrir pacote passa a precisar de internet.
@@ -174,6 +175,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
+
+- **05/11/2026** · **Matemática, unidade 9** ("O preparo de alimentos e o pensamento algébrico", p. 100–143), feita a partir das fotos do livro: valor desconhecido, operações inversas, os 7 passos e a prova real, igualdade e balança, sequências e múltiplos. Primeira matéria fora de História: o Início ganhou um botão por matéria, e a linha do tempo vira "Passo a passo" em Matemática. O problema dos bolinhos de chuva (p. 122) ficou de fora porque o livro não traz a resposta (Lucas pediu a unidade; detalhes do app decididos pelo Claude).
 
 - **05/11/2026** · Os "dias seguidos" do início viraram botão para a tela **Meu dia**: 3 missões do dia (as 3 dão 1 pacote) e marcos de 3, 7, 14 e 30 dias (1 pacote cada). A sequência agora aceita 1 dia de folga por semana, como já pedia `docs/ESTUDOS.md`. O Claude sugeriu Sabicoins/enfeites como prêmio para não facilitar demais o álbum; o Lucas escolheu pacotes (Lucas).
 - **05/11/2026** · **Pacote de boas-vindas** para toda conta nova de criança (carta na sorte), para ela entender o jogo logo de cara. Muda a regra "pacotes só vêm do estudo": essa é a única exceção. Quem não tem carta continua sem poder duelar (com uma lição já ganha pacote) (Lucas).
