@@ -3,12 +3,16 @@
 import { useSyncExternalStore } from 'react';
 import { aplicarServidor, getEstado, getPendente, limparPendente, progressoDe, setRegistrarCartas, zerarAparelho } from './store';
 import type { ProgressoSync } from '../shared/sync';
+import { capitulosDe, materiasDe } from '../data';
+import type { Capitulo } from '../data/tipos';
 
 /** `codigo` vazio = ainda não está numa turma. `familia` = tem um adulto responsável ligado à conta. */
 export interface Conta {
   id: string; apelido: string; cor: string; turma: string; codigo: string; familia?: boolean;
   /** datas das provas da escola (capítulo → AAAA-MM-DD), marcadas pelo professor ou pelo adulto da família */
   provas?: Record<string, string>;
+  /** matérias da turma (id em `conteudos`, `src/data/index.ts`); vazio = a turma ainda não tem matérias */
+  conteudo?: string;
 }
 /** Perfis da família que já entraram neste aparelho (para irmãos trocarem só com o PIN). */
 export interface PerfilAparelho { id: string; apelido: string; cor: string }
@@ -40,6 +44,22 @@ export function useConta() {
   return { conta, propostasNovas, desafiosNovos, perfis };
 }
 export const getConta = () => conta;
+
+/**
+ * O que a criança pode estudar (Lucas, 05/11/2026): só os capítulos da turma dela.
+ * Sem turma ('sem-turma') ou com turma sem matérias ('sem-materias'), não aparece nenhum jogo.
+ */
+export type SituacaoEstudo = 'ok' | 'sem-turma' | 'sem-materias';
+export function estudoDa(c: Conta | null = conta): { caps: Capitulo[]; materias: string[]; situacao: SituacaoEstudo } {
+  // Conta guardada por uma versão antiga do app (antes das matérias por turma) ainda não tem `conteudo`:
+  // até a próxima sincronização vale o único livro que existia (o da Educativa). O servidor sempre manda o campo.
+  const caps = c?.codigo ? capitulosDe(c.conteudo === undefined ? 'educativa-4b' : c.conteudo) : [];
+  return { caps, materias: materiasDe(caps), situacao: !c?.codigo ? 'sem-turma' : caps.length ? 'ok' : 'sem-materias' };
+}
+/** Capítulos da turma da criança (muda sozinho quando a conta muda). */
+export function useEstudo() {
+  return estudoDa(useConta().conta);
+}
 
 /** Chamada ao servidor. Devolve { erro } em vez de lançar, com mensagens para a criança. */
 export async function api<T = Record<string, unknown>>(caminho: string, opcoes: { metodo?: string; corpo?: unknown; tokenProprio?: string | null } = {}): Promise<T & { erro?: string; status?: number }> {

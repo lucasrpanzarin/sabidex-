@@ -13,9 +13,9 @@ import { TelaExtra } from './screens/Extras';
 import { EXTRAS, type Extra } from './lib/jogo';
 import { Loja } from './screens/Loja';
 import { Privacidade } from './screens/Privacidade';
-import { EntrarConta, MinhaConta, Ranking, Trocas } from './screens/Turma';
+import { EntrarConta, MinhaConta, PrecisaTurma, Ranking, Trocas } from './screens/Turma';
 import { useEffect } from 'react';
-import { api, useConta } from './lib/conta';
+import { api, estudoDa, useConta } from './lib/conta';
 import { Chat } from './screens/Chat';
 import { Duelos } from './screens/Duelo';
 
@@ -45,6 +45,12 @@ export function App() {
   let tela;
   let aba = pagina;
   let comNav = true;
+  // Jogos só com turma, e só os capítulos da turma (cada turma estuda o livro dela; Lucas, 05/11/2026).
+  const estudo = estudoDa(conta);
+  const deEstudo = ['mundos', 'mundo', 'fase', 'extra', 'revisao', 'dia'].includes(pagina);
+  const capDaTurma = !['mundo', 'fase', 'extra'].includes(pagina) || estudo.caps.some((c) => c.id === a);
+  if (deEstudo && estudo.situacao !== 'ok') return <div className="app"><PrecisaTurma situacao={estudo.situacao} tela /><Nav ativo="mundos" /></div>;
+  if (deEstudo && !capDaTurma) return <div className="app"><Mundos /><Nav ativo="mundos" /></div>;
   switch (pagina) {
     case 'mundos': tela = <Mundos materia={a} />; break;
     case 'mundo': tela = <Mundo id={a} />; aba = 'mundos'; break;

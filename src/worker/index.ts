@@ -2,7 +2,7 @@
 // Roda na Cloudflare (Worker + banco D1). Tudo fora de /api/* é o app (arquivos estáticos).
 
 import { Hono, type Context } from 'hono';
-import { capitulos } from '../data';
+import { capitulos, capitulosDe, conteudoPorId, conteudos } from '../data';
 import { FASES, POR_PACOTE, chaveExtra, extrasDo } from '../lib/jogo';
 import { idEvolucao, itemPorId, migrarFormas, podeEvoluir, premiosLivres, PRECO_EVOLUCAO, protegido, refCompra } from '../lib/loja';
 import { figurinhaPorId, idCarta, IDS_CARTAS } from '../lib/figurinhas';
@@ -231,11 +231,19 @@ async function datasDe(db: D1Database, turmas: string[]): Promise<DatasProva> {
   return datas;
 }
 
-/** Marca (ou apaga, com data vazia) a data da prova de um capítulo. */
-async function marcarData(c: C, turmaId: string) {
+/** Capítulos que estas turmas estudam (pela coluna turmas.conteudo). */
+async function capitulosDasTurmas(db: D1Database, turmas: string[]): Promise<Set<string>> {
+  const ids = turmas.filter(temTurma);
+  if (!ids.length) return new Set();
+  const r = await db.prepare(`SELECT conteudo FROM turmas WHERE id IN (${ids.map(() => '?').join(',')})`).bind(...ids).all<{ conteudo: string | null }>();
+  return new Set(r.results.flatMap((t) => capitulosDe(t.conteudo).map((x) => x.id)));
+}
+
+/** Marca (ou apaga, com data vazia) a data da prova de um capítulo. Só capítulos que a turma (ou os filhos) estudam. */
+async function marcarData(c: C, turmaId: string, permitidos: Set<string>) {
   const b = await corpo(c);
   const capitulo = String(b.capitulo ?? '');
-  if (!CAPITULOS_VALIDOS.has(capitulo)) return erro(c, 400, 'Capítulo inválido.');
+  if (!CAPITULOS_VALIDOS.has(capitulo) || !permitidos.has(capitulo)) return erro(c, 400, 'Capítulo inválido.');
   if (b.data === '' || b.data === null) {
     await c.env.DB.prepare('DELETE FROM datas_prova WHERE turma_id = ? AND capitulo = ?').bind(turmaId, capitulo).run();
   } else {
@@ -248,12 +256,13 @@ async function marcarData(c: C, turmaId: string) {
 
 async function respostaConta(db: D1Database, k: Crianca, progresso: ProgressoSync) {
   const turma = temTurma(k.turma_id)
-    ? await db.prepare('SELECT nome, codigo FROM turmas WHERE id = ?').bind(k.turma_id).first<{ nome: string; codigo: string }>()
+    ? await db.prepare('SELECT nome, codigo, conteudo FROM turmas WHERE id = ?').bind(k.turma_id).first<{ nome: string; codigo: string; conteudo: string | null }>()
     : null;
   // A data da família vale quando a turma não marcou aquele capítulo; a da turma vale mais.
   const provas = await datasDe(db, [...(k.familia_id ? [turmaDaFamilia(k.familia_id)] : []), ...(temTurma(k.turma_id) ? [k.turma_id] : [])]);
   return {
-    conta: { id: k.id, apelido: k.apelido, cor: k.cor, turma: turma?.nome ?? '', codigo: turma?.codigo ?? '', familia: !!k.familia_id, provas },
+    // conteudo = matérias da turma (src/data/index.ts). Sem turma, a criança não vê jogos.
+    conta: { id: k.id, apelido: k.apelido, cor: k.cor, turma: turma?.nome ?? '', codigo: turma?.codigo ?? '', familia: !!k.familia_id, provas, conteudo: turma?.conteudo ?? '' },
     progresso,
     cartas: await cartasDe(db, k.id),
   };
@@ -786,7 +795,9 @@ app.post('/crianca/duelos', async (c) => {
   if (ja) return erro(c, 409, 'Vocês dois já têm um duelo esperando. Terminem esse primeiro!');
   const meu = sanitizar(JSON.parse(k.progresso), FASES_VALIDAS);
   const dele = sanitizar(JSON.parse(colega.progresso), FASES_VALIDAS);
-  const comum = mundosEmComum(capitulos, meu.feitas, dele.feitas);
+  // Só os mundos que a turma estuda (cada turma tem o livro dela).
+  const daTurma = await db.prepare('SELECT conteudo FROM turmas WHERE id = ?').bind(k.turma_id).first<{ conteudo: string | null }>();
+  const comum = mundosEmComum(capitulosDe(daTurma?.conteudo), meu.feitas, dele.feitas);
   if (!comum.length) return erro(c, 409, 'Vocês ainda não estudaram um mesmo mundo. Para duelar, os dois precisam ter ouvido os temas do mesmo mundo.');
   const id = aleatorio(8);
   const perguntas = montarDuelo(comum);
@@ -1071,9 +1082,26 @@ app.get('/adulto/dono', async (c) => {
       WHERE p.status = 'pendente'
         AND ((p.tipo = 'crianca' AND k.familia_id = p.adulto_id AND k.turma_id != p.turma_id) OR (p.tipo = 'juntar' AND o.id IS NOT NULL))
       ORDER BY p.criado`),
-    db.prepare(`SELECT t.id, t.nome, t.escola, (SELECT COUNT(*) FROM criancas WHERE turma_id = t.id) AS criancas FROM turmas t ORDER BY t.nome COLLATE NOCASE`),
+    db.prepare(`SELECT t.id, t.nome, t.escola, t.codigo, COALESCE(t.conteudo, '') AS conteudo, (SELECT COUNT(*) FROM criancas WHERE turma_id = t.id) AS criancas
+      FROM turmas t ORDER BY t.nome COLLATE NOCASE`),
   ]);
-  return c.json({ hoje, ontem, resumo: resumo.results[0], criancas: criancas.results, adultos: adultos.results, pedidos: pedidos.results, turmas: turmas.results });
+  return c.json({
+    hoje, ontem, resumo: resumo.results[0], criancas: criancas.results, adultos: adultos.results, pedidos: pedidos.results, turmas: turmas.results,
+    conteudos: conteudos.map((x) => ({ id: x.id, nome: x.nome, capitulos: x.capitulos.length })),
+  });
+});
+
+// Matérias de cada turma (Lucas, 05/11/2026): só o dono do app escolhe qual livro a turma estuda.
+// '' = sem matérias (as crianças da turma não veem jogos até escolher).
+app.post('/adulto/dono/turmas/:id/conteudo', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  if (!a.admin) return erro(c, 404, 'Não encontrado.');
+  const conteudo = String((await corpo(c)).conteudo ?? '');
+  if (conteudo && !conteudoPorId(conteudo)) return erro(c, 400, 'Matérias inválidas.');
+  const r = await c.env.DB.prepare('UPDATE turmas SET conteudo = ? WHERE id = ?').bind(conteudo, c.req.param('id')).run();
+  if (!r.meta.changes) return erro(c, 404, 'Turma não encontrada.');
+  return c.json({ ok: true, conteudo });
 });
 
 // O dono do app coloca uma criança numa turma sem esperar o pedido do responsável (Lucas, 05/11/2026).
@@ -1147,7 +1175,8 @@ app.post('/adulto/turmas', async (c) => {
     const id = aleatorio(8), codigo = await codigoLivre(c.env.DB);
     if (!codigo) continue;
     try {
-      await c.env.DB.prepare('INSERT INTO turmas (id, codigo, nome, escola, busca, dono_id, criado) VALUES (?, ?, ?, ?, ?, ?, ?)')
+      // Turma nova nasce sem matérias: o dono do app escolhe o livro dela no Painel do dono.
+      await c.env.DB.prepare(`INSERT INTO turmas (id, codigo, nome, escola, busca, dono_id, criado, conteudo) VALUES (?, ?, ?, ?, ?, ?, ?, '')`)
         .bind(id, codigo, nome, escola, textoBusca(nome, escola), a.id, Date.now()).run();
       return c.json({ turma: { id, nome, escola, codigo } });
     } catch (e) { if (!String(e).includes('UNIQUE')) throw e; }
@@ -1157,10 +1186,10 @@ app.post('/adulto/turmas', async (c) => {
 
 /** A turma, se o adulto é o dono, um administrador convidado ou o administrador geral. `dono` diz se pode mexer nos administradores. */
 async function turmaDoAdulto(c: C, a: { id: string; admin: boolean }) {
-  const t = await c.env.DB.prepare(`SELECT id, nome, escola, na_busca, codigo, dono_id FROM turmas WHERE id = ?1 AND (?2 = 1 OR dono_id = ?3
+  const t = await c.env.DB.prepare(`SELECT id, nome, escola, na_busca, codigo, dono_id, conteudo FROM turmas WHERE id = ?1 AND (?2 = 1 OR dono_id = ?3
       OR EXISTS (SELECT 1 FROM turma_admins WHERE turma_id = turmas.id AND adulto_id = ?3))`)
-    .bind(c.req.param('id'), a.admin ? 1 : 0, a.id).first<{ id: string; nome: string; escola: string; na_busca: number; codigo: string; dono_id: string }>();
-  return t ? { id: t.id, nome: t.nome, escola: t.escola, na_busca: t.na_busca, codigo: t.codigo, dono: t.dono_id === a.id || a.admin } : null;
+    .bind(c.req.param('id'), a.admin ? 1 : 0, a.id).first<{ id: string; nome: string; escola: string; na_busca: number; codigo: string; dono_id: string; conteudo: string | null }>();
+  return t ? { id: t.id, nome: t.nome, escola: t.escola, na_busca: t.na_busca, codigo: t.codigo, dono: t.dono_id === a.id || a.admin, conteudo: t.conteudo ?? '' } : null;
 }
 
 app.get('/adulto/turmas/:id', async (c) => {
@@ -1181,7 +1210,7 @@ app.post('/adulto/turmas/:id/provas', async (c) => {
   if (!a) return erro(c, 401, 'Entre de novo.');
   const t = await turmaDoAdulto(c, a);
   if (!t) return erro(c, 404, 'Turma não encontrada.');
-  return marcarData(c, t.id);
+  return marcarData(c, t.id, new Set(capitulosDe(t.conteudo).map((x) => x.id)));
 });
 
 app.post('/adulto/turmas/:id/criancas/:cid/pin', async (c) => {
@@ -1221,7 +1250,7 @@ app.get('/adulto/familia', async (c) => {
   const a = await adulto(c);
   if (!a) return erro(c, 401, 'Entre de novo.');
   const r = await c.env.DB.prepare(`SELECT k.id, k.apelido, k.cor, k.criado, k.visto, k.bloqueado_ate, t.nome AS turma, t.codigo AS codigo,
-    k.chat_ok, k.mostrar_online, t.chat AS turma_chat,
+    k.chat_ok, k.mostrar_online, t.chat AS turma_chat, COALESCE(t.conteudo, '') AS conteudo,
     json_extract(k.progresso, '$.xp') AS xp, (SELECT COUNT(*) FROM cartas WHERE crianca_id = k.id AND qtd > 0) AS cartas
     FROM criancas k LEFT JOIN turmas t ON t.id = k.turma_id WHERE k.familia_id = ? ORDER BY k.criado`).bind(a.id).all();
   return c.json({ filhos: r.results, provas: await datasDe(c.env.DB, [turmaDaFamilia(a.id)]), codigo: await codigoDaFamilia(c.env.DB, a.id) });
@@ -1240,7 +1269,9 @@ app.post('/adulto/familia/codigo', async (c) => {
 app.post('/adulto/familia/provas', async (c) => {
   const a = await adulto(c);
   if (!a) return erro(c, 401, 'Entre de novo.');
-  return marcarData(c, turmaDaFamilia(a.id));
+  // A família marca datas só dos capítulos que as turmas dos filhos estudam.
+  const turmas = await c.env.DB.prepare('SELECT DISTINCT turma_id FROM criancas WHERE familia_id = ?').bind(a.id).all<{ turma_id: string }>();
+  return marcarData(c, turmaDaFamilia(a.id), await capitulosDasTurmas(c.env.DB, turmas.results.map((x) => x.turma_id)));
 });
 
 /** Cria o perfil de um filho. Com `progresso`/`cartas`, leva junto o que já foi feito no aparelho. */

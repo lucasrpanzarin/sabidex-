@@ -1,11 +1,11 @@
 // "Meu dia": abre ao tocar nos dias seguidos do início. Mostra a sequência, os marcos e as missões do dia.
 // Sem "você vai perder!" e sem contagem regressiva (docs/ESTUDOS.md): só o que já fez e o que pode fazer.
 
+import { estudoDa } from '../lib/conta';
 import { useEffect } from 'react';
 import { Ara } from '../components/Ara';
 import { Icone } from '../components/Icone';
 import { Pacote } from '../components/Pacote';
-import { capitulos } from '../data';
 import { sequenciaInfo } from '../lib/jogo';
 import { MARCOS, MISSOES, destinoMissao, missaoFeita, missoesDeHoje, proximoMarco, quantasFeitas, type MissaoId } from '../lib/missoes';
 import { ir } from '../lib/rota';
@@ -28,7 +28,7 @@ export function MeuDia() {
   }, [m.dia]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const irPara = (id: string) => {
-    const d = destinoMissao(e, id, capitulos);
+    const d = destinoMissao(e, id, estudoDa().caps);
     if (d.length) ir(...d); else jogar();
   };
 

@@ -7,7 +7,7 @@ O Claude lê este arquivo no começo de cada conversa (está pedido no `CLAUDE.m
 - Quando o Lucas der uma ideia nova, o Claude confere aqui antes e avisa: "isso já existe", "isso já foi testado e trocado por X" ou "isso vai contra a regra Y".
 - Ao terminar qualquer mudança, o Claude atualiza este caderno (o que mudou, a data e quem decidiu).
 
-Última revisão geral: **04/11/2026**. Última mudança: **05/11/2026** (busca de turmas, Meu perfil, menu novo e brilho do próximo passo).
+Última revisão geral: **04/11/2026**. Última mudança: **05/11/2026** (matérias separadas por turma; sem turma não tem jogo).
 
 ---
 
@@ -39,7 +39,9 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 
 ### Estudo
 - **Mundos** = capítulos do livro. Hoje: **História cap. 9** ("Um continente chamado África") e **cap. 10** ("Terra à vista!") e **Matemática unidades 9** ("O preparo de alimentos e o pensamento algébrico") **e 10** ("Os construtores e os números fracionários"). Ciências e Geografia aparecem como "Em breve".
-- **Matérias** (05/11/2026): o Início mostra um botão para cada matéria que já tem capítulo; tocar abre só os mundos dela (`#/mundos/<matéria>`). Nas narrações, os sinais de conta (×, ÷, +, −, =) viram palavras (`scripts/vozes.ts`).
+- **Matérias por turma** (Lucas, 05/11/2026; `conteudos` em `src/data/index.ts`, coluna `turmas.conteudo`): cada turma estuda o livro dela. Hoje só existe o conteúdo **Educativa · 4º ano B** (os 4 mundos acima). Só o **dono do app** escolhe as matérias de cada turma, no Painel do dono → aba **Turmas**; turma nova nasce **sem matérias**. Na troca de versão, as turmas que já existiam com "Educativa" no nome ou na escola ficaram com o livro da Educativa; as outras ficaram sem matérias. A área dos adultos mostra "Matérias da turma" e as datas de prova só dos capítulos da turma.
+- **Sem turma não tem jogo** (Lucas, 05/11/2026): criança só na família, quem jogava sem conta e quem está numa turma sem matérias não vê mundos, fases, missões, revisão nem "Jogar": aparece o aviso "Entre na sua turma da escola para jogar" (com "Entrar na minha turma") ou "As matérias da turma ainda estão chegando". Álbum, lojinha e pacotes continuam. O progresso antigo não some: se voltar para uma turma com o mesmo livro, está tudo lá.
+- **Matérias no Início** (05/11/2026): um botão para cada matéria da turma; tocar abre só os mundos dela (`#/mundos/<matéria>`). Nas narrações, os sinais de conta (×, ÷, +, −, =) viram palavras (`scripts/vozes.ts`).
 - **Matemática se estuda fazendo** (Lucas, 05/11/2026; `src/lib/contas.ts`, `src/screens/Contas.tsx`, regras em `docs/ESTUDOS.md`): o mapa tem as mesmas 5 fases (estrelas, nota 7, pacotes), mas por dentro são **Ver como se faz** (exemplo resolvido passo a passo + "Agora você"), **Treino de contas** (10), **Balança e sequências** (balança desenhada, setas de ida e volta, múltiplos), **Quiz relâmpago** e **Prova da unidade** (10 contas, correção no fim). A criança **digita a resposta** num teclado de números, e **os números mudam a cada partida**. O livro é a base, mas pode ter outras contas e exemplos do mesmo nível e método. Contas erradas voltam na Revisão do Ará com números novos. O Duelo usa o quiz e a prova de múltipla escolha do capítulo.
   - **Papel e lápis** (Lucas, 05/11/2026): no começo de cada fase de Matemática o Ará pede papel e lápis ("Já peguei!"; no quiz, uma linha no balão). Nas contas mais difíceis aparece "Dica: arme a conta no papel". Sem rascunho na tela.
   - **Frações** (unidade 10): a criança digita a fração em **duas caixas** (numerador em cima, denominador embaixo). Vale outra escrita do mesmo valor (2/4 = 1/2), menos quando a pergunta é "escreva com números". Desenhos novos: **cano dividido** e **reta numérica do 0 ao 1**. Cada unidade pode dar outro nome à fase 3 (na 10: "Retas e partes").
@@ -160,6 +162,7 @@ Guia de arte: `docs/ARTE-SABIMONS.md`.
 | Álbum contando 30 formas; evolução que mudava a mesma carta | **Álbum de 60**, cada forma é uma carta; 3→1 e 2→1 | 04/11/2026 |
 | Medalhas, escudo e raio na lojinha | Itens do Brasil com fato real (frutas, folhas, cristais) | 04/11/2026 |
 | Jogar sem conta / sem turma | Só entra com turma ou conta | 04/11/2026 |
+| Criança só da família jogava todas as matérias | **Só joga dentro de uma turma**, e só as matérias da turma | 05/11/2026 |
 | Tentar de novo no mesmo item até acertar | Uma chance por item, o certo aparece | 04/11/2026 |
 | Pacote sem pedir nota | Pacote só com nota 7 ou mais | 04/11/2026 |
 | Botão "Já li este tema" com áudio | Precisa ouvir o áudio | 04/11/2026 |
@@ -195,6 +198,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **05/11/2026** · **Matérias separadas por turma** e **sem turma não tem jogo**: as matérias que existem são do 4º ano B da Educativa; quem entrasse de fora via esse livro, que não é o dele. Agora cada turma aponta para um livro (o dono do app escolhe no Painel do dono → Turmas; turma nova começa sem matérias) e a criança só vê jogos estando numa turma com matérias. Servidor: duelo e datas de prova só com capítulos da turma (Lucas).
 - **05/11/2026** · Apelido repetido na mesma turma não entra mais (pedido aceito não vira "Ana 2"): o app avisa e o responsável troca em "Trocar apelido", botão novo no perfil do filho (Lucas).
 - **05/11/2026** · Só o responsável cria a conta da criança: saiu o "Sou novo na turma", e o adulto pode pôr o código da turma ao adicionar o filho. Motivo: Tony e Gabriela ficaram sem responsável (e sem chat); o Tony ficou com duas contas (Lucas).
 - **05/11/2026** · **Painel do dono do app** na área dos adultos (pedido do Lucas, para ver quem jogou e não apareceu na turma): crianças e adultos que usaram o app, quem está sem turma e os pedidos esperando aprovação, com Aceitar/Recusar.

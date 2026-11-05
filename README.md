@@ -48,7 +48,7 @@ O código já está pronto. Cada opção só aparece no app depois de configurad
 
 1. Crie `src/data/<materia><numero>.ts` no formato de `src/data/tipos.ts`.
 2. Coloque os áudios em `public/audio/`.
-3. Adicione o capítulo à lista em `src/data/index.ts`.
+3. Adicione o capítulo ao conteúdo da turma certa em `src/data/index.ts` (`conteudos`). Cada turma só vê o conteúdo dela; quem liga o conteúdo na turma é o dono do app (Painel do dono → Turmas).
 4. Rode `npm test` para conferir se nada ficou faltando.
 
 ## Comandos

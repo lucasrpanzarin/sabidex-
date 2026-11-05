@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Ara } from '../components/Ara';
 import { Pacote } from '../components/Pacote';
 import { Icone } from '../components/Icone';
-import { capitulos, materias } from '../data';
 
 const COR_MATERIA = ['var(--pink)', 'var(--cyan)', 'var(--green)', 'var(--yellow)'];
 import { FASES, chave, hoje, infoFase, nivel, sequencia } from '../lib/jogo';
@@ -12,7 +11,9 @@ import { quantasHoje, MAX_POR_REVISAO } from '../lib/revisao';
 import { missoesDeHoje, quantasFeitas } from '../lib/missoes';
 import { ir } from '../lib/rota';
 import { getEstado, useEstado } from '../lib/store';
-import { getConta, useConta } from '../lib/conta';
+import { estudoDa, getConta, useConta } from '../lib/conta';
+import { PrecisaTurma } from './Turma';
+import type { Capitulo } from '../data/tipos';
 import { ordenarCapitulos, situacao, textoProva, type DatasProva } from '../lib/provas';
 import { Moeda, Saldo } from '../components/Loja';
 import { FIGURINHAS } from '../lib/figurinhas';
@@ -66,12 +67,12 @@ export function BoasVindas() {
 }
 
 /** Próxima fase a fazer: a primeira não concluída. Capítulo com prova chegando vem antes; os que já tiveram prova, por último. */
-export function proximaFase(feitas: Record<string, true>, provas: DatasProva | undefined = getConta()?.provas) {
-  for (const c of ordenarCapitulos(capitulos, provas, hoje())) for (const f of FASES) if (!feitas[chave(c.id, f)]) return { cap: c, fase: f };
+export function proximaFase(feitas: Record<string, true>, provas: DatasProva | undefined = getConta()?.provas, caps: Capitulo[] = estudoDa().caps) {
+  for (const c of ordenarCapitulos(caps, provas, hoje())) for (const f of FASES) if (!feitas[chave(c.id, f)]) return { cap: c, fase: f };
   return null;
 }
 
-/** Leva para a próxima fase a fazer (ou para a lista de mundos, se tudo já foi feito). */
+/** Leva para a próxima fase a fazer (ou para a lista de mundos, se tudo já foi feito; sem turma, o aviso para entrar nela). */
 export function jogar() {
   const p = proximaFase(getEstado().feitas);
   if (p) ir('fase', p.cap.id, p.fase); else ir('mundos');
@@ -104,14 +105,17 @@ export function Inicio() {
   const { conta, propostasNovas, desafiosNovos } = useConta();
   const nv = nivel(e.xp);
   const dias = sequencia(e.dias);
-  const prox = proximaFase(e.feitas, conta?.provas);
+  // Só os capítulos da turma. Sem turma (ou turma sem matérias), o Início mostra o aviso no lugar dos jogos.
+  const { caps: capitulos, materias, situacao: estudo } = estudoDa(conta);
+  const semJogo = estudo !== 'ok';
+  const prox = proximaFase(e.feitas, conta?.provas, capitulos);
   const provaProx = prox ? situacao(conta?.provas, prox.cap.id, hoje()) : null;
   const feitasCap = prox ? FASES.filter((f) => e.feitas[chave(prox.cap.id, f)]).length : 5;
   const faltamPacote = prox ? (['memoria', 'quiz', 'prova'] as const).find((f) => !e.feitas[chave(prox.cap.id, f)]) : undefined;
   const fasesAte = faltamPacote && prox ? FASES.indexOf(faltamPacote) - FASES.indexOf(prox.fase) + 1 : 0;
   const revisar = Math.min(quantasHoje(e.revisao, capitulos, hoje()), MAX_POR_REVISAO);
   const pacoteDaRevisao = e.pacoteDia !== hoje();
-  const mis = missoesDeHoje(e);
+  const mis = semJogo ? { dia: hoje(), lista: [], progresso: {} } : missoesDeHoje(e);
   const misFeitas = quantasFeitas(mis);
   const misFaltam = mis.lista.length - misFeitas;
   const estudouHoje = e.dias.includes(hoje());
@@ -120,7 +124,11 @@ export function Inicio() {
   const brilhoContinuar = !brilhoMissoes && mis.lista.length === 0;
 
   const evolui = FIGURINHAS.find((f) => podeEvoluir(e, f.id).ok);
-  const fala = desafiosNovos > 0
+  const fala = semJogo && !e.pacotes.length
+    ? (estudo === 'sem-turma'
+      ? <>Oi! Para jogar, falta só entrar na sua <strong>turma da escola</strong>. Assim você estuda as matérias do <strong>seu</strong> livro!</>
+      : <>As matérias da sua turma ainda estão chegando. Quando ficarem prontas, os jogos aparecem aqui!</>)
+    : desafiosNovos > 0
     ? <>Um colega te chamou para um <strong>Duelo do Saber</strong>! Veja em Turma.</>
     : propostasNovas > 0
     ? <>Você tem <strong>{propostasNovas} {propostasNovas > 1 ? 'propostas' : 'proposta'} de troca</strong>! Veja em Turma.</>
@@ -163,7 +171,7 @@ export function Inicio() {
             <span className="display" style={{ color: 'var(--t-cyan)', fontSize: 16 }}>Nível {nv.nivel}</span>
           </div>
           <div className="barra barra-ciano" role="progressbar" aria-valuenow={nv.noNivel} aria-valuemax={nv.total} aria-label="XP do nível"><div style={{ width: `${(nv.noNivel / nv.total) * 100}%` }} /></div>
-          <span className="muted small" style={{ fontVariantNumeric: 'tabular-nums' }}>{nv.noNivel} / {nv.total} XP para o nível {nv.nivel + 1}{conta ? ` · ${conta.turma}` : ''}</span>
+          <span className="muted small" style={{ fontVariantNumeric: 'tabular-nums' }}>{nv.noNivel} / {nv.total} XP para o nível {nv.nivel + 1}{conta?.turma ? ` · ${conta.turma}` : ''}</span>
         </div>
       </button>
 
@@ -181,6 +189,8 @@ export function Inicio() {
           <Icone nome="seguir" espessura={3} />
         </button>
       )}
+
+      {semJogo && <PrecisaTurma situacao={estudo} />}
 
       {revisar > 0 && (
         <button className="painel-destaque linha" onClick={() => ir('revisao')} style={{ textAlign: 'left', color: 'inherit', borderColor: 'var(--pink)' }}>
@@ -246,7 +256,7 @@ export function Inicio() {
         </button>
       )}
 
-      <section aria-label="Matérias">
+      {!semJogo && <section aria-label="Matérias">
         <h2 className="display h3" style={{ marginBottom: 8 }}>Matérias</h2>
         <div className="grade-2">
           {materias.map((m, i) => {
@@ -265,7 +275,7 @@ export function Inicio() {
             </div>
           ))}
         </div>
-      </section>
+      </section>}
       <button className="voltar" style={{ alignSelf: 'center', marginTop: 8 }} onClick={() => ir('adulto')}>Área dos pais e professores</button>
     </main>
   );

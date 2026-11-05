@@ -4,7 +4,7 @@ import { CartaView, ROTULO } from '../components/CartaView';
 import { Icone } from '../components/Icone';
 import { Pin } from '../components/Pin';
 import { FIGURINHAS, figurinhaPorId, type Figurinha } from '../lib/figurinhas';
-import { api, entrarNaConta, entrarNoPerfil, ultimoCodigo, entrarNaTurmaComConta, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
+import { api, entrarNaConta, type SituacaoEstudo, entrarNoPerfil, ultimoCodigo, entrarNaTurmaComConta, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
 import { EscolherPerfil } from '../components/Perfis';
 import { ir } from '../lib/rota';
 import { paraTrocar, protegido, saldo } from '../lib/loja';
@@ -233,6 +233,55 @@ export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; 
   );
 }
 
+/* ---------------- Sem turma, sem jogo (Lucas, 05/11/2026) ---------------- */
+/**
+ * Cada turma estuda o livro dela. Sem turma (ou com uma turma que ainda não tem matérias)
+ * a criança não vê jogos: aparece este aviso. `tela` = ocupa a tela toda (quando abriu um mundo ou uma fase).
+ */
+export function PrecisaTurma({ situacao, tela = false }: { situacao: SituacaoEstudo; tela?: boolean }) {
+  const { conta } = useConta();
+  const [entrando, setEntrando] = useState(false);
+  if (situacao === 'ok') return null;
+  const conteudo = situacao === 'sem-materias' ? (
+    <div className="painel-destaque coluna" style={{ gap: 10, borderColor: 'var(--cyan)' }}>
+      {tela ? (
+        <div className="linha" style={{ alignItems: 'flex-end' }}>
+          <div style={{ flex: 'none' }}><Ara tamanho={76} humor="pensando" /></div>
+          <div className="balao" style={{ flex: 1, marginBottom: 12 }}>As matérias da turma <strong>{conta?.turma}</strong> ainda estão chegando. Quando ficarem prontas, os jogos aparecem aqui!</div>
+        </div>
+      ) : <span className="display" style={{ fontSize: 20 }}>As matérias da turma {conta?.turma} ainda estão chegando</span>}
+      <p className="muted small" style={{ margin: 0 }}>Enquanto isso, você pode ver seu álbum. Entrou na turma errada? Toque em "Mudar de turma" no seu perfil.</p>
+      <button className="btn btn-escuro btn-bloco" onClick={() => ir('conta')}>Meu perfil</button>
+    </div>
+  ) : (
+    <div className="painel-destaque coluna chamar" style={{ gap: 10, borderColor: 'var(--yellow)' }}>
+      {tela ? (
+        <div className="linha" style={{ alignItems: 'flex-end' }}>
+          <div style={{ flex: 'none' }}><Ara tamanho={76} /></div>
+          <div className="balao" style={{ flex: 1, marginBottom: 12 }}>Para jogar, entre na sua <strong>turma da escola</strong>. Assim você estuda as matérias do <strong>seu</strong> livro!</div>
+        </div>
+      ) : <span className="display" style={{ fontSize: 20 }}>Entre na sua turma da escola para jogar</span>}
+      {entrando ? <EntrarTurma aoEntrar={() => setEntrando(false)} /> : (
+        <>
+          <button className="btn btn-amarelo btn-bloco" onClick={() => setEntrando(true)}>Entrar na minha turma</button>
+          {!conta && <button className="btn btn-escuro btn-bloco" onClick={() => ir('entrar')}>Já tenho conta em outro aparelho</button>}
+        </>
+      )}
+      <p className="muted small" style={{ margin: 0 }}>O código da turma, o professor passa. {conta?.familia ? 'Um adulto da sua casa também pode pedir a turma na área dos adultos.' : 'Peça para um adulto.'}</p>
+    </div>
+  );
+  if (!tela) return conteudo;
+  return (
+    <main className="tela">
+      <div>
+        <div className="eyebrow">Jogos</div>
+        <h1 className="display h1">{situacao === 'sem-turma' ? 'Falta entrar na turma' : 'Já, já tem jogo!'}</h1>
+      </div>
+      {conteudo}
+    </main>
+  );
+}
+
 /* ---------------- Quando ainda não tem turma ---------------- */
 function SemTurma({ titulo, texto }: { titulo: string; texto: ReactNode }) {
   const [entrando, setEntrando] = useState(false);
@@ -252,7 +301,7 @@ function SemTurma({ titulo, texto }: { titulo: string; texto: ReactNode }) {
           <button className="btn btn-amarelo btn-bloco" onClick={() => setEntrando(true)}>Entrar na minha turma</button>
           {!conta && <button className="btn btn-escuro btn-bloco" onClick={() => ir('entrar')}>Já tenho conta em outro aparelho</button>}
           <div className="painel coluna" style={{ gap: 10 }}>
-            {['Você precisa do código da turma, que o professor ou um adulto passa.', 'Só aparece seu apelido, nunca o nome completo.', 'Não tem chat: só propostas de troca de cartas.'].map((t) => (
+            {['Você precisa do código da turma, que o professor ou um adulto passa.', 'Só aparece seu apelido, nunca o nome completo.', 'A conversa da turma só funciona se um adulto deixar.'].map((t) => (
               <div key={t} className="linha" style={{ gap: 10, fontWeight: 700 }}><span style={{ color: 'var(--t-cyan)' }}><Icone nome="escudo" tamanho={20} /></span>{t}</div>
             ))}
           </div>
