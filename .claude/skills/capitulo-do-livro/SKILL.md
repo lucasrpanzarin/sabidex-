@@ -83,7 +83,7 @@ Veja `src/data/matematica9.ts` como modelo:
 2. Releia cada item contra `paginas.md`, como um revisor que não escreveu o conteúdo:
    fato fora do livro? resposta certa errada? duas opções certas? verdadeiro/falso ambíguo? frase difícil para a idade?
    distrator óbvio? Corrija.
-3. Coloque o capítulo em `src/data/index.ts`.
+3. Coloque o capítulo em `src/data/index.ts`, **dentro do conteúdo da turma que usa esse livro** (`conteudos`; hoje só `educativa-4b`). Cada turma só vê os capítulos do conteúdo dela. Livro de outra turma/escola = conteúdo novo, e o Lucas liga na turma pelo Painel do dono (aba Turmas).
 4. `npm test` e `npm run build` precisam passar.
 5. Commit e push. Explique ao Lucas, em português simples, o que entrou e o que ele deve conferir no livro
    (as datas e nomes principais). Lembre que as narrações são pedidas à parte (`vozes/pedido.json`).

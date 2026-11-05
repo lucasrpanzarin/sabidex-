@@ -228,6 +228,13 @@ export const MIGRACOES = [
     criado INTEGER NOT NULL
   )`,
   `CREATE INDEX IF NOT EXISTS confirmacoes_email_adulto ON confirmacoes_email (adulto_id, criado)`,
+  // Matérias de cada turma (Lucas, 05/11/2026): conteudo = id em `conteudos` (src/data/index.ts); '' = ainda sem matérias.
+  // A turma que já existia da Educativa (4º ano B) fica com o livro dela; as outras começam sem matérias
+  // e o dono do app escolhe no Painel do dono. Turma nova nasce com ''. NULL só existe antes desta migração.
+  `ALTER TABLE turmas ADD COLUMN conteudo TEXT`,
+  `UPDATE turmas SET conteudo = 'educativa-4b' WHERE conteudo IS NULL
+    AND (lower(nome) LIKE '%educativa%' OR lower(escola) LIKE '%educativa%' OR busca LIKE '%educativa%')`,
+  `UPDATE turmas SET conteudo = '' WHERE conteudo IS NULL`,
 ];
 
 /** Muda sozinha quando uma tabela ou migração nova entra (o servidor só confere tudo de novo quando ela muda). */

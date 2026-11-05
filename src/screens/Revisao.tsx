@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Ara } from '../components/Ara';
 import { Icone } from '../components/Icone';
-import { capitulos } from '../data';
+import { estudoDa } from '../lib/conta';
 import { embaralhar, hoje, nivel, notaDe, type Resultado } from '../lib/jogo';
 import { aplicarMissoes } from '../lib/missoes';
 import { AvisoMissao, MOTIVO } from './Fases';
@@ -24,7 +24,7 @@ function quandoVolta(dia: string | null) {
 export function Revisao() {
   const dia = hoje();
   // A lista é montada uma vez por sessão: responder não muda as perguntas desta rodada.
-  const [itens] = useState<ItemRevisao[]>(() => paraHoje(getEstado().revisao, capitulos, dia));
+  const [itens] = useState<ItemRevisao[]>(() => paraHoje(getEstado().revisao, estudoDa().caps, dia));
   const ordens = useMemo(() => itens.map(() => embaralhar([0, 1, 2, 3])), [itens]);
   const [i, setI] = useState(0);
   const [acertos, setAcertos] = useState(0);

@@ -1,8 +1,8 @@
 import { Icone } from '../components/Icone';
 import { Pacote } from '../components/Pacote';
-import { capitulos, capituloPorId, materias } from '../data';
+import { capituloPorId } from '../data';
 import { EXTRA_INFO, FASES, FASE_INFO, chave, chaveExtra, estrelasDe, estrelasDoMundo, extrasDo, extrasLiberados, hoje, infoFase, liberada } from '../lib/jogo';
-import { useConta } from '../lib/conta';
+import { useConta, useEstudo } from '../lib/conta';
 import { diaMes, ordenarCapitulos, situacao } from '../lib/provas';
 import { ir } from '../lib/rota';
 import { useEstado } from '../lib/store';
@@ -12,6 +12,8 @@ import { SeloProva } from './Inicio';
 export function Mundos({ materia }: { materia?: string }) {
   const e = useEstado();
   const { conta } = useConta();
+  // Só os capítulos da turma da criança (cada turma estuda o livro dela).
+  const { caps: capitulos, materias } = useEstudo();
   const dia = hoje();
   // Com uma matéria escolhida (tocou nela no Início), mostra só os mundos dela.
   const daMateria = materia && materias.includes(materia) ? capitulos.filter((c) => c.materia === materia) : capitulos;

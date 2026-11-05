@@ -7,7 +7,8 @@ import { ir } from '../lib/rota';
 import { botaoGoogle, entrarApple, lerConfig, type ConfigServidor } from '../lib/social';
 import { getEstado, progressoDe, temProgressoSolto } from '../lib/store';
 import { CORES } from './Inicio';
-import { capitulos } from '../data';
+import { capitulosDe, conteudoPorId } from '../data';
+import type { Capitulo } from '../data/tipos';
 import { hoje } from '../lib/jogo';
 import { diaMes, situacao, textoProva, type DatasProva } from '../lib/provas';
 
@@ -19,9 +20,9 @@ const rotulo: React.CSSProperties = { fontWeight: 800 };
 const botaoPequeno: React.CSSProperties = { flex: 1, minHeight: 40, fontSize: 15 };
 
 interface Turma { id: string; nome: string; escola?: string; codigo: string; criancas: number; dono: string; sou_dono?: number; pedidos?: number }
-interface TurmaDetalhe { id: string; nome: string; escola: string; na_busca: number; codigo: string; dono: boolean }
+interface TurmaDetalhe { id: string; nome: string; escola: string; na_busca: number; codigo: string; dono: boolean; conteudo?: string }
 interface Kid { id: string; apelido: string; cor: string; xp: number | null; xp_semana: number; cartas: number; visto: number; bloqueado_ate: number; familia: number; chat_ok: number; mudo_ate: number; online: number }
-interface Filho { id: string; apelido: string; cor: string; xp: number | null; cartas: number; visto: number; bloqueado_ate: number; turma: string | null; codigo: string | null; chat_ok: number; mostrar_online: number; turma_chat: number | null }
+interface Filho { id: string; apelido: string; cor: string; xp: number | null; cartas: number; visto: number; bloqueado_ate: number; turma: string | null; codigo: string | null; chat_ok: number; mostrar_online: number; turma_chat: number | null; conteudo?: string }
 
 function quando(ms: number) {
   const d = Math.floor((Date.now() - ms) / 86_400_000);
@@ -32,7 +33,7 @@ function quando(ms: number) {
  * Datas das provas da escola. Antes da data, o capítulo aparece em destaque para a criança;
  * depois, vai para "Já teve prova" e continua valendo XP e pacotes (para quem chegou depois ou quer revisar).
  */
-function DatasDasProvas({ token, rota, provas, aoMudar, ajuda }: { token: string; rota: string; provas: DatasProva; aoMudar: (p: DatasProva) => void; ajuda: string }) {
+function DatasDasProvas({ token, rota, provas, aoMudar, ajuda, capitulos }: { token: string; rota: string; provas: DatasProva; aoMudar: (p: DatasProva) => void; ajuda: string; capitulos: Capitulo[] }) {
   const [erro, setErro] = useState<string | null>(null);
   const salvar = async (capitulo: string, data: string) => {
     setErro(null);
@@ -45,6 +46,7 @@ function DatasDasProvas({ token, rota, provas, aoMudar, ajuda }: { token: string
       <h2 className="display h3" style={{ margin: 0 }}>Datas das provas</h2>
       <p className="muted small" style={{ margin: 0 }}>{ajuda}</p>
       {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+      {!capitulos.length && <p className="muted small" style={{ margin: 0 }}>A turma ainda não tem matérias no Sabidex. Quando o livro dela entrar, os capítulos aparecem aqui.</p>}
       {capitulos.map((c) => {
         const data = provas[c.id] ?? '';
         const t = textoProva(situacao(provas, c.id, dia));
@@ -60,6 +62,19 @@ function DatasDasProvas({ token, rota, provas, aoMudar, ajuda }: { token: string
         );
       })}
     </section>
+  );
+}
+
+/** Que livro a turma estuda (quem escolhe é o dono do app). Sem matérias, as crianças da turma não veem jogos. */
+function MateriasDaTurma({ conteudo }: { conteudo?: string }) {
+  const c = conteudoPorId(conteudo);
+  return (
+    <div className="painel coluna" style={{ gap: 4, borderColor: c ? undefined : 'var(--coral)' }}>
+      <span style={rotulo}>Matérias da turma</span>
+      {c
+        ? <span className="small">{c.nome}: {[...new Set(c.capitulos.map((x) => x.materia))].join(', ')} ({c.capitulos.length} capítulos).</span>
+        : <span className="small">Ainda sem matérias. As crianças entram na turma, mas os jogos só aparecem quando o Sabidex colocar o livro desta turma. Fale com a gente.</span>}
+    </div>
   );
 }
 
@@ -502,8 +517,9 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
         void carregar();
       }} />}
       {form === 'ligar' && <LigarConta token={token} aoFechar={() => setForm('nenhum')} aoLigar={() => { setForm('nenhum'); setAviso('Conta ligada à sua família.'); void carregar(); }} />}
-      {!!filhos?.length && (
+      {!!filhos?.length && filhos.some((f) => f.codigo && capitulosDe(f.conteudo).length) && (
         <DatasDasProvas token={token} rota="/adulto/familia/provas" provas={provas} aoMudar={setProvas}
+          capitulos={[...new Map(filhos.flatMap((f) => (f.codigo ? capitulosDe(f.conteudo) : [])).map((c) => [c.id, c])).values()]}
           ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque. Depois, continua valendo para revisar. Se a turma do professor marcar outra data, vale a da turma." />
       )}
     </section>
@@ -979,7 +995,8 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
           <div className="small">Passe para a criança. Ele não aparece de novo.</div>
         </div>
       )}
-      <DatasDasProvas token={token} rota={`/adulto/turmas/${id}/provas`} provas={dados.provas ?? {}} aoMudar={(p) => setDados({ ...dados, provas: p })}
+      <MateriasDaTurma conteudo={turma.conteudo} />
+      <DatasDasProvas token={token} rota={`/adulto/turmas/${id}/provas`} provas={dados.provas ?? {}} aoMudar={(p) => setDados({ ...dados, provas: p })} capitulos={capitulosDe(turma.conteudo)}
         ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque para as crianças. Depois, continua aberto e valendo para quem chegou depois ou quer revisar." />
       <Administradores token={token} id={id} nomeTurma={turma.nome} />
       <DadosDaTurma key={turma.id} token={token} turma={turma} criancas={criancas.length} aoMudar={(t) => setDados({ ...dados, turma: t })} />
@@ -1287,8 +1304,9 @@ interface DonoCrianca { id: string; apelido: string; cor: string; criado: number
 interface DonoAdulto { id: string; nome: string; email: string; criado: number; visto: number; filhos: number; filhos_sem_turma: number; turmas: number }
 interface DonoPedido { id: string; tipo: 'crianca' | 'juntar'; criado: number; turma_id: string; turma: string; escola: string; quem: string; apelido: string | null; cor: string | null; origem: string | null }
 interface DonoResumo { adultos: number; adultos_novos: number; criancas: number; criancas_novas: number; sem_turma: number; ativas_hoje: number; ativas_semana: number; turmas: number; pedidos: number }
-interface DonoTurma { id: string; nome: string; escola: string; criancas: number }
-interface DonoDados { hoje: number; ontem: number; resumo: DonoResumo; criancas: DonoCrianca[]; adultos: DonoAdulto[]; pedidos: DonoPedido[]; turmas: DonoTurma[] }
+interface DonoTurma { id: string; nome: string; escola: string; codigo: string; conteudo: string; criancas: number }
+interface DonoConteudo { id: string; nome: string; capitulos: number }
+interface DonoDados { hoje: number; ontem: number; resumo: DonoResumo; criancas: DonoCrianca[]; adultos: DonoAdulto[]; pedidos: DonoPedido[]; turmas: DonoTurma[]; conteudos: DonoConteudo[] }
 
 const FUSO = 'America/Sao_Paulo';
 const diaDe = (ms: number) => new Date(ms).toLocaleDateString('pt-BR', { timeZone: FUSO });
@@ -1308,7 +1326,7 @@ const PERIODOS: { id: Periodo; nome: string }[] = [{ id: 'hoje', nome: 'Hoje' },
 function PainelDono({ token }: { token: string }) {
   const [dados, setDados] = useState<DonoDados | null>(null);
   const [erro, setErro] = useState<string | null>(null);
-  const [aba, setAba] = useState<'criancas' | 'adultos' | 'pedidos'>('criancas');
+  const [aba, setAba] = useState<'criancas' | 'adultos' | 'turmas' | 'pedidos'>('criancas');
   const [periodo, setPeriodo] = useState<Periodo>('7');
   const [semTurma, setSemTurma] = useState(false);
   const [ocupado, setOcupado] = useState<string | null>(null);
@@ -1343,6 +1361,15 @@ function PainelDono({ token }: { token: string }) {
     void carregar();
   };
 
+  const mudarMaterias = async (t: DonoTurma, conteudo: string) => {
+    setOcupado(t.id); setErro(null); setFeito(null);
+    const r = await api(`/adulto/dono/turmas/${t.id}/conteudo`, { corpo: { conteudo }, tokenProprio: token });
+    setOcupado(null);
+    if (r.erro) return setErro(r.erro);
+    setFeito(conteudo ? `A turma ${t.nome} agora estuda: ${dados.conteudos.find((x) => x.id === conteudo)?.nome}.` : `A turma ${t.nome} ficou sem matérias: as crianças dela não veem jogos.`);
+    void carregar();
+  };
+
   const numero = (n: number, texto: string, alerta = false) => (
     <div className="painel coluna" style={{ gap: 2, padding: 12, flex: '1 1 140px' }}>
       <span className="display" style={{ fontSize: 28, color: alerta && n ? 'var(--t-coral)' : undefined }}>{n}</span>
@@ -1370,10 +1397,11 @@ function PainelDono({ token }: { token: string }) {
       <div className="abas" role="tablist" aria-label="O que ver">
         <button role="tab" aria-selected={aba === 'criancas'} onClick={() => setAba('criancas')}>Crianças</button>
         <button role="tab" aria-selected={aba === 'adultos'} onClick={() => setAba('adultos')}>Adultos</button>
+        <button role="tab" aria-selected={aba === 'turmas'} onClick={() => setAba('turmas')}>Turmas</button>
         <button role="tab" aria-selected={aba === 'pedidos'} onClick={() => setAba('pedidos')}>Pedidos{dados.pedidos.length ? ` (${dados.pedidos.length})` : ''}</button>
       </div>
 
-      {aba !== 'pedidos' && (
+      {(aba === 'criancas' || aba === 'adultos') && (
         <div className="linha" style={{ flexWrap: 'wrap', gap: 8 }}>
           {PERIODOS.map((p) => <button key={p.id} className="filtro" aria-pressed={periodo === p.id} onClick={() => setPeriodo(p.id)}>{p.nome}</button>)}
           {aba === 'criancas' && <button className="filtro" aria-pressed={semTurma} onClick={() => setSemTurma(!semTurma)}>Só sem turma</button>}
@@ -1382,7 +1410,7 @@ function PainelDono({ token }: { token: string }) {
 
       {aba === 'criancas' && (
         <section className="coluna" style={{ gap: 8 }} aria-label="Crianças que usaram o app">
-          <p className="muted small" style={{ margin: 0 }}>{plural(criancas.length, 'criança usou', 'crianças usaram')} o app nesse período. "Sem turma" quer dizer que a criança está só na conta da família: ela joga, mas não aparece em nenhuma turma.</p>
+          <p className="muted small" style={{ margin: 0 }}>{plural(criancas.length, 'criança usou', 'crianças usaram')} o app nesse período. "Sem turma" quer dizer que a criança está só na conta da família: ela não vê jogos até entrar numa turma.</p>
           {criancas.map((k) => (
             <div key={k.id} className="painel-destaque coluna" style={{ gap: 8 }}>
               <div className="linha" style={{ gap: 10, cursor: k.turma_id ? 'pointer' : undefined }} onClick={() => k.turma_id && ir('adulto', k.turma_id)}>
@@ -1435,6 +1463,29 @@ function PainelDono({ token }: { token: string }) {
                 {x.filhos_sem_turma ? <span style={{ color: 'var(--t-coral)' }}> ({x.filhos_sem_turma} sem turma)</span> : null}
                 {` · ${plural(x.turmas, 'turma', 'turmas')} que administra`}
               </span>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {aba === 'turmas' && (
+        <section className="coluna" style={{ gap: 8 }} aria-label="Matérias de cada turma">
+          <p className="muted small" style={{ margin: 0 }}>Cada turma estuda o livro dela. Escolha as matérias de cada turma. Turma "sem matérias" não mostra jogos para as crianças (elas só veem o álbum). Turma nova começa sem matérias.</p>
+          {dados.turmas.map((t) => (
+            <div key={t.id} className="painel-destaque coluna" style={{ gap: 8 }}>
+              <div className="linha" style={{ gap: 10, cursor: 'pointer' }} onClick={() => ir('adulto', t.id)}>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span className="display" style={{ fontSize: 18, display: 'block' }}>{comEscola(t.nome, t.escola)}</span>
+                  <span className="muted small">Código {t.codigo} · {plural(t.criancas, 'criança', 'crianças')}</span>
+                </span>
+                <Icone nome="seguir" />
+              </div>
+              <label htmlFor={`materias-${t.id}`} style={rotulo}>Matérias</label>
+              <select id={`materias-${t.id}`} style={{ ...campo, borderColor: t.conteudo ? undefined : 'var(--coral)' }} value={t.conteudo} disabled={ocupado === t.id}
+                onChange={(ev) => void mudarMaterias(t, ev.target.value)}>
+                <option value="">Sem matérias (não mostra jogos)</option>
+                {dados.conteudos.map((x) => <option key={x.id} value={x.id}>{x.nome} ({plural(x.capitulos, 'capítulo', 'capítulos')})</option>)}
+              </select>
             </div>
           ))}
         </section>
