@@ -29,6 +29,16 @@ export interface ProgressoSync {
 
 export const progressoVazio = (): ProgressoSync => ({ xp: 0, feitas: {}, notas: {}, pacotes: [], abertos: [], dias: [], compras: [] });
 
+/**
+ * Pacote de boas-vindas (Lucas, 05/11/2026): toda conta nova de criança já nasce com 1 pacote normal,
+ * para ela entender o jogo logo de cara. A carta sai na sorte, como em qualquer pacote. Id fixo: nunca vem duas vezes.
+ */
+export const PACOTE_BOAS_VINDAS = 'boas-vindas';
+export function comBoasVindas(p: ProgressoSync): ProgressoSync {
+  if (p.abertos.includes(PACOTE_BOAS_VINDAS) || p.pacotes.some((x) => x.id === PACOTE_BOAS_VINDAS)) return p;
+  return { ...p, pacotes: [{ id: PACOTE_BOAS_VINDAS, tipo: 'normal' as const, capitulo: PACOTE_BOAS_VINDAS }, ...p.pacotes].slice(0, 50) };
+}
+
 const uniq = <T,>(a: T[]) => [...new Set(a)];
 
 /** Junta o progresso do servidor com o do aparelho: guarda sempre o maior/mais completo. */
