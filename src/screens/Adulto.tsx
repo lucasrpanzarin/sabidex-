@@ -618,22 +618,82 @@ function Conversa({ mensagens, avisadas, acoes }: { mensagens: MsgAdulto[]; avis
   );
 }
 
-/** O responsável autoriza o chat e o "estudando agora" do filho, e lê a conversa da turma. */
+interface NaTurma { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias: number; online: number }
+
+/** Placar da semana da turma do filho, igual ao que a criança vê (só leitura). */
+function PlacarDaTurma({ lista, eu, apelido }: { lista: NaTurma[]; eu: string; apelido: string }) {
+  const [aba, setAba] = useState<'xp' | 'cartas' | 'vitorias'>('xp');
+  const num = (p: NaTurma) => (aba === 'xp' ? p.xp : aba === 'cartas' ? p.cartas : p.vitorias);
+  const unidade = (n: number) => (aba === 'xp' ? `${n} XP` : aba === 'cartas' ? `${n} ${n === 1 ? 'carta' : 'cartas'}` : `${n} ${n === 1 ? 'vitória' : 'vitórias'}`);
+  const ordem = lista.slice().sort((a, b) => num(b) - num(a) || a.apelido.localeCompare(b.apelido));
+  const agora = lista.filter((p) => p.online);
+  return (
+    <div className="coluna" style={{ gap: 8 }}>
+      <span className="small" style={{ fontWeight: 700 }}>
+        {agora.length ? `Estudando agora: ${agora.map((p) => p.apelido).join(', ')}.` : 'Ninguém da turma está estudando agora.'}
+      </span>
+      <div className="linha" role="tablist" aria-label="Placar da semana" style={{ gap: 6 }}>
+        {(['xp', 'cartas', 'vitorias'] as const).map((k) => (
+          <button key={k} role="tab" aria-selected={aba === k} onClick={() => setAba(k)} className={`btn ${aba === k ? 'btn-rosa' : 'btn-escuro'}`}
+            style={{ flex: 1, minHeight: 40, fontSize: 14, padding: '4px 6px' }}>{{ xp: 'Mais XP', cartas: 'Mais cartas', vitorias: 'Duelos' }[k]}</button>
+        ))}
+      </div>
+      <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 6 }}>
+        {ordem.map((p, i) => {
+          const meu = p.id === eu;
+          return (
+            <li key={p.id} className="linha" style={{ gap: 8, minHeight: 44, padding: '4px 10px', borderRadius: 12, background: meu ? '#CFFAFE' : 'var(--surface)', border: '2px solid var(--ink)' }}>
+              <span className="display" style={{ width: 24, color: 'var(--muted)' }}>{i + 1}º</span>
+              <Bolinha nome={p.apelido} cor={p.cor} tamanho={28} />
+              <span style={{ flex: 1, minWidth: 0, fontWeight: 900, overflowWrap: 'anywhere' }}>
+                {p.apelido}{meu ? ' (seu filho)' : ''}
+                {!!p.online && <span className="small" style={{ display: 'block', fontWeight: 700, color: 'var(--t-green)' }}>Estudando agora</span>}
+              </span>
+              <span style={{ fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>{unidade(num(p))}</span>
+            </li>
+          );
+        })}
+      </ol>
+      <span className="muted small">É o mesmo placar que {apelido} vê no app. {aba === 'vitorias' ? 'Vitórias no Duelo do Saber nesta semana. ' : ''}Zera toda segunda-feira.</span>
+    </div>
+  );
+}
+
+/** A turma do filho para o responsável: placar da semana, quem está estudando, a conversa e as permissões do chat. */
 function ChatDoFilho({ token, f, aoMudar }: { token: string; f: Filho; aoMudar: () => void }) {
+  const [aberto, setAberto] = useState<'turma' | 'chat' | null>(null);
   const [ler, setLer] = useState<MsgAdulto[] | null>(null);
+  const [placar, setPlacar] = useState<{ eu: string; participantes: NaTurma[] } | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const mudar = async (campo: 'chat' | 'online', valor: boolean) => {
     const r = await api(`/adulto/familia/${f.id}/chat`, { corpo: { [campo]: valor }, tokenProprio: token });
     if (r.erro) setErro(r.erro); else aoMudar();
   };
-  const abrir = async () => {
-    if (ler) return setLer(null);
+  const verChat = async () => {
+    setErro(null);
+    if (aberto === 'chat') return setAberto(null);
     const r = await api<{ mensagens: MsgAdulto[] }>(`/adulto/familia/${f.id}/chat`, { tokenProprio: token });
-    if (r.erro) setErro(r.erro); else setLer(r.mensagens);
+    if (r.erro) return setErro(r.erro);
+    setLer(r.mensagens); setAberto('chat');
   };
+  const verTurma = async () => {
+    setErro(null);
+    if (aberto === 'turma') return setAberto(null);
+    const r = await api<{ eu: string; participantes: NaTurma[] }>(`/adulto/familia/${f.id}/turma`, { tokenProprio: token });
+    if (r.erro) return setErro(r.erro);
+    setPlacar(r); setAberto('turma');
+  };
+  const botao = { flex: 1, minHeight: 42, fontSize: 15, padding: '6px 10px' };
   return (
-    <div className="coluna" style={{ gap: 6, borderTop: '2px dashed var(--line)', paddingTop: 8 }}>
-      <span className="small" style={{ fontWeight: 900 }}>Chat da turma {f.turma}</span>
+    <div className="coluna" style={{ gap: 8, borderTop: '2px dashed var(--line)', paddingTop: 8 }}>
+      <span className="small" style={{ fontWeight: 900 }}>Turma {f.turma}</span>
+      <div className="linha" style={{ gap: 8, flexWrap: 'wrap' }}>
+        <button className={`btn ${aberto === 'turma' ? 'btn-escuro' : 'btn-ciano'}`} style={botao} onClick={() => void verTurma()}>{aberto === 'turma' ? 'Fechar a turma' : 'Ver a turma'}</button>
+        <button className={`btn ${aberto === 'chat' ? 'btn-escuro' : 'btn-ciano'}`} style={botao} onClick={() => void verChat()}>{aberto === 'chat' ? 'Fechar o chat' : 'Ver o chat da turma'}</button>
+      </div>
+      {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
+      {aberto === 'turma' && placar && <PlacarDaTurma lista={placar.participantes} eu={placar.eu} apelido={f.apelido} />}
+      {aberto === 'chat' && ler && <><span className="muted small">As mensagens de {f.apelido} aparecem em azul. Mensagens com mais de 60 dias são apagadas sozinhas.</span><Conversa mensagens={ler} /></>}
       {!f.turma_chat && <span className="muted small">Os adultos da turma desligaram o chat desta turma. Se ligarem de novo, vale o que está marcado aqui.</span>}
       <label className="linha small" style={{ gap: 8, fontWeight: 700, alignItems: 'flex-start' }}>
         <input type="checkbox" checked={!!f.chat_ok} onChange={(ev) => void mudar('chat', ev.target.checked)} style={{ width: 22, height: 22, flex: 'none' }} />
@@ -643,9 +703,6 @@ function ChatDoFilho({ token, f, aoMudar }: { token: string; f: Filho; aoMudar: 
         <input type="checkbox" checked={!!f.mostrar_online} onChange={(ev) => void mudar('online', ev.target.checked)} style={{ width: 22, height: 22, flex: 'none' }} />
         <span>Mostrar para os colegas quando {f.apelido} está estudando agora.</span>
       </label>
-      <button className="btn btn-escuro" style={{ minHeight: 40, fontSize: 15 }} onClick={() => void abrir()}>{ler ? 'Fechar a conversa' : 'Ler a conversa da turma'}</button>
-      {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
-      {ler && <><span className="muted small">As mensagens de {f.apelido} aparecem em azul. Mensagens com mais de 60 dias são apagadas sozinhas.</span><Conversa mensagens={ler} /></>}
     </div>
   );
 }

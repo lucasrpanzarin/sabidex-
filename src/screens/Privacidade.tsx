@@ -8,7 +8,7 @@ import { voltar } from '../lib/rota';
 /** E-mail para pedidos sobre dados. */
 const EMAIL_CONTATO = 'lucas@fastgsa.com';
 /** Data da última mudança no texto. Só mude também `VERSAO_PRIVACIDADE` (servidor) se a mudança for importante. */
-const ATUALIZADA = '5 de novembro de 2026 (chat da turma vem ligado)';
+const ATUALIZADA = '5 de novembro de 2026 (responsável vê o placar da turma)';
 
 function Parte({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
@@ -47,6 +47,7 @@ export function Privacidade() {
       <Parte titulo="Quem vê o quê">
         O adulto responsável vê o progresso dos filhos. Os administradores da turma (quem criou a turma e os adultos que ele convidar, como o professor ou outro responsável) veem o apelido e o progresso dos alunos da turma.
         Colegas da mesma turma veem só o apelido, a cor, as cartas, o XP da semana, as vitórias e os resultados dos duelos com ela e, se os adultos deixarem, se a criança está estudando agora.
+        O responsável de uma criança da turma vê o mesmo placar que os colegas veem (apelido, cor, cartas, XP da semana, vitórias nos duelos e quem está estudando agora).
       </Parte>
       <Parte titulo="Busca de turmas">
         Adultos com conta podem procurar uma turma pelo nome ou pela escola, para pedir que o filho entre nela.
