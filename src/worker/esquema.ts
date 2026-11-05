@@ -228,6 +228,13 @@ export const MIGRACOES = [
     criado INTEGER NOT NULL
   )`,
   `CREATE INDEX IF NOT EXISTS confirmacoes_email_adulto ON confirmacoes_email (adulto_id, criado)`,
+  // Painel do dono (Lucas, 05/11/2026): cada dia em que a criança ou o adulto usou o app (dia de Brasília, "2026-11-04").
+  `CREATE TABLE IF NOT EXISTS uso_dias (
+    ref_id TEXT NOT NULL,
+    dia TEXT NOT NULL,
+    PRIMARY KEY (ref_id, dia)
+  )`,
+  `CREATE INDEX IF NOT EXISTS uso_dias_dia ON uso_dias (dia)`,
 ];
 
 /** Muda sozinha quando uma tabela ou migração nova entra (o servidor só confere tudo de novo quando ela muda). */

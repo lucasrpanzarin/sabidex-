@@ -36,6 +36,8 @@ interface Env {
 type C = Context<{ Bindings: Env }>;
 
 const DIA = 86_400_000;
+/** Guarda que a criança ou o adulto usou o app hoje (painel do dono: "Ontem" mostra todo mundo que usou ontem). */
+const marcarDia = (db: D1Database, ref: string) => db.prepare('INSERT OR IGNORE INTO uso_dias (ref_id, dia) VALUES (?, ?)').bind(ref, diaBR());
 const FASES_VALIDAS = new Set(capitulos.flatMap((c) => [...FASES.map((f) => `${c.id}:${f}`), ...extrasDo(c).map((x) => chaveExtra(c.id, x))]));
 // Todas as 60 cartas (trocas). Do aparelho só chegam cartas novas da forma 1 (as que vêm nos pacotes);
 // as formas 2 e 3 só nascem aqui no servidor, na evolução.
@@ -87,7 +89,8 @@ async function novaSessao(db: D1Database, tipo: 'crianca' | 'adulto', ref: strin
   const validade = tipo === 'crianca' ? 180 * DIA : 30 * DIA;
   await db.prepare('INSERT INTO sessoes (token_hash, tipo, ref_id, expira) VALUES (?, ?, ?, ?)')
     .bind(await sha256(token), tipo, ref, Date.now() + validade).run();
-  if (tipo === 'adulto') await db.prepare('UPDATE adultos SET visto = ? WHERE id = ?').bind(Date.now(), ref).run();
+  if (tipo === 'adulto') await db.batch([db.prepare('UPDATE adultos SET visto = ? WHERE id = ?').bind(Date.now(), ref), marcarDia(db, ref)]);
+  else await marcarDia(db, ref).run();
   return token;
 }
 
@@ -164,6 +167,7 @@ function apagarCrianca(db: D1Database, cid: string) {
     db.prepare('DELETE FROM duelos WHERE de_id = ? OR para_id = ?').bind(cid, cid),
     db.prepare('DELETE FROM avisos_chat WHERE por_id = ?').bind(cid),
     db.prepare('DELETE FROM criancas WHERE id = ?').bind(cid),
+    db.prepare('DELETE FROM uso_dias WHERE ref_id = ?').bind(cid),
   ];
 }
 
@@ -384,7 +388,7 @@ async function crianca(c: C) {
   // Grava sem fazer a criança esperar.
   const agora = Date.now();
   if (agora - (k.ativo ?? 0) > 30_000) {
-    const gravar = c.env.DB.prepare('UPDATE criancas SET ativo = ? WHERE id = ?').bind(agora, k.id).run();
+    const gravar = c.env.DB.batch([c.env.DB.prepare('UPDATE criancas SET ativo = ? WHERE id = ?').bind(agora, k.id), marcarDia(c.env.DB, k.id)]);
     try { c.executionCtx.waitUntil(gravar); } catch { await gravar; }
     k.ativo = agora;
   }
@@ -1043,7 +1047,7 @@ app.post('/adulto/sair', sairSessao);
 app.get('/adulto/eu', async (c) => {
   const a = await adulto(c);
   if (!a) return erro(c, 401, 'Entre de novo.');
-  await c.env.DB.prepare('UPDATE adultos SET visto = ? WHERE id = ?').bind(Date.now(), a.id).run();
+  await c.env.DB.batch([c.env.DB.prepare('UPDATE adultos SET visto = ? WHERE id = ?').bind(Date.now(), a.id), marcarDia(c.env.DB, a.id)]);
   return c.json({ adulto: dadosAdulto(c.env, a) });
 });
 
@@ -1065,7 +1069,7 @@ app.get('/adulto/dono', async (c) => {
   // Quem saiu da conta não tem mais sessão; quem entrou antes desta versão não tem "visto". Usa o que tiver.
   const vistoAdulto = `MAX(a.visto, COALESCE((SELECT MAX(s.expira) - ${30 * DIA} FROM sessoes s WHERE s.tipo = 'adulto' AND s.ref_id = a.id), 0))`;
   const vistoCrianca = 'MAX(k.visto, k.ativo)';
-  const [resumo, criancas, adultos, pedidos, turmas] = await db.batch([
+  const [resumo, criancas, adultos, pedidos, turmas, usos] = await db.batch([
     db.prepare(`SELECT
         (SELECT COUNT(*) FROM adultos) AS adultos,
         (SELECT COUNT(*) FROM adultos WHERE criado >= ?2) AS adultos_novos,
@@ -1076,7 +1080,7 @@ app.get('/adulto/dono', async (c) => {
         (SELECT COUNT(*) FROM criancas k WHERE ${vistoCrianca} >= ?3) AS ativas_semana,
         (SELECT COUNT(*) FROM turmas) AS turmas,
         (SELECT COUNT(*) FROM pedidos_turma WHERE status = 'pendente') AS pedidos`).bind(hoje, semana, semana),
-    db.prepare(`SELECT k.id, k.apelido, k.cor, k.criado, ${vistoCrianca} AS visto, json_extract(k.progresso, '$.xp') AS xp,
+    db.prepare(`SELECT k.id, k.apelido, k.cor, k.criado, ${vistoCrianca} AS visto, json_extract(k.progresso, '$.xp') AS xp, k.ativo, json_extract(k.progresso, '$.dias') AS dias_estudo,
         CASE WHEN k.turma_id LIKE '${SEM_TURMA}%' THEN NULL ELSE k.turma_id END AS turma_id, t.nome AS turma, t.escola AS escola,
         r.nome AS responsavel, r.email AS responsavel_email
       FROM criancas k LEFT JOIN turmas t ON t.id = k.turma_id LEFT JOIN adultos r ON r.id = k.familia_id
@@ -1093,8 +1097,25 @@ app.get('/adulto/dono', async (c) => {
         AND ((p.tipo = 'crianca' AND k.familia_id = p.adulto_id AND k.turma_id != p.turma_id) OR (p.tipo = 'juntar' AND o.id IS NOT NULL))
       ORDER BY p.criado`),
     db.prepare(`SELECT t.id, t.nome, t.escola, (SELECT COUNT(*) FROM criancas WHERE turma_id = t.id) AS criancas FROM turmas t ORDER BY t.nome COLLATE NOCASE`),
+    db.prepare('SELECT ref_id, dia FROM uso_dias WHERE dia >= ?').bind(diaBR(agora - 31 * DIA)),
   ]);
-  return c.json({ hoje, ontem, resumo: resumo.results[0], criancas: criancas.results, adultos: adultos.results, pedidos: pedidos.results, turmas: turmas.results });
+  // Todos os dias em que cada um usou o app (não só o último): quem usou ontem e hoje aparece nos dois.
+  // Para os dias antes da tabela uso_dias, usa os dias de estudo da criança, o dia em que a conta foi criada e o último uso.
+  const desde = diaBR(agora - 31 * DIA);
+  const usados = new Map<string, string[]>();
+  for (const u of usos.results as { ref_id: string; dia: string }[]) usados.set(u.ref_id, [...(usados.get(u.ref_id) ?? []), u.dia]);
+  const diasDe = (id: string, momentos: number[], extra: unknown[] = []) => [...new Set([
+    ...(usados.get(id) ?? []),
+    ...extra.filter((d): d is string => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)),
+    ...momentos.filter((m) => m > 0).map((m) => diaBR(m)),
+  ])].filter((d) => d >= desde).sort();
+  const listaCriancas = (criancas.results as Record<string, unknown>[]).map(({ ativo, dias_estudo, ...k }) => {
+    let estudo: unknown = [];
+    try { estudo = JSON.parse(String(dias_estudo ?? '[]')); } catch { /* sem dias de estudo */ }
+    return { ...k, dias: diasDe(String(k.id), [Number(k.criado), Number(k.visto), Number(ativo)], Array.isArray(estudo) ? estudo : []) };
+  });
+  const listaAdultos = (adultos.results as Record<string, unknown>[]).map((x) => ({ ...x, dias: diasDe(String(x.id), [Number(x.criado), Number(x.visto)]) }));
+  return c.json({ hoje, ontem, resumo: resumo.results[0], criancas: listaCriancas, adultos: listaAdultos, pedidos: pedidos.results, turmas: turmas.results });
 });
 
 // O dono do app coloca uma criança numa turma sem esperar o pedido do responsável (Lucas, 05/11/2026).
@@ -1594,6 +1615,7 @@ app.post('/adulto/apagar-conta', async (c) => {
     db.prepare(`UPDATE pedidos_turma SET status = 'cancelado', resolvido = ? WHERE adulto_id = ? AND status = 'pendente'`).bind(Date.now(), a.id),
     db.prepare(`DELETE FROM sessoes WHERE tipo = 'adulto' AND ref_id = ?`).bind(a.id),
     db.prepare('DELETE FROM adultos WHERE id = ?').bind(a.id),
+    db.prepare('DELETE FROM uso_dias WHERE ref_id = ?').bind(a.id),
   ]);
   return c.json({ ok: true });
 });

@@ -1283,8 +1283,8 @@ function DadosDaTurma({ token, turma, criancas, aoMudar }: { token: string; turm
 /* ---------------- Painel do dono do app (Lucas, 05/11/2026) ---------------- */
 // Só aparece para os e-mails em ADMIN_EMAILS (wrangler.jsonc). O servidor confere de novo.
 
-interface DonoCrianca { id: string; apelido: string; cor: string; criado: number; visto: number; xp: number | null; turma_id: string | null; turma: string | null; escola: string | null; responsavel: string | null; responsavel_email: string | null }
-interface DonoAdulto { id: string; nome: string; email: string; criado: number; visto: number; filhos: number; filhos_sem_turma: number; turmas: number }
+interface DonoCrianca { id: string; apelido: string; cor: string; criado: number; visto: number; xp: number | null; turma_id: string | null; turma: string | null; escola: string | null; responsavel: string | null; responsavel_email: string | null; dias?: string[] }
+interface DonoAdulto { id: string; nome: string; email: string; criado: number; visto: number; filhos: number; filhos_sem_turma: number; turmas: number; dias?: string[] }
 interface DonoPedido { id: string; tipo: 'crianca' | 'juntar'; criado: number; turma_id: string; turma: string; escola: string; quem: string; apelido: string | null; cor: string | null; origem: string | null }
 interface DonoResumo { adultos: number; adultos_novos: number; criancas: number; criancas_novas: number; sem_turma: number; ativas_hoje: number; ativas_semana: number; turmas: number; pedidos: number }
 interface DonoTurma { id: string; nome: string; escola: string; criancas: number }
@@ -1292,6 +1292,11 @@ interface DonoDados { hoje: number; ontem: number; resumo: DonoResumo; criancas:
 
 const FUSO = 'America/Sao_Paulo';
 const diaDe = (ms: number) => new Date(ms).toLocaleDateString('pt-BR', { timeZone: FUSO });
+/** "2026-11-04" no horário de Brasília (o mesmo formato dos dias que o servidor manda). */
+const diaIso = (ms: number) => new Date(ms).toLocaleDateString('en-CA', { timeZone: FUSO });
+/** Usou o app em algum dia de [de, ate]? Olha todos os dias em que usou, não só o último. */
+const usouEntre = (x: { dias?: string[]; visto: number; criado: number }, de: string, ate: string) =>
+  [...(x.dias ?? []), ...[x.visto, x.criado].filter((m) => m > 0).map(diaIso)].some((d) => d >= de && d <= ate);
 /** "hoje, 14:32", "ontem, 09:10" ou "03/11, 18:00". */
 function quandoFoi(ms: number) {
   if (!ms) return 'nunca';
@@ -1320,10 +1325,10 @@ function PainelDono({ token }: { token: string }) {
 
   if (!dados) return erro ? <div className="aviso aviso-erro" role="alert">{erro}</div> : <p className="muted">Carregando…</p>;
   const { resumo } = dados;
-  const desde = periodo === 'hoje' ? dados.hoje : periodo === 'ontem' ? dados.ontem : Date.now() - Number(periodo) * 86_400_000;
-  const ate = periodo === 'ontem' ? dados.hoje : Infinity;
-  const criancas = dados.criancas.filter((k) => k.visto >= desde && k.visto < ate && (!semTurma || !k.turma_id));
-  const adultos = dados.adultos.filter((x) => (x.visto >= desde && x.visto < ate) || (x.criado >= desde && x.criado < ate));
+  const dia = (antes: number) => diaIso(dados.hoje + 12 * 3_600_000 - antes * 86_400_000);
+  const [de, ate] = periodo === 'hoje' ? [dia(0), dia(0)] : periodo === 'ontem' ? [dia(1), dia(1)] : [dia(Number(periodo) - 1), dia(0)];
+  const criancas = dados.criancas.filter((k) => usouEntre(k, de, ate) && (!semTurma || !k.turma_id));
+  const adultos = dados.adultos.filter((x) => usouEntre(x, de, ate));
 
   const responder = async (p: DonoPedido, acao: 'aceitar' | 'recusar') => {
     setOcupado(p.id); setErro(null);
@@ -1391,7 +1396,7 @@ function PainelDono({ token }: { token: string }) {
                   <span className="display" style={{ fontSize: 18, display: 'block' }}>{k.apelido}</span>
                   <span className="small" style={{ display: 'block', fontWeight: 800, color: k.turma_id ? undefined : 'var(--t-coral)' }}>{k.turma_id ? `Turma ${comEscola(k.turma, k.escola)}` : 'Sem turma (só na família)'}</span>
                   <span className="muted small" style={{ display: 'block', overflowWrap: 'anywhere' }}>
-                    Usou {quandoFoi(k.visto)} · {k.xp ?? 0} XP · conta criada {quandoFoi(k.criado)}
+                    Última vez {quandoFoi(k.visto)}{k.dias && k.dias.length > 1 ? ` · usou em ${k.dias.length} dias` : ''} · {k.xp ?? 0} XP · conta criada {quandoFoi(k.criado)}
                     {k.responsavel ? ` · responsável ${k.responsavel} (${k.responsavel_email})` : ' · sem responsável (entrou só pela turma)'}
                   </span>
                 </span>
@@ -1428,7 +1433,7 @@ function PainelDono({ token }: { token: string }) {
               <span className="display" style={{ fontSize: 18 }}>{x.nome}</span>
               <span className="muted small" style={{ overflowWrap: 'anywhere' }}>{x.email}</span>
               <span className="small" style={{ fontWeight: 700 }}>
-                Entrou {quandoFoi(x.visto)} · conta criada {quandoFoi(x.criado)}
+                Última vez {quandoFoi(x.visto)} · conta criada {quandoFoi(x.criado)}
               </span>
               <span className="small" style={{ fontWeight: 700 }}>
                 {plural(x.filhos, 'filho', 'filhos')}
