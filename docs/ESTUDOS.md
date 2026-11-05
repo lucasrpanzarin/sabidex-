@@ -116,7 +116,7 @@ Por isso, nos capítulos de Matemática (campo `matematica`), as fases do mapa m
   as contas seguem o mesmo nível e o mesmo método.
 - **Revisão do Ará**: guarda o *tipo* de conta errado e traz uma conta nova desse tipo.
 - A explicação de cada conta mostra o método (a operação inversa, a prova real), não só o resultado.
-- **Papel e lápis** (Lucas, 05/11/2026): fazer a conta no papel não é trapaça, é o que a escola cobra (conta armada, prova real). No começo de cada fase de Matemática o Ará pede papel e lápis (botão "Já peguei!"); nas contas mais difíceis aparece "Dica: arme a conta no papel" (`TIPOS_PAPEL` em `src/lib/contas.ts`). Rascunho na tela não: escrever número com o dedo no celular atrapalha mais do que ajuda.
+- **Papel e lápis** (Lucas, 05/11/2026): fazer a conta no papel não é trapaça, é o que a escola cobra (conta no papel, prova real). No começo de cada fase de Matemática o Ará pede papel e lápis (botão "Já peguei!"); nas contas mais difíceis aparece "Dica: faça a conta no papel" (`TIPOS_PAPEL` em `src/lib/contas.ts`). Rascunho na tela não: escrever número com o dedo no celular atrapalha mais do que ajuda.
 
 ---
 
