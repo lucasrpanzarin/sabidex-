@@ -215,6 +215,19 @@ export const MIGRACOES = [
   `CREATE INDEX IF NOT EXISTS pedidos_turma_adulto ON pedidos_turma (adulto_id, status)`,
   // Painel do dono do app (Lucas, 05/11/2026): última vez que o adulto entrou ou abriu a área dos adultos.
   `ALTER TABLE adultos ADD COLUMN visto INTEGER NOT NULL DEFAULT 0`,
+  // E-mail confirmado (Lucas, 05/11/2026): para uma criança não criar conta de adulto com e-mail inventado.
+  // Sem e-mail confirmado o adulto não cria turma, não liga o chat da turma nem autoriza o chat do filho.
+  // Quem entrou com Google/Apple já vem confirmado. Links valem 24 horas e uma vez só.
+  `ALTER TABLE adultos ADD COLUMN email_ok INTEGER NOT NULL DEFAULT 0`,
+  `UPDATE adultos SET email_ok = 1 WHERE tem_senha = 0`,
+  `CREATE TABLE IF NOT EXISTS confirmacoes_email (
+    token_hash TEXT PRIMARY KEY,
+    adulto_id TEXT NOT NULL,
+    expira INTEGER NOT NULL,
+    usado INTEGER NOT NULL DEFAULT 0,
+    criado INTEGER NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS confirmacoes_email_adulto ON confirmacoes_email (adulto_id, criado)`,
 ];
 
 /** Muda sozinha quando uma tabela ou migração nova entra (o servidor só confere tudo de novo quando ela muda). */

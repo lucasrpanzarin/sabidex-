@@ -38,7 +38,7 @@ O código já está pronto. Cada opção só aparece no app depois de configurad
 |---|---|---|
 | Google | Em console.cloud.google.com: "Credenciais" → "ID do cliente OAuth" do tipo **Aplicativo da Web**, com `https://sabidex.com.br` em "Origens JavaScript autorizadas" | `GOOGLE_CLIENT_ID` (texto) |
 | Apple | Em developer.apple.com (conta paga): um **Services ID** com "Sign in with Apple", domínio `sabidex.com.br` e retorno `https://sabidex.com.br/` | `APPLE_CLIENT_ID` (texto, o Services ID) |
-| Esqueci minha senha | Conta no resend.com, com o domínio `sabidex.com.br` verificado, e uma chave de API | `RESEND_API_KEY` (**segredo**) e `EMAIL_REMETENTE` (texto, ex.: `Sabidex <nao-responda@sabidex.com.br>`) |
+| Esqueci minha senha e confirmar o e-mail do adulto | Conta no resend.com, com o domínio `sabidex.com.br` verificado, e uma chave de API | `RESEND_API_KEY` (**segredo**) e `EMAIL_REMETENTE` (texto, ex.: `Sabidex <nao-responda@sabidex.com.br>`) |
 
 ## Como adicionar um capítulo
 
