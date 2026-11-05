@@ -235,6 +235,13 @@ export const MIGRACOES = [
   `UPDATE turmas SET conteudo = 'educativa-4b' WHERE conteudo IS NULL
     AND (lower(nome) LIKE '%educativa%' OR lower(escola) LIKE '%educativa%' OR busca LIKE '%educativa%')`,
   `UPDATE turmas SET conteudo = '' WHERE conteudo IS NULL`,
+  // Painel do dono (Lucas, 05/11/2026): cada dia em que a criança ou o adulto usou o app (dia de Brasília, "2026-11-04").
+  `CREATE TABLE IF NOT EXISTS uso_dias (
+    ref_id TEXT NOT NULL,
+    dia TEXT NOT NULL,
+    PRIMARY KEY (ref_id, dia)
+  )`,
+  `CREATE INDEX IF NOT EXISTS uso_dias_dia ON uso_dias (dia)`,
 ];
 
 /** Muda sozinha quando uma tabela ou migração nova entra (o servidor só confere tudo de novo quando ela muda). */

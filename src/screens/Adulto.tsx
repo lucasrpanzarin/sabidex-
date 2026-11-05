@@ -1,4 +1,5 @@
 // Área dos adultos: conta da família (perfis dos filhos), turmas e apagar a conta.
+import type { Uso } from '../shared/uso';
 import { useEffect, useRef, useState } from 'react';
 import { Icone } from '../components/Icone';
 import { Bolinha } from '../components/Perfis';
@@ -1364,8 +1365,8 @@ function DadosDaTurma({ token, turma, criancas, aoMudar }: { token: string; turm
 /* ---------------- Painel do dono do app (Lucas, 05/11/2026) ---------------- */
 // Só aparece para os e-mails em ADMIN_EMAILS (wrangler.jsonc). O servidor confere de novo.
 
-interface DonoCrianca { id: string; apelido: string; cor: string; criado: number; visto: number; xp: number | null; turma_id: string | null; turma: string | null; escola: string | null; responsavel: string | null; responsavel_email: string | null }
-interface DonoAdulto { id: string; nome: string; email: string; criado: number; visto: number; filhos: number; filhos_sem_turma: number; turmas: number }
+interface DonoCrianca { id: string; apelido: string; cor: string; criado: number; visto: number; xp: number | null; turma_id: string | null; turma: string | null; escola: string | null; responsavel: string | null; responsavel_email: string | null; dias?: string[] }
+interface DonoAdulto { id: string; nome: string; email: string; criado: number; visto: number; filhos: number; filhos_sem_turma: number; turmas: number; dias?: string[] }
 interface DonoPedido { id: string; tipo: 'crianca' | 'juntar'; criado: number; turma_id: string; turma: string; escola: string; quem: string; apelido: string | null; cor: string | null; origem: string | null }
 interface DonoResumo { adultos: number; adultos_novos: number; criancas: number; criancas_novas: number; sem_turma: number; ativas_hoje: number; ativas_semana: number; turmas: number; pedidos: number }
 interface DonoTurma { id: string; nome: string; escola: string; codigo: string; conteudo: string; criancas: number }
@@ -1374,6 +1375,11 @@ interface DonoDados { hoje: number; ontem: number; resumo: DonoResumo; criancas:
 
 const FUSO = 'America/Sao_Paulo';
 const diaDe = (ms: number) => new Date(ms).toLocaleDateString('pt-BR', { timeZone: FUSO });
+/** "2026-11-04" no horário de Brasília (o mesmo formato dos dias que o servidor manda). */
+const diaIso = (ms: number) => new Date(ms).toLocaleDateString('en-CA', { timeZone: FUSO });
+/** Usou o app em algum dia de [de, ate]? Olha todos os dias em que usou, não só o último. */
+const usouEntre = (x: { dias?: string[]; visto: number; criado: number }, de: string, ate: string) =>
+  [...(x.dias ?? []), ...[x.visto, x.criado].filter((m) => m > 0).map(diaIso)].some((d) => d >= de && d <= ate);
 /** "hoje, 14:32", "ontem, 09:10" ou "03/11, 18:00". */
 function quandoFoi(ms: number) {
   if (!ms) return 'nunca';
@@ -1390,7 +1396,7 @@ const PERIODOS: { id: Periodo; nome: string }[] = [{ id: 'hoje', nome: 'Hoje' },
 function PainelDono({ token }: { token: string }) {
   const [dados, setDados] = useState<DonoDados | null>(null);
   const [erro, setErro] = useState<string | null>(null);
-  const [aba, setAba] = useState<'criancas' | 'adultos' | 'turmas' | 'pedidos'>('criancas');
+  const [aba, setAba] = useState<'criancas' | 'adultos' | 'turmas' | 'pedidos' | 'uso'>('criancas');
   const [periodo, setPeriodo] = useState<Periodo>('7');
   const [semTurma, setSemTurma] = useState(false);
   const [ocupado, setOcupado] = useState<string | null>(null);
@@ -1402,10 +1408,10 @@ function PainelDono({ token }: { token: string }) {
 
   if (!dados) return erro ? <div className="aviso aviso-erro" role="alert">{erro}</div> : <p className="muted">Carregando…</p>;
   const { resumo } = dados;
-  const desde = periodo === 'hoje' ? dados.hoje : periodo === 'ontem' ? dados.ontem : Date.now() - Number(periodo) * 86_400_000;
-  const ate = periodo === 'ontem' ? dados.hoje : Infinity;
-  const criancas = dados.criancas.filter((k) => k.visto >= desde && k.visto < ate && (!semTurma || !k.turma_id));
-  const adultos = dados.adultos.filter((x) => (x.visto >= desde && x.visto < ate) || (x.criado >= desde && x.criado < ate));
+  const dia = (antes: number) => diaIso(dados.hoje + 12 * 3_600_000 - antes * 86_400_000);
+  const [de, ate] = periodo === 'hoje' ? [dia(0), dia(0)] : periodo === 'ontem' ? [dia(1), dia(1)] : [dia(Number(periodo) - 1), dia(0)];
+  const criancas = dados.criancas.filter((k) => usouEntre(k, de, ate) && (!semTurma || !k.turma_id));
+  const adultos = dados.adultos.filter((x) => usouEntre(x, de, ate));
 
   const responder = async (p: DonoPedido, acao: 'aceitar' | 'recusar') => {
     setOcupado(p.id); setErro(null);
@@ -1458,11 +1464,12 @@ function PainelDono({ token }: { token: string }) {
       {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
       {feito && <div className="aviso" role="status">{feito}</div>}
 
-      <div className="abas" role="tablist" aria-label="O que ver">
+      <div className="abas" role="tablist" aria-label="O que ver" style={{ flexWrap: 'wrap' }}>
         <button role="tab" aria-selected={aba === 'criancas'} onClick={() => setAba('criancas')}>Crianças</button>
         <button role="tab" aria-selected={aba === 'adultos'} onClick={() => setAba('adultos')}>Adultos</button>
         <button role="tab" aria-selected={aba === 'turmas'} onClick={() => setAba('turmas')}>Turmas</button>
         <button role="tab" aria-selected={aba === 'pedidos'} onClick={() => setAba('pedidos')}>Pedidos{dados.pedidos.length ? ` (${dados.pedidos.length})` : ''}</button>
+        <button role="tab" aria-selected={aba === 'uso'} onClick={() => setAba('uso')}>Como usam</button>
       </div>
 
       {(aba === 'criancas' || aba === 'adultos') && (
@@ -1483,7 +1490,7 @@ function PainelDono({ token }: { token: string }) {
                   <span className="display" style={{ fontSize: 18, display: 'block' }}>{k.apelido}</span>
                   <span className="small" style={{ display: 'block', fontWeight: 800, color: k.turma_id ? undefined : 'var(--t-coral)' }}>{k.turma_id ? `Turma ${comEscola(k.turma, k.escola)}` : 'Sem turma (só na família)'}</span>
                   <span className="muted small" style={{ display: 'block', overflowWrap: 'anywhere' }}>
-                    Usou {quandoFoi(k.visto)} · {k.xp ?? 0} XP · conta criada {quandoFoi(k.criado)}
+                    Última vez {quandoFoi(k.visto)}{k.dias && k.dias.length > 1 ? ` · usou em ${k.dias.length} dias` : ''} · {k.xp ?? 0} XP · conta criada {quandoFoi(k.criado)}
                     {k.responsavel ? ` · responsável ${k.responsavel} (${k.responsavel_email})` : ' · sem responsável (entrou só pela turma)'}
                   </span>
                 </span>
@@ -1520,7 +1527,7 @@ function PainelDono({ token }: { token: string }) {
               <span className="display" style={{ fontSize: 18 }}>{x.nome}</span>
               <span className="muted small" style={{ overflowWrap: 'anywhere' }}>{x.email}</span>
               <span className="small" style={{ fontWeight: 700 }}>
-                Entrou {quandoFoi(x.visto)} · conta criada {quandoFoi(x.criado)}
+                Última vez {quandoFoi(x.visto)} · conta criada {quandoFoi(x.criado)}
               </span>
               <span className="small" style={{ fontWeight: 700 }}>
                 {plural(x.filhos, 'filho', 'filhos')}
@@ -1574,7 +1581,85 @@ function PainelDono({ token }: { token: string }) {
           ))}
         </section>
       )}
-      <button className="btn btn-escuro btn-bloco" onClick={() => void carregar()}>Atualizar</button>
+      {aba === 'uso' && <PainelUso token={token} />}
+      {aba !== 'uso' && <button className="btn btn-escuro btn-bloco" onClick={() => void carregar()}>Atualizar</button>}
     </>
+  );
+}
+
+/** "Como usam" (Lucas, 05/11/2026): números somados de todas as crianças, sem dizer quem é quem. */
+function PainelUso({ token }: { token: string }) {
+  const [uso, setUso] = useState<Uso | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const carregar = () => api<Uso>('/adulto/dono/uso', { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : (setErro(null), setUso(r))));
+  useEffect(() => { void carregar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!uso) return erro ? <div className="aviso aviso-erro" role="alert">{erro}</div> : <p className="muted">Carregando…</p>;
+  const pct = (n: number, de: number) => (de ? `${Math.round((n / de) * 100)}%` : '0%');
+  const celula = { padding: '6px 4px', borderBottom: '1px solid var(--line)', textAlign: 'right' as const };
+  return (
+    <section className="coluna" style={{ gap: 12 }} aria-label="Como as crianças usam o app">
+      <p className="muted small" style={{ margin: 0 }}>
+        Números de todas as {uso.criancas} crianças com conta, somados. Não mostra quem é quem. Quem joga só no aparelho, sem conta, não entra aqui.
+      </p>
+
+      <div className="painel coluna" style={{ gap: 6, padding: 12 }}>
+        <h2 className="display" style={{ fontSize: 20, margin: 0 }}>Estudo</h2>
+        <span className="small" style={{ fontWeight: 700 }}>{uso.estudaram} de {uso.criancas} fizeram pelo menos uma fase ({pct(uso.estudaram, uso.criancas)})</span>
+        <span className="small" style={{ fontWeight: 700 }}>{uso.voltaram} estudaram em 2 dias ou mais ({pct(uso.voltaram, uso.criancas)})</span>
+        <span className="small" style={{ fontWeight: 700 }}>Quem estuda, estuda em média {String(uso.mediaDias).replace('.', ',')} dias</span>
+      </div>
+
+      <div className="painel coluna" style={{ gap: 6, padding: 12 }}>
+        <h2 className="display" style={{ fontSize: 20, margin: 0 }}>Partes do app que usam</h2>
+        <p className="muted small" style={{ margin: 0 }}>Quantas crianças já usaram cada parte pelo menos uma vez. Número baixo pode querer dizer que a criança não achou o botão ou não entendeu para que serve.</p>
+        {[...uso.recursos].sort((x, y) => y.criancas - x.criancas).map((r) => (
+          <div key={r.nome} className="linha" style={{ gap: 8 }}>
+            <span className="small" style={{ flex: 1, fontWeight: 700 }}>{r.nome}</span>
+            <span className="small" style={{ fontWeight: 800 }}>{r.criancas} ({pct(r.criancas, uso.criancas)})</span>
+          </div>
+        ))}
+      </div>
+
+      {uso.capitulos.map((c) => (
+        <div key={c.id} className="painel coluna" style={{ gap: 6, padding: 12 }}>
+          <h2 className="display" style={{ fontSize: 18, margin: 0 }}>{c.nome}</h2>
+          <span className="muted small">{plural(c.comecaram, 'criança começou', 'crianças começaram')} este capítulo.</span>
+          {c.comecaram > 0 && (
+            <div style={{ overflowX: 'auto' }}>
+              <table className="small" style={{ width: '100%', borderCollapse: 'collapse', fontWeight: 700 }}>
+                <thead>
+                  <tr>
+                    <th style={{ ...celula, textAlign: 'left' }}>Fase</th>
+                    <th style={celula}>Terminaram</th>
+                    <th style={celula}>Nota média</th>
+                    <th style={celula}>Abaixo de 7</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {c.itens.map((i) => {
+                    const pouco = i.fizeram < c.comecaram / 2;
+                    const dificil = i.media !== null && i.media < 7;
+                    return (
+                      <tr key={i.nome}>
+                        <td style={{ ...celula, textAlign: 'left' }}>{i.nome}</td>
+                        <td style={{ ...celula, color: pouco ? 'var(--t-coral)' : undefined }}>{i.fizeram} ({pct(i.fizeram, c.comecaram)})</td>
+                        <td style={{ ...celula, color: dificil ? 'var(--t-coral)' : undefined }}>{i.media === null ? '–' : String(i.media).replace('.', ',')}</td>
+                        <td style={celula}>{i.media === null ? '–' : i.abaixo7}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      ))}
+
+      <p className="muted small" style={{ margin: 0 }}>
+        Em vermelho: fase que menos da metade de quem começou terminou (pode estar difícil ou escondida) ou com nota média abaixo de 7. A nota é a melhor vez de cada criança.
+      </p>
+      {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+      <button className="btn btn-escuro btn-bloco" onClick={() => void carregar()}>Atualizar</button>
+    </section>
   );
 }
