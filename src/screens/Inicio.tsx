@@ -101,9 +101,9 @@ export function Inicio() {
 
   const evolui = FIGURINHAS.find((f) => podeEvoluir(e, f.id).ok);
   const fala = desafiosNovos > 0
-    ? <>Um colega te chamou para um <strong>Duelo do Saber</strong>! Veja em Trocas.</>
+    ? <>Um colega te chamou para um <strong>Duelo do Saber</strong>! Veja em Turma.</>
     : propostasNovas > 0
-    ? <>Você tem <strong>{propostasNovas} {propostasNovas > 1 ? 'propostas' : 'proposta'} de troca</strong>! Veja em Trocas.</>
+    ? <>Você tem <strong>{propostasNovas} {propostasNovas > 1 ? 'propostas' : 'proposta'} de troca</strong>! Veja em Turma.</>
     : e.pacotes.length > 0
     ? <>Você tem <strong>{e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</strong> esperando. Vamos abrir?</>
     : evolui

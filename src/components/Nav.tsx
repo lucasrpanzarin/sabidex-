@@ -8,7 +8,7 @@ const itens: { id: string; rotulo: string; icone: NomeIcone }[] = [
   { id: '', rotulo: 'Início', icone: 'inicio' },
   { id: 'album', rotulo: 'Álbum', icone: 'album' },
   { id: 'jogar', rotulo: 'Jogar', icone: 'play' },
-  { id: 'trocas', rotulo: 'Trocas', icone: 'trocas' },
+  { id: 'trocas', rotulo: 'Turma', icone: 'turma' },
   { id: 'ranking', rotulo: 'Ranking', icone: 'ranking' },
 ];
 

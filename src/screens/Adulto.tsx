@@ -824,7 +824,7 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
   if (!dados) return <p className="muted">Carregando…</p>;
   const { turma, criancas } = dados;
   const link = `${location.origin}/`;
-  const convite = `Entre no Sabidex pelo link ${link} e, em "Trocas", toque em "Entrar na minha turma" e use o código ${turma.codigo}.`;
+  const convite = `Entre no Sabidex pelo link ${link} e, em "Turma", toque em "Entrar na minha turma" e use o código ${turma.codigo}.`;
 
   const novoPin = async (k: Kid) => {
     const r = await api<{ pin: string }>(`/adulto/turmas/${id}/criancas/${k.id}/pin`, { corpo: {}, tokenProprio: token });

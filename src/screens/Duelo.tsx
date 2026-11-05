@@ -61,7 +61,7 @@ export function Duelos() {
   if (!conta?.codigo) {
     return (
       <main className="tela">
-        <button className="voltar" onClick={() => ir('trocas')}><Icone nome="voltar" tamanho={18} espessura={3} />Trocas</button>
+        <button className="voltar" onClick={() => ir('trocas')}><Icone nome="voltar" tamanho={18} espessura={3} />Turma</button>
         <h1 className="display h1">Duelo do Saber</h1>
         <div className="linha" style={{ alignItems: 'flex-end' }}>
           <Ara tamanho={90} />
@@ -96,7 +96,7 @@ export function Duelos() {
 
   return (
     <main className="tela">
-      <button className="voltar" onClick={() => ir('trocas')}><Icone nome="voltar" tamanho={18} espessura={3} />Trocas</button>
+      <button className="voltar" onClick={() => ir('trocas')}><Icone nome="voltar" tamanho={18} espessura={3} />Turma</button>
       <div>
         <div className="eyebrow">{conta.turma}</div>
         <h1 className="display h1">Duelo do Saber</h1>

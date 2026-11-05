@@ -384,7 +384,7 @@ export function Trocas() {
     <main className="tela">
       <div>
         <div className="eyebrow">{conta.turma}</div>
-        <h1 className="display h1">Trocas</h1>
+        <h1 className="display h1">Minha turma</h1>
       </div>
       <button className="btn btn-amarelo btn-bloco" onClick={() => { setAviso(null); setModo('nova'); }}>Propor uma troca</button>
       <button className="btn btn-rosa btn-bloco" onClick={() => ir('duelos')} style={{ position: 'relative' }}>
@@ -396,7 +396,7 @@ export function Trocas() {
       <Erro texto={erro} />
 
       <section className="coluna" aria-label="Propostas para você">
-        <h2 className="display h3">Propostas para você {recebidas.length > 0 && <span className="pilula" style={{ marginLeft: 6, borderColor: 'var(--pink)' }}>{recebidas.length}</span>}</h2>
+        <h2 className="display h3">Propostas de troca {recebidas.length > 0 && <span className="pilula" style={{ marginLeft: 6, borderColor: 'var(--pink)' }}>{recebidas.length}</span>}</h2>
         {dados && recebidas.length === 0 && <p className="muted small" style={{ margin: 0 }}>Nenhuma agora.</p>}
         {recebidas.map((t) => {
           const minhas = e.cartas[t.carta_receber] ?? 0;
