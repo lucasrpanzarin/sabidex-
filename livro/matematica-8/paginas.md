@@ -186,3 +186,202 @@ Podemos escrever **1 centésimo** da seguinte forma: **0,01**.
 O maior quadrado no contorno na figura a seguir representa uma unidade. Dividindo essa unidade em 100 partes iguais, cada uma dessas partes representará um centésimo da unidade. Observe:
 
 [IMAGEM: quadrado dividido em 10 × 10 quadradinhos, com o primeiro pintado de amarelo; ao lado, "0,01".]
+
+## Página 64
+
+14. Agora, pinte os quadradinhos de acordo com o número indicado na representação decimal.
+    a) 0,03 · b) 0,08 · c) 0,50 · d) 0,65
+    [IMAGEM: um quadrado de 10 × 10 quadradinhos para cada item.]
+
+Podemos também representar os centésimos na reta numérica. Como estudamos, um centésimo corresponde a uma parte do inteiro dividido em 100 partes iguais. Na reta numérica, um inteiro corresponde ao segmento de reta que liga duas marcações consecutivas, por exemplo, do 0 ao 1. Ao dividirmos esse segmento em 100 partes iguais, encontramos as posições dos centésimos. Como essas marcações têm a mesma distância entre si, podemos perceber que as 9 primeiras, ou seja, 0,01; 0,02; 0,03; 0,04; 0,05; 0,06; 0,07; 0,08 e 0,09, ficam entre o 0 e o 0,1. Acompanhe:
+
+[IMAGEM: reta de 0 a 1 marcada de décimo em décimo; o pedaço de 0 a 0,1 é ampliado numa segunda reta marcada 0; 0,01; 0,02; ... 0,09; 0,1.]
+
+## Página 65
+
+As marcações 0,11; 0,12; 0,13; 0,14; 0,15; 0,16; 0,17; 018 e 0,19 ficam entre as marcações 0,1 e 0,2. Acompanhe:
+
+[IMAGEM: reta de 0 a 1 marcada de décimo em décimo; o pedaço de 0,1 a 0,2 é ampliado numa segunda reta marcada 0,1; 0,11; 0,12; ... 0,19; 0,2.]
+
+E assim por diante.
+
+15. Indique o valor na reta numérica conforme o modelo.
+    [IMAGEM: modelo com uma seta em 0,03 numa reta de 0 a 1 com tracinhos de centésimo em centésimo.]
+    a) 0,02 · b) 0,35 · c) 0,98
+    [IMAGEM: uma reta de 0 a 1, com tracinhos de centésimo em centésimo, para cada item.]
+
+## Página 66
+
+## PARTE INTEIRA E PARTE DECIMAL DOS NÚMEROS
+
+Marília é vendedora em uma loja de brinquedos que oferece vários tipos de brinquedo a diversos preços.
+
+[IMAGEM: duas mulheres numa loja de brinquedos; uma mostra uma boneca na caixa.]
+Legenda: Marília mostrando uma boneca na loja em que trabalha.
+
+Vamos observar o carrinho de controle remoto que ela vendeu para outro cliente.
+
+[IMAGEM: carrinho amarelo de controle remoto com etiqueta "R$ 87,99".]
+Legenda: Carrinho de controle remoto.
+
+O número 87,99 usado para representar esse valor está na representação decimal. Os números na representação decimal podem ser divididos em duas partes: uma parte inteira e uma parte decimal. A parte inteira é aquela que aparece à esquerda da vírgula, e a parte decimal é a que aparece à direita da vírgula. Observe o esquema a seguir.
+
+[IMAGEM: "R$ 87,99" com "87" marcado como "Parte inteira" e "99" marcado como "Parte decimal".]
+
+## Página 67
+
+Observe como podemos registrar esse valor no quadro de ordens:
+
+| Dezena (D) | Unidade (U) | , | Décimo (d) | Centésimo (c) |
+|---|---|---|---|---|
+| 8 | 7 | , | 9 | 9 |
+
+Agora, complete o parágrafo a seguir.
+
+16. O quadro de ordens auxilia na representação de números na representação decimal. As ordens acrescentadas à direita da ordem das unidades são: ____ e ____.
+
+Observe no esquema a seguir os valores de cada algarismo.
+
+[IMAGEM: esquema do número 87,99 com setas: 9 centésimos ou 0,09; 9 décimos ou 0,9; 7 unidades ou 7; 8 dezenas ou 80.]
+
+Para ler um número na representação decimal, observamos a parte inteira e a parte decimal separadamente. Observe os exemplos a seguir.
+
+> - Lê-se o valor **R$ 87,99** como **oitenta e sete reais** e **noventa e nove centavos**.
+> - Lê-se número **87,99** como **oitenta e sete inteiros** e **noventa e nove centésimos**.
+
+## Página 68
+
+17. No quadro de ordens, registre os preços de cada brinquedo e depois escreva como se lê cada valor em reais e cada número.
+    a) [IMAGEM: ursinho de pelúcia com etiqueta "R$ 64,78".] Legenda: Ursinho de pelúcia.
+       Quadro de ordens (D, U, d, c) vazio.
+       - O valor R$ 64,78: ____
+       - O número 64,78: ____
+    b) [IMAGEM: boneca com etiqueta "R$ 40,17".] Legenda: Boneca.
+       Quadro de ordens (D, U, d, c) vazio.
+       - O valor R$ 40,17: ____
+       - O número 40,17: ____
+
+## Página 69
+
+    c) [IMAGEM: brinquedo amarelo em forma de estrela sorridente com etiqueta "R$ 7,98".] Legenda: Brinquedo em formato de estrela.
+       Quadro de ordens (D, U, d, c) vazio.
+       - O valor R$ 7,98: ____
+       - O número 7,98: ____
+
+18. Registre os números 0,1 e 0,10 no quadro de ordens a seguir.
+    [IMAGEM: quadro de ordens (D, U, d, c) com duas linhas vazias.]
+
+19. Responda aos itens.
+    a) Qual é a maneira correta de representar 10 centavos: R$ 0,1 ou R$ 0,10? Por quê?
+    b) Escreva a representação de 5 reais e 5 centavos.
+
+## Página 70
+
+> **A MATEMÁTICA NO DIA A DIA**
+>
+> No cotidiano, utilizamos os números na representação decimal também para realizar medidas. Observe:
+>
+> [IMAGEM: canetinha azul ao lado de uma régua escolar de 0 a 20 cm; a ponta chega um pouco depois do 14.]
+> Legenda: Medida de canetinha feita com régua escolar.
+>
+> Podemos dizer que a canetinha mede **14 centímetros e 3 milímetros**, mas também podemos dizer que ela mede **14,3 centímetros**.
+>
+> Agora, seguindo o exemplo anterior, meça com uma régua:
+> - o seu maior lápis de cor e registre a medida obtida usando um número na representação decimal: ____ centímetros.
+
+## Página 71
+
+> - o seu menor lápis de cor e também registre a medida obtida usando um número na representação decimal: ____ centímetros.
+>
+> Também podemos usar os números na representação decimal para expressar a altura de uma pessoa. Observe:
+>
+> [IMAGEM: desenho de um menino ao lado de uma fita métrica de 0 m a pouco mais de 1 m; marcações "1 m" e "1,17 m" na altura da cabeça.]
+>
+> Podemos dizer que o menino mede 1 metro e 17 centímetros, mas também podemos dizer que a altura dele é 1,17 metro.
+>
+> Agora, seguindo o exemplo anterior, use uma trena para medir a sua altura e a altura de outros dois colegas. Utilize números na representação decimal para registrar essas medidas.
+> - Eu tenho ____ metro de altura.
+> - ____ tem ____ metro de altura.
+> - ____ tem ____ metro de altura.
+
+## Página 72
+
+## ORDENAÇÃO DE NÚMEROS NA REPRESENTAÇÃO DECIMAL
+
+Maurício é vendedor de livros em uma livraria. Ele é responsável por ajudar os clientes a encontrar títulos de seu interesse, organizar as prateleiras, cuidar da reposição de estoque, criar um ambiente acolhedor e, claro, vender os livros.
+
+[IMAGEM: pilhas de livros sobre uma mesa numa livraria.]
+Legenda: Livros empilhados sobre uma mesa.
+
+Observe alguns livros que ele vende:
+
+[IMAGEM: três livros com etiquetas de preço: "Cinderela" R$ 18,95; "O patinho feio" R$ 18,40; "O gato de botas" R$ 19,20.]
+
+20. Qual é o livro com o menor preço? E qual é o livro com o maior preço?
+
+## Página 73
+
+Para comparar os números na representação decimal, começamos pela parte inteira.
+
+- O maior número será aquele que tiver a maior parte inteira. Por exemplo, ao comparar os números 30,73 e 41,50, podemos verificar que a parte inteira de 41,50 é maior do que a parte inteira de 30,73:
+  [IMAGEM: setas de 30,73 e 41,50 para "30 < 41".]
+  Então, 41,50 é maior do que 30,73.
+- Se as partes inteiras forem iguais, comparamos os números após a vírgula seguindo a ordem da esquerda para a direita: primeiro comparamos os algarismos na ordem dos décimos. Se eles forem iguais, comparamos os centésimos. Seguimos comparando até encontrar em uma mesma ordem algarismos diferentes. Quando os números apresentarem algarismos diferentes para uma mesma ordem, verificamos qual número apresenta o algarismo de maior valor, e esse número será o maior entre os dois. Por exemplo, ao comparar os números 50,89 e 50,86, podemos verificar que as partes inteiras desses números são iguais.
+  [IMAGEM: setas de 50,89 e 50,86 para "50 = 50".]
+  Então, ao comparar os décimos, verificamos que os algarismos nessa ordem também são iguais.
+  [IMAGEM: setas para "8 = 8".]
+  Por fim, comparamos os centésimos e verificamos que o algarismo nessa ordem do número 50,89 é maior do que o algarismo na ordem dos centésimos do número 50,86.
+  [IMAGEM: setas para "9 > 6".]
+  Então, 50,89 > 50,86.
+
+## Página 74
+
+Como 19 é maior do que 18, podemos concluir que 19,20 é maior do que os outros dois valores, 18,40 e 18,95. Portanto, O gato de botas é o livro que tem o maior preço dentre os três livros. Os números 18,40 e 18,95 têm as partes inteiras iguais, assim, começamos a comparação pela ordem dos décimos. Como 4 é menor do que 9, o número 18,40 é o menor dentre os três. Portanto, o livro O patinho feio é o livro com o menor preço.
+
+## OPERAÇÕES COM NÚMEROS NA REPRESENTAÇÃO DECIMAL
+
+### ADIÇÃO
+
+Vicente e Catarina são vendedores e trabalham em uma loja de roupas.
+
+[IMAGEM: um homem e uma mulher de avental dobrando blusas numa loja de roupas.]
+Legenda: Vendedores dobrando blusas.
+
+Vicente vendeu duas blusas para o mesmo cliente, uma no valor de R$ 75,50 e outra no valor de R$ 90,99.
+
+Para descobrir o valor total da compra do cliente, podemos efetuar a operação 75,50 + 90,99 utilizando o algoritmo usual da adição, indicado a seguir.
+
+## Página 75
+
+- Primeiro, posicionamos os dois números, alinhando os algarismos conforme a ordem: centésimos, décimos, unidades e dezenas. Ao fazer isso, as vírgulas também ficarão alinhadas. Observe:
+
+```
+   C D U   d c
+     7 5 , 5 0
+ +   9 0 , 9 9
+```
+
+- Em seguida, resolvemos a adição ordem a ordem, da direita para a esquerda. Nesse exemplo, a sequência será: centésimos, décimos, unidades e dezenas.
+
+```
+   C D U   d c
+   ¹   ¹
+     7 5 , 5 0
+ +   9 0 , 9 9
+   ----------
+   1 6 6   4 9
+```
+(com "vai um" acima da unidade e da centena)
+
+- Por fim, posicionamos a vírgula no resultado, de modo que ela fique alinhada às vírgulas das parcelas.
+
+```
+     7 5 , 5 0
+ +   9 0 , 9 9
+   ----------
+   1 6 6 , 4 9
+```
+
+21. Agora, complete a frase a seguir.
+    O valor da compra da cliente foi ____.
+22. O que aconteceria se deixássemos de inserir a vírgula no número 166,49?
