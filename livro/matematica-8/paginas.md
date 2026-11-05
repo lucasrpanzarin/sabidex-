@@ -385,3 +385,195 @@ Para descobrir o valor total da compra do cliente, podemos efetuar a operação 
 21. Agora, complete a frase a seguir.
     O valor da compra da cliente foi ____.
 22. O que aconteceria se deixássemos de inserir a vírgula no número 166,49?
+
+## Página 76
+
+Agora é a sua vez!
+
+23. Efetue as adições a seguir:
+    a) 12,8 + 15,6 = ____
+    b) 25,5 + 90,5 = ____
+    c) 52,84 + 69,7 = ____
+    [IMAGEM: um quadro vazio para armar cada conta.]
+
+## Página 77
+
+    d) 15,4 + 25 = ____
+    e) 100 + 8,5 = ____
+    f) 98,4 + 8,93 = ____
+    [IMAGEM: um quadro vazio para armar cada conta.]
+
+## Página 78
+
+### SUBTRAÇÃO
+
+Laura é vendedora em uma loja de cosméticos. Ela comercializa produtos para o cuidado com os cabelos, a pele e as unhas e também vende maquiagens.
+
+Todos os dias, a loja em que Laura trabalha oferece uma promoção diferente para os clientes.
+
+Vamos observar a promoção do dia.
+
+[IMAGEM: vendedora de avental mostrando um produto a uma cliente; cartaz "PROMOÇÃO — PROTETOR SOLAR — De: R$ 118,99 — Por: R$ 87,50".]
+Legenda: Vendedora em uma loja de cosméticos.
+
+Qual é o valor do desconto oferecido pela loja no valor do protetor solar? Para descobrir essa quantidade, podemos efetuar a subtração 118,99 − 87,50. Para esse cálculo, utilizamos o algoritmo usual da subtração da seguinte maneira:
+
+- Primeiro, posicionamos os dois números, alinhando os algarismos conforme a ordem: centésimos, décimos, unidades, dezenas e centenas. Ao fazer isso, as vírgulas também ficarão alinhadas. Observe:
+
+```
+   C D U   d c
+   1 1 8 , 9 9
+ −   8 7 , 5 0
+```
+
+## Página 79
+
+- Em seguida, resolvemos a subtração ordem a ordem, da direita para a esquerda. Nesse exemplo, a sequência será: centésimos, décimos, unidades, dezenas e centenas.
+
+```
+   C D U   d c
+   1 1 8 , 9 9      (o 1 da centena riscado vira 0; a dezena fica 11)
+ −   8 7 , 5 0
+   ----------
+     3 1   4 9
+```
+
+- Por fim, posicionamos a vírgula no resultado de modo que ela fique alinhada às vírgulas do minuendo e do subtraendo:
+
+```
+   1 1 8 , 9 9
+ −   8 7 , 5 0
+   ----------
+     3 1 , 4 9
+```
+
+24. Agora, complete a frase a seguir.
+    O valor do desconto é R$ ____.
+
+Imagine que um cliente comprou o protetor solar na promoção e pagou usando uma cédula de 100 reais. Quanto ele recebeu de troco? Para esse cálculo, vamos usar o algoritmo usual da subtração. Podemos representar 100 reais como R$ 100,00 e vamos usar o número na representação decimal 100,00 para completar a operação.
+
+> Todo número inteiro tem uma representação decimal. Para isso, devemos posicionar a vírgula à direita do algarismo das unidades e acrescentar quantos zeros desejarmos à direita da vírgula.
+> Por exemplo:
+> 12 = 12,0
+> 429 = 429,00
+> 6 198 = 6 198,00
+
+## Página 80
+
+- Para efetuar a operação, primeiro posicionamos o minuendo 100,00 na operação. Veja:
+
+```
+   C D U   d c
+   1 0 0 , 0 0
+ −
+```
+
+- Em seguida, posicionamos o subtraendo 87,50 alinhado às ordens:
+
+```
+   C D U   d c
+   1 0 0 , 0 0
+ −   8 7 , 5 0
+```
+
+- Por fim, calculamos a subtração usando o algoritmo usual:
+
+```
+   C D U   d c
+   1 0 0 , 0 0      (empréstimos: o 1 vira 0, os zeros viram 9, 9 e 10)
+ −   8 7 , 5 0
+   ----------
+     1 2 , 5 0
+```
+
+Agora, observe outra maneira de fazer o cálculo utilizando as cédulas do real. Sabendo que 87,50 é igual a 80,00 + 7,00 + 0,50, podemos primeiro subtrair 80,00 de 100,00. Do resultado obtido, subtraímos 7 e, por fim, 0,50:
+
+- Primeiro devemos trocar a cédula de 100 reais por dez cédulas de 10 reais, conforme o esquema a seguir.
+  [IMAGEM: uma cédula de 100 reais → dez cédulas de 10 reais.]
+
+## Página 81
+
+Agora, subtraímos 80 reais e ficamos com 20 reais:
+
+[IMAGEM: dez cédulas de 10 reais; oito estão riscadas e duas ficam → R$ 20,00.]
+
+- Para subtrair 7 reais de 20 reais, precisamos trocar uma cédula de 10 reais por dez moedas de 1 real. Acompanhe:
+  [IMAGEM: duas cédulas de 10 reais → uma cédula de 10 reais e dez moedas de 1 real.]
+
+## Página 82
+
+- Então, subtraímos 7 reais e ficamos com 13 reais.
+  [IMAGEM: uma cédula de 10 reais e dez moedas de 1 real, com sete moedas riscadas → R$ 13,00.]
+- Para subtrair R$ 0,50, trocamos uma moeda de 1 real por dez moedas de 10 centavos:
+  [IMAGEM: uma cédula de 10 reais e três moedas de 1 real → uma cédula de 10 reais, duas moedas de 1 real e dez moedas de 10 centavos.]
+- Por fim, subtraímos R$ 0,50. Assim, restam 12 reais e 50 centavos:
+  [IMAGEM: uma cédula de 10 reais, duas moedas de 1 real e dez moedas de 10 centavos, com cinco moedas de 10 centavos riscadas → R$ 12,50.]
+
+25. Então, o troco que esse cliente recebeu foi ____.
+
+## Página 83
+
+Agora é a sua vez!
+
+26. Faça as subtrações a seguir.
+    a) 48,8 − 6,6 = ____
+    b) 70,75 − 60 = ____
+    c) 95,7 − 89,9 = ____
+    [IMAGEM: um quadro vazio para armar cada conta.]
+
+## Página 84
+
+    d) 200 − 185,5 = ____
+    e) 100 − 88,88 = ____
+    [IMAGEM: um quadro vazio para armar cada conta.]
+
+> **DESAFIANDO A CUCA**
+> (OBMEP) Artur deu duas notas de cem reais para pagar uma conta de R$ 126,80. Qual é o valor do troco que ele deve receber?
+> a) R$ 71,20
+> b) R$ 71,80
+> c) R$ 72,20
+> d) R$ 72,80
+> e) R$ 73,20
+> [IMAGEM: menino entregando notas de dinheiro a uma pessoa num balcão.]
+
+## Página 85
+
+## OPERAÇÕES COM NÚMEROS NA REPRESENTAÇÃO DECIMAL USANDO A CALCULADORA
+
+Você já notou que na calculadora comum não existe vírgula? Como você acha que fazemos os cálculos em que a vírgula é necessária?
+
+[IMAGEM: calculadora com teclas C/CE, OFF, √, %, 0 a 9, ÷, ×, −, +, = e uma tecla de ponto.]
+
+Em alguns países, o ponto é utilizado no lugar da vírgula para separar a parte inteira da parte decimal de um número. É por isso que na calculadora utilizaremos o ponto para fazer essa separação. Assim, para a operação 14,9 + 5,6, devemos digitar 14.9 + 5.6. Observe:
+
+[IMAGEM: calculadora com "14.9+5.6" no visor.]
+
+Ao pressionar a tecla no sinal =, o resultado dessa operação aparecerá no visor da calculadora:
+
+[IMAGEM: calculadora com "20.5" no visor.]
+
+## Página 86
+
+27. Faça as operações a seguir utilizando a calculadora e registre os resultados.
+    a) 26,78 + 15,4 = ____
+    b) 45,32 + 87,75 = ____
+    c) 586,63 + 245,31 = ____
+    d) 368,3 + 74,56 = ____
+
+> **DESAFIANDO A CUCA**
+> Imagine uma calculadora com a tecla do ponto quebrada e descubra como é possível fazer os cálculos utilizando essa calculadora. Em seguida, registre os resultados das operações nos espaços indicados e explique como você chegou a eles.
+> [IMAGEM: calculadora.]
+> - 7,6 + 6,7 = ____
+> - 85,3 − 49,6 = ____
+> - 92,1 − 2,1 = ____
+> - 46,5 + 5,5 = ____
+
+## Página 87
+
+> **AMPLIANDO**
+> Igor comprou um iogurte que custou R$ 4,50 e pagou com uma cédula de 10 reais. Para saber se recebeu o troco certo, ele decidiu fazer o cálculo. Observe:
+>
+> [IMAGEM: conta armada errada no quadro C D U d c: "1 0" em cima, deslocado para a direita (sem vírgula, embaixo das casas dos décimos e centésimos), e "− 4, 5 0" embaixo.]
+>
+> a) Igor vai conseguir fazer o cálculo corretamente? Justifique sua resposta.
+> b) Monte corretamente a operação que Igor deve efetuar para saber se recebeu o troco certo e faça o cálculo.
