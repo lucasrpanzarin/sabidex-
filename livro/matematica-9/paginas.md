@@ -480,3 +480,243 @@ Lilian e Thaís separaram 150 balas para enviar de brinde com as 50 marmitas. Se
 > **6º passo:** Quais cálculos devem ser feitos para verificar se o problema foi resolvido corretamente?
 >
 > **7º passo:** Responda à pergunta do problema.
+
+## Página 124
+
+## A IGUALDADE E AS SENTENÇAS MATEMÁTICAS
+
+Um instrumento muito utilizado pelos cozinheiros é a balança. Com ela, é possível medir a massa dos ingredientes para reproduzir uma receita corretamente.
+Juliana e Tamires trabalham em um restaurante e estão utilizando duas balanças de pratos para medir a quantidade de farinha branca e de farinha integral que vão usar no preparo dos bolos. Elas precisam da mesma quantidade de cada tipo de farinha.
+
+[IMAGEM: ilustração de duas cozinheiras numa cozinha, cada uma usando uma balança de pratos.]
+
+Para que as balanças fiquem equilibradas, Juliana e Tamires colocaram pesos em um dos pratos e uma tigela com farinha no outro prato.
+
+### Atividades do livro
+
+8. Observe as balanças e complete as igualdades correspondentes.
+
+[IMAGEM: balança equilibrada. Num prato, pesos de 4 kg e 3 kg; no outro, uma tigela de "Farinha de trigo".]
+Legenda: Balança que Tamires usou.
+___ + ___ = ___
+
+## Página 125
+
+[IMAGEM: balança equilibrada. Num prato, pesos de 5 kg e 2 kg; no outro, uma tigela de "Farinha de trigo integral".]
+Legenda: Balança que Juliana usou.
+___ + ___ = ___
+
+Logo: 4 + ___ = ___ + 2
+
+> **Sentenças matemáticas** são frases escritas em linguagem matemática e algumas delas fazem uso do símbolo = (igual).
+> Por exemplo:
+> 4 + 3 = 7
+> 5 + 2 = 7
+> 4 + 3 = 5 + 2
+>
+> A expressão numérica à esquerda da igualdade chama-se **primeiro membro**. Já a expressão numérica à direita chama-se **segundo membro**.
+>
+> [ESQUEMA: 4 + 3 = 5 + 2, com "4 + 3" marcado como "Primeiro membro" e "5 + 2" marcado como "Segundo membro".]
+
+### Atividades do livro
+
+9. Imagine uma balança em equilíbrio. No prato do lado esquerdo dessa balança, estão os pesos com massas de 8 kg e 6 kg. No prato do lado direito, estão os pesos com massas de 10 kg e 4 kg. Se um peso com massa de 4 kg for colocado no prato do lado esquerdo, quantos quilogramas deve ter o peso que será colocado no prato do lado direito para que a balança se mantenha em equilíbrio?
+
+## Página 126
+
+Observe como a situação descrita na atividade anterior pode ser representada:
+
+[IMAGEM: balança equilibrada. Prato da esquerda: 8 kg, 6 kg e 4 kg (vermelho). Prato da direita: 10 kg, 4 kg e 4 kg (vermelho).]
+
+### Atividades do livro
+
+10. Complete a sentença matemática que representa essa situação:
+8 + 6 + 4 = 10 + 4 + ___
+Ao adicionar o mesmo número aos dois membros de uma igualdade, a sentença permanece verdadeira. No exemplo apresentado, a soma de cada membro equivale a ___.
+
+11. Observe a sentença matemática a seguir e responda às questões.
+4 + 3 = 5 + 2
+a) Qual é o primeiro membro dessa sentença matemática?
+b) Qual é o segundo membro da sentença?
+c) Os dois membros têm o mesmo valor?
+d) Qual é o valor de cada membro?
+e) Se adicionarmos 2 ao primeiro membro da sentença, qual valor devemos adicionar ao segundo membro para que a sentença permaneça verdadeira?
+
+## Página 127
+
+### Atividades do livro
+
+12. Em cada balança a seguir, descubra qual é a massa, em quilogramas, do pacote de farinha que está sem a indicação da medida. Depois, complete as imagens e as sentenças.
+a) [IMAGEM: balança equilibrada. Esquerda: 4 kg e um pacote sem medida. Direita: 9 kg.]
+___ + 4 = 9
+b) [IMAGEM: balança equilibrada. Esquerda: 3 kg, 5 kg e um pacote sem medida. Direita: 8 kg e 3 kg.]
+3 + 5 + ___ = 8 + 3
+c) [IMAGEM: balança equilibrada. Esquerda: 7 kg e 8 kg. Direita: um pacote sem medida.]
+7 + 8 = ___
+
+13. Acrescente um novo número aos dois membros da igualdade, de modo que a sentença permaneça verdadeira.
+4 + 3 + 2 + ___ = 7 + 2 + ___
+
+## Página 128
+
+Agora, considere esta outra situação.
+Juliana vai preparar nhoque para servir no almoço do restaurante. Na receita que ela utiliza, é necessário colocar a mesma medida de massa de batata e de farinha. Ao colocar os dois ingredientes na balança, Juliana percebeu que havia algo errado, pois a balança não estava equilibrada.
+
+[IMAGEM: balança desequilibrada. Prato da esquerda (mais alto): 4 kg e 2 kg. Prato da direita (mais baixo): sacos de 6 kg e 3 kg.]
+
+### Atividades do livro
+
+14. Qual dos pratos da balança tem a maior massa? Quanto a mais?
+
+15. O que é possível fazer para que a balança fique equilibrada?
+
+16. Em cada caso a seguir, contorne o peso que está desequilibrando a balança conforme o exemplo.
+Exemplo: [IMAGEM: balança desequilibrada. Esquerda (mais alta): 5 kg e 2 kg. Direita (mais baixa): 7 kg e 1 kg; o peso de 1 kg está contornado.]
+a) [IMAGEM: balança desequilibrada. Esquerda (mais baixa): 11 kg e 2 kg. Direita (mais alta): 3 kg e 8 kg.]
+
+## Página 129
+
+b) [IMAGEM: balança desequilibrada. Esquerda (mais baixa): 7 kg e 8 kg. Direita (mais alta): 4 kg e 4 kg.]
+
+17. Observe a balança em equilíbrio e escreva a massa correspondente ao saco de batatas. Depois, responda às perguntas.
+[IMAGEM: balança equilibrada. Esquerda: 6 kg e 4 kg. Direita: um saco de batatas sem medida.]
+a) O que acontece com a balança se for retirado 1 kg de cada prato?
+b) Complete a sentença:
+6 + 4 − 1 = 10 − ___
+
+Todos os casos apresentados são exemplos da propriedade a seguir.
+
+> Uma igualdade matemática é mantida se adicionarmos ou subtrairmos um mesmo número a cada um dos seus membros.
+> Exemplos:
+> 2 + 3 = 4 + 1 → 5 = 5
+> 2 + 3 + **5** = 4 + 1 + **5** → 10 = 10
+> 2 + 3 − **1** = 4 + 1 − **1** → 4 = 4
+
+## Página 130
+
+> **FAMÍLIA E ESCOLA**
+>
+> Pesquise uma situação em que uma pessoa de sua família precisou fazer uma operação matemática para resolver algum problema do dia a dia. A operação pode ser de adição, subtração, multiplicação ou divisão.
+> - Registre a situação.
+> - Identifique a pergunta que precisava ser respondida nessa situação.
+> - Identifique os dados do problema e a operação matemática envolvida.
+> - Agora, resolva o problema e, na sequência, verifique se a resolução está correta.
+> - Escreva a resposta do problema proposto.
+
+## Página 131
+
+## REGULARIDADES EM SEQUÊNCIAS NUMÉRICAS
+
+Carolina é cozinheira em uma escola. A diretora dessa escola pediu a Carolina que preparasse algumas tortas salgadas para serem servidas na reunião de pais e responsáveis no final do dia. Para o preparo de cada torta, Carolina utiliza 2 copos com leite e 3 ovos.
+Observe na tabela a seguir os ingredientes utilizados para confeccionar diferentes quantidades de tortas salgadas e, depois, complete-a.
+
+[IMAGEM: foto de uma torta salgada numa forma.]
+Legenda: Torta salgada.
+
+| Número de tortas | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|---|---|---|---|---|---|---|---|---|---|
+| Copos com leite | 2 | 4 | 6 | | | | | | |
+| Ovos | 3 | 6 | | | | | | | |
+
+### Atividades do livro
+
+18. Qual é o padrão na sequência da quantidade de copos com leite?
+
+> Os números 0, 2, 4, 6, 8, 10, ... são pares ou **múltiplos de 2**, pois são produto de um número natural por 2.
+
+19. Qual é o padrão na sequência da quantidade de ovos?
+
+> Os números 0, 3, 6, 9, 12, ... são **múltiplos de 3**, pois são produto de um número natural por 3.
+
+## Página 132
+
+### Atividades do livro
+
+20. Quais são os números múltiplos de 4?
+
+21. Converse com o professor e os colegas: Como descobrir se o número 382 é múltiplo de 4? Podemos afirmar que o número 380 é múltiplo de 4?
+
+> Para descobrir quais são os **múltiplos** de um número, basta multiplicá-lo pelos números naturais. Os números naturais são 0, 1, 2, 3, 4, ...
+> Por exemplo, os múltiplos de 5 são **0, 5, 10, 15, 20, ...**, pois:
+> 5 × 0 = 0
+> 5 × 1 = 5
+> 5 × 2 = 10
+> 5 × 3 = 15
+> 5 × 4 = 20
+
+> **AMPLIANDO**
+>
+> Você já sabe que é impossível dividir um número por zero, mas, agora que conhece as operações inversas, consegue descobrir por quê?
+>
+> **Sabemos que, se 5 × 2 = 10, então, 10 ÷ 2 = 5.**
+>
+> Com base nessa ideia, complete as operações.
+> - ___ × 8 = 40 → 40 ÷ 8 = ___
+> - ___ × 5 = 15 → 15 ÷ 5 = ___
+> - ___ × 10 = 90 → 90 ÷ 10 = ___
+> - ___ × 0 = 25 → 25 ÷ 0 = ___
+>
+> Explique com suas palavras: Por que é impossível dividir 25 por zero?
+
+## Página 133
+
+> **SAIBA MAIS**
+> **LIVRO**
+> ***O que fazer primeiro?***, de Luzia Faraco Ramos. Editora Ática, 2001.
+> Alguns amigos vão passar as férias na praia, participam de diversas atividades esportivas e precisam resolver alguns problemas com conhecimentos matemáticos.
+> [IMAGEM: capa do livro "O que fazer primeiro?".]
+
+> **AMPLIANDO**
+>
+> Vamos brincar com as sentenças matemáticas?
+> - Primeiro, complete os quadrados vermelhos com números pares entre 10 e 100.
+> - Em seguida, troque de livro com um colega. Como ele já terá preenchido os quadrados vermelhos, preencha os quadrados azuis do livro dele e ele fará o mesmo no seu livro. Mas atenção! Nessa etapa, é preciso escolher os números que tornam a sentença verdadeira.
+>
+> [SENTENÇAS com quadrados vazios ([ ]), alguns de borda vermelha e outros de borda azul:]
+> [ ] + 43 = [ ]  ·  [ ] − 60 = [ ]
+> 10 × [ ] = [ ]  ·  6 × [ ] = [ ]
+> [ ] + 3 = [ ]  ·  96 ÷ [ ] = [ ]
+> 5 + [ ] = [ ]  ·  12 + [ ] = [ ]
+> 2 × [ ] = [ ]  ·  [ ] ÷ 12 = [ ]
+
+## Página 134
+
+# MÃOS À OBRA!
+
+### Atividades do livro
+
+1. Nádia trabalha em uma doceria. Enquanto organizava a louça do estabelecimento, ela deixou cair uma caixa com taças de sobremesa e algumas se quebraram. Havia 110 taças e sobraram 88 após o incidente. Quantas taças se quebraram?
+Como no total havia 110 taças, para representar essa situação podemos escrever a sentença:
+110 − ___ = 88
+Agora, responda às questões a seguir.
+a) Qual operação podemos fazer para descobrir o valor que está faltando?
+b) Qual é o valor que está faltando na sentença?
+c) Quantas taças se quebraram?
+
+2. Rodrigo está preparando salgados para assar e vender. Ele organizou a mesma quantidade de salgados em 8 bandejas. Ao todo, foram feitos 176 salgados. Quantos salgados ele colocou em cada bandeja?
+Como no total são 176 salgados, para representar essa situação podemos escrever a sentença:
+8 × ___ = 176
+Agora, responda às perguntas a seguir.
+a) Qual é o valor que está faltando na sentença?
+
+## Página 135
+
+b) Qual operação podemos fazer para descobrir o valor que está faltando?
+c) Quantos salgados Rodrigo colocou em cada bandeja?
+
+3. Complete as sentenças matemáticas.
+a) 7 + ___ = 16
+b) ___ + 5 = 6
+c) ___ − 35 = 50
+d) ___ − 8 = 15
+e) 6 × ___ = 24
+f) ___ × 6 = 36
+g) ___ ÷ 2 = 37
+h) ___ ÷ 1 = 18
+i) ___ + 26 + 28 = 75
+j) 23 + ___ + 42 = 100
+
+4. Invente um problema que envolva a profissão de confeiteira e a seguinte sentença:
+120 + ___ = 260
+Agora, troque de livro com um colega. Ele deve resolver o problema que você criou, e você resolverá o dele.
+Resposta: ___
