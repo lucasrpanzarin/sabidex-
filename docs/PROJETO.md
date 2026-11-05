@@ -7,7 +7,7 @@ O Claude lê este arquivo no começo de cada conversa (está pedido no `CLAUDE.m
 - Quando o Lucas der uma ideia nova, o Claude confere aqui antes e avisa: "isso já existe", "isso já foi testado e trocado por X" ou "isso vai contra a regra Y".
 - Ao terminar qualquer mudança, o Claude atualiza este caderno (o que mudou, a data e quem decidiu).
 
-Última revisão geral: **04/11/2026**.
+Última revisão geral: **04/11/2026**. Última mudança: **05/11/2026** (estrelas no mapa e Duelo do Saber).
 
 ---
 
@@ -48,6 +48,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - **Revisão do Ará**: as perguntas erradas voltam no dia seguinte; as certas voltam depois de alguns dias (repetição espaçada).
 - **Uma chance por item** em todos os jogos: errou, o app mostra o certo e segue.
 - **Placar igual em todos os jogos**: estrelas (3 = nota 10, 2 = nota 7 ou mais, 1 = abaixo de 7), "X de Y certas" e nota.
+- **Estrelas no mapa do mundo** (Lucas, 05/11/2026): cada fase feita e cada jogo extra mostra as estrelas da **melhor vez** num adesivo embaixo da bolinha; no topo aparece "X de Y estrelas" do mundo. Ouvir os temas não tem nota (não tem estrela); a prova só mostra depois de aprovada. Fases feitas antes disso sem nota guardada só ganham estrela quando a criança jogar de novo. Melhor nota em `notas['capitulo:fase']` e `notas['capitulo:extra-x']` (`estrelasDe` em `src/lib/jogo.ts`).
 - **Data da prova da escola**: o professor (turma) ou o adulto (família) marca. Depois da data o capítulo vai para "Já teve prova na escola" (continua valendo tudo).
 - Capítulo novo: o Lucas manda fotos do livro na conversa e o Claude segue a skill **capitulo-do-livro**. Regras pedagógicas em `docs/ESTUDOS.md`. Conferência automática: `npm run conferir -- historia-9`.
 
@@ -86,7 +87,11 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - **Trocas**: só propostas de carta por carta, com colegas da mesma turma. Até 5 propostas esperando.
 - **Chat da turma supervisionado** (Lucas, 04/11/2026): um grupo único da turma da escola, sem mensagem privada nem gente de fora. Começa desligado: um administrador da turma liga e escolhe o horário (padrão 7h–21h) **e** o responsável autoriza cada filho (criança sem família não escreve). Pais e professor leem tudo, e a criança é avisada disso. Bloqueia palavrões, telefones, endereços, links, e-mails e redes sociais; sem foto nem áudio; até 200 letras e 5 mensagens a cada 30 segundos. Botão "Avisar um adulto"; administradores apagam mensagens e pausam um aluno. As mensagens somem em 60 dias. Também tem **"Estudando agora"** (só para a turma; adultos podem desligar). Arquivos: `src/shared/chat.ts`, `src/screens/Chat.tsx`.
 - **Vários administradores na turma**: o dono convida outros adultos com um código `ADM-XXXX-XXXX` (vale 7 dias, uma vez só). Só o dono convida ou remove administradores. Se o dono apagar a conta, a turma passa para o administrador mais antigo.
-- **Ranking da semana** (XP e cartas), zera toda segunda.
+- **Ranking da semana** (XP, cartas e vitórias nos duelos), zera toda segunda.
+- **Duelo do Saber** (Lucas, 05/11/2026; `src/shared/duelo.ts`, `src/screens/Duelo.tsx`, tabela `duelos`): em Trocas → "Duelo do Saber", a criança desafia um colega **da mesma turma**. Os dois respondem as **mesmas 10 perguntas** (6 de escolher da prova + 4 de verdadeiro ou falso do quiz), só dos mundos em que **os dois já ouviram os temas**, misturando os mundos. Cada um joga quando puder: quem desafia joga primeiro, e o colega só vê o placar depois de jogar. Uma chance por pergunta, com o certo e a explicação; termina com o placar de estrelas.
+  - Cada um escolhe um **Sabimon parceiro**: cada acerto vira um golpe na batalha (aparece a força da carta). **Ninguém perde carta.** Quem **acerta mais vence**; a força da carta não muda o resultado (assim vence quem estudou). Empate é empate.
+  - Prêmio: **4 XP e 4 Sabicoins por acerto** (máx. 40), só nos **3 primeiros duelos do dia**. Sem pacote (só o de nível novo, que vem pelo XP). Vitórias entram no ranking da semana (aba "Duelos"). Erros vão para a Revisão do Ará.
+  - Limites: até 5 desafios esperando; 1 duelo por vez entre os mesmos dois; vence em 7 dias sem jogar. O colega pode dizer "Agora não". Sem mensagem nenhuma entre eles. O servidor corrige as respostas e decide quem venceu.
 - Pergunta de conta (ex.: "Quanto é 6 × 15?") antes da área dos adultos.
 - **Entrar na conta em outro aparelho**: código da turma (o aparelho lembra o último usado) → a criança toca no próprio nome na lista da turma → PIN. Não precisa decorar o apelido. A lista (apelido + cor) só aparece para quem tem o código, igual ao ranking.
 - 5 PINs errados bloqueiam 15 minutos.
@@ -134,6 +139,7 @@ Guia de arte: `docs/ARTE-SABIMONS.md`.
 | Pacote sem pedir nota | Pacote só com nota 7 ou mais | 04/11/2026 |
 | Botão "Já li este tema" com áudio | Precisa ouvir o áudio | 04/11/2026 |
 | Nenhum chat entre crianças (só propostas de troca) | Chat da turma supervisionado, desligado no começo | 04/11/2026 |
+| Duelo valendo cartas (quem perde entrega carta) | **Duelo do Saber** sem aposta: ninguém perde carta, vence quem acerta mais. Motivos: pacote/carta só vem do estudo, briga e choro na turma, e as lojas e o ECA Digital olham aposta para criança como jogo de azar | 05/11/2026 |
 | Voz única (Kokoro) | 3 vozes ElevenLabs: Nina, Otto, Graziella | 04/11/2026 |
 | Logo de texto simples | Letras-figurinha coloridas | 04/11/2026 |
 | Visual com roxo | Álbum de figurinhas (papel + contorno escuro) | 04/11/2026 |
@@ -160,6 +166,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
+
+- **05/11/2026** · Estrelas no mapa do mundo (melhor nota de cada fase e jogo extra) e **Duelo do Saber** entre colegas da turma, sem apostar cartas; aba "Duelos" no ranking. A ideia de duelar valendo cartas foi trocada por essa (ver seção 5). Política de privacidade cita os duelos (versão `2026-11-duelo`: os adultos aceitam de novo ao entrar) (Lucas).
 
 - **05/11/2026** · Pingoró (boto, forma 1): o recorte tirou o clarão branco em volta da barriga e da bolha d'água (`TIRAR_BRILHO` em `scripts/recortar-sabimons.py`) e fechou a fresta entre a nadadeira de cima e as costas, que fazia a nadadeira parecer solta (Lucas).
 

@@ -226,6 +226,9 @@ strong { color: var(--t-coral); font-weight: 900; }
 .holo { background: linear-gradient(110deg, #F472B6, #22D3EE, #FACC15, #4ADE80, #F472B6) !important; background-size: 200% 100% !important; animation: holo 3s linear infinite; }
 .raios { position: absolute; width: 440px; height: 440px; border-radius: 50%; background: repeating-conic-gradient(#FFC21A55 0 12deg, transparent 12deg 24deg); animation: raios 18s linear infinite; pointer-events: none; }
 
+/* Contador num botão (ex.: desafios do Duelo esperando) */
+.btn > .badge { position: absolute; top: -9px; right: -6px; background: var(--coral); color: #fff; border: 2px solid var(--ink); font: 900 12px 'Nunito', system-ui, sans-serif; min-width: 22px; height: 22px; border-radius: 999px; display: grid; place-items: center; padding: 0 5px; -webkit-text-stroke: 0; }
+
 /* Estrelinhas da melhor nota no mapa do mundo (adesivo pequeno, sem animação) */
 .estrelas-mini { display: inline-flex; gap: 1px; line-height: 1; font-family: 'Lilita One', system-ui, sans-serif; }
 .estrelas-mini .ganha { color: var(--yellow); -webkit-text-stroke: 1.2px var(--ink); paint-order: stroke fill; }

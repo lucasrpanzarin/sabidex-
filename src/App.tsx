@@ -16,6 +16,7 @@ import { ContaCriada, EntrarConta, MinhaConta, Ranking, Trocas } from './screens
 import { useEffect } from 'react';
 import { api, useConta } from './lib/conta';
 import { Chat } from './screens/Chat';
+import { Duelos } from './screens/Duelo';
 
 export function App() {
   const e = useEstado();
@@ -58,6 +59,7 @@ export function App() {
     case 'album': tela = <Album id={a} />; break;
     case 'loja': tela = <Loja key={a ?? ''} sabimonId={a} />; aba = 'album'; break;
     case 'trocas': tela = <Trocas />; break;
+    case 'duelos': tela = <Duelos />; aba = 'trocas'; break;
     case 'chat': tela = <Chat />; aba = 'trocas'; comNav = false; break;
     case 'ranking': tela = <Ranking />; break;
     case 'conta': tela = <MinhaConta />; aba = ''; break;

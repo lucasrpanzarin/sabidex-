@@ -148,6 +148,31 @@ export const MIGRACOES = [
     expira INTEGER NOT NULL,
     usado INTEGER NOT NULL DEFAULT 0
   )`,
+  // Duelo do Saber (Lucas, 05/11/2026): dois colegas da turma respondem as mesmas 10 perguntas.
+  // Ninguém perde carta: carta_de/carta_para são só as parceiras na batalha.
+  // status: 'novo' (só quem desafiou jogou ou vai jogar), 'esperando' (vez do colega), 'feito', 'recusado', 'cancelado', 'expirado'.
+  `CREATE TABLE IF NOT EXISTS duelos (
+    id TEXT PRIMARY KEY,
+    turma_id TEXT NOT NULL,
+    de_id TEXT NOT NULL,
+    para_id TEXT NOT NULL,
+    perguntas TEXT NOT NULL,
+    carta_de TEXT NOT NULL,
+    carta_para TEXT,
+    resp_de TEXT,
+    resp_para TEXT,
+    acertos_de INTEGER,
+    acertos_para INTEGER,
+    jogou_de INTEGER,
+    jogou_para INTEGER,
+    status TEXT NOT NULL DEFAULT 'novo',
+    vencedor TEXT,
+    criado INTEGER NOT NULL,
+    resolvido INTEGER
+  )`,
+  `CREATE INDEX IF NOT EXISTS duelos_de ON duelos (de_id, status)`,
+  `CREATE INDEX IF NOT EXISTS duelos_para ON duelos (para_id, status)`,
+  `CREATE INDEX IF NOT EXISTS duelos_turma ON duelos (turma_id, status, resolvido)`,
 ];
 
 export const SEM_TURMA = 'familia:';

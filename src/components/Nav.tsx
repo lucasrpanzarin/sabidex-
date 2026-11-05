@@ -14,7 +14,8 @@ const itens: { id: string; rotulo: string; icone: NomeIcone }[] = [
 
 export function Nav({ ativo }: { ativo: string }) {
   const e = useEstado();
-  const { propostasNovas } = useConta();
+  const { propostasNovas, desafiosNovos } = useConta();
+  const avisosTurma = propostasNovas + desafiosNovos;
   return (
     <nav className="nav" aria-label="Menu principal">
       {itens.map((i) => i.id === 'jogar' ? (
@@ -27,7 +28,7 @@ export function Nav({ ativo }: { ativo: string }) {
           <Icone nome={i.icone} />
           {i.rotulo}
           {i.id === 'album' && e.pacotes.length > 0 && <span className="badge" aria-label={`${e.pacotes.length} pacotes`}>{e.pacotes.length}</span>}
-          {i.id === 'trocas' && propostasNovas > 0 && <span className="badge" aria-label={`${propostasNovas} propostas de troca`}>{propostasNovas}</span>}
+          {i.id === 'trocas' && avisosTurma > 0 && <span className="badge" aria-label={`${avisosTurma} ${avisosTurma > 1 ? 'avisos' : 'aviso'} de trocas e duelos`}>{avisosTurma}</span>}
         </button>
       ))}
     </nav>

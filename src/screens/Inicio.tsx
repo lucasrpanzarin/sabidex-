@@ -88,7 +88,7 @@ export function SeloProva({ s }: { s: ReturnType<typeof situacao> }) {
 
 export function Inicio() {
   const e = useEstado();
-  const { conta, propostasNovas } = useConta();
+  const { conta, propostasNovas, desafiosNovos } = useConta();
   const nv = nivel(e.xp);
   const dias = sequencia(e.dias);
   const prox = proximaFase(e.feitas, conta?.provas);
@@ -100,7 +100,9 @@ export function Inicio() {
   const pacoteDaRevisao = e.pacoteDia !== hoje();
 
   const evolui = FIGURINHAS.find((f) => podeEvoluir(e, f.id).ok);
-  const fala = propostasNovas > 0
+  const fala = desafiosNovos > 0
+    ? <>Um colega te chamou para um <strong>Duelo do Saber</strong>! Veja em Trocas.</>
+    : propostasNovas > 0
     ? <>Você tem <strong>{propostasNovas} {propostasNovas > 1 ? 'propostas' : 'proposta'} de troca</strong>! Veja em Trocas.</>
     : e.pacotes.length > 0
     ? <>Você tem <strong>{e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</strong> esperando. Vamos abrir?</>
