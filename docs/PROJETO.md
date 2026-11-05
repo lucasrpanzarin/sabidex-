@@ -32,6 +32,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | **Raridades** | comum ★ cinza · rara ★★ turquesa · épica ★★★ rosa · lendária ★★★★ amarelo com borda holográfica | |
 | **Pacote** | Embalagem metálica holográfica 3D, rasga com o dedo; a carta pula de costas e a criança toca para virar | `src/components/RasgarPacote.tsx` |
 | **Verso das cartas** | Azul-noite com o logo do app | `src/components/CartaView.tsx` |
+| **Menu de baixo** | Cada aba com desenho colorido de contorno escuro; a aba aberta vira adesivo colado (torto, com sombra); nomes na Lilita One (Lucas, 05/11/2026) | `src/components/Nav.tsx` |
 | **Animação** | Só em momento de prêmio. Respeita "reduzir movimento" do celular | |
 
 ## 3. O que já existe (confira aqui antes de criar algo "novo")
@@ -187,6 +188,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **05/11/2026** · **Menu de baixo** com a cara do app: desenhos coloridos de contorno escuro em cada aba e a aba aberta como adesivo colado (Lucas).
 - **05/11/2026** · "Minha conta" virou **Meu perfil**: nível, números e 16 conquistas (só figurinhas de honra, sem prêmio). O código da turma foi para baixo, porque a criança quer ver ela mesma (Lucas).
 - **05/11/2026** · Botão **"Mudar de turma"** em Minha conta (a criança leva tudo) e aviso em "Sou novo na turma" para não criar uma conta vazia. O Lucas perdeu as cartas do Anthony assim: ele saiu da conta e criou outra na turma nova (Lucas).
 - **05/11/2026** · **Busca de turmas e pedidos para entrar**: o adulto procura a turma pela escola e pede para o filho entrar; um administrador aprova. Campo "Escola" na turma, "aparecer na busca" (ligado, pode desligar) e **juntar turmas repetidas**. Trocar de turma nunca perdeu progresso (a conta é a mesma); o problema era não achar a turma certa. Política de privacidade ganhou a parte "Busca de turmas" (versão `2026-11-busca-turmas`: os adultos aceitam de novo) (Lucas).

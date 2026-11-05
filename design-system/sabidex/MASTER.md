@@ -56,3 +56,10 @@ Arquivos: `src/screens/Contas.tsx` e o fim de `src/styles.css`.
 - **Balança e setas** desenhadas com as mesmas bordas e cores do app, paradas (sem animação). Balança desequilibrada diz em texto para que lado pende; os desenhos têm descrição para o leitor de tela.
 - Passos do "Ver como se faz" aparecem um de cada vez, sem animação (animação só em prêmio).
 - Conta e teclado cabem sem rolar em 360 × 740 e 375 × 667.
+
+## Menu de baixo (Lucas, 05/11/2026)
+Arquivo: `src/components/Nav.tsx` e `.nav*` em `src/styles.css`.
+- Cada aba tem um **desenho de duas cores** (cor da aba + contorno escuro), como figurinha: Início coral (casinha), Álbum turquesa (álbum aberto com figurinha), Turma rosa (duas crianças), Ranking amarelo (troféu com estrela).
+- A **aba aberta vira adesivo colado**: fundo clarinho da cor da aba, contorno escuro, sombra de adesivo e levemente torta (-4°). O nome fica escuro; nas outras, cinza. Assim a aba aberta não depende só da cor.
+- Nomes na **Lilita One**. "Jogar" continua a bola amarela grande, também torta como adesivo.
+- Sem animação (só aperta ao tocar). Foco do teclado com contorno turquesa.
