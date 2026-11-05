@@ -7,6 +7,7 @@ import { voltar } from '../lib/rota';
 
 /** E-mail para pedidos sobre dados. */
 const EMAIL_CONTATO = 'lucas@fastgsa.com';
+/** Data da última mudança no texto. Só mude também `VERSAO_PRIVACIDADE` (servidor) se a mudança for importante. */
 const ATUALIZADA = '5 de novembro de 2026 (busca de turmas)';
 
 function Parte({ titulo, children }: { titulo: string; children: ReactNode }) {

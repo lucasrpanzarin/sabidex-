@@ -861,7 +861,13 @@ app.post('/crianca/duelos/:id/:acao', async (c) => {
 
 interface Adulto { id: string; nome: string; email: string; senha_hash: string; senha_sal: string; falhas: number; bloqueado_ate: number; aceite_versao: string; tem_senha: number; email_ok: number }
 
-/** Versão da política de privacidade aceita no cadastro (mudar quando o texto mudar). */
+/**
+ * Versão da política de privacidade que o adulto aceitou. Mudar SÓ quando a mudança for importante
+ * (decidido pelo Lucas em 05/11/2026): um dado novo guardado, alguém novo que pode ver alguma coisa,
+ * ou um uso novo dos dados. Aí todos os adultos aceitam de novo ao entrar.
+ * Correção de texto, explicação melhor ou recurso que não mexe com dados: só muda `ATUALIZADA`
+ * em `src/screens/Privacidade.tsx`, sem pedir aceite de novo.
+ */
 const VERSAO_PRIVACIDADE = '2026-11-busca-turmas';
 const MAX_FILHOS = 6;
 
