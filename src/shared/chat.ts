@@ -1,6 +1,7 @@
 // Regras do chat da turma, usadas pelo app (para avisar antes de mandar) e pelo servidor (que decide).
 // Decisão do Lucas (04/11/2026): chat escrito só no grupo da turma, sem mensagem privada,
 // ligado pelo professor E autorizado pelo responsável, com pais e professor podendo ler tudo.
+// Desde 05/11/2026 (Lucas): vem ligado para turma nova e filho novo; professor e responsável podem desligar.
 
 export const MAX_TEXTO = 200;
 /** No máximo 5 mensagens a cada 30 segundos. */

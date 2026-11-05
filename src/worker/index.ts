@@ -11,7 +11,7 @@ import {
   comBoasVindas, gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
 } from '../shared/sync';
-import { ESQUEMA, MIGRACOES, SEM_TURMA, temTurma, turmaDaFamilia, VERSAO_ESQUEMA } from './esquema';
+import { AJUSTES_UMA_VEZ, ESQUEMA, MIGRACOES, SEM_TURMA, temTurma, turmaDaFamilia, VERSAO_ESQUEMA } from './esquema';
 import { dataValida, type DatasProva } from '../lib/provas';
 import { conferirMensagem, dentroDoHorario, GUARDAR_DIAS, JANELA_LIMITE, LIMITE_MENSAGENS, MOTIVO as MOTIVO_CHAT, ONLINE_MS } from '../shared/chat';
 import { APPLE, conferirCracha, GOOGLE } from './jwt';
@@ -65,6 +65,15 @@ app.use('*', async (c, next) => {
       await db.batch(ESQUEMA.map((s) => db.prepare(s)));
       for (const m of MIGRACOES) {
         try { await db.prepare(m).run(); } catch (e) { if (!String(e).includes('duplicate column')) throw e; }
+      }
+      // Cada ajuste roda junto com a anotação dele (tudo ou nada); se já foi anotado, os UPDATE não mudam nada.
+      for (const aj of AJUSTES_UMA_VEZ) {
+        const feito = await db.prepare('SELECT 1 AS ok FROM ajustes_feitos WHERE nome = ?').bind(aj.nome).first();
+        if (feito) continue;
+        await db.batch([
+          ...aj.sql.map((s) => db.prepare(`${s}${/\bWHERE\b/i.test(s) ? ' AND' : ' WHERE'} NOT EXISTS (SELECT 1 FROM ajustes_feitos WHERE nome = ?)`).bind(aj.nome)),
+          db.prepare('INSERT OR IGNORE INTO ajustes_feitos (nome, feito) VALUES (?, ?)').bind(aj.nome, Date.now()),
+        ]);
       }
       await db.batch([
         db.prepare('CREATE TABLE IF NOT EXISTS esquema_versao (versao TEXT NOT NULL)'),
@@ -868,7 +877,8 @@ interface Adulto { id: string; nome: string; email: string; senha_hash: string; 
  * Correção de texto, explicação melhor ou recurso que não mexe com dados: só muda `ATUALIZADA`
  * em `src/screens/Privacidade.tsx`, sem pedir aceite de novo.
  */
-const VERSAO_PRIVACIDADE = '2026-11-busca-turmas';
+// Chat da turma ligado no começo (05/11/2026): mudança importante, todos aceitam de novo.
+const VERSAO_PRIVACIDADE = '2026-11-chat-ligado';
 const MAX_FILHOS = 6;
 
 const emailValido = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 120;
@@ -1230,7 +1240,7 @@ app.post('/adulto/turmas', async (c) => {
     if (!codigo) continue;
     try {
       // Turma nova nasce sem matérias: o dono do app escolhe o livro dela no Painel do dono.
-      await c.env.DB.prepare(`INSERT INTO turmas (id, codigo, nome, escola, busca, dono_id, criado, conteudo) VALUES (?, ?, ?, ?, ?, ?, ?, '')`)
+      await c.env.DB.prepare(`INSERT INTO turmas (id, codigo, nome, escola, busca, dono_id, criado, conteudo, chat) VALUES (?, ?, ?, ?, ?, ?, ?, '', 1)`)
         .bind(id, codigo, nome, escola, textoBusca(nome, escola), a.id, Date.now()).run();
       return c.json({ turma: { id, nome, escola, codigo } });
     } catch (e) { if (!String(e).includes('UNIQUE')) throw e; }
@@ -1365,6 +1375,10 @@ app.post('/adulto/familia/provas', async (c) => {
   return marcarData(c, turmaDaFamilia(a.id), await capitulosDasTurmas(c.env.DB, turmas.results.map((x) => x.turma_id)));
 });
 
+/** Chat do filho ao criar ou ligar o perfil: vem ligado, a não ser que o responsável desmarque (Lucas, 05/11/2026).
+ * Só liga se o e-mail do adulto já foi confirmado (senão ele liga depois, na área dos adultos). */
+const chatDoCadastro = (b: Record<string, unknown>) => (b.chat === false ? 0 : 1);
+
 /** Cria o perfil de um filho. Com `progresso`/`cartas`, leva junto o que já foi feito no aparelho. */
 app.post('/adulto/familia', async (c) => {
   const a = await adulto(c);
@@ -1390,9 +1404,9 @@ app.post('/adulto/familia', async (c) => {
   const progresso = comBoasVindas(mesclar(progressoVazio(), sanitizar(b.progresso, FASES_VALIDAS)));
   try {
     await c.env.DB.batch([
-      c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, familia_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)`)
-        .bind(id, turmaId, a.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semanaDe(), Date.now(), Date.now()),
+      c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, familia_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto, chat_ok)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)`)
+        .bind(id, turmaId, a.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semanaDe(), Date.now(), Date.now(), confirmado(c.env, a) ? chatDoCadastro(b) : 0),
       ...upsertCartas(c.env.DB, id, limitarCartas(sanitizarDelta(b.cartas, IDS_CARTAS), progresso.abertos.length)),
     ]);
   } catch (e) {
@@ -1420,7 +1434,9 @@ app.post('/adulto/familia/ligar', async (c) => {
   if (k.familia_id && k.familia_id !== a.id) return erro(c, 409, 'Essa conta já está ligada a outra família.');
   const n = await c.env.DB.prepare('SELECT COUNT(*) n FROM criancas WHERE familia_id = ?').bind(a.id).first<{ n: number }>();
   if (!k.familia_id && (n?.n ?? 0) >= MAX_FILHOS) return erro(c, 429, `Limite de ${MAX_FILHOS} crianças por família.`);
-  await c.env.DB.prepare('UPDATE criancas SET familia_id = ? WHERE id = ?').bind(a.id, k.id).run();
+  // Ao ligar pela primeira vez, vale o que o responsável escolheu na tela (o chat vem ligado).
+  if (k.familia_id) await c.env.DB.prepare('UPDATE criancas SET familia_id = ? WHERE id = ?').bind(a.id, k.id).run();
+  else await c.env.DB.prepare('UPDATE criancas SET familia_id = ?, chat_ok = ? WHERE id = ?').bind(a.id, confirmado(c.env, a) ? chatDoCadastro(b) : 0, k.id).run();
   return c.json({ id: k.id });
 });
 
@@ -1775,9 +1791,9 @@ const turmaChat = (db: D1Database, id: string) =>
 /** Por que a criança não pode escrever agora (ou null se pode). */
 function bloqueioChat(t: TurmaChat | null, k: Crianca): { motivo: string; texto: string } | null {
   if (!t) return { motivo: 'sem-turma', texto: 'Entre numa turma para conversar com os colegas.' };
-  if (!t.chat) return { motivo: 'desligado', texto: 'O chat da turma ainda não foi ligado pelo professor ou pelos adultos da turma.' };
-  if (!k.familia_id) return { motivo: 'sem-familia', texto: 'Para usar o chat, peça para seu responsável criar a conta da família no Sabidex e liberar o chat para você.' };
-  if (!k.chat_ok) return { motivo: 'sem-autorizacao', texto: 'Peça para seu responsável liberar o chat na área dos adultos.' };
+  if (!t.chat) return { motivo: 'desligado', texto: 'O chat da turma está desligado pelos adultos da turma.' };
+  if (!k.familia_id) return { motivo: 'sem-familia', texto: 'Para usar o chat, peça para seu responsável criar a conta da família no Sabidex e você poder usar o chat.' };
+  if (!k.chat_ok) return { motivo: 'sem-autorizacao', texto: 'Seu responsável desligou o chat para você. Se quiser conversar, fale com ele.' };
   if (k.mudo_ate > Date.now()) return { motivo: 'silenciado', texto: 'Um adulto da turma pausou suas mensagens por um tempo. Você ainda pode ler.' };
   if (!dentroDoHorario(t.chat_inicio, t.chat_fim)) return { motivo: 'horario', texto: `O chat abre das ${t.chat_inicio}h às ${t.chat_fim}h.` };
   return null;

@@ -23,7 +23,7 @@ App de estudo para crianças: a matéria da escola vira fases de jogo, e cada fa
 - Criança com conta da família entra na turma só com o código e continua com a mesma conta.
 - A criança entra na turma com o código, um apelido e cria um PIN de 4 números. O progresso que ela já tinha vai junto.
 - Em outro aparelho, ela entra com código + apelido + PIN e recupera tudo. 5 PINs errados bloqueiam por 15 minutos.
-- **Turma (aba do menu):** trocas, Duelo do Saber e conversa da turma. **Trocas:** a criança propõe trocar qualquer carta com um colega da turma; o colega aceita ou recusa. O app avisa quando é a única cópia ou quando a troca é desigual. Não existe chat.
+- **Turma (aba do menu):** trocas, Duelo do Saber e conversa da turma. **Trocas:** a criança propõe trocar qualquer carta com um colega da turma; o colega aceita ou recusa. O app avisa quando é a única cópia ou quando a troca é desigual. A conversa da turma é um grupo só da turma, vem ligada e o responsável ou o professor podem desligar.
 - **Ranking da semana** por XP e por cartas (zera toda segunda).
 - O adulto vê as crianças da turma, gera PIN novo e remove crianças. O administrador geral (e-mails em `ADMIN_EMAILS` no `wrangler.jsonc`) vê todas as turmas e o **Painel do dono** (`#/adulto/dono`): quem usou o app, quem está sem turma e os pedidos esperando.
 
