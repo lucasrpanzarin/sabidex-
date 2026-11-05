@@ -33,7 +33,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | **Pacote** | Embalagem metálica holográfica 3D, rasga com o dedo; a carta pula de costas e a criança toca para virar | `src/components/RasgarPacote.tsx` |
 | **Verso das cartas** | Azul-noite com o logo do app | `src/components/CartaView.tsx` |
 | **Menu de baixo** | Cada aba com desenho colorido de contorno escuro; a aba aberta vira adesivo colado (torto, com sombra); nomes na Lilita One (Lucas, 05/11/2026) | `src/components/Nav.tsx` |
-| **Animação** | Só em momento de prêmio. Respeita "reduzir movimento" do celular. Exceção (Lucas, 05/11/2026): **brilho dourado** a cada ~2 s só no próximo passo de estudo da tela (1 por tela, some quando faz, nunca dentro dos jogos) + selo parado "Faça agora" | `.chamar`, `.selo-agora` em `src/styles.css`; detalhes em `design-system/sabidex/MASTER.md` |
+| **Animação** | Só em momento de prêmio. Respeita "reduzir movimento" do celular. Exceção (Lucas, 05/11/2026): **pulinho com anel amarelo** a cada ~2,4 s só no botãozinho amarelo do próximo passo de estudo (1 por tela, some quando faz, nunca dentro dos jogos) | `.chamar`, `.selo-agora` em `src/styles.css`; detalhes em `design-system/sabidex/MASTER.md` |
 
 ## 3. O que já existe (confira aqui antes de criar algo "novo")
 
@@ -168,6 +168,7 @@ Guia de arte: `docs/ARTE-SABIMONS.md`.
 | Pacote sem pedir nota | Pacote só com nota 7 ou mais | 04/11/2026 |
 | Botão "Já li este tema" com áudio | Precisa ouvir o áudio | 04/11/2026 |
 | Nenhum chat entre crianças (só propostas de troca) | Chat da turma supervisionado, desligado no começo | 04/11/2026 |
+| Brilho dourado passando pelo cartão inteiro | Pulinho com anel amarelo só no botãozinho amarelo | 05/11/2026 |
 | Matemática do jeito de História (ouvir temas, ligar palavras, escolher opções) | Ver como se faz + contas digitadas com números que mudam | 05/11/2026 |
 | Duelo valendo cartas (quem perde entrega carta) | **Duelo do Saber** sem aposta: ninguém perde carta, vence quem acerta mais. Motivos: pacote/carta só vem do estudo, briga e choro na turma, e as lojas e o ECA Digital olham aposta para criança como jogo de azar | 05/11/2026 |
 | Voz única (Kokoro) | 3 vozes ElevenLabs: Nina, Otto, Graziella | 04/11/2026 |
@@ -199,6 +200,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **05/11/2026** · O brilho passando pelo cartão inteiro não ficou bom (Lucas): agora só o **botãozinho amarelo** do próximo passo dá um pulinho e solta um anel amarelo a cada ~2,4 s, sem acender e apagar. Também saiu do cartão "Entre na sua turma" (agora só o botão amarelo "Entrar na minha turma") e do botão rosa "Abrir pacotes" do álbum (Lucas).
 - **05/11/2026** · Botão **Apagar esta turma** (só o dono do app; escreve o nome para confirmar). Primeiro aparecia também para quem criou a turma; o Lucas tirou porque não dá para desfazer. Antes não tinha como apagar uma turma, só juntar com outra ou apagar a conta do adulto (Lucas).
 
 - **05/11/2026** · **Matérias separadas por turma** e **sem turma não tem jogo**: as matérias que existem são do 4º ano B da Educativa; quem entrasse de fora via esse livro, que não é o dele. Agora cada turma aponta para um livro (o dono do app escolhe no Painel do dono → Turmas; turma nova começa sem matérias) e a criança só vê jogos estando numa turma com matérias. Servidor: duelo e datas de prova só com capítulos da turma (Lucas).
