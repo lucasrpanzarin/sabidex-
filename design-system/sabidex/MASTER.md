@@ -47,3 +47,12 @@ O Sabidex não pode ser uma cópia do Baobab. Roxo pode ser usado (Lucas, 05/11/
 
 ## Raridades (iguais nas cartas, nos filtros e nos selos)
 comum ★ cinza · rara ★★ turquesa · épica ★★★ rosa · lendária ★★★★ amarelo com borda holográfica.
+
+## Telas de Matemática (05/11/2026, revisadas com a skill)
+Arquivos: `src/screens/Contas.tsx` e o fim de `src/styles.css`.
+- **Teclado de números** próprio (3 × 4), em vez do teclado do celular, que cobriria a conta. Teclas com 48px ou mais (46px só em celular bem baixo), 8–10px entre elas. "Apagar" e "OK" escritos por extenso (seta sozinha parece "voltar").
+- **"Sua resposta"** é o rótulo visível da caixa (em tela muito baixa, fica só para o leitor de tela).
+- Certo/errado **nunca só pela cor**: a caixa fica verde/rosa **e** aparece "Acertou!" ou "Era X." com a explicação, logo abaixo da conta (`role="status"`).
+- **Balança e setas** desenhadas com as mesmas bordas e cores do app, paradas (sem animação). Balança desequilibrada diz em texto para que lado pende; os desenhos têm descrição para o leitor de tela.
+- Passos do "Ver como se faz" aparecem um de cada vez, sem animação (animação só em prêmio).
+- Conta e teclado cabem sem rolar em 360 × 740 e 375 × 667.

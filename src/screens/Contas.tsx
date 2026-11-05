@@ -77,9 +77,9 @@ function Teclado({ valor, setValor, onConferir }: { valor: string; setValor: (s:
     <div className="coluna" style={{ gap: 10 }}>
       <div className="teclado">
         {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(tecla)}
-        <button className="btn btn-escuro tecla" aria-label="Apagar" onClick={() => setValor(valor.slice(0, -1))} disabled={!valor}>⌫</button>
+        <button className="btn btn-escuro tecla tecla-texto" onClick={() => setValor(valor.slice(0, -1))} disabled={!valor}>Apagar</button>
         {tecla('0')}
-        <button className="btn btn-verde tecla" aria-label="Conferir" onClick={onConferir} disabled={!valor}>OK</button>
+        <button className="btn btn-verde tecla" aria-label="OK, conferir" onClick={onConferir} disabled={!valor}>OK</button>
       </div>
     </div>
   );
@@ -107,17 +107,20 @@ export function Pergunta({ conta, corrigirNaHora = true, rotuloProxima, onRespos
   };
   return (
     <>
-      <div className="painel-destaque coluna" style={{ gap: 10, alignItems: 'center', textAlign: 'center' }}>
-        <p className="display" style={{ fontSize: 21, margin: 0 }}>{conta.enunciado}</p>
+      <div className="painel-destaque coluna" style={{ gap: 8, alignItems: 'center', textAlign: 'center', padding: 14 }}>
+        <p className="display" style={{ fontSize: 19, margin: 0, textWrap: 'balance' }}>{conta.enunciado}</p>
         {conta.sentenca && <p className="display conta-grande" style={{ margin: 0 }}>{conta.sentenca}</p>}
         <Desenho v={conta.visual} />
-        <div className={`resposta-caixa${respondida ? (respondida.ok ? ' certa' : ' errada') : ''}`} aria-live="polite">
-          <span className="display">{valor || '?'}</span>{conta.unidade && <span className="muted small"> {conta.unidade}</span>}
+        <div className="coluna" style={{ gap: 4, alignItems: 'center' }}>
+          <span className="muted small rotulo-resposta" id="rotulo-resposta" style={{ fontWeight: 800 }}>Sua resposta</span>
+          <div className={`resposta-caixa${respondida ? (respondida.ok ? ' certa' : ' errada') : ''}`} role="group" aria-labelledby="rotulo-resposta">
+            <span className="display">{valor || '?'}</span>{conta.unidade && <span className="muted small"> {conta.unidade}</span>}
+          </div>
         </div>
       </div>
       {respondida ? (
-        <div className="coluna sobe" style={{ marginTop: 'auto' }}>
-          <div className={`aviso ${respondida.ok ? 'aviso-ok' : 'aviso-erro'}`}>
+        <div className="coluna sobe">
+          <div className={`aviso ${respondida.ok ? 'aviso-ok' : 'aviso-erro'}`} role="status">
             <span className="display" style={{ fontSize: 18 }}>{respondida.ok ? 'Acertou! ' : `Era ${conta.resposta}${conta.unidade ? ' ' + conta.unidade : ''}. `}</span>
             {conta.explicacao}
           </div>
@@ -170,7 +173,7 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
           </div>
           <ol className="coluna passos" style={{ gap: 8, margin: 0, padding: 0, listStyle: 'none' }}>
             {e.passos.slice(0, vistos).map((p, i) => (
-              <li key={i} className="painel sobe linha" style={{ padding: '10px 12px', gap: 10, fontWeight: 700 }}>
+              <li key={i} className="painel linha" style={{ padding: '10px 12px', gap: 10, fontWeight: 700 }}>
                 <span className="passo-num" aria-hidden="true">{i + 1}</span><span><Texto t={p} /></span>
               </li>
             ))}
@@ -257,10 +260,10 @@ export function FaseContas({ cap, fase }: { cap: Capitulo; fase: 'memoria' | 'li
     finalizar(notaDe(certas, contas.length), contas.length - certas);
   };
   return (
-    <main className="tela">
+    <main className="tela tela-contas">
       <Topo cap={cap} fase={fase} extra={<span className="pilula">{i + 1}/{contas.length}</span>} />
       <div className={`barra ${prova ? 'barra-ciano' : 'barra-verde'}`}><div style={{ width: `${(i / contas.length) * 100}%` }} /></div>
-      {!prova && <ContaErros erros={erros} />}
+      {!prova && <div className="erros-contas"><ContaErros erros={erros} /></div>}
       {/* Na prova, cada resposta vai direto para a próxima conta; a correção aparece no fim. */}
       <Pergunta key={`${rodada}-${i}`} conta={conta} corrigirNaHora={!prova} rotuloProxima={ultima ? 'Terminar' : 'Próxima'}
         onResposta={(_, n) => { const novo = [...respostas, n]; setRespostas(novo); if (prova) proxima(novo); }}

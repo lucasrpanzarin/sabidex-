@@ -546,6 +546,7 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
 .resposta-caixa.errada { background: #FFE4E6; border-color: var(--t-red); }
 .teclado { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .tecla { min-height: 58px; font-size: 26px; padding: 6px; }
+.tecla.tecla-texto { font-size: 18px; }
 .passo-num { width: 30px; height: 30px; flex: none; border-radius: 50%; border: 3px solid var(--ink); background: var(--cyan-2); display: grid; place-items: center; font-family: var(--display); }
 .peso { min-width: 46px; height: 42px; padding: 0 6px; border: 3px solid var(--ink); border-radius: 10px 10px 6px 6px; background: #E5E7EB; display: inline-flex; align-items: baseline; justify-content: center; gap: 1px; font-family: var(--display); font-size: 20px; line-height: 36px; }
 .peso small { font-size: 12px; }
@@ -564,3 +565,23 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
 .setas-meio { display: flex; flex-direction: column; gap: 10px; font-family: var(--display); font-size: 18px; }
 .setas-ida { color: var(--t-green); }
 .setas-volta { color: var(--t-coral); }
+/* Celular pequeno: a conta e o teclado inteiros na tela, sem rolar (teclas continuam com 48px ou mais). */
+@media (max-height: 800px) {
+  .conta-grande { font-size: clamp(22px, 7vw, 30px); }
+  .resposta-caixa { min-height: 52px; padding: 2px 14px; }
+  .resposta-caixa .display { font-size: 32px; }
+  .tecla { min-height: 48px; font-size: 22px; }
+  .teclado { gap: 8px; }
+  .peso { min-width: 40px; height: 36px; line-height: 30px; font-size: 17px; }
+  .balanca-pesos { min-height: 38px; }
+  .balanca-pe { height: 20px; }
+}
+/* Celular bem baixo (ex.: 375 × 667): esconde o que é só apoio para o teclado caber sem rolar. */
+@media (max-height: 700px) {
+  .tela-contas { gap: 10px; }
+  .tela-contas h1 + .muted, .erros-contas { display: none; }
+  .rotulo-resposta { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tecla { min-height: 46px; }
+  .resposta-caixa { min-height: 46px; }
+  .resposta-caixa .display { font-size: 28px; }
+}
