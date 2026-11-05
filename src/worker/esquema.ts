@@ -213,6 +213,8 @@ export const MIGRACOES = [
   )`,
   `CREATE INDEX IF NOT EXISTS pedidos_turma_destino ON pedidos_turma (turma_id, status)`,
   `CREATE INDEX IF NOT EXISTS pedidos_turma_adulto ON pedidos_turma (adulto_id, status)`,
+  // Painel do dono do app (Lucas, 05/11/2026): última vez que o adulto entrou ou abriu a área dos adultos.
+  `ALTER TABLE adultos ADD COLUMN visto INTEGER NOT NULL DEFAULT 0`,
   // E-mail confirmado (Lucas, 05/11/2026): para uma criança não criar conta de adulto com e-mail inventado.
   // Sem e-mail confirmado o adulto não cria turma, não liga o chat da turma nem autoriza o chat do filho.
   // Quem entrou com Google/Apple já vem confirmado. Links valem 24 horas e uma vez só.

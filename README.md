@@ -25,7 +25,7 @@ App de estudo para crianças: a matéria da escola vira fases de jogo, e cada fa
 - Em outro aparelho, ela entra com código + apelido + PIN e recupera tudo. 5 PINs errados bloqueiam por 15 minutos.
 - **Turma (aba do menu):** trocas, Duelo do Saber e conversa da turma. **Trocas:** a criança propõe trocar qualquer carta com um colega da turma; o colega aceita ou recusa. O app avisa quando é a única cópia ou quando a troca é desigual. Não existe chat.
 - **Ranking da semana** por XP e por cartas (zera toda segunda).
-- O adulto vê as crianças da turma, gera PIN novo e remove crianças. O administrador geral (e-mails em `ADMIN_EMAILS` no `wrangler.jsonc`) vê todas as turmas.
+- O adulto vê as crianças da turma, gera PIN novo e remove crianças. O administrador geral (e-mails em `ADMIN_EMAILS` no `wrangler.jsonc`) vê todas as turmas e o **Painel do dono** (`#/adulto/dono`): quem usou o app, quem está sem turma e os pedidos esperando.
 
 **Privacidade:** das crianças o Sabidex guarda só apelido, cor e progresso no jogo. PINs e senhas ficam embaralhados (hash), nunca em texto.
 
