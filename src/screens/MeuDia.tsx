@@ -79,11 +79,13 @@ export function MeuDia() {
         </div>
         {m.lista.map((id) => {
           const mi = MISSOES[id as MissaoId];
+          // A primeira missão que falta é o próximo passo: ganha o brilho e o "Fazer agora".
+          const proxima = id === m.lista.find((x) => !missaoFeita(m, x));
           if (!mi) return null;
           const ok = missaoFeita(m, id);
           const n = m.progresso[id] ?? 0;
           return (
-            <div key={id} className="painel linha" style={{ gap: 10, borderColor: ok ? 'var(--green)' : undefined }}>
+            <div key={id} className="painel linha" style={{ gap: 10, borderColor: ok ? 'var(--green)' : proxima ? 'var(--coral)' : undefined }}>
               <span style={{ width: 34, height: 34, flex: 'none', borderRadius: '50%', border: '3px solid var(--ink)', background: ok ? 'var(--green)' : 'var(--surface)', display: 'grid', placeItems: 'center' }}>
                 {ok && <Icone nome="check" tamanho={18} espessura={3.5} />}
               </span>
@@ -93,7 +95,9 @@ export function MeuDia() {
               </span>
               {ok
                 ? <span className="small" style={{ fontWeight: 800, color: 'var(--t-green)' }}>Feita</span>
-                : <button className="btn btn-amarelo" style={{ minHeight: 44, padding: '8px 18px' }} onClick={() => irPara(id)}>Ir</button>}
+                : proxima
+                  ? <button className="btn btn-amarelo chamar" style={{ minHeight: 44, padding: '8px 14px' }} onClick={() => irPara(id)}>Fazer agora</button>
+                  : <button className="btn btn-escuro" style={{ minHeight: 44, padding: '8px 18px' }} onClick={() => irPara(id)}>Ir</button>}
             </div>
           );
         })}

@@ -7,9 +7,13 @@ import { FIGURINHAS, figurinhaPorId, type Figurinha } from '../lib/figurinhas';
 import { api, entrarNaConta, entrarNoPerfil, ultimoCodigo, entrarNaTurma, entrarNaTurmaComConta, esquecerContaNova, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
 import { EscolherPerfil } from '../components/Perfis';
 import { ir } from '../lib/rota';
-import { paraTrocar, protegido } from '../lib/loja';
+import { paraTrocar, protegido, saldo } from '../lib/loja';
 import { useEstado } from '../lib/store';
-import { CORES } from './Inicio';
+import { Chama, CORES } from './Inicio';
+import { Medalha } from '../components/Medalha';
+import { Moeda } from '../components/Loja';
+import { conquistasDe, numerosDoPerfil } from '../lib/conquistas';
+import { nivel, sequencia } from '../lib/jogo';
 
 /** Para avisar quando a criança dá uma carta mais valiosa: a forma conta mais que a raridade. */
 const valorCarta = (id: string) => { const f = figurinhaPorId.get(id); return f ? f.forma * 10 + NIVEL[f.s.raridade] : 0; };
@@ -111,7 +115,13 @@ export function EntrarTurma({ inicio, aoEntrar }: { inicio?: { codigo: string; t
           <p className="muted small" style={{ margin: 0 }}>Só o apelido, não o nome completo. Os colegas vão ver esse apelido no ranking e nas trocas.</p>
           {novo && <EscolherCor cor={cor} aoEscolher={setCor} />}
           <button className="btn btn-amarelo btn-bloco" disabled={apelido.trim().length < 2 || ocupado}>{conta ? (ocupado ? 'Entrando…' : 'Entrar na turma') : 'Continuar'}</button>
-          {conta && <p className="muted small" style={{ margin: 0 }}>Você continua com a mesma conta, as mesmas cartas e o mesmo PIN.</p>}
+          {conta && <p className="muted small" style={{ margin: 0 }}>Você continua com a mesma conta, as mesmas cartas e o mesmo PIN.{conta.codigo && conta.codigo !== codigo ? ` Você sai da turma ${conta.turma}.` : ''}</p>}
+          {!conta && (
+            <div className="aviso small" style={{ fontWeight: 700 }}>
+              Já joga em outra turma? Não crie outra conta: ela começa sem cartas. Volte, digite o código da turma antiga, entre com seu PIN
+              e, em "Minha conta", toque em "Mudar de turma". Suas cartas vão junto.
+            </div>
+          )}
         </form>
       )}
       {passo === 'pin' && <Pin valor={pin} onChange={setPin} rotulo="Crie um PIN de 4 números" />}
@@ -639,14 +649,34 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
   );
 }
 
-/* ---------------- Minha conta ---------------- */
+/* ---------------- Meu perfil (antes "Minha conta") ---------------- */
+// Lucas (05/11/2026): a criança quer ver ela mesma (nível, números, conquistas), não o código da turma.
+// O código e o apelido para entrar em outro aparelho ficam guardados lá embaixo, num "abrir e fechar".
+
+function Numero({ valor, rotulo, icone }: { valor: ReactNode; rotulo: string; icone?: ReactNode }) {
+  return (
+    <div className="painel coluna" style={{ padding: '12px 14px', gap: 2 }}>
+      <span className="linha" style={{ gap: 6 }}>{icone}<span className="display" style={{ fontSize: 24, fontVariantNumeric: 'tabular-nums' }}>{valor}</span></span>
+      <span className="muted small" style={{ fontWeight: 700 }}>{rotulo}</span>
+    </div>
+  );
+}
+
 export function MinhaConta() {
   const { conta, perfis } = useConta();
   const e = useEstado();
   const [confirmar, setConfirmar] = useState(false);
+  const [mudar, setMudar] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [vendo, setVendo] = useState<string | null>(null);
   const outros = perfis.filter((p) => p.id !== conta?.id);
-  const sub = conta ? (conta.codigo ? `Turma ${conta.turma}` : 'Conta da família') : 'Salvo só neste aparelho';
+  const nv = nivel(e.xp);
+  const n = useMemo(() => numerosDoPerfil(e), [e]);
+  const conquistas = useMemo(() => conquistasDe(e), [e]);
+  const ganhas = conquistas.filter((c) => c.ganhou).length;
+  const aberta = conquistas.find((c) => c.id === vendo);
+  const dias = sequencia(e.dias);
   const sairAgora = async () => {
     setErro(null);
     const msg = await sair();
@@ -655,11 +685,58 @@ export function MinhaConta() {
   return (
     <main className="tela">
       <button className="voltar" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Início</button>
-      <h1 className="display h1">Minha conta</h1>
-      <div className="painel linha">
-        <Avatar nome={e.perfil?.nome ?? '?'} cor={e.perfil?.cor ?? CORES[0]} tamanho={56} />
-        <div><div className="display" style={{ fontSize: 22 }}>{e.perfil?.nome}</div><div className="muted small">{sub}</div></div>
+
+      <div className="painel-destaque coluna" style={{ alignItems: 'center', textAlign: 'center', gap: 8 }}>
+        <Avatar nome={e.perfil?.nome ?? '?'} cor={e.perfil?.cor ?? CORES[0]} tamanho={84} />
+        <h1 className="display h1" style={{ margin: 0 }}>{e.perfil?.nome}</h1>
+        <span className="pilula" style={{ fontSize: 17 }}>Nível {nv.nivel}</span>
+        <div className="barra barra-ciano" style={{ width: '100%' }} role="progressbar" aria-valuenow={nv.noNivel} aria-valuemax={nv.total} aria-label="XP do nível"><div style={{ width: `${(nv.noNivel / nv.total) * 100}%` }} /></div>
+        <span className="muted small" style={{ fontWeight: 700 }}>Faltam {nv.total - nv.noNivel} XP para o nível {nv.nivel + 1}</span>
       </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <Numero valor={e.xp} rotulo="XP no total" />
+        <Numero valor={saldo(e)} rotulo="Sabicoins" icone={<Moeda tamanho={22} />} />
+        <Numero valor={dias} rotulo={n.maiorSequencia > dias ? `dias seguidos · recorde ${n.maiorSequencia}` : 'dias seguidos'} icone={<Chama tamanho={22} />} />
+        <Numero valor={`${n.figurinhas}/${FIGURINHAS.length}`} rotulo="figurinhas no álbum" />
+        <Numero valor={n.estrelas} rotulo="estrelas nos mundos" />
+        <Numero valor={n.mundos} rotulo={n.mundos === 1 ? 'mundo completo' : 'mundos completos'} />
+      </div>
+
+      <section className="coluna" aria-label="Minhas conquistas">
+        <div className="linha" style={{ justifyContent: 'space-between' }}>
+          <h2 className="display h2" style={{ margin: 0 }}>Minhas conquistas</h2>
+          <span className="pilula">{ganhas} de {conquistas.length}</span>
+        </div>
+        {aberta && (
+          <div className="painel linha" style={{ gap: 12 }} role="status">
+            <Medalha desenho={aberta.desenho} cor={aberta.cor} ganhou={aberta.ganhou} tamanho={56} />
+            <span className="coluna" style={{ flex: 1, gap: 4 }}>
+              <span className="display" style={{ fontSize: 19 }}>{aberta.titulo}</span>
+              <span className="small" style={{ fontWeight: 700 }}>{aberta.ganhou ? 'Você conseguiu! ' : ''}{aberta.como}</span>
+              {!aberta.ganhou && aberta.alvo > 1 && (
+                <>
+                  <div className="barra barra-amarela"><div style={{ width: `${(aberta.tem / aberta.alvo) * 100}%` }} /></div>
+                  <span className="muted small">{aberta.tem} de {aberta.alvo}</span>
+                </>
+              )}
+            </span>
+          </div>
+        )}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(92px, 1fr))', gap: 12 }}>
+          {conquistas.map((c) => (
+            <button key={c.id} type="button" onClick={() => setVendo(vendo === c.id ? null : c.id)} aria-pressed={vendo === c.id}
+              aria-label={`${c.titulo}: ${c.ganhou ? 'conseguiu' : `${c.tem} de ${c.alvo}`}`}
+              className="coluna" style={{ alignItems: 'center', gap: 6, border: 0, background: 'none', padding: 4, font: 'inherit', color: 'inherit', cursor: 'pointer', minHeight: 44 }}>
+              <Medalha desenho={c.desenho} cor={c.cor} ganhou={c.ganhou} />
+              <span className="small" style={{ fontWeight: 800, textAlign: 'center', lineHeight: 1.15, color: c.ganhou ? 'var(--ink)' : 'var(--muted)' }}>{c.titulo}</span>
+              {!c.ganhou && c.alvo > 1 && <span className="muted small" style={{ fontSize: 12 }}>{c.tem}/{c.alvo}</span>}
+            </button>
+          ))}
+        </div>
+        <p className="muted small" style={{ margin: 0 }}>Toque numa conquista para ver como ganhar.</p>
+      </section>
+
       {!conta && (
         <>
           <div className="linha" style={{ alignItems: 'flex-end' }}>
@@ -672,23 +749,44 @@ export function MinhaConta() {
         </>
       )}
       {conta && (
-        <>
-          {conta.codigo ? (
-            <div className="painel coluna" style={{ gap: 4 }}>
-              <div className="muted small">Para entrar em outro aparelho:</div>
-              <div className="display" style={{ fontSize: 19 }}>Código: {conta.codigo}</div>
-              <div className="display" style={{ fontSize: 19 }}>Apelido: {conta.apelido}</div>
-              <div className="muted small">e o seu PIN secreto.{conta.familia ? ' Ou use o código da família, que o adulto da sua casa tem.' : ''}</div>
+        <section className="coluna" aria-label="Minha turma">
+          <h2 className="display h3" style={{ margin: '8px 0 0' }}>Minha turma</h2>
+          {aviso && <div className="aviso aviso-ok" role="status">{aviso}</div>}
+          {conta.codigo ? (mudar ? (
+            <div className="painel coluna" style={{ gap: 10 }}>
+              <div className="linha" style={{ alignItems: 'flex-end' }}>
+                <Ara tamanho={60} />
+                <div className="balao" style={{ flex: 1, marginBottom: 8 }}>Digite o código da turma nova. Você leva <strong>todas as suas cartas</strong>, o XP e as Sabicoins.</div>
+              </div>
+              <EntrarTurma aoEntrar={() => { setMudar(false); setAviso('Pronto! Você mudou de turma com todas as suas cartas.'); }} />
+              <button className="btn btn-escuro btn-bloco" onClick={() => setMudar(false)}>Cancelar</button>
             </div>
           ) : (
+            <div className="painel linha" style={{ gap: 10 }}>
+              <span style={{ flex: 1, fontWeight: 800 }}>{conta.turma}</span>
+              <button className="btn btn-escuro" style={{ minHeight: 40, fontSize: 15, padding: '0 12px' }} onClick={() => { setAviso(null); setMudar(true); }}>Mudar de turma</button>
+            </div>
+          )) : (
             <>
               <div className="painel coluna" style={{ gap: 4 }}>
-                <div style={{ fontWeight: 800 }}>Suas cartas estão guardadas na conta da família.</div>
-                <div className="muted small">Em outro aparelho, toque em "Sou criança" e digite o código da família. O adulto da sua casa tem esse código.</div>
+                <div style={{ fontWeight: 800 }}>Você ainda não está numa turma.</div>
+                <div className="muted small">Suas cartas estão guardadas na conta da família.</div>
               </div>
               <button className="btn btn-amarelo btn-bloco" onClick={() => ir('trocas')}>Entrar na minha turma</button>
             </>
           )}
+          <details className="painel">
+            <summary style={{ fontWeight: 800, cursor: 'pointer', minHeight: 28 }}>Como entrar em outro aparelho</summary>
+            <div className="coluna" style={{ gap: 4, marginTop: 8 }}>
+              {conta.codigo ? (
+                <>
+                  <div className="display" style={{ fontSize: 19 }}>Código: {conta.codigo}</div>
+                  <div className="display" style={{ fontSize: 19 }}>Apelido: {conta.apelido}</div>
+                  <div className="muted small">e o seu PIN secreto.{conta.familia ? ' Ou use o código da família, que o adulto da sua casa tem.' : ''} Não conte seu PIN para os colegas!</div>
+                </>
+              ) : <div className="muted small">Toque em "Sou criança" e digite o código da família. O adulto da sua casa tem esse código.</div>}
+            </div>
+          </details>
           {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
           {!confirmar
             ? <button className="btn btn-escuro btn-bloco" onClick={() => setConfirmar(true)}>Sair da conta neste aparelho</button>
@@ -698,7 +796,7 @@ export function MinhaConta() {
                 <div className="linha"><button className="btn btn-escuro" style={{ flex: 1 }} onClick={() => setConfirmar(false)}>Não</button><button className="btn btn-vermelho" style={{ flex: 1 }} onClick={() => void sairAgora()}>Sair</button></div>
               </div>
             )}
-        </>
+        </section>
       )}
       {outros.length > 0 && <div className="painel"><EscolherPerfil perfis={outros} titulo="Trocar de perfil" aoEntrar={() => ir()} /></div>}
     </main>

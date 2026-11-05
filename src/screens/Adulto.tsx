@@ -18,7 +18,8 @@ const campo: React.CSSProperties = { font: 'inherit', fontWeight: 700, fontSize:
 const rotulo: React.CSSProperties = { fontWeight: 800 };
 const botaoPequeno: React.CSSProperties = { flex: 1, minHeight: 40, fontSize: 15 };
 
-interface Turma { id: string; nome: string; codigo: string; criancas: number; dono: string; sou_dono?: number }
+interface Turma { id: string; nome: string; escola?: string; codigo: string; criancas: number; dono: string; sou_dono?: number; pedidos?: number }
+interface TurmaDetalhe { id: string; nome: string; escola: string; na_busca: number; codigo: string; dono: boolean }
 interface Kid { id: string; apelido: string; cor: string; xp: number | null; xp_semana: number; cartas: number; visto: number; bloqueado_ate: number; familia: number; chat_ok: number; mudo_ate: number; online: number }
 interface Filho { id: string; apelido: string; cor: string; xp: number | null; cartas: number; visto: number; bloqueado_ate: number; turma: string | null; codigo: string | null; chat_ok: number; mostrar_online: number; turma_chat: number | null }
 
@@ -348,9 +349,13 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
   const [abrir, setAbrir] = useState<string | null>(null);
   const [apagar, setApagar] = useState<string | null>(null);
   const [codigo, setCodigo] = useState<string | null>(null);
-  const carregar = () => api<{ filhos: Filho[]; provas?: DatasProva; codigo?: string | null }>('/adulto/familia', { tokenProprio: token }).then((r) => {
-    if (r.erro) setErro(r.erro); else { setFilhos(r.filhos); setProvas(r.provas ?? {}); setCodigo(r.codigo ?? null); if (r.filhos.length === 0) setForm((f) => (f === 'nenhum' ? 'novo' : f)); }
-  });
+  const [pedidos, setPedidos] = useState<PedidoFeito[]>([]);
+  const carregar = () => {
+    void api<{ pedidos: PedidoFeito[] }>('/adulto/pedidos', { tokenProprio: token }).then((r) => { if (!r.erro) setPedidos(r.pedidos); });
+    return api<{ filhos: Filho[]; provas?: DatasProva; codigo?: string | null }>('/adulto/familia', { tokenProprio: token }).then((r) => {
+      if (r.erro) setErro(r.erro); else { setFilhos(r.filhos); setProvas(r.provas ?? {}); setCodigo(r.codigo ?? null); if (r.filhos.length === 0) setForm((f) => (f === 'nenhum' ? 'novo' : f)); }
+    });
+  };
   useEffect(() => { void carregar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const contaAberta = getConta();
@@ -425,6 +430,7 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
               <button className="btn btn-escuro" style={botaoPequeno} onClick={() => setApagar(f.id)}>Apagar</button>
             </div>
           )}
+          {abrir !== f.id && apagar !== f.id && <TurmaDoFilho token={token} f={f} pedidos={pedidos} aoMudar={(msg) => { setErro(null); if (msg) setAviso(msg); void carregar(); }} />}
           {f.turma && <ChatDoFilho token={token} f={f} aoMudar={() => void carregar()} />}
         </div>
       ))}
@@ -633,14 +639,15 @@ function Turmas({ token, admin }: { token: string; admin: boolean }) {
   const [aberto, setAberto] = useState(false);
   const [convite, setConvite] = useState<string | null>(null);
   const [nome, setNome] = useState('');
+  const [escola, setEscola] = useState('');
   const [erro, setErro] = useState<string | null>(null);
   const carregar = () => api<{ turmas: Turma[] }>('/adulto/turmas', { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : setTurmas(r.turmas)));
   useEffect(() => { void carregar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const criar = async () => {
     setErro(null);
-    const r = await api<{ turma: Turma }>('/adulto/turmas', { corpo: { nome }, tokenProprio: token });
+    const r = await api<{ turma: Turma }>('/adulto/turmas', { corpo: { nome, escola }, tokenProprio: token });
     if (r.erro) return setErro(r.erro);
-    setNome('');
+    setNome(''); setEscola('');
     ir('adulto', r.turma.id);
   };
   const usarConvite = async () => {
@@ -659,15 +666,21 @@ function Turmas({ token, admin }: { token: string; admin: boolean }) {
         <button key={t.id} className="painel-destaque linha" onClick={() => ir('adulto', t.id)} style={{ textAlign: 'left', color: 'inherit' }}>
           <span style={{ flex: 1 }}>
             <span className="display" style={{ fontSize: 20, display: 'block' }}>{t.nome}</span>
-            <span className="muted small">Código {t.codigo} · {t.criancas} {t.criancas === 1 ? 'criança' : 'crianças'}{admin || !t.sou_dono ? ` · criada por ${t.dono}` : ''}{!t.sou_dono && !admin ? ' · você é administrador' : ''}</span>
+            <span className="muted small">{t.escola ? `${t.escola} · ` : ''}Código {t.codigo} · {t.criancas} {t.criancas === 1 ? 'criança' : 'crianças'}{admin || !t.sou_dono ? ` · criada por ${t.dono}` : ''}{!t.sou_dono && !admin ? ' · você é administrador' : ''}</span>
+            {!!t.pedidos && <span className="small" style={{ display: 'block', fontWeight: 800, color: 'var(--t-coral)' }}>{t.pedidos === 1 ? '1 pedido para entrar' : `${t.pedidos} pedidos para entrar`}</span>}
           </span>
           <Icone nome="seguir" />
         </button>
       ))}
       {aberto ? (
         <form className="painel coluna" onSubmit={(ev) => { ev.preventDefault(); void criar(); }}>
-          <label htmlFor="t-nome" className="display h3">Criar turma</label>
-          <input id="t-nome" style={campo} placeholder='Ex.: 4º ano B · Colégio X' value={nome} maxLength={50} onChange={(ev) => setNome(ev.target.value)} />
+          <h3 className="display h3" style={{ margin: 0 }}>Criar turma</h3>
+          <label htmlFor="t-nome" style={rotulo}>Nome da turma</label>
+          <input id="t-nome" style={campo} placeholder="Ex.: 4º ano B" value={nome} maxLength={50} onChange={(ev) => setNome(ev.target.value)} />
+          <label htmlFor="t-escola-nova" style={rotulo}>Escola</label>
+          <input id="t-escola-nova" style={campo} placeholder="Ex.: Colégio Educativa" value={escola} maxLength={60} onChange={(ev) => setEscola(ev.target.value)} />
+          <span className="muted small">Com o nome da escola, os pais acham a turma na busca e pedem para o filho entrar. Você aprova cada pedido.</span>
+          <TurmasParecidas token={token} busca={escola.trim() || nome.trim()} />
           <button className="btn btn-amarelo btn-bloco" disabled={nome.trim().length < 2}>Criar e gerar código</button>
         </form>
       ) : <button className="btn btn-escuro btn-bloco" onClick={() => setAberto(true)}>Criar turma</button>}
@@ -783,7 +796,7 @@ function Administradores({ token, id, nomeTurma }: { token: string; id: string; 
 }
 
 interface ChatTurma { chat: number; chat_inicio: number; chat_fim: number; mostrar_online: number }
-interface DadosTurma { turma: Turma; chat?: ChatTurma; avisos?: number; criancas: Kid[]; provas?: DatasProva }
+interface DadosTurma { turma: TurmaDetalhe; chat?: ChatTurma; avisos?: number; criancas: Kid[]; provas?: DatasProva; pedidos?: PedidoRecebido[] }
 
 const HORAS = Array.from({ length: 25 }, (_, h) => h);
 
@@ -895,6 +908,7 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
       <div>
         <div className="eyebrow">Turma</div>
         <h1 className="display h1">{turma.nome}</h1>
+        {turma.escola && <div className="muted" style={{ fontWeight: 700 }}>{turma.escola}</div>}
       </div>
       <div className="painel-destaque coluna" style={{ alignItems: 'center', textAlign: 'center' }}>
         <div className="muted small">Código da turma</div>
@@ -903,6 +917,7 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
         <button className="btn btn-ciano" onClick={() => void copiar()}>{copiado ? 'Copiado!' : 'Copiar convite'}</button>
       </div>
       {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+      <PedidosParaEntrar token={token} id={id} pedidos={dados.pedidos ?? []} aoMudar={() => void carregar()} />
       {pinNovo && (
         <div className="aviso aviso-ok" role="status">
           Novo PIN de <strong>{pinNovo.apelido}</strong>: <span className="display" style={{ fontSize: 24, color: 'var(--t-yellow)' }}>{pinNovo.pin}</span>
@@ -912,6 +927,7 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
       <DatasDasProvas token={token} rota={`/adulto/turmas/${id}/provas`} provas={dados.provas ?? {}} aoMudar={(p) => setDados({ ...dados, provas: p })}
         ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque para as crianças. Depois, continua aberto e valendo para quem chegou depois ou quer revisar." />
       <Administradores token={token} id={id} nomeTurma={turma.nome} />
+      <DadosDaTurma key={turma.id} token={token} turma={turma} criancas={criancas.length} aoMudar={(t) => setDados({ ...dados, turma: t })} />
       {dados.chat && <ChatDaTurma token={token} id={id} chat={dados.chat} avisos={dados.avisos ?? 0} criancas={criancas} aoMudar={() => void carregar()} />}
       <h2 className="display h3">{criancas.length} {criancas.length === 1 ? 'criança' : 'crianças'}</h2>
       {criancas.length === 0 && <p className="muted">Ninguém entrou ainda. Mande o convite acima.</p>}
@@ -949,5 +965,262 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
         </div>
       </div>
     </>
+  );
+}
+
+/* ---------------- Procurar turma e pedir para entrar (Lucas, 05/11/2026) ---------------- */
+// Só na área dos adultos. A busca mostra nome, escola e quantas crianças, nunca os apelidos.
+// Um administrador da turma aprova. A criança leva junto as cartas, o XP e as Sabicoins.
+
+interface TurmaAchada { id: string; nome: string; escola: string; dono: string; criancas: number; minha: number }
+interface PedidoFeito {
+  id: string; tipo: 'crianca' | 'juntar'; status: 'pendente' | 'aceito' | 'recusado'; criado: number; resolvido: number | null;
+  crianca_id: string | null; origem_id: string | null; turma: string | null; escola: string | null; apelido: string | null; origem: string | null;
+}
+interface PedidoRecebido {
+  id: string; tipo: 'crianca' | 'juntar'; criado: number; quem: string; apelido: string | null; cor: string | null; xp: number | null;
+  origem: string | null; origem_escola: string | null; origem_criancas: number | null;
+}
+
+const comEscola = (nome: string | null, escola: string | null) => (escola ? `${nome ?? ''} · ${escola}` : nome ?? '');
+const letras = (s: string) => s.replace(/[^a-z0-9]/gi, '').length;
+const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`;
+
+function useBuscaTurmas(token: string, q: string, excluir?: string) {
+  const [achadas, setAchadas] = useState<TurmaAchada[] | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const vez = useRef(0);
+  useEffect(() => {
+    const minha = ++vez.current;
+    if (letras(q) < 3) { setAchadas(null); return; }
+    const espera = setTimeout(() => {
+      void api<{ turmas: TurmaAchada[] }>(`/adulto/buscar-turmas?q=${encodeURIComponent(q)}`, { tokenProprio: token }).then((r) => {
+        if (minha !== vez.current) return; // chegou uma busca mais nova
+        if (r.erro) setErro(r.erro); else { setErro(null); setAchadas(r.turmas.filter((t) => t.id !== excluir)); }
+      });
+    }, 350);
+    return () => clearTimeout(espera);
+  }, [q, token, excluir]);
+  return { achadas, erro };
+}
+
+function BuscarTurma({ token, titulo, ajuda, excluir, textoBotao, aoEscolher, aoFechar }: {
+  token: string; titulo: string; ajuda: string; excluir?: string; textoBotao: string; aoEscolher: (t: TurmaAchada) => void; aoFechar: () => void;
+}) {
+  const [q, setQ] = useState('');
+  const { achadas, erro } = useBuscaTurmas(token, q, excluir);
+  return (
+    <div className="painel coluna" style={{ gap: 8 }}>
+      <label htmlFor="buscar-turma" className="display h3" style={{ margin: 0 }}>{titulo}</label>
+      <span className="muted small">{ajuda}</span>
+      <input id="buscar-turma" type="search" style={campo} placeholder="Ex.: Educativa 4º ano B" value={q} maxLength={60} autoComplete="off" onChange={(ev) => setQ(ev.target.value)} />
+      {letras(q) > 0 && letras(q) < 3 && <span className="muted small">Digite pelo menos 3 letras.</span>}
+      {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
+      {achadas?.length === 0 && <div className="aviso small">Não achei nenhuma turma com esse nome. Confira o nome da escola, ou peça o código da turma para o professor.</div>}
+      {achadas?.map((t) => (
+        <div key={t.id} className="painel-destaque linha" style={{ gap: 10 }}>
+          <span style={{ flex: 1 }}>
+            <span className="display" style={{ fontSize: 18, display: 'block' }}>{t.nome}</span>
+            <span className="muted small">{t.escola ? `${t.escola} · ` : ''}{plural(t.criancas, 'criança', 'crianças')}{t.dono ? ` · criada por ${t.dono}` : ''}{t.minha ? ' · você administra' : ''}</span>
+          </span>
+          <button className="btn btn-amarelo" style={{ minHeight: 40, fontSize: 15, padding: '0 12px' }} onClick={() => aoEscolher(t)}>{textoBotao}</button>
+        </div>
+      ))}
+      <button type="button" className="btn btn-escuro" style={botaoPequeno} onClick={aoFechar}>Fechar</button>
+    </div>
+  );
+}
+
+/** Responsável: procura a turma e pede para o filho entrar. Mostra o pedido esperando resposta. */
+function TurmaDoFilho({ token, f, pedidos, aoMudar }: { token: string; f: Filho; pedidos: PedidoFeito[]; aoMudar: (aviso?: string) => void }) {
+  const [buscando, setBuscando] = useState(false);
+  const [escolhida, setEscolhida] = useState<TurmaAchada | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+  const meus = pedidos.filter((p) => p.crianca_id === f.id);
+  const esperando = meus.find((p) => p.status === 'pendente');
+  const recusado = !esperando ? meus.find((p) => p.status === 'recusado') : undefined;
+
+  const pedir = async () => {
+    if (!escolhida) return;
+    setOcupado(true); setErro(null);
+    const r = await api<{ entrou: boolean; turma: string }>('/adulto/pedidos', { corpo: { turma: escolhida.id, crianca: f.id }, tokenProprio: token });
+    setOcupado(false);
+    if (r.erro) return setErro(r.erro);
+    setEscolhida(null); setBuscando(false);
+    aoMudar(r.entrou
+      ? `${f.apelido} entrou na turma ${r.turma}. As cartas e o XP continuam.`
+      : `Pedido enviado! Quando um administrador da turma ${r.turma} aprovar, ${f.apelido} entra com todas as cartas e o XP.`);
+  };
+  const cancelar = async (p: PedidoFeito) => {
+    const r = await api(`/adulto/pedidos/${p.id}/cancelar`, { corpo: {}, tokenProprio: token });
+    if (r.erro) setErro(r.erro); else aoMudar('Pedido cancelado.');
+  };
+
+  return (
+    <>
+      {esperando && (
+        <div className="aviso linha" style={{ gap: 8, flexWrap: 'wrap' }}>
+          <span className="small" style={{ flex: 1, fontWeight: 700 }}>Pedido para entrar em <strong>{comEscola(esperando.turma, esperando.escola)}</strong> esperando um administrador da turma aprovar.</span>
+          <button className="chat-avisar" onClick={() => void cancelar(esperando)}>Cancelar pedido</button>
+        </div>
+      )}
+      {recusado && <div className="aviso small">A turma {comEscola(recusado.turma, recusado.escola)} não aceitou o pedido. Confira com o professor se é a turma certa.</div>}
+      {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
+      {escolhida ? (
+        <div className="aviso coluna" style={{ gap: 8 }}>
+          <span className="small" style={{ fontWeight: 700 }}>
+            {escolhida.minha ? `Colocar ${f.apelido} na turma ${comEscola(escolhida.nome, escolhida.escola)}? Você administra essa turma, então ${f.apelido} entra na hora.`
+              : `Pedir para ${f.apelido} entrar em ${comEscola(escolhida.nome, escolhida.escola)}? Um administrador da turma precisa aprovar. Ele vai ver seu primeiro nome e o apelido de ${f.apelido}.`}
+            {' '}{f.apelido} leva junto todas as cartas, o XP e as Sabicoins.
+            {f.turma ? ` Ao entrar, sai da turma ${f.turma} (trocas e duelos que estavam esperando são cancelados).` : ''}
+          </span>
+          <div className="linha" style={{ gap: 8 }}>
+            <button className="btn btn-escuro" style={botaoPequeno} onClick={() => setEscolhida(null)}>Voltar</button>
+            <button className="btn btn-amarelo" style={botaoPequeno} disabled={ocupado} onClick={() => void pedir()}>{ocupado ? 'Enviando…' : escolhida.minha ? 'Colocar na turma' : 'Pedir para entrar'}</button>
+          </div>
+        </div>
+      ) : buscando ? (
+        <BuscarTurma token={token} titulo={`Procurar a turma de ${f.apelido}`} textoBotao="Escolher" aoEscolher={setEscolhida} aoFechar={() => setBuscando(false)}
+          ajuda="Digite o nome da escola ou da turma. Se a turma já existe, peça para entrar em vez de criar outra: assim os colegas ficam juntos." />
+      ) : !esperando && (
+        <button className="btn btn-ciano" style={{ minHeight: 40, fontSize: 15 }} onClick={() => setBuscando(true)}>{f.turma ? 'Trocar de turma' : 'Procurar a turma da escola'}</button>
+      )}
+    </>
+  );
+}
+
+/** Mostra as turmas que já existem com nome parecido, para não criar uma repetida. */
+function TurmasParecidas({ token, busca }: { token: string; busca: string }) {
+  const { achadas } = useBuscaTurmas(token, busca);
+  const outras = achadas?.filter((t) => !t.minha) ?? [];
+  if (!outras.length) return null;
+  return (
+    <div className="aviso coluna" style={{ gap: 6 }}>
+      <span className="small" style={{ fontWeight: 800 }}>Essa turma já existe? Encontrei {plural(outras.length, 'turma parecida', 'turmas parecidas')}:</span>
+      {outras.slice(0, 5).map((t) => <span key={t.id} className="small">• {comEscola(t.nome, t.escola)} ({plural(t.criancas, 'criança', 'crianças')}{t.dono ? `, criada por ${t.dono}` : ''})</span>)}
+      <span className="small">Se for a sua, não crie outra: os colegas ficariam separados. Responsável: use "Procurar a turma da escola" no perfil do seu filho. Professor: peça um convite de administrador para quem criou.</span>
+    </div>
+  );
+}
+
+/** Administradores aceitam ou recusam quem pediu para entrar. */
+function PedidosParaEntrar({ token, id, pedidos, aoMudar }: { token: string; id: string; pedidos: PedidoRecebido[]; aoMudar: () => void }) {
+  const [erro, setErro] = useState<string | null>(null);
+  const [ocupado, setOcupado] = useState<string | null>(null);
+  if (!pedidos.length) return null;
+  const responder = async (p: PedidoRecebido, acao: 'aceitar' | 'recusar') => {
+    setOcupado(p.id); setErro(null);
+    const r = await api(`/adulto/turmas/${id}/pedidos/${p.id}/${acao}`, { corpo: {}, tokenProprio: token });
+    setOcupado(null);
+    if (r.erro) setErro(r.erro);
+    aoMudar();
+  };
+  return (
+    <section className="painel coluna" style={{ gap: 8, borderColor: 'var(--coral)' }} aria-label="Pedidos para entrar">
+      <h2 className="display h3" style={{ margin: 0 }}>{plural(pedidos.length, 'pedido', 'pedidos')} para entrar</h2>
+      <p className="muted small" style={{ margin: 0 }}>Aceite só quem você sabe que é da turma. Quem entra traz as cartas e o XP que já tinha.</p>
+      {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
+      {pedidos.map((p) => (
+        <div key={p.id} className="painel-destaque coluna" style={{ gap: 8 }}>
+          {p.tipo === 'crianca' ? (
+            <div className="linha" style={{ gap: 10 }}>
+              <Bolinha nome={p.apelido ?? '?'} cor={p.cor ?? '#ccc'} tamanho={36} />
+              <span style={{ flex: 1 }}>
+                <span className="display" style={{ fontSize: 18, display: 'block' }}>{p.apelido}</span>
+                <span className="muted small">Pedido de {p.quem || 'um responsável'} · {p.xp ?? 0} XP · {quando(p.criado)}</span>
+              </span>
+            </div>
+          ) : (
+            <span className="small" style={{ fontWeight: 700 }}>
+              {p.quem || 'Um adulto'} quer juntar a turma <strong>{comEscola(p.origem, p.origem_escola)}</strong> com esta. As {plural(p.origem_criancas ?? 0, 'criança', 'crianças')} de lá entram aqui com as cartas e o XP, e aquela turma deixa de existir. Quem administra aquela turma não vira administrador desta.
+            </span>
+          )}
+          <div className="linha" style={{ gap: 8 }}>
+            <button className="btn btn-escuro" style={botaoPequeno} disabled={ocupado === p.id} onClick={() => void responder(p, 'recusar')}>Recusar</button>
+            <button className="btn btn-verde" style={botaoPequeno} disabled={ocupado === p.id} onClick={() => void responder(p, 'aceitar')}>{p.tipo === 'crianca' ? 'Aceitar' : 'Juntar turmas'}</button>
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+/** Escola, aparecer na busca e (para quem criou) juntar com outra turma repetida. */
+function DadosDaTurma({ token, turma, criancas, aoMudar }: { token: string; turma: TurmaDetalhe; criancas: number; aoMudar: (t: TurmaDetalhe) => void }) {
+  const [escola, setEscola] = useState(turma.escola);
+  const [erro, setErro] = useState<string | null>(null);
+  const [salvo, setSalvo] = useState(false);
+  const [juntar, setJuntar] = useState<'nao' | 'buscar'>('nao');
+  const [destino, setDestino] = useState<TurmaAchada | null>(null);
+  const [pedido, setPedido] = useState<PedidoFeito | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+  const carregarPedido = () => api<{ pedidos: PedidoFeito[] }>('/adulto/pedidos', { tokenProprio: token })
+    .then((r) => setPedido(r.pedidos?.find((p) => p.origem_id === turma.id && p.status === 'pendente') ?? null));
+  useEffect(() => { if (turma.dono) void carregarPedido(); }, [turma.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const salvar = async (mudar: { escola?: string; na_busca?: boolean }) => {
+    setErro(null); setSalvo(false);
+    const r = await api<{ turma: TurmaDetalhe }>(`/adulto/turmas/${turma.id}/dados`, { corpo: mudar, tokenProprio: token });
+    if (r.erro) return setErro(r.erro);
+    aoMudar({ ...turma, ...r.turma, dono: turma.dono });
+    if (mudar.escola !== undefined) { setSalvo(true); setTimeout(() => setSalvo(false), 2500); }
+  };
+  const pedirJuntar = async () => {
+    if (!destino) return;
+    setOcupado(true); setErro(null);
+    const r = await api<{ entrou: boolean; turma: string }>('/adulto/pedidos', { corpo: { turma: destino.id, origem: turma.id }, tokenProprio: token });
+    setOcupado(false);
+    if (r.erro) return setErro(r.erro);
+    setDestino(null); setJuntar('nao');
+    if (r.entrou) ir('adulto', destino.id); else void carregarPedido();
+  };
+  const cancelar = async () => {
+    if (!pedido) return;
+    const r = await api(`/adulto/pedidos/${pedido.id}/cancelar`, { corpo: {}, tokenProprio: token });
+    if (r.erro) setErro(r.erro); else setPedido(null);
+  };
+
+  return (
+    <section className="painel coluna" style={{ gap: 8 }} aria-label="Escola e busca">
+      <h2 className="display h3" style={{ margin: 0 }}>Escola e busca</h2>
+      <form className="coluna" style={{ gap: 8 }} onSubmit={(ev) => { ev.preventDefault(); void salvar({ escola }); }}>
+        <label htmlFor="t-escola" style={rotulo}>Nome da escola</label>
+        <div className="linha" style={{ gap: 8 }}>
+          <input id="t-escola" style={{ ...campo, flex: 1 }} placeholder="Ex.: Colégio Educativa" value={escola} maxLength={60} onChange={(ev) => setEscola(ev.target.value)} />
+          <button className="btn btn-escuro" style={{ minHeight: 48, fontSize: 15, padding: '0 14px' }} disabled={escola.trim() === turma.escola}>{salvo ? 'Salvo!' : 'Salvar'}</button>
+        </div>
+      </form>
+      <label className="linha small" style={{ gap: 8, fontWeight: 700 }}>
+        <input type="checkbox" checked={!!turma.na_busca} onChange={(ev) => void salvar({ na_busca: ev.target.checked })} style={{ width: 22, height: 22, flex: 'none' }} />
+        Os pais podem achar esta turma na busca e pedir para o filho entrar (você aprova cada pedido)
+      </label>
+      <span className="muted small">A busca mostra só o nome da turma, a escola e quantas crianças tem. Nunca os apelidos.</span>
+      {turma.dono && (pedido ? (
+        <div className="aviso linha" style={{ gap: 8, flexWrap: 'wrap' }}>
+          <span className="small" style={{ flex: 1, fontWeight: 700 }}>Pedido para juntar com <strong>{comEscola(pedido.turma, pedido.escola)}</strong> esperando um administrador de lá aprovar.</span>
+          <button className="chat-avisar" onClick={() => void cancelar()}>Cancelar pedido</button>
+        </div>
+      ) : destino ? (
+        <div className="aviso aviso-erro coluna" style={{ gap: 8 }}>
+          <span className="small" style={{ fontWeight: 700 }}>
+            Levar {criancas === 1 ? 'a criança' : `as ${criancas} crianças`} desta turma para <strong>{comEscola(destino.nome, destino.escola)}</strong>?
+            {destino.minha ? ' Você administra as duas, então acontece na hora.' : ' Um administrador de lá precisa aprovar.'}
+            {' '}Cada criança leva as cartas, o XP e as Sabicoins. Depois, esta turma ({turma.nome}) deixa de existir: o código {turma.codigo} para de funcionar e a conversa e as datas de prova dela são apagadas.
+            {destino.minha ? '' : ' Você não vira administrador da outra turma (peça um convite para quem criou, se precisar).'}
+          </span>
+          <div className="linha" style={{ gap: 8 }}>
+            <button className="btn btn-escuro" style={botaoPequeno} onClick={() => setDestino(null)}>Voltar</button>
+            <button className="btn btn-vermelho" style={botaoPequeno} disabled={ocupado} onClick={() => void pedirJuntar()}>{ocupado ? 'Enviando…' : destino.minha ? 'Juntar agora' : 'Pedir para juntar'}</button>
+          </div>
+        </div>
+      ) : juntar === 'buscar' ? (
+        <BuscarTurma token={token} titulo="Com qual turma juntar?" excluir={turma.id} textoBotao="Juntar com esta" aoEscolher={setDestino} aoFechar={() => setJuntar('nao')}
+          ajuda="Use quando criaram duas turmas para a mesma sala. As crianças desta turma vão para a outra, sem perder nada." />
+      ) : (
+        <button className="btn btn-escuro" style={{ minHeight: 42, fontSize: 15 }} onClick={() => setJuntar('buscar')}>Esta turma é repetida? Juntar com outra</button>
+      ))}
+      {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
+    </section>
   );
 }

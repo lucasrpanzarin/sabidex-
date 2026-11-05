@@ -7,7 +7,7 @@ import { voltar } from '../lib/rota';
 
 /** E-mail para pedidos sobre dados. */
 const EMAIL_CONTATO = 'lucas@fastgsa.com';
-const ATUALIZADA = '4 de novembro de 2026 (chat da turma)';
+const ATUALIZADA = '5 de novembro de 2026 (busca de turmas)';
 
 function Parte({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
@@ -46,6 +46,12 @@ export function Privacidade() {
       <Parte titulo="Quem vê o quê">
         O adulto responsável vê o progresso dos filhos. Os administradores da turma (quem criou a turma e os adultos que ele convidar, como o professor ou outro responsável) veem o apelido e o progresso dos alunos da turma.
         Colegas da mesma turma veem só o apelido, a cor, as cartas, o XP da semana, as vitórias e os resultados dos duelos com ela e, se os adultos deixarem, se a criança está estudando agora.
+      </Parte>
+      <Parte titulo="Busca de turmas">
+        Adultos com conta podem procurar uma turma pelo nome ou pela escola, para pedir que o filho entre nela.
+        A busca mostra só o <strong>nome da turma</strong>, o <strong>nome da escola</strong>, quantas crianças ela tem e o primeiro nome de quem a criou. Nunca mostra os apelidos das crianças.
+        Crianças não usam a busca. Os administradores da turma podem tirá-la da busca a qualquer momento.
+        Quando um responsável pede para o filho entrar, os administradores da turma veem o primeiro nome do responsável, o apelido, a cor e o XP da criança, e decidem se aceitam.
       </Parte>
       <Parte titulo="Chat da turma">
         Existe um chat escrito só entre colegas da <strong>mesma turma da escola</strong>, num grupo único (não há mensagem privada).

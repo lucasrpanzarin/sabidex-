@@ -191,6 +191,28 @@ export const MIGRACOES = [
     n INTEGER NOT NULL,
     inicio INTEGER NOT NULL
   )`,
+  // Busca de turmas e pedidos para entrar (Lucas, 05/11/2026). Só adultos buscam.
+  // escola = nome da escola; na_busca = 0 quando um administrador esconde a turma da busca;
+  // busca = nome + escola sem acentos (preenchido pelo servidor).
+  `ALTER TABLE turmas ADD COLUMN escola TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE turmas ADD COLUMN na_busca INTEGER NOT NULL DEFAULT 1`,
+  `ALTER TABLE turmas ADD COLUMN busca TEXT NOT NULL DEFAULT ''`,
+  // tipo 'crianca': o responsável pede para o filho (crianca_id) entrar na turma.
+  // tipo 'juntar': o dono da turma origem_id pede para levar todas as crianças para a turma.
+  // status: 'pendente', 'aceito', 'recusado', 'cancelado'.
+  `CREATE TABLE IF NOT EXISTS pedidos_turma (
+    id TEXT PRIMARY KEY,
+    turma_id TEXT NOT NULL,
+    tipo TEXT NOT NULL,
+    adulto_id TEXT NOT NULL,
+    crianca_id TEXT,
+    origem_id TEXT,
+    status TEXT NOT NULL DEFAULT 'pendente',
+    criado INTEGER NOT NULL,
+    resolvido INTEGER
+  )`,
+  `CREATE INDEX IF NOT EXISTS pedidos_turma_destino ON pedidos_turma (turma_id, status)`,
+  `CREATE INDEX IF NOT EXISTS pedidos_turma_adulto ON pedidos_turma (adulto_id, status)`,
 ];
 
 /** Muda sozinha quando uma tabela ou migração nova entra (o servidor só confere tudo de novo quando ela muda). */

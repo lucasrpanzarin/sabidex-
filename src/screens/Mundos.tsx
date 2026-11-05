@@ -20,14 +20,17 @@ export function Mundos({ materia }: { materia?: string }) {
   // Capítulos que já tiveram prova na escola continuam abertos e valendo tudo: ficam numa parte separada, no fim.
   const atuais = lista.filter((c) => situacao(conta?.provas, c.id, dia).tipo !== 'passou');
   const passadas = lista.filter((c) => situacao(conta?.provas, c.id, dia).tipo === 'passou');
+  // O primeiro mundo que ainda falta terminar é o próximo passo (brilho + selo).
+  const proximo = atuais.find((c) => FASES.some((f) => !e.feitas[chave(c.id, f)]));
   const cartao = (c: Capitulo) => {
     const n = FASES.filter((f) => e.feitas[chave(c.id, f)]).length;
     const s = situacao(conta?.provas, c.id, dia);
+    const eProximo = c.id === proximo?.id;
     return (
-      <button key={c.id} className="painel-destaque" onClick={() => ir('mundo', c.id)} style={{ textAlign: 'left', color: 'inherit' }}>
+      <button key={c.id} className={`painel-destaque${eProximo ? ' chamar' : ''}`} onClick={() => ir('mundo', c.id)} style={{ textAlign: 'left', color: 'inherit' }}>
         <span className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
           <span className="eyebrow" style={{ color: n === 5 ? 'var(--t-green)' : 'var(--t-yellow)' }}>{daMateria === capitulos && materias.length > 1 ? `${c.materia} · ` : ''}Mundo {c.numero}{n === 5 ? ' · completo' : ''}</span>
-          <SeloProva s={s} />
+          {eProximo && s.tipo !== 'chegando' ? <span className="selo-agora">{n === 0 ? 'Comece aqui' : 'Continue aqui'}</span> : <SeloProva s={s} />}
         </span>
         <span className="display" style={{ fontSize: 24, display: 'block', marginTop: 2 }}>{c.titulo}</span>
         <span className="muted small" style={{ display: 'block' }}>{c.subtitulo}{s.tipo === 'chegando' ? ` · prova no dia ${diaMes(conta!.provas![c.id])}` : ''}</span>
@@ -111,7 +114,7 @@ export function Mundo({ id }: { id: string }) {
               <button disabled={!livre} onClick={() => ir('fase', cap.id, f)} className="linha"
                 style={{ background: 'none', border: 0, padding: 0, textAlign: 'left', gap: 14, cursor: livre ? 'pointer' : 'not-allowed' }}
                 aria-label={`${f === 'prova' ? 'Chefão' : `Fase ${i + 1}`}: ${infoFase(f, cap).titulo}${feita ? `, completa${temNota ? `, ${nEstrelas} de 3 estrelas` : ''}` : livre ? '' : ', bloqueada'}`}>
-                <span style={{ position: 'relative', width: tam, height: tam, flex: 'none', borderRadius: '50%', display: 'grid', placeItems: 'center', color: feita ? '#052E16' : eAgora ? 'var(--ink)' : 'var(--muted)', ...estilo }}>
+                <span className={eAgora && livre ? 'chamar' : undefined} style={{ position: 'relative', width: tam, height: tam, flex: 'none', borderRadius: '50%', display: 'grid', placeItems: 'center', color: feita ? '#052E16' : eAgora ? 'var(--ink)' : 'var(--muted)', ...estilo }}>
                   <span style={{ display: 'grid', transform: temNota ? 'translateY(-5px)' : undefined }}>
                     <Icone nome={feita ? 'check' : livre ? 'play' : 'cadeado'} tamanho={feita ? 30 : 28} cheio={!feita && livre} espessura={feita ? 3.5 : 2.5} />
                   </span>

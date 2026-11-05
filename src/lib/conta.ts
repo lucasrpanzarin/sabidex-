@@ -188,7 +188,11 @@ export async function sincronizar() {
     if (!r.erro) {
       aplicarServidor(r, enviado);
       conta = r.conta;
-      try { localStorage.setItem(K_CONTA, JSON.stringify(r.conta)); } catch { /* ignora */ }
+      try {
+        localStorage.setItem(K_CONTA, JSON.stringify(r.conta));
+        // A turma pode ter mudado (um adulto aprovou a entrada ou juntou turmas): o aparelho lembra o código novo.
+        if (r.conta.codigo) localStorage.setItem(K_ULTIMO_CODIGO, r.conta.codigo);
+      } catch { /* ignora */ }
       mudou();
     }
   } finally {

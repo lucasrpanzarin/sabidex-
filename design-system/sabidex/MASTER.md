@@ -58,3 +58,18 @@ Arquivos: `src/screens/Contas.tsx` e o fim de `src/styles.css`.
 - Conta e teclado cabem sem rolar em 360 × 740 e 375 × 667.
 - **Frações** (unidade 10): fração sempre "em pé" (numerador em cima, traço, denominador embaixo), como no livro. Resposta de fração em **duas caixas empilhadas**; a caixa ativa tem contorno turquesa e a dica diz qual escrever (em tela baixa, a dica some e fica só o destaque). Cano dividido = barra com contorno escuro e partes pintadas de coral; reta numérica com marcações e seta coral desenhada em CSS (não é letra nem emoji).
 - **Aviso do papel e lápis**: tela de entrada das fases de Matemática igual à do quiz (Ará + balão + botão amarelo "Já peguei!"). A dica nas contas difíceis é uma linha cinza pequena dentro do painel da conta, sem ícone nem cor (não pode competir com a pergunta).
+
+## Menu de baixo (Lucas, 05/11/2026)
+Arquivo: `src/components/Nav.tsx` e `.nav*` em `src/styles.css`.
+- Cada aba tem um **desenho de duas cores** (cor da aba + contorno escuro), como figurinha: Início coral (casinha), Álbum turquesa (álbum aberto com figurinha), Turma rosa (duas crianças), Ranking amarelo (troféu com estrela).
+- A **aba aberta vira adesivo colado**: fundo clarinho da cor da aba, contorno escuro, sombra de adesivo e levemente torta (-4°). O nome fica escuro; nas outras, cinza. Assim a aba aberta não depende só da cor.
+- Nomes na **Lilita One**. "Jogar" continua a bola amarela grande, também torta como adesivo.
+- Sem animação (só aperta ao tocar). Foco do teclado com contorno turquesa.
+
+## Chamar a atenção para o estudo (Lucas, 05/11/2026)
+Lucas pediu algo que chame a criança para o que ela precisa fazer. A skill desaconselha animação sem fim (distrai; no máximo 1–2 coisas animadas por tela), então ficou assim:
+- **Brilho** (`.chamar`): reflexo dourado passa (~0,8 s), espera ~2 s, passa de novo. Só no próximo passo de estudo, 1 por tela, some quando ela faz, nunca dentro dos jogos, desligado com "reduzir movimento". Dourado porque branco não aparece no cartão branco.
+- **Selo parado** `.selo-agora` (amarelo torto, texto escuro): "Faça agora", "Comece aqui", "Continue aqui".
+- Onde: Início = cartão das Missões do dia (bolinhas que enchem → pacote) enquanto falta missão; sem missões, o "Continuar". Meu dia = a primeira missão que falta ("Fazer agora"; as outras ficam "Ir" escuro). Lista de mundos = primeiro mundo não terminado. Mapa do mundo = a fase "Agora". Álbum = "Abrir pacotes".
+- **Dias seguidos**: se ainda não estudou hoje, a pílula fica coral clarinha com um "!" (parado).
+- No Início, a Lojinha foi para depois do "Continuar" (estudo primeiro).
