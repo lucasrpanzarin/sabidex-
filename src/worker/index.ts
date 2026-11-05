@@ -1246,6 +1246,42 @@ app.delete('/adulto/turmas/:id/criancas/:cid', async (c) => {
 const doAdulto = (c: C, adultoId: string) =>
   c.env.DB.prepare('SELECT * FROM criancas WHERE id = ? AND familia_id = ?').bind(c.req.param('cid'), adultoId).first<Crianca>();
 
+/**
+ * Apagar uma turma (Lucas, 05/11/2026). Só quem criou a turma ou o dono do app; escreve o nome da turma para confirmar.
+ * Crianças com conta da família saem da turma com tudo (cartas, XP, Sabicoins). Crianças sem responsável
+ * não deixam apagar: antes, um adulto muda elas de turma ou remove (assim nenhuma conta some sem querer).
+ * Somem junto: o código, a conversa, as datas de prova, os administradores, os convites e os pedidos esperando.
+ */
+app.post('/adulto/turmas/:id/apagar', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const t = await turmaDoAdulto(c, a);
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  if (!t.dono) return erro(c, 403, 'Só quem criou a turma pode apagar.');
+  const nome = (x: string) => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  if (nome(String((await corpo(c)).confirmar ?? '')) !== nome(t.nome)) return erro(c, 400, `Escreva o nome da turma (${t.nome}) para confirmar.`);
+  const db = c.env.DB;
+  const ks = (await db.prepare('SELECT id, apelido, familia_id FROM criancas WHERE turma_id = ?').bind(t.id).all<{ id: string; apelido: string; familia_id: string | null }>()).results;
+  const soltas = ks.filter((k) => !k.familia_id);
+  if (soltas.length) {
+    return erro(c, 409, `${soltas.map((k) => k.apelido).join(', ')} ${soltas.length === 1 ? 'não tem' : 'não têm'} conta da família. Antes de apagar a turma, mude ${soltas.length === 1 ? 'essa criança' : 'essas crianças'} de turma ou toque em "Remover".`);
+  }
+  const agora = Date.now();
+  await db.batch([
+    ...ks.flatMap((k) => tirarDaTurma(db, k.id, k.familia_id!)),
+    db.prepare(`UPDATE trocas SET status = 'cancelada', resolvido = ? WHERE turma_id = ? AND status = 'pendente'`).bind(agora, t.id),
+    db.prepare(`UPDATE duelos SET status = 'cancelado', resolvido = ? WHERE turma_id = ? AND status IN ('novo', 'esperando')`).bind(agora, t.id),
+    db.prepare(`UPDATE pedidos_turma SET status = 'cancelado', resolvido = ? WHERE (turma_id = ?2 OR origem_id = ?2) AND status = 'pendente'`).bind(agora, t.id),
+    db.prepare('DELETE FROM mensagens WHERE turma_id = ?').bind(t.id),
+    db.prepare('DELETE FROM avisos_chat WHERE turma_id = ?').bind(t.id),
+    db.prepare('DELETE FROM datas_prova WHERE turma_id = ?').bind(t.id),
+    db.prepare('DELETE FROM turma_admins WHERE turma_id = ?').bind(t.id),
+    db.prepare('DELETE FROM convites_admin WHERE turma_id = ?').bind(t.id),
+    db.prepare('DELETE FROM turmas WHERE id = ?').bind(t.id),
+  ]);
+  return c.json({ ok: true, sairam: ks.length });
+});
+
 app.get('/adulto/familia', async (c) => {
   const a = await adulto(c);
   if (!a) return erro(c, 401, 'Entre de novo.');
