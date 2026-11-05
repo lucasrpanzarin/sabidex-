@@ -10,7 +10,7 @@ import {
   comBoasVindas, gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
 } from '../shared/sync';
-import { ESQUEMA, MIGRACOES, temTurma, turmaDaFamilia, VERSAO_ESQUEMA } from './esquema';
+import { AJUSTES_UMA_VEZ, ESQUEMA, MIGRACOES, temTurma, turmaDaFamilia, VERSAO_ESQUEMA } from './esquema';
 import { dataValida, type DatasProva } from '../lib/provas';
 import { conferirMensagem, dentroDoHorario, GUARDAR_DIAS, JANELA_LIMITE, LIMITE_MENSAGENS, MOTIVO as MOTIVO_CHAT, ONLINE_MS } from '../shared/chat';
 import { APPLE, conferirCracha, GOOGLE } from './jwt';
@@ -62,6 +62,15 @@ app.use('*', async (c, next) => {
       await db.batch(ESQUEMA.map((s) => db.prepare(s)));
       for (const m of MIGRACOES) {
         try { await db.prepare(m).run(); } catch (e) { if (!String(e).includes('duplicate column')) throw e; }
+      }
+      // Cada ajuste roda junto com a anotação dele (tudo ou nada); se já foi anotado, os UPDATE não mudam nada.
+      for (const aj of AJUSTES_UMA_VEZ) {
+        const feito = await db.prepare('SELECT 1 AS ok FROM ajustes_feitos WHERE nome = ?').bind(aj.nome).first();
+        if (feito) continue;
+        await db.batch([
+          ...aj.sql.map((s) => db.prepare(`${s}${/\bWHERE\b/i.test(s) ? ' AND' : ' WHERE'} NOT EXISTS (SELECT 1 FROM ajustes_feitos WHERE nome = ?)`).bind(aj.nome)),
+          db.prepare('INSERT OR IGNORE INTO ajustes_feitos (nome, feito) VALUES (?, ?)').bind(aj.nome, Date.now()),
+        ]);
       }
       await db.batch([
         db.prepare('CREATE TABLE IF NOT EXISTS esquema_versao (versao TEXT NOT NULL)'),

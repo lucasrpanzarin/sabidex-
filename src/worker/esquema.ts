@@ -102,7 +102,7 @@ export const MIGRACOES = [
   // Chat da turma (decisão do Lucas em 04/11/2026). Só grupo da turma, sem mensagem privada.
   // O professor liga para a turma (chat = 1) e escolhe o horário; o responsável autoriza cada filho (chat_ok = 1).
   // Desde 05/11/2026 (Lucas) turma nova e filho novo já vêm com o chat ligado (o servidor grava 1 ao criar);
-  // professor e responsável podem desligar. O DEFAULT 0 daqui fica para quem já existia.
+  // professor e responsável podem desligar. Quem já existia foi ligado uma vez em AJUSTES_UMA_VEZ.
   `ALTER TABLE turmas ADD COLUMN chat INTEGER NOT NULL DEFAULT 0`,
   `ALTER TABLE turmas ADD COLUMN chat_inicio INTEGER NOT NULL DEFAULT 7`,
   `ALTER TABLE turmas ADD COLUMN chat_fim INTEGER NOT NULL DEFAULT 21`,
@@ -215,6 +215,20 @@ export const MIGRACOES = [
   )`,
   `CREATE INDEX IF NOT EXISTS pedidos_turma_destino ON pedidos_turma (turma_id, status)`,
   `CREATE INDEX IF NOT EXISTS pedidos_turma_adulto ON pedidos_turma (adulto_id, status)`,
+  // Ajustes que mudam dados e só podem rodar UMA vez (cada um fica anotado aqui depois de rodar).
+  `CREATE TABLE IF NOT EXISTS ajustes_feitos (nome TEXT PRIMARY KEY, feito INTEGER NOT NULL)`,
+];
+
+/**
+ * Ajustes de dados que rodam uma vez só, na ordem, numa transação cada. Se um já está em `ajustes_feitos`, não roda mais
+ * (assim não desfaz o que os adultos mudarem depois).
+ */
+export const AJUSTES_UMA_VEZ: { nome: string; sql: string[] }[] = [
+  // Chat ligado para quem já existia (Lucas, 05/11/2026). Só filhos com conta da família (os outros não escrevem).
+  { nome: 'chat-ligado-para-todos-2026-11-05', sql: [
+    `UPDATE turmas SET chat = 1`,
+    `UPDATE criancas SET chat_ok = 1 WHERE familia_id IS NOT NULL`,
+  ] },
 ];
 
 /** Muda sozinha quando uma tabela ou migração nova entra (o servidor só confere tudo de novo quando ela muda). */
