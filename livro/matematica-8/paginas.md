@@ -577,3 +577,137 @@ Ao pressionar a tecla no sinal =, o resultado dessa operação aparecerá no vis
 >
 > a) Igor vai conseguir fazer o cálculo corretamente? Justifique sua resposta.
 > b) Monte corretamente a operação que Igor deve efetuar para saber se recebeu o troco certo e faça o cálculo.
+
+## Página 88
+
+[FALTA FOTO: as páginas 88 e 89 não vieram.]
+
+## Página 89
+
+[FALTA FOTO]
+
+## Página 90
+
+# MÃOS À OBRA!
+
+### Atividades do livro
+
+1. Utilize os números na representação decimal para escrever os valores apresentados em cada caso.
+   a) [IMAGEM: 4 moedas de 10 centavos.] R$ ____
+   b) [IMAGEM: 1 moeda de 50 centavos e 3 moedas de 10 centavos.] R$ ____
+   c) [IMAGEM: 3 moedas de 10 centavos e 1 moeda de 5 centavos.] R$ ____
+   d) [IMAGEM: 3 moedas de 25 centavos.] R$ ____
+   e) [IMAGEM: 1 moeda de 50 centavos, 1 de 25 centavos e 1 de 5 centavos.] R$ ____
+   f) [IMAGEM: 1 moeda de 25 centavos e 2 moedas de 10 centavos.] R$ ____
+
+## Página 91
+
+2. Lilian trabalha em uma papelaria e está colocando os preços em alguns produtos. Ela já escreveu o preço do primeiro produto. Ajude-a a escrever os preços usando números na representação decimal.
+   - Sete reais e noventa e nove centavos. [IMAGEM: caneta com etiqueta "R$ 7,99".] Legenda: Caneta. (exemplo)
+   a) Treze reais e cinquenta centavos. [IMAGEM: grampeador.] Legenda: Grampeador. Etiqueta: ____
+   b) Nove reais e oitenta e quatro centavos. [IMAGEM: apontador.] Legenda: Apontador. Etiqueta: ____
+   c) Treze reais e trinta centavos. [IMAGEM: borracha.] Legenda: Borracha. Etiqueta: ____
+   d) Quarenta e dois reais e setenta e um centavos. [IMAGEM: caderno.] Legenda: Caderno. Etiqueta: ____
+   e) Vinte e oito reais. [IMAGEM: compasso.] Legenda: Compasso. Etiqueta: ____
+
+## Página 92
+
+(foto tirada de lado)
+
+3. Associe os números de cada cédula ou moeda ao quadro de ordens com o valor correspondente.
+   a) [IMAGEM: moeda de 5 centavos, moeda de 50 centavos, cédula de 5 reais, cédula de 50 reais.]
+      Quadros de ordens (D, U, d, c): 0,50 · 50,00 · 5,00 · 0,05
+   b) [IMAGEM: moeda de 10 centavos, cédula de 10 reais, cédula de 100 reais.]
+      Quadros de ordens: 100,00 (C, D, U, d, c) · 10,00 · 0,10
+
+4. Marque com um [X] as cédulas e as moedas que devem ser usadas para compor o valor indicado.
+   a) R$ 1,65 — opções: moeda de 5 centavos, moeda de 10 centavos, moeda de 25 centavos, moeda de 50 centavos, moeda de 1 real.
+
+## Página 93
+
+   b) R$ 7,00 — opções: moeda de 25 centavos, moeda de 50 centavos, moeda de 1 real, cédula de 2 reais, cédula de 5 reais.
+   c) R$ 10,25 — opções: moeda de 5 centavos, moeda de 10 centavos, moeda de 25 centavos, cédula de 2 reais, cédula de 10 reais.
+   d) R$ 20,10 — opções: moeda de 10 centavos, moeda de 25 centavos, moeda de 50 centavos, cédula de 10 reais, cédula de 20 reais.
+   e) R$ 5,50 — opções: moeda de 5 centavos, moeda de 25 centavos, moeda de 50 centavos, cédula de 5 reais, cédula de 50 reais.
+   f) R$ 50,15 — opções: moeda de 5 centavos, moeda de 10 centavos, moeda de 1 real, cédula de 5 reais, cédula de 50 reais.
+
+## Página 94
+
+5. Na loja em que Vinícius trabalha, estão à venda quatro modelos de monitores.
+   [IMAGEM: quatro monitores com etiquetas.]
+   - Monitor A: R$ 994,16
+   - Monitor B: R$ 1.450,00
+   - Monitor C: R$ 872,58
+   - Monitor D: R$ 1.398,00
+
+   Um cliente disse que gostaria de ver um monitor que custe entre R$ 900,00 e R$ 1.400,00. Quais monitores Vinícius pode mostrar a esse cliente?
+
+6. Tadeu, Willian, Laís, Renata e Moisés vendem planos de saúde por telefone.
+   [IMAGEM: pessoas com fones de ouvido trabalhando em computadores.]
+   Legenda: Vendedores trabalhando por telefone.
+
+## Página 95
+
+   Eles recebem uma comissão por cada venda que conseguem fazer. O valor da comissão varia de acordo com o tipo de plano de saúde vendido. Observe os valores das comissões por tipo de plano:
+
+   > **Comissão:** recompensa em dinheiro oferecida a alguns vendedores, calculada sobre o valor da venda realizada.
+
+   | Plano | Comissão |
+   |---|---|
+   | Plano A | R$ 79,40 |
+   | Plano B | R$ 95,80 |
+   | Plano C | R$ 112,15 |
+
+   (No Plano C há um rabisco a lápis sobre o segundo algarismo; lido como 112,15.)
+
+   a) Calcule quanto cada vendedor receberá de comissão pelas vendas que fez em um dia.
+      - Tadeu vendeu um plano A e um plano B. Então, sua comissão será de R$ ____.
+      - Willian vendeu dois planos A. Então, sua comissão será de R$ ____.
+      - Laís vendeu um plano A e um plano C. Então, sua comissão será de R$ ____.
+      - Renata vendeu um plano B e um plano C. Então, sua comissão será de R$ ____.
+      - Moisés vendeu um plano de cada tipo. Então, sua comissão será de R$ ____.
+   b) Qual vendedor receberá a maior comissão pelas vendas feitas nesse dia?
+   c) Qual vendedor receberá a menor comissão pelas vendas?
+
+## Página 96
+
+(foto tirada de lado)
+
+7. Elisângela trabalha em uma loja de objetos de decoração. Nessa loja, todos os produtos estão com desconto. Observe as placas e descubra o valor do desconto em cada caso.
+   a) Chaveiro — De: R$ 14,90 · Por: R$ 11,70 — Desconto: R$ ____
+   b) Vaso — De: R$ 27,30 · Por: R$ 22,15 — Desconto: R$ ____
+   c) Moldura de foto — De: R$ 47,80 · Por: R$ 32,90 — Desconto: R$ ____
+   d) Almofada — De: R$ 63,36 · Por: R$ 58,75 — Desconto: R$ ____
+
+## Página 97
+
+8. Larissa tem um carrinho de sorvete e trabalha vendendo-os no parque. Observe os preços.
+   [IMAGEM: carrinho "SORVETES" com a placa: 1 bola R$ 5,50 · 2 bolas R$ 6,25 · Pote R$ 6,80.]
+
+   Um cliente comprou um sorvete de cada tipo.
+   a) Quanto esse cliente pagou pela compra?
+   b) Represente as cédulas e as moedas que o cliente deve usar para pagar o valor exato.
+   c) Se o cliente pagar com uma cédula de R$ 20,00, quanto Larissa deverá dar de troco?
+   d) Escreva quais cédulas e moedas Larissa deve utilizar para o troco.
+
+## Página 98
+
+9. Invente um problema que seja resolvido com uma **adição** de números na representação decimal. O problema deve incluir uma situação de compra. Depois, peça a um colega que o resolva e proceda do mesmo modo com o problema criado por ele.
+   Problema: ____ Resolução: ____
+
+10. Invente um problema que seja resolvido com uma **subtração** de números na representação decimal. O problema deve incluir uma situação de compra que envolva troco ou desconto. Depois, peça a um colega que o resolva e proceda do mesmo modo com o problema criado por ele.
+    Problema: ____ Resolução: ____
+
+## Página 99
+
+# O QUE EU APRENDI
+
+1. Expressar valores em reais e medidas usando números na representação ____.
+2. Ler e escrever valores na representação decimal. Por exemplo, escrevemos por extenso o valor R$ 78,99 como: ____.
+3. Ler e escrever medidas em representação decimal. Por exemplo, a medida da altura de José é 1,21 metro, que escrevemos por extenso como: ____.
+4. Reconhecer que um décimo de real equivale a ____ e que um centésimo de real equivale a ____.
+   [IMAGEM: moeda de 10 centavos → "um décimo de real"; moeda de 1 centavo → "um centésimo de real".]
+5. Adicionar e ____ com números em representação decimal.
+6. Adicionar e subtrair com o uso do ____ usual.
+   a) 456,77 + 89,7 = ____ (conta armada no quadro C D U d c: 456,77 + 89,70)
+   b) 456,77 − 89,7 = ____ (conta armada no quadro C D U d c: 456,77 − 89,70)
