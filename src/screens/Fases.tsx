@@ -11,7 +11,7 @@ import { ir } from '../lib/rota';
 import { jogar, proximaFase } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import { VOZES, audioDaVoz, setVoz, useVoz } from '../lib/voz';
-import { FaseContas, VerComoSeFaz } from './Contas';
+import { FaseContas, TextoMat, VerComoSeFaz } from './Contas';
 
 /** Transforma **negrito** em <strong>. */
 export function Texto({ t }: { t: string }) {
@@ -443,7 +443,7 @@ function Quiz({ cap }: { cap: Capitulo }) {
       <div className="barra barra-amarela" aria-hidden="true"><div style={{ width: `${(Math.max(0, resto) / TEMPO) * 100}%`, transition: 'width 1s linear' }} /></div>
       <div className="muted small">Pergunta {i + 1} de {lista.length} · {acertos} certas</div>
       <div className="painel-destaque" style={{ minHeight: 150, display: 'grid', placeItems: 'center' }}>
-        <p className="display" style={{ fontSize: 23, margin: 0, textAlign: 'center' }}>{q.frase}</p>
+        <p className="display" style={{ fontSize: 23, margin: 0, textAlign: 'center' }}>{cap.matematica ? <TextoMat t={q.frase} /> : q.frase}</p>
       </div>
       {retorno ? (
         <div className="coluna sobe">

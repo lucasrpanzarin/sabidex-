@@ -37,9 +37,10 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 ## 3. O que já existe (confira aqui antes de criar algo "novo")
 
 ### Estudo
-- **Mundos** = capítulos do livro. Hoje: **História cap. 9** ("Um continente chamado África") e **cap. 10** ("Terra à vista!") e **Matemática unidade 9** ("O preparo de alimentos e o pensamento algébrico"). Ciências e Geografia aparecem como "Em breve".
+- **Mundos** = capítulos do livro. Hoje: **História cap. 9** ("Um continente chamado África") e **cap. 10** ("Terra à vista!") e **Matemática unidades 9** ("O preparo de alimentos e o pensamento algébrico") **e 10** ("Os construtores e os números fracionários"). Ciências e Geografia aparecem como "Em breve".
 - **Matérias** (05/11/2026): o Início mostra um botão para cada matéria que já tem capítulo; tocar abre só os mundos dela (`#/mundos/<matéria>`). Nas narrações, os sinais de conta (×, ÷, +, −, =) viram palavras (`scripts/vozes.ts`).
 - **Matemática se estuda fazendo** (Lucas, 05/11/2026; `src/lib/contas.ts`, `src/screens/Contas.tsx`, regras em `docs/ESTUDOS.md`): o mapa tem as mesmas 5 fases (estrelas, nota 7, pacotes), mas por dentro são **Ver como se faz** (exemplo resolvido passo a passo + "Agora você"), **Treino de contas** (10), **Balança e sequências** (balança desenhada, setas de ida e volta, múltiplos), **Quiz relâmpago** e **Prova da unidade** (10 contas, correção no fim). A criança **digita a resposta** num teclado de números, e **os números mudam a cada partida**. O livro é a base, mas pode ter outras contas e exemplos do mesmo nível e método. Contas erradas voltam na Revisão do Ará com números novos. O Duelo usa o quiz e a prova de múltipla escolha do capítulo.
+  - **Frações** (unidade 10): a criança digita a fração em **duas caixas** (numerador em cima, denominador embaixo). Vale outra escrita do mesmo valor (2/4 = 1/2), menos quando a pergunta é "escreva com números". Desenhos novos: **cano dividido** e **reta numérica do 0 ao 1**. Cada unidade pode dar outro nome à fase 3 (na 10: "Retas e partes").
 - Cada mundo tem **5 fases** em ordem (uma libera a próxima):
   1. **Ouvir os temas** (áudio com 3 vozes: Nina, Otto, Graziella; o app lembra os temas já ouvidos)
   2. **Jogo da memória** (ligar palavra e significado)
@@ -181,6 +182,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
+
+- **05/11/2026** · **Matemática, unidade 10** ("Os construtores e os números fracionários", p. 144–177), já no jeito novo: frações unitárias, numerador e denominador, leitura de frações, reta numérica, fração de quantidade (em duas etapas), décimos, centésimos e porcentagem. Resposta de fração em duas caixas; cano e reta desenhados. O desafio da musse (p. 175, kg → g e litro → ml) ficou de fora porque mistura medidas que a unidade não ensina (Lucas pediu a unidade; detalhes do Claude).
 
 - **05/11/2026** · **Matemática, unidade 9** ("O preparo de alimentos e o pensamento algébrico", p. 100–143), feita a partir das fotos do livro: valor desconhecido, operações inversas, os 7 passos e a prova real, igualdade e balança, sequências e múltiplos. Primeira matéria fora de História: o Início ganhou um botão por matéria. O problema dos bolinhos de chuva (p. 122) ficou de fora porque o livro não traz a resposta (Lucas).
 - **05/11/2026** · **Matemática se estuda fazendo**: em vez de ouvir e escolher opções (jeito de História), exemplo resolvido + contas digitadas com números novos a cada vez, balança e setas desenhadas, prova de contas e revisão por tipo de conta. Regra nova: o livro é a base, mas pode ter outras contas e exemplos do mesmo nível e método (Lucas).

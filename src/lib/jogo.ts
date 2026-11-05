@@ -24,7 +24,9 @@ const FASE_MATEMATICA: Partial<Record<Fase, { titulo: string; sub: string }>> = 
 };
 
 /** Nome e explicação da fase para este capítulo. */
-export function infoFase(f: Fase, cap?: { matematica?: unknown }) {
+export function infoFase(f: Fase, cap?: { matematica?: { nomeDesafio?: [string, string] } }) {
+  const nome = f === 'linha' ? cap?.matematica?.nomeDesafio : undefined;
+  if (nome) return { ...FASE_INFO[f], titulo: nome[0], sub: nome[1] };
   const m = cap?.matematica ? FASE_MATEMATICA[f] : undefined;
   return m ? { ...FASE_INFO[f], ...m } : FASE_INFO[f];
 }

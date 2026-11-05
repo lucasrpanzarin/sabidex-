@@ -56,3 +56,4 @@ Arquivos: `src/screens/Contas.tsx` e o fim de `src/styles.css`.
 - **Balança e setas** desenhadas com as mesmas bordas e cores do app, paradas (sem animação). Balança desequilibrada diz em texto para que lado pende; os desenhos têm descrição para o leitor de tela.
 - Passos do "Ver como se faz" aparecem um de cada vez, sem animação (animação só em prêmio).
 - Conta e teclado cabem sem rolar em 360 × 740 e 375 × 667.
+- **Frações** (unidade 10): fração sempre "em pé" (numerador em cima, traço, denominador embaixo), como no livro. Resposta de fração em **duas caixas empilhadas**; a caixa ativa tem contorno turquesa e a dica diz qual escrever (em tela baixa, a dica some e fica só o destaque). Cano dividido = barra com contorno escuro e partes pintadas de coral; reta numérica com marcações e seta coral desenhada em CSS (não é letra nem emoji).

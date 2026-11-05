@@ -8,7 +8,14 @@ export type Visual =
   /** Balança de pratos. `null` = pacote sem a medida ("?"). `pende` = lado mais pesado (sem pende, está equilibrada). */
   | { tipo: 'balanca'; esquerda: (number | null)[]; direita: (number | null)[]; pende?: 'esquerda' | 'direita' }
   /** Setas de ida e volta: de → (ida) → para, e para → (volta) → de. `null` = quadrinho para descobrir. */
-  | { tipo: 'setas'; de: number | null; para: number | null; ida: string; volta: string };
+  | { tipo: 'setas'; de: number | null; para: number | null; ida: string; volta: string }
+  /** Cano (barra) dividido em `partes` iguais, com as primeiras `pintadas` partes pintadas. */
+  | { tipo: 'barra'; partes: number; pintadas: number }
+  /** Reta numérica do 0 ao 1 dividida em `partes` iguais, com uma seta na marcação `marca` (contando a partir do zero). */
+  | { tipo: 'reta'; partes: number; marca: number };
+
+/** Resposta: um número, ou uma fração [numerador, denominador]. */
+export type Resposta = number | [number, number];
 
 export interface Conta {
   /** id do gerador (vai para a Revisão do Ará) */
@@ -17,7 +24,9 @@ export interface Conta {
   /** conta em destaque, com "?" no lugar do número que falta (ex.: "? × 3 = 30") */
   sentenca?: string;
   visual?: Visual;
-  resposta: number;
+  resposta: Resposta;
+  /** fração: só vale escrita do mesmo jeito (ex.: "três oitavos" → 3/8, e não 6/16) */
+  exata?: boolean;
   /** palavra depois do número na resposta (ex.: "kg", "bolos") */
   unidade?: string;
   /** como resolver, em uma ou duas frases (aparece depois da resposta) */
@@ -216,6 +225,100 @@ function multiplosReceita(r: Rng): Conta {
     explicacao: `Usamos a divisão: ${por * n} ÷ ${por} = ${n}. Prova real: ${n} × ${por} = ${por * n}.` };
 }
 
+/* ---------- Frações (unidade 10) ---------- */
+
+const NUMERAIS = ['zero', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez'];
+const PARTES: Record<number, [string, string]> = {
+  2: ['meio', 'meios'], 3: ['terço', 'terços'], 4: ['quarto', 'quartos'], 5: ['quinto', 'quintos'], 6: ['sexto', 'sextos'],
+  7: ['sétimo', 'sétimos'], 8: ['oitavo', 'oitavos'], 9: ['nono', 'nonos'], 10: ['décimo', 'décimos'], 100: ['centésimo', 'centésimos'],
+};
+/** Como se lê a fração (ex.: 3/4 → "três quartos"; 1/4 → "um quarto"). */
+export const lerFracao = (n: number, d: number) => `${NUMERAIS[n] ?? n} ${PARTES[d][n === 1 ? 0 : 1]}`;
+const DENS = [2, 3, 4, 5, 6, 8, 10];
+
+function fracaoUnitaria(r: Rng): Conta {
+  const d = um(r, [2, 3, 4, 5, 6, 8, 10]);
+  return { tipo: 'fracao-unitaria', enunciado: 'O cano foi cortado em partes iguais. Que fração do cano é a parte pintada?', resposta: [1, d],
+    visual: { tipo: 'barra', partes: d, pintadas: 1 },
+    explicacao: `O cano tem ${d} partes iguais e 1 está pintada: 1/${d}, ${lerFracao(1, d)}.` };
+}
+
+function fracaoFigura(r: Rng): Conta {
+  const d = um(r, DENS), k = entre(r, 1, d - 1);
+  return { tipo: 'fracao-figura', enunciado: 'Que fração do cano está pintada?', resposta: [k, d],
+    visual: { tipo: 'barra', partes: d, pintadas: k },
+    explicacao: `São ${d} partes iguais (denominador) e ${k} pintadas (numerador): ${k}/${d}, ${lerFracao(k, d)}.` };
+}
+
+function fracaoReta(r: Rng): Conta {
+  const d = um(r, [2, 3, 4, 5, 6, 8, 10]), k = entre(r, 1, d - 1);
+  return { tipo: 'fracao-reta', enunciado: 'Que fração a seta está mostrando na reta?', resposta: [k, d],
+    visual: { tipo: 'reta', partes: d, marca: k },
+    explicacao: `Do 0 ao 1 há ${d} partes iguais. A seta está na marcação ${k} depois do zero: ${k}/${d}.` };
+}
+
+function fracaoEscrita(r: Rng): Conta {
+  const d = um(r, [2, 3, 4, 5, 6, 8, 10, 100]), k = d === 100 ? um(r, [1, 3, 7, 9]) : entre(r, 1, d - 1);
+  return { tipo: 'fracao-escrita', enunciado: `Escreva com números: "${lerFracao(k, d)}".`, resposta: [k, d], exata: true,
+    explicacao: `O numerador é ${k} e o denominador é ${d}: ${k}/${d}.` };
+}
+
+function fracaoUnitariaQuantidade(r: Rng): Conta {
+  const d = um(r, [2, 3, 4, 5, 10, 100] as const), m = d === 100 ? entre(r, 2, 60) : entre(r, 3, 40), total = d * m;
+  const caso = um(r, [
+    [`Roberto precisa assentar ${total} pisos e já assentou 1/${d}. Quantos pisos ele assentou?`, 'pisos'],
+    [`Leila tem ${total} pregos e já usou 1/${d}. Quantos pregos ela usou?`, 'pregos'],
+    [`Quanto é 1/${d} de ${total}?`, ''],
+  ] as const);
+  return { tipo: 'fracao-unitaria-quantidade', enunciado: caso[0], resposta: m, unidade: caso[1] || undefined,
+    explicacao: `Para achar 1/${d}, dividimos por ${d}: ${total} ÷ ${d} = ${m}.` };
+}
+
+function fracaoQuantidade(r: Rng): Conta {
+  const d = um(r, [3, 4, 5, 6, 10] as const), k = entre(r, 2, d - 1), m = entre(r, 2, 25), total = d * m;
+  return { tipo: 'fracao-quantidade', enunciado: `Quanto é ${k}/${d} de ${total}?`, resposta: k * m,
+    explicacao: `1ª etapa: 1/${d} de ${total} → ${total} ÷ ${d} = ${m}. 2ª etapa: ${m} × ${k} = ${k * m}.` };
+}
+
+/** Problemas das profissões: quanto já foi feito ou quanto ainda falta. */
+function fracaoProblema(r: Rng): Conta {
+  const d = um(r, [4, 5, 10] as const), k = entre(r, 1, d - 1), m = entre(r, 2, 30), total = d * m, feito = k * m;
+  const [frase, unidade, perguntaFeito, perguntaFalta] = um(r, [
+    [`O prédio tem ${total} andares, e ${k}/${d} deles estão prontos.`, 'andares', 'Quantos andares estão prontos?', 'Quantos andares ainda faltam?'],
+    [`O rolo tem ${total} metros de fio, e Gustavo já usou ${k}/${d} do rolo.`, 'metros', 'Quantos metros ele usou?', 'Quantos metros ainda há no rolo?'],
+    [`A parede vai ter ${total} tijolos, e Rose já assentou ${k}/${d} deles.`, 'tijolos', 'Quantos tijolos ela assentou?', 'Quantos tijolos ainda faltam?'],
+  ] as const);
+  if (r() < 0.5) return { tipo: 'fracao-problema', enunciado: `${frase} ${perguntaFeito}`, resposta: feito, unidade,
+    explicacao: `1/${d} de ${total} é ${total} ÷ ${d} = ${m}. Então ${k}/${d} é ${m} × ${k} = ${feito}.` };
+  return { tipo: 'fracao-problema', enunciado: `${frase} ${perguntaFalta}`, resposta: total - feito, unidade,
+    explicacao: `${k}/${d} de ${total} é ${feito} (${total} ÷ ${d} = ${m} e ${m} × ${k} = ${feito}). Faltam ${total} − ${feito} = ${total - feito}.` };
+}
+
+/** Parte do todo: "dos 12 operários, 3 não usavam capacete; que fração usava?". */
+function fracaoParteTodo(r: Rng): Conta {
+  const total = entre(r, 5, 20), nao = entre(r, 1, total - 1), sim = total - nao;
+  const [grupo, sem, com] = um(r, [['operários', 'não usavam capacete', 'usavam capacete'], ['pedreiros', 'estavam de folga', 'estavam trabalhando'], ['azulejos', 'quebraram', 'ficaram inteiros']] as const);
+  return { tipo: 'fracao-parte-todo', enunciado: `Dos ${total} ${grupo}, ${nao} ${sem}. Que fração ${com}?`, resposta: [sim, total],
+    explicacao: `${total} − ${nao} = ${sim} ${com}, de ${total} ao todo: ${sim}/${total}.` };
+}
+
+/** O que falta para completar o inteiro (ex.: assentou 7/10, falta 3/10). */
+function fracaoResto(r: Rng): Conta {
+  const d = um(r, [3, 4, 5, 6, 8, 10]), k = entre(r, 1, d - 1);
+  const [quem, oque] = um(r, [['Rose assentou', 'dos tijolos'], ['Andressa pintou', 'da parede'], ['Gustavo usou', 'do rolo de fio']] as const);
+  return { tipo: 'fracao-resto', enunciado: `${quem} ${k}/${d} ${oque}. Que fração ainda falta?`, resposta: [d - k, d],
+    visual: { tipo: 'barra', partes: d, pintadas: k },
+    explicacao: `O inteiro é ${d}/${d}. Já foram ${k}/${d}, então faltam ${d - k}/${d}.` };
+}
+
+function porcentagem(r: Rng): Conta {
+  const n = entre(r, 1, 99);
+  if (r() < 0.5) return { tipo: 'porcentagem', enunciado: `${n}/100 é igual a quantos por cento?`, resposta: n, unidade: '%',
+    explicacao: `Fração com denominador 100 vira porcentagem: ${n}/100 = ${n}%.` };
+  return { tipo: 'porcentagem', enunciado: `${n}% é quantos centésimos? Escreva a fração.`, resposta: [n, 100], exata: true,
+    explicacao: `${n}% quer dizer ${n} a cada 100: ${n}/100.` };
+}
+
 /** Todos os tipos de conta. A chave é o nome usado nos capítulos. */
 export const GERADORES: Record<string, (r: Rng) => Conta> = {
   'falta-soma': faltaSoma,
@@ -233,7 +336,31 @@ export const GERADORES: Record<string, (r: Rng) => Conta> = {
   'sentenca-membros': sentencaMembros,
   'multiplos-sequencia': multiplosSequencia,
   'multiplos-receita': multiplosReceita,
+  'fracao-unitaria': fracaoUnitaria,
+  'fracao-figura': fracaoFigura,
+  'fracao-reta': fracaoReta,
+  'fracao-escrita': fracaoEscrita,
+  'fracao-unitaria-quantidade': fracaoUnitariaQuantidade,
+  'fracao-quantidade': fracaoQuantidade,
+  'fracao-problema': fracaoProblema,
+  'fracao-parte-todo': fracaoParteTodo,
+  'fracao-resto': fracaoResto,
+  'porcentagem': porcentagem,
 };
+
+export const ehFracao = (r: Resposta): r is [number, number] => Array.isArray(r);
+
+/** Confere a resposta digitada. Fração: aceita outra escrita do mesmo valor (2/4 = 1/2), menos quando a conta pede `exata`. */
+export function confere(c: Conta, digitado: Resposta): boolean {
+  const certo = c.resposta;
+  if (ehFracao(certo) !== ehFracao(digitado)) return false;
+  if (!ehFracao(certo) || !ehFracao(digitado)) return certo === digitado;
+  if (digitado[1] === 0) return false;
+  return c.exata ? certo[0] === digitado[0] && certo[1] === digitado[1] : certo[0] * digitado[1] === digitado[0] * certo[1];
+}
+
+/** A resposta como texto ("3/4" ou "12"). */
+export const textoResposta = (r: Resposta) => (ehFracao(r) ? `${r[0]}/${r[1]}` : String(r));
 
 /** Cria uma conta do tipo pedido (números novos a cada vez). */
 export function gerarConta(tipo: string, r: Rng = Math.random): Conta | null {

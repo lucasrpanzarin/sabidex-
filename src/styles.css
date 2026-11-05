@@ -565,6 +565,26 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
 .setas-meio { display: flex; flex-direction: column; gap: 10px; font-family: var(--display); font-size: 18px; }
 .setas-ida { color: var(--t-green); }
 .setas-volta { color: var(--t-coral); }
+/* Frações (unidade 10): fração em pé, cano dividido, reta numérica e resposta em duas caixas */
+.fracao { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; margin: 0 2px; font-size: .9em; }
+.fracao-n { padding: 0 3px 2px; border-bottom: 2px solid currentColor; }
+.fracao-d { padding: 2px 3px 0; }
+.barra-fracao { margin: 4px 0 0; width: 100%; max-width: 320px; height: 40px; display: flex; border: 3px solid var(--ink); border-radius: 12px; overflow: hidden; background: #D6D3CD; box-shadow: var(--adesivo); }
+.barra-fracao span { flex: 1; border-left: 3px solid var(--ink); }
+.barra-fracao span:first-child { border-left: 0; }
+.barra-fracao span.pintada { background: var(--coral); }
+.reta-numerica { position: relative; margin: 6px 0 0; width: calc(100% - 32px); max-width: 300px; height: 76px; }
+.reta-linha { position: absolute; left: 0; right: 0; top: 34px; height: 3px; background: var(--ink); }
+.reta-linha::after { content: ''; position: absolute; right: -14px; top: -6px; border: 7px solid transparent; border-left: 10px solid var(--ink); }
+.reta-tick { position: absolute; top: -8px; width: 3px; height: 18px; margin-left: -1.5px; background: var(--ink); }
+.reta-tick.ponta { top: -11px; height: 24px; }
+.reta-rotulos span { position: absolute; top: 52px; transform: translateX(-50%); font-family: var(--display); font-size: 20px; }
+.reta-seta { position: absolute; top: 2px; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 16px solid var(--coral); filter: drop-shadow(0 0 0 var(--ink)); }
+.resposta-fracao { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.caixa-fracao { min-width: 92px; min-height: 52px; color: var(--ink); cursor: pointer; }
+.caixa-fracao.ativa { border-color: var(--t-cyan); box-shadow: 0 0 0 3px var(--cyan-2), var(--adesivo); }
+.traco-fracao { width: 104px; height: 4px; border-radius: 2px; background: var(--ink); }
+
 /* Celular pequeno: a conta e o teclado inteiros na tela, sem rolar (teclas continuam com 48px ou mais). */
 @media (max-height: 800px) {
   .conta-grande { font-size: clamp(22px, 7vw, 30px); }
@@ -579,6 +599,12 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
 /* Celular bem baixo (ex.: 375 × 667): esconde o que é só apoio para o teclado caber sem rolar. */
 @media (max-height: 700px) {
   .tela-contas { gap: 10px; }
+  .caixa-fracao { min-height: 40px; }
+  .caixa-fracao .display { font-size: 24px; }
+  .dica-fracao { display: none; }
+  .reta-numerica { height: 62px; }
+  .reta-linha { top: 28px; }
+  .reta-rotulos span { top: 40px; font-size: 18px; }
   .tela-contas h1 + .muted, .erros-contas { display: none; }
   .rotulo-resposta { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .tecla { min-height: 46px; }

@@ -66,7 +66,10 @@ Veja `src/data/matematica9.ts` como modelo:
     (do livro ou parecida), `passos` (de 2 a 7, um de cada vez) e `treino` (tipo de conta do "Agora você").
   - `treino` (10), `desafio` (6 a 10) e `prova` (10): listas de tipos de conta de `src/lib/contas.ts`,
     do mais fácil para o mais difícil. Os números mudam a cada partida.
-- Unidade com assunto novo (frações, medidas, geometria...): crie os geradores em `src/lib/contas.ts`,
+- `nomeDesafio` (opcional): nome da fase 3 quando não for balança (ex.: ["Retas e partes", "Descubra a fração"]).
+- A resposta pode ser um número ou uma fração `[numerador, denominador]` (a criança digita em duas caixas).
+  Desenhos prontos: balança, setas, cano dividido (`barra`) e reta numérica (`reta`).
+- Unidade com assunto novo (medidas, geometria...): crie os geradores em `src/lib/contas.ts`,
   no nível do livro, com explicação que ensina o método, e rode `npm test` (o teste confere 500 contas de cada tipo).
 - `quiz` (10 a 12, V/F) e `prova` (10, múltipla escolha) continuam: o quiz é a fase 4 e os dois entram no Duelo do Saber.
   Prefira frases com conta ("Em ? × 9 = 36, o número que falta é 4.").
