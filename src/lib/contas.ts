@@ -426,7 +426,7 @@ function decimosCentavos(r: Rng): Conta {
   const k = entre(r, 1, 9);
   if (r() < 0.5) return { tipo: 'decimos-centavos', enunciado: `${k * 10} centavos correspondem a quantos décimos de 1 real?`, resposta: k, unidade: k === 1 ? 'décimo' : 'décimos',
     explicacao: `Cada décimo de real é uma moeda de 10 centavos. ${k * 10} ÷ 10 = ${k}: ${DECIMOS[k]} de real (R$ ${num(k * 10, 2)}).` };
-  return { tipo: 'decimos-centavos', enunciado: `${DECIMOS[k][0].toUpperCase()}${DECIMOS[k].slice(1)} de real são quantos centavos?`, resposta: k * 10, unidade: 'centavos',
+  return { tipo: 'decimos-centavos', enunciado: `${DECIMOS[k][0].toUpperCase()}${DECIMOS[k].slice(1)} de real ${k === 1 ? 'é' : 'são'} quantos centavos?`, resposta: k * 10, unidade: 'centavos',
     explicacao: `Cada décimo de real vale 10 centavos: ${k} × 10 = ${k * 10} centavos (R$ ${num(k * 10, 2)}).` };
 }
 
@@ -443,7 +443,7 @@ function valorAlgarismo(r: Rng): Conta {
     [d, d * 10, `dos décimos: vale ${DECIMOS[d]}, ou ${num(d * 10, 0)}`],
     [c, c, `dos centésimos: vale ${centesimosPorExtenso(c)}, ou ${virgula(c, 2)}`],
   ] as const)[ordem];
-  return { tipo: 'valor-algarismo', enunciado: `No número ${numero}, quanto vale o algarismo ${alg}?`, resposta: valor / 100, decimal: true,
+  return { tipo: 'valor-algarismo', enunciado: `No número ${numero}, quanto vale o algarismo ${alg}? Responda com um número (use vírgula se precisar).`, resposta: valor / 100, decimal: true,
     explicacao: `No quadro de ordens, o ${alg} está na ordem ${nome}.` };
 }
 
@@ -550,12 +550,19 @@ function problemaCompra(r: Rng): Conta {
 /** Troco: pagou com cédula(s) e recebeu a diferença (p. 79 a 84, 87 e 97). */
 function problemaTroco(r: Rng): Conta {
   const n = um(r, NOMES);
-  const [cedulas, pago] = um(r, [['uma cédula de 10 reais', 1000], ['uma cédula de 20 reais', 2000], ['uma cédula de 50 reais', 5000],
-    ['uma cédula de 100 reais', 10000], ['duas cédulas de 100 reais', 20000]] as const);
-  const preco = decimalAte(r, Math.max(1, Math.floor(pago / 200)), pago / 100 - 1, entre(r, 1, 2));
-  const coisa = um(r, ['um iogurte', 'um protetor solar', 'um caderno', 'um brinquedo', 'um livro'] as const);
+  // Cada compra combina com o dinheiro usado (ninguém paga um iogurte com duas notas de 100).
+  const [cedulas, pago, coisa] = um(r, [
+    ['uma cédula de 10 reais', 1000, um(r, ['um iogurte', 'um picolé', 'um suco'] as const)],
+    ['uma cédula de 20 reais', 2000, um(r, ['um caderno', 'um livro', 'um sorvete de pote'] as const)],
+    ['uma cédula de 50 reais', 5000, um(r, ['um brinquedo', 'uma blusa', 'um livro'] as const)],
+    ['uma cédula de 100 reais', 10000, um(r, ['um protetor solar', 'uma blusa', 'um brinquedo'] as const)],
+    ['duas cédulas de 100 reais', 20000, um(r, ['uma conta', 'uma mochila', 'um tênis'] as const)],
+  ] as const);
+  // O preço fica entre a metade e quase o valor pago, como no livro (4,50 com 10; 87,50 com 100; 126,80 com 200).
+  const preco = decimalAte(r, Math.floor(pago / 200), pago / 100 - 1, entre(r, 1, 2));
+  const verbo = coisa === 'uma conta' ? 'tinha' : 'comprou';
   const t = pago - preco;
-  return { tipo: 'problema-troco', enunciado: `${n} comprou ${coisa} de ${rs(preco)} e pagou com ${cedulas}. Quanto recebeu de troco?`, resposta: t / 100, decimal: true, reais: true,
+  return { tipo: 'problema-troco', enunciado: `${n} ${verbo} ${coisa} de ${rs(preco)} e pagou com ${cedulas}. Quanto recebeu de troco?`, resposta: t / 100, decimal: true, reais: true,
     explicacao: `Escrevemos ${pago / 100} como ${virgula(pago, 2)} e subtraímos: ${virgula(pago, 2)} − ${virgula(preco, 2)} = ${virgula(t, 2)}. O troco é ${rs(t)}.` };
 }
 
@@ -574,7 +581,7 @@ function faltaUmReal(r: Rng): Conta {
   const preco = entre(r, 5, 99);
   const coisa = um(r, ['A muda de alface', 'O chiclete', 'A bala', 'O adesivo'] as const);
   return { tipo: 'falta-um-real', enunciado: `${coisa} custa ${rs(preco)}. Quanto falta para custar R$ 1,00?`, resposta: (100 - preco) / 100, decimal: true, reais: true,
-    explicacao: `1 real tem 100 centavos: 100 − ${preco} = ${100 - preco} centavos, ou ${rs(100 - preco)}.` };
+    explicacao: `1 real tem 100 centavos: 100 − ${preco} = ${100 - preco} ${100 - preco === 1 ? 'centavo' : 'centavos'}, ou ${rs(100 - preco)}.` };
 }
 
 /** Todos os tipos de conta. A chave é o nome usado nos capítulos. */

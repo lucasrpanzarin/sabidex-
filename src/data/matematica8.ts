@@ -66,10 +66,10 @@ export const matematica8: Capitulo = {
       "explicacao": "10 centavos é 1 décimo de real: R$ 0,10. R$ 10,00 são dez reais."
     },
     {
-      "pergunta": "Os livros custam: Cinderela, R$ 18,95; O patinho feio, R$ 18,40; O gato de botas, R$ 19,20. Qual é o mais barato?",
-      "opcoes": ["Cinderela", "O gato de botas", "O patinho feio", "Os três custam igual"],
+      "pergunta": "Qual livro é o mais barato? Cinderela: R$ 18,95. O patinho feio: R$ 18,40. O gato de botas: R$ 19,20. Os três porquinhos: R$ 18,49.",
+      "opcoes": ["Cinderela", "O gato de botas", "O patinho feio", "Os três porquinhos"],
       "certa": 2,
-      "explicacao": "18,40 e 18,95 têm a mesma parte inteira. Nos décimos, 4 é menor que 9: O patinho feio é o mais barato."
+      "explicacao": "18,95, 18,40 e 18,49 têm a mesma parte inteira (18). Nos décimos, 4 é o menor; entre 18,40 e 18,49, nos centésimos, 0 é menor que 9. O patinho feio é o mais barato."
     },
     {
       "pergunta": "Vicente vendeu duas blusas: uma de R$ 75,50 e outra de R$ 90,99. Qual foi o total da compra?",
@@ -103,7 +103,7 @@ export const matematica8: Capitulo = {
   "quemSou": [
     {
       "resposta": "Décimo",
-      "pistas": ["Sou 1 de 10 partes iguais do inteiro.", "Fico na 1ª casa depois da vírgula.", "Uma moeda de 10 centavos vale um de mim do real."],
+      "pistas": ["Sou 1 de 10 partes iguais do inteiro.", "Fico na 1ª casa depois da vírgula.", "Me escrevem assim: 0,1."],
       "distratores": ["Centésimo", "Centavo", "Inteiro"]
     },
     {
@@ -129,10 +129,10 @@ export const matematica8: Capitulo = {
   ],
   "classificar": [
     {
-      "pergunta": "Décimos ou centésimos?",
+      "pergunta": "Quanto vale o 5?",
       "grupos": [
-        { "nome": "Décimos", "itens": ["0,1", "0,7", "nove décimos"] },
-        { "nome": "Centésimos", "itens": ["0,01", "0,06", "três centésimos"] }
+        { "nome": "5 décimos", "itens": ["0,5", "2,5", "10,5"] },
+        { "nome": "5 centésimos", "itens": ["0,05", "2,05", "10,05"] }
       ]
     },
     {
@@ -146,7 +146,7 @@ export const matematica8: Capitulo = {
   "causas": [
     { "causa": "Dividimos 1 real em 10 partes iguais", "consequencia": "Cada parte é 1 décimo, ou 10 centavos" },
     { "causa": "18,40 e 18,95 têm a mesma parte inteira", "consequencia": "Começamos a comparar pelos décimos" },
-    { "causa": "19 é maior do que 18", "consequencia": "19,20 é o maior dos três preços" },
+    { "causa": "Entre 18,40, 18,95 e 19,20, a maior parte inteira é 19", "consequencia": "19,20 é o maior dos três preços" },
     { "causa": "Na calculadora, o ponto separa a parte inteira da decimal", "consequencia": "Digitamos 14.9 + 5.6 para somar 14,9 + 5,6" },
     { "causa": "Alinhamos os algarismos conforme a ordem", "consequencia": "As vírgulas também ficam alinhadas" }
   ],

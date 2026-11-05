@@ -23,9 +23,9 @@ As páginas 88 e 89 não foram fotografadas.
 1 p. 57 · 2 p. 57, 62 · 3 p. 62 · 4 p. 60, 69 · 5 p. 66 · 6 p. 66 · 7 p. 61 · 8 p. 74 · 9 p. 75 · 10 p. 76 · 11 p. 85 · 12 p. 84
 
 ## Prova
-1 p. 57 · 2 p. 62, 99 · 3 p. 57 · 4 p. 67 · 5 p. 67–68 · 6 p. 69 · 7 p. 72–74 · 8 p. 74–75 · 9 p. 78–79 · 10 p. 87
+1 p. 57 · 2 p. 62, 99 · 3 p. 57 · 4 p. 67 · 5 p. 67–68 · 6 p. 69 · 7 p. 72–74 (Os três porquinhos, R$ 18,49, não está no livro: entrou para comparar centésimos) · 8 p. 74–75 · 9 p. 78–79 · 10 p. 87
 
 ## Jogos extras
 - Lacunas → p. 54, 57, 62, 66–67, 75, 85
 - Quem sou eu → décimo p. 57; centésimo p. 62–63; vírgula p. 66, 85; troco p. 79, 87; comissão p. 95
-- Grupos → p. 58, 63, 61, 69 · Por que aconteceu? → p. 57, 74, 85, 75
+- Grupos → "Quanto vale o 5?" p. 67–68 (quadro de ordens); menos/mais de 1 real p. 61, 69 · Por que aconteceu? → p. 57, 74, 85, 75
