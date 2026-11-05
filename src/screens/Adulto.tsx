@@ -347,8 +347,9 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
   const [form, setForm] = useState<'nenhum' | 'novo' | 'ligar'>('nenhum');
   const [abrir, setAbrir] = useState<string | null>(null);
   const [apagar, setApagar] = useState<string | null>(null);
-  const carregar = () => api<{ filhos: Filho[]; provas?: DatasProva }>('/adulto/familia', { tokenProprio: token }).then((r) => {
-    if (r.erro) setErro(r.erro); else { setFilhos(r.filhos); setProvas(r.provas ?? {}); if (r.filhos.length === 0) setForm((f) => (f === 'nenhum' ? 'novo' : f)); }
+  const [codigo, setCodigo] = useState<string | null>(null);
+  const carregar = () => api<{ filhos: Filho[]; provas?: DatasProva; codigo?: string | null }>('/adulto/familia', { tokenProprio: token }).then((r) => {
+    if (r.erro) setErro(r.erro); else { setFilhos(r.filhos); setProvas(r.provas ?? {}); setCodigo(r.codigo ?? null); if (r.filhos.length === 0) setForm((f) => (f === 'nenhum' ? 'novo' : f)); }
   });
   useEffect(() => { void carregar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -387,6 +388,7 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
     <section className="coluna" aria-label="Perfis das crianças">
       {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
       {aviso && <div className="aviso aviso-ok" role="status">{aviso}</div>}
+      {!!filhos?.length && codigo && <CodigoFamilia token={token} codigo={codigo} aoTrocar={setCodigo} />}
       {filhos?.map((f) => (
         <div key={f.id} className="painel coluna" style={{ padding: 12, gap: 8 }}>
           <div className="linha">
@@ -435,7 +437,7 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
       {form === 'novo' && <NovoFilho token={token} solto={semConta} aoFechar={() => setForm('nenhum')} aoCriar={async (id, apelido, levou) => {
         setForm('nenhum');
         if (levou) return abrirAqui({ id, apelido });
-        setAviso(`Perfil de ${apelido} criado! Toque em "Abrir neste aparelho" no celular ou tablet da criança.`);
+        setAviso(`Perfil de ${apelido} criado! No aparelho da criança, toque em "Sou criança" e digite o código da família. Ou toque aqui em "Abrir neste aparelho".`);
         void carregar();
       }} />}
       {form === 'ligar' && <LigarConta token={token} aoFechar={() => setForm('nenhum')} aoLigar={() => { setForm('nenhum'); setAviso('Conta ligada à sua família.'); void carregar(); }} />}
@@ -444,6 +446,51 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
           ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque. Depois, continua valendo para revisar. Se a turma do professor marcar outra data, vale a da turma." />
       )}
     </section>
+  );
+}
+
+/** Código da família: a criança digita no aparelho dela, toca no próprio nome e digita o PIN. */
+function CodigoFamilia({ token, codigo, aoTrocar }: { token: string; codigo: string; aoTrocar: (c: string) => void }) {
+  const [feito, setFeito] = useState<string | null>(null);
+  const [trocar, setTrocar] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const recado = `Código da nossa família no Sabidex: ${codigo}. Abra ${location.origin}, toque em "Sou criança" e digite o código. Depois é só tocar no seu nome e digitar o seu PIN.`;
+  const enviar = async () => {
+    try {
+      if (navigator.share) { await navigator.share({ title: 'Sabidex', text: recado }); return; }
+    } catch (e) { if ((e as Error).name === 'AbortError') return; }
+    try { await navigator.clipboard.writeText(recado); setFeito('Copiado! Cole na conversa com a criança.'); } catch { setFeito(null); }
+  };
+  const novo = async () => {
+    setErro(null);
+    const r = await api<{ codigo: string }>('/adulto/familia/codigo', { corpo: {}, tokenProprio: token });
+    setTrocar(false);
+    if (r.erro) return setErro(r.erro);
+    aoTrocar(r.codigo);
+    setFeito('Código trocado. O antigo não funciona mais; quem já entrou continua entrando.');
+  };
+  return (
+    <div className="painel coluna" style={{ gap: 8 }}>
+      <span className="eyebrow">Código da família</span>
+      <span className="display" style={{ fontSize: 30, letterSpacing: '.06em' }}>{codigo}</span>
+      <span className="muted small">No aparelho da criança: "Sou criança" → este código → toca no nome → PIN. Com o código, dá para ver só os apelidos; para entrar, precisa do PIN de cada um.</span>
+      {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+      {feito && <div className="aviso aviso-ok" role="status">{feito}</div>}
+      {trocar ? (
+        <div className="aviso coluna" style={{ gap: 8 }}>
+          <span className="small" style={{ fontWeight: 700 }}>Trocar o código? Use se ele foi parar com quem não devia. O código antigo para de funcionar.</span>
+          <div className="linha" style={{ gap: 8 }}>
+            <button className="btn btn-escuro" style={botaoPequeno} onClick={() => setTrocar(false)}>Cancelar</button>
+            <button className="btn btn-amarelo" style={botaoPequeno} onClick={() => void novo()}>Trocar</button>
+          </div>
+        </div>
+      ) : (
+        <div className="linha" style={{ gap: 8, flexWrap: 'wrap' }}>
+          <button className="btn btn-ciano" style={botaoPequeno} onClick={() => void enviar()}>Enviar para meu filho</button>
+          <button className="btn btn-escuro" style={botaoPequeno} onClick={() => setTrocar(true)}>Trocar código</button>
+        </div>
+      )}
+    </div>
   );
 }
 

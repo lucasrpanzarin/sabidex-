@@ -203,11 +203,42 @@ async function respostaConta(db: D1Database, k: Crianca, progresso: ProgressoSyn
   };
 }
 
+/** Código livre: não é de nenhuma turma nem de nenhuma família. */
+async function codigoLivre(db: D1Database) {
+  for (let i = 0; i < 8; i++) {
+    const codigo = gerarCodigo();
+    const usado = await db.prepare('SELECT 1 FROM turmas WHERE codigo = ?1 UNION ALL SELECT 1 FROM adultos WHERE codigo_familia = ?1').bind(codigo).first();
+    if (!usado) return codigo;
+  }
+  return null;
+}
+
+/** O código da família do adulto (cria na primeira vez; com `novo`, troca por outro). */
+async function codigoDaFamilia(db: D1Database, adultoId: string, novo = false): Promise<string | null> {
+  if (!novo) {
+    const a = await db.prepare('SELECT codigo_familia FROM adultos WHERE id = ?').bind(adultoId).first<{ codigo_familia: string | null }>();
+    if (a?.codigo_familia) return a.codigo_familia;
+  }
+  for (let i = 0; i < 4; i++) {
+    const codigo = await codigoLivre(db);
+    if (!codigo) return null;
+    try {
+      await db.prepare('UPDATE adultos SET codigo_familia = ? WHERE id = ?').bind(codigo, adultoId).run();
+      return codigo;
+    } catch (e) { if (!String(e).includes('UNIQUE')) throw e; }
+  }
+  return null;
+}
+
 app.post('/turma/info', async (c) => {
   const b = await corpo(c);
   const codigo = normalizarCodigo(String(b.codigo ?? ''));
   const t = await c.env.DB.prepare('SELECT nome FROM turmas WHERE codigo = ?').bind(codigo).first<{ nome: string }>();
-  if (!t) return erro(c, 404, 'Não achei essa turma. Confira o código com seu professor ou responsável.');
+  if (!t) {
+    const f = await c.env.DB.prepare('SELECT 1 FROM adultos WHERE codigo_familia = ?').bind(codigo).first();
+    if (f) return erro(c, 400, 'Esse é o código da família, não de uma turma. A turma tem outro código, que o professor passa.');
+    return erro(c, 404, 'Não achei essa turma. Confira o código com seu professor ou responsável.');
+  }
   return c.json({ nome: t.nome, codigo });
 });
 
@@ -219,9 +250,15 @@ app.post('/turma/alunos', async (c) => {
   const b = await corpo(c);
   const codigo = normalizarCodigo(String(b.codigo ?? ''));
   const t = await c.env.DB.prepare('SELECT id, nome FROM turmas WHERE codigo = ?').bind(codigo).first<{ id: string; nome: string }>();
-  if (!t) return erro(c, 404, 'Não achei essa turma. Confira o código com seu professor ou responsável.');
-  const r = await c.env.DB.prepare('SELECT apelido, cor FROM criancas WHERE turma_id = ? ORDER BY apelido_chave').bind(t.id).all<{ apelido: string; cor: string }>();
-  return c.json({ nome: t.nome, codigo, alunos: r.results });
+  if (t) {
+    const r = await c.env.DB.prepare('SELECT apelido, cor FROM criancas WHERE turma_id = ? ORDER BY apelido_chave').bind(t.id).all<{ apelido: string; cor: string }>();
+    return c.json({ nome: t.nome, codigo, familia: false, alunos: r.results });
+  }
+  // Código da família: mostra os filhos (apelido e cor). Entrar continua pedindo o PIN de cada um.
+  const f = await c.env.DB.prepare('SELECT id FROM adultos WHERE codigo_familia = ?').bind(codigo).first<{ id: string }>();
+  if (!f) return erro(c, 404, 'Não achei esse código. Confira com seu professor ou com um adulto da sua casa.');
+  const r = await c.env.DB.prepare('SELECT id, apelido, cor FROM criancas WHERE familia_id = ? ORDER BY criado').bind(f.id).all<{ id: string; apelido: string; cor: string }>();
+  return c.json({ nome: 'Sua família', codigo, familia: true, alunos: r.results });
 });
 
 /** Criança entra numa turma pela primeira vez e cria o PIN. O progresso do aparelho vai junto. */
@@ -743,7 +780,8 @@ app.post('/adulto/turmas', async (c) => {
   const n = await c.env.DB.prepare('SELECT COUNT(*) n FROM turmas WHERE dono_id = ?').bind(a.id).first<{ n: number }>();
   if ((n?.n ?? 0) >= 20 && !a.admin) return erro(c, 429, 'Limite de 20 turmas por adulto.');
   for (let i = 0; i < 6; i++) {
-    const id = aleatorio(8), codigo = gerarCodigo();
+    const id = aleatorio(8), codigo = await codigoLivre(c.env.DB);
+    if (!codigo) continue;
     try {
       await c.env.DB.prepare('INSERT INTO turmas (id, codigo, nome, dono_id, criado) VALUES (?, ?, ?, ?, ?)').bind(id, codigo, nome, a.id, Date.now()).run();
       return c.json({ turma: { id, nome, codigo } });
@@ -821,7 +859,16 @@ app.get('/adulto/familia', async (c) => {
     k.chat_ok, k.mostrar_online, t.chat AS turma_chat,
     json_extract(k.progresso, '$.xp') AS xp, (SELECT COUNT(*) FROM cartas WHERE crianca_id = k.id AND qtd > 0) AS cartas
     FROM criancas k LEFT JOIN turmas t ON t.id = k.turma_id WHERE k.familia_id = ? ORDER BY k.criado`).bind(a.id).all();
-  return c.json({ filhos: r.results, provas: await datasDe(c.env.DB, [turmaDaFamilia(a.id)]) });
+  return c.json({ filhos: r.results, provas: await datasDe(c.env.DB, [turmaDaFamilia(a.id)]), codigo: await codigoDaFamilia(c.env.DB, a.id) });
+});
+
+/** Troca o código da família (se ele foi parar com quem não devia). Quem já entrou continua entrando. */
+app.post('/adulto/familia/codigo', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const codigo = await codigoDaFamilia(c.env.DB, a.id, true);
+  if (!codigo) return erro(c, 409, 'Não consegui gerar um código. Tente de novo.');
+  return c.json({ codigo });
 });
 
 /** Datas das provas para os filhos (vale para quem não está numa turma, ou quando a turma não marcou). */

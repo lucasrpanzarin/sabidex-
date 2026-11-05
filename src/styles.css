@@ -126,6 +126,16 @@ strong { color: var(--t-coral); font-weight: 900; }
 /* Painéis: papel branco com contorno grosso e sombra de adesivo (como as cartas) */
 .painel { background: var(--surface); border: var(--borda); border-radius: 20px; padding: 16px; box-shadow: var(--adesivo); }
 .painel-destaque { background: linear-gradient(180deg, #FFFFFF, #FFF6DC); border: var(--borda); border-radius: 22px; padding: 16px; box-shadow: 5px 5px 0 var(--ink); }
+/* Primeira tela: "Sou criança" / "Sou adulto" (figurinhas grandes, levemente tortas como no álbum) */
+.escolha-quem { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 380px; margin-top: 6px; }
+.cartao-quem { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; min-height: 220px; padding: 14px 10px 16px;
+  font: inherit; color: var(--ink); text-align: center; cursor: pointer; border: var(--borda); border-radius: 22px; box-shadow: var(--adesivo); }
+.cartao-quem-crianca { background: linear-gradient(180deg, #FFE27A, var(--yellow)); transform: rotate(-1.5deg); }
+.cartao-quem-adulto { background: linear-gradient(180deg, #8FE6F0, var(--cyan)); transform: rotate(1.5deg); }
+.cartao-quem-icone { width: 96px; height: 96px; display: grid; place-items: center; border-radius: 50%; background: var(--surface); border: var(--borda); margin-bottom: 14px; }
+.cartao-quem:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+.cartao-quem:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+@media (max-width: 340px) { .escolha-quem { grid-template-columns: 1fr; } .cartao-quem { min-height: 0; } }
 .painel-breve { background: transparent; border-style: dashed; border-color: #10213F66; box-shadow: none; }
 .pilula { display: inline-flex; align-items: center; gap: 6px; font-weight: 900; font-size: 15px; background: var(--surface); border: var(--borda); border-radius: 999px; padding: 3px 12px; box-shadow: 3px 3px 0 var(--ink); color: var(--ink); }
 .balao { background: var(--surface); color: var(--ink); border: var(--borda); border-radius: 20px 20px 20px 6px; padding: 12px 14px; font-weight: 800; line-height: 1.35; box-shadow: var(--adesivo); }
