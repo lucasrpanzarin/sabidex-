@@ -7,7 +7,7 @@ O Claude lê este arquivo no começo de cada conversa (está pedido no `CLAUDE.m
 - Quando o Lucas der uma ideia nova, o Claude confere aqui antes e avisa: "isso já existe", "isso já foi testado e trocado por X" ou "isso vai contra a regra Y".
 - Ao terminar qualquer mudança, o Claude atualiza este caderno (o que mudou, a data e quem decidiu).
 
-Última revisão geral: **04/11/2026**. Última mudança: **05/11/2026** (Matemática, unidade 9).
+Última revisão geral: **04/11/2026**. Última mudança: **05/11/2026** ("Estudando agora" na aba Turma e ranking mais rápido).
 
 ---
 
@@ -98,7 +98,8 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - **Trocas**: só propostas de carta por carta, com colegas da mesma turma. Até 5 propostas esperando.
 - **Chat da turma supervisionado** (Lucas, 04/11/2026): um grupo único da turma da escola, sem mensagem privada nem gente de fora. Começa desligado: um administrador da turma liga e escolhe o horário (padrão 7h–21h) **e** o responsável autoriza cada filho (criança sem família não escreve). Pais e professor leem tudo, e a criança é avisada disso. Bloqueia palavrões, telefones, endereços, links, e-mails e redes sociais; sem foto nem áudio; até 200 letras e 5 mensagens a cada 30 segundos. Botão "Avisar um adulto"; administradores apagam mensagens e pausam um aluno. As mensagens somem em 60 dias. Também tem **"Estudando agora"** (só para a turma; adultos podem desligar). Arquivos: `src/shared/chat.ts`, `src/screens/Chat.tsx`.
 - **Vários administradores na turma**: o dono convida outros adultos com um código `ADM-XXXX-XXXX` (vale 7 dias, uma vez só). Só o dono convida ou remove administradores. Se o dono apagar a conta, a turma passa para o administrador mais antigo.
-- **Ranking da semana** (XP, cartas e vitórias nos duelos), zera toda segunda.
+- **Ranking da semana** (XP, cartas e vitórias nos duelos), zera toda segunda. Bolinha verde no avatar de quem está estudando agora. Abre na hora com o último placar guardado e atualiza sozinho.
+- **"Estudando agora" na aba Turma** (Lucas, 05/11/2026): um quadro em "Minha turma" mostra os colegas com o app aberto nos últimos 2 minutos (bolinha verde), sem precisar do chat ligado. Também aparece no ranking e na escolha de colega para troca e duelo. Professor (turma) e responsável (filho) continuam podendo desligar.
 - **Duelo do Saber** (Lucas, 05/11/2026; `src/shared/duelo.ts`, `src/screens/Duelo.tsx`, tabela `duelos`): na aba Turma → "Duelo do Saber", a criança desafia um colega **da mesma turma**. Os dois respondem as **mesmas 10 perguntas** (6 de escolher da prova + 4 de verdadeiro ou falso do quiz), só dos mundos em que **os dois já ouviram os temas**, misturando os mundos. Cada um joga quando puder: quem desafia joga primeiro, e o colega só vê o placar depois de jogar. Uma chance por pergunta, com o certo e a explicação; termina com o placar de estrelas.
   - Cada um escolhe um **Sabimon parceiro**: cada acerto vira um golpe na batalha (aparece a força da carta). **Ninguém perde carta.** Quem **acerta mais vence**; a força da carta não muda o resultado (assim vence quem estudou). Empate é empate.
   - Prêmio: **4 XP e 4 Sabicoins por acerto** (máx. 40), só nos **3 primeiros duelos do dia**. Sem pacote (só o de nível novo, que vem pelo XP). Vitórias entram no ranking da semana (aba "Duelos"). Erros vão para a Revisão do Ará.
@@ -182,6 +183,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **05/11/2026** · O Lucas não achava onde ver os amigos online e o ranking demorava. Agora "Estudando agora" aparece na aba Turma e no ranking (antes só dentro da conversa, que começa desligada). Servidor mais rápido: não confere todas as tabelas toda vez que acorda (eram ~40 consultas seguidas), e cada pedido da criança faz menos idas ao banco. O ranking aparece antes de terminar de mandar o progresso (Lucas).
 - **05/11/2026** · **Matemática, unidade 9** ("O preparo de alimentos e o pensamento algébrico", p. 100–143), feita a partir das fotos do livro: valor desconhecido, operações inversas, os 7 passos e a prova real, igualdade e balança, sequências e múltiplos. Primeira matéria fora de História: o Início ganhou um botão por matéria. O problema dos bolinhos de chuva (p. 122) ficou de fora porque o livro não traz a resposta (Lucas).
 - **05/11/2026** · **Matemática se estuda fazendo**: em vez de ouvir e escolher opções (jeito de História), exemplo resolvido + contas digitadas com números novos a cada vez, balança e setas desenhadas, prova de contas e revisão por tipo de conta. Regra nova: o livro é a base, mas pode ter outras contas e exemplos do mesmo nível e método (Lucas).
 - **05/11/2026** · Segurança antes das lojas: **o servidor sorteia a carta do pacote** (criança com conta precisa de internet para abrir), 60 pacotes por dia, épico só com a prova feita; **30 códigos errados** pela mesma internet bloqueiam 15 minutos (Lucas).

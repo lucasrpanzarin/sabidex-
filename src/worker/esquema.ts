@@ -193,6 +193,13 @@ export const MIGRACOES = [
   )`,
 ];
 
+/** Muda sozinha quando uma tabela ou migração nova entra (o servidor só confere tudo de novo quando ela muda). */
+export const VERSAO_ESQUEMA = (() => {
+  let h = 5381;
+  for (const ch of [...ESQUEMA, ...MIGRACOES].join('\n')) h = (h * 33 + ch.charCodeAt(0)) >>> 0;
+  return h.toString(36);
+})();
+
 export const SEM_TURMA = 'familia:';
 export const turmaDaFamilia = (adultoId: string) => SEM_TURMA + adultoId;
 export const temTurma = (turmaId: string) => !turmaId.startsWith(SEM_TURMA);
