@@ -7,7 +7,7 @@ import { FASES, POR_PACOTE, chaveExtra, extrasDo } from '../lib/jogo';
 import { idEvolucao, itemPorId, migrarFormas, podeEvoluir, premiosLivres, PRECO_EVOLUCAO, protegido, refCompra } from '../lib/loja';
 import { figurinhaPorId, idCarta, IDS_CARTAS } from '../lib/figurinhas';
 import {
-  gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
+  comBoasVindas, gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
 } from '../shared/sync';
 import { ESQUEMA, MIGRACOES, temTurma, turmaDaFamilia } from './esquema';
@@ -309,7 +309,7 @@ app.post('/crianca/entrar-turma', async (c) => {
 
   const id = aleatorio(8);
   const sal = aleatorio(16);
-  const progresso = mesclar(progressoVazio(), sanitizar(b.progresso, FASES_VALIDAS));
+  const progresso = comBoasVindas(mesclar(progressoVazio(), sanitizar(b.progresso, FASES_VALIDAS)));
   const semana = semanaDe();
   try {
     await c.env.DB.batch([
@@ -1117,7 +1117,7 @@ app.post('/adulto/familia', async (c) => {
   const n = await c.env.DB.prepare('SELECT COUNT(*) n FROM criancas WHERE familia_id = ?').bind(a.id).first<{ n: number }>();
   if ((n?.n ?? 0) >= MAX_FILHOS) return erro(c, 429, `Limite de ${MAX_FILHOS} crianças por família.`);
   const id = aleatorio(8), sal = aleatorio(16);
-  const progresso = mesclar(progressoVazio(), sanitizar(b.progresso, FASES_VALIDAS));
+  const progresso = comBoasVindas(mesclar(progressoVazio(), sanitizar(b.progresso, FASES_VALIDAS)));
   try {
     await c.env.DB.batch([
       c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, familia_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto)
