@@ -55,7 +55,7 @@ export function Privacidade() {
       </Parte>
       <Parte titulo="Chat da turma">
         Existe um chat escrito só entre colegas da <strong>mesma turma da escola</strong>, num grupo único (não há mensagem privada).
-        Ele começa desligado: só funciona se um <strong>administrador da turma</strong> (como o professor) ligar o chat <strong>e</strong> o <strong>responsável</strong> autorizar o filho.
+        Ele vem ligado, e o <strong>responsável</strong> vê isso ao criar o perfil do filho, podendo desligar ali ou depois, a qualquer momento, na área dos adultos. Um <strong>administrador da turma</strong> (como o professor) também pode desligar para a turma toda. Criança sem conta da família não escreve.
         O administrador escolhe o horário (o padrão é das 7h às 21h).
         O responsável e os administradores da turma (como o professor) podem <strong>ler todas as mensagens</strong>, e a criança é avisada disso na tela do chat.
         O app bloqueia palavrões, telefones, endereços, links, e-mails e nomes de redes sociais, e não aceita fotos nem áudios.

@@ -542,10 +542,10 @@ function ChatDoFilho({ token, f, aoMudar }: { token: string; f: Filho; aoMudar: 
   return (
     <div className="coluna" style={{ gap: 6, borderTop: '2px dashed var(--line)', paddingTop: 8 }}>
       <span className="small" style={{ fontWeight: 900 }}>Chat da turma {f.turma}</span>
-      {!f.turma_chat && <span className="muted small">O professor ainda não ligou o chat desta turma. Quando ligar, só funciona se você autorizar aqui.</span>}
+      {!f.turma_chat && <span className="muted small">Os adultos da turma desligaram o chat desta turma. Se ligarem de novo, vale o que está marcado aqui.</span>}
       <label className="linha small" style={{ gap: 8, fontWeight: 700, alignItems: 'flex-start' }}>
         <input type="checkbox" checked={!!f.chat_ok} onChange={(ev) => void mudar('chat', ev.target.checked)} style={{ width: 22, height: 22, flex: 'none' }} />
-        <span>Deixar {f.apelido} escrever no chat da turma. Só os colegas da turma participam, num grupo único (sem mensagem privada). Você e o professor podem ler tudo, e {f.apelido} é avisado disso.</span>
+        <span>Deixar {f.apelido} escrever no chat da turma (vem ligado; desmarque para desligar). Só os colegas da turma participam, num grupo único (sem mensagem privada). Você e o professor podem ler tudo, e {f.apelido} é avisado disso.</span>
       </label>
       <label className="linha small" style={{ gap: 8, fontWeight: 700, alignItems: 'flex-start' }}>
         <input type="checkbox" checked={!!f.mostrar_online} onChange={(ev) => void mudar('online', ev.target.checked)} style={{ width: 22, height: 22, flex: 'none' }} />
@@ -564,13 +564,14 @@ function NovoFilho({ token, solto, aoFechar, aoCriar }: { token: string; solto: 
   const [cor, setCor] = useState(solto ? perfil?.cor ?? CORES[0] : CORES[0]);
   const [pin, setPin] = useState('');
   const [levar, setLevar] = useState(solto);
+  const [chat, setChat] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
   const e = getEstado();
   const criar = async () => {
     setOcupado(true); setErro(null);
     const r = await api<{ id: string }>('/adulto/familia', {
-      corpo: { apelido, cor, pin, ...(levar ? { progresso: progressoDe(e), cartas: e.cartas } : {}) }, tokenProprio: token,
+      corpo: { apelido, cor, pin, chat, ...(levar ? { progresso: progressoDe(e), cartas: e.cartas } : {}) }, tokenProprio: token,
     });
     setOcupado(false);
     if (r.erro) setErro(r.erro); else aoCriar(r.id, apelido.trim(), levar);
@@ -594,6 +595,10 @@ function NovoFilho({ token, solto, aoFechar, aoCriar }: { token: string; solto: 
           <span>Levar o progresso que já está neste aparelho ({e.xp} XP, {Object.keys(e.cartas).length} Sabimons) e abrir o perfil aqui.</span>
         </label>
       )}
+      <label className="linha small" style={{ gap: 10, alignItems: 'flex-start', fontWeight: 700 }}>
+        <input type="checkbox" checked={chat} onChange={(ev) => setChat(ev.target.checked)} style={{ width: 22, height: 22, flex: 'none', marginTop: 2 }} />
+        <span>Deixar usar o chat da turma <span className="muted">(vem ligado; desmarque para desligar)</span>. É um grupo só com os colegas da turma da escola, sem mensagem privada. Você e o professor leem tudo. Dá para mudar depois aqui na área dos adultos.</span>
+      </label>
       {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
       <div className="linha" style={{ gap: 8 }}>
         <button type="button" className="btn btn-escuro" style={{ flex: 1 }} onClick={aoFechar}>Cancelar</button>
@@ -607,10 +612,11 @@ function LigarConta({ token, aoFechar, aoLigar }: { token: string; aoFechar: () 
   const [codigo, setCodigo] = useState('');
   const [apelido, setApelido] = useState('');
   const [pin, setPin] = useState('');
+  const [chat, setChat] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const ligar = async () => {
     setErro(null);
-    const r = await api('/adulto/familia/ligar', { corpo: { codigo, apelido, pin }, tokenProprio: token });
+    const r = await api('/adulto/familia/ligar', { corpo: { codigo, apelido, pin, chat }, tokenProprio: token });
     if (r.erro) setErro(r.erro); else aoLigar();
   };
   return (
@@ -623,6 +629,10 @@ function LigarConta({ token, aoFechar, aoLigar }: { token: string; aoFechar: () 
       <input id="l-apelido" style={campo} value={apelido} maxLength={14} onChange={(ev) => setApelido(ev.target.value)} autoComplete="off" />
       <label htmlFor="l-pin" className="small" style={rotulo}>PIN da criança</label>
       <input id="l-pin" style={{ ...campo, letterSpacing: '.3em' }} inputMode="numeric" autoComplete="off" maxLength={4} value={pin} onChange={(ev) => setPin(ev.target.value.replace(/\D/g, '').slice(0, 4))} />
+      <label className="linha small" style={{ gap: 10, alignItems: 'flex-start', fontWeight: 700 }}>
+        <input type="checkbox" checked={chat} onChange={(ev) => setChat(ev.target.checked)} style={{ width: 22, height: 22, flex: 'none', marginTop: 2 }} />
+        <span>Deixar usar o chat da turma <span className="muted">(vem ligado; desmarque para desligar)</span>. É um grupo só com os colegas da turma da escola, sem mensagem privada. Você e o professor leem tudo. Dá para mudar depois aqui na área dos adultos.</span>
+      </label>
       {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
       <div className="linha" style={{ gap: 8 }}>
         <button type="button" className="btn btn-escuro" style={{ flex: 1 }} onClick={aoFechar}>Cancelar</button>
@@ -832,7 +842,7 @@ function ChatDaTurma({ token, id, chat, avisos, criancas, aoMudar }: { token: st
         {avisos > 0 && <span className="pilula" style={{ borderColor: 'var(--coral)', color: 'var(--t-coral)' }}>{avisos} {avisos > 1 ? 'avisos' : 'aviso'}</span>}
       </div>
       <p className="muted small" style={{ margin: 0 }}>
-        Um grupo só com a turma (sem mensagem privada). Cada criança só escreve se o responsável autorizar na conta da família.
+        Um grupo só com a turma (sem mensagem privada). O chat vem ligado. Só escreve quem tem conta da família, e cada responsável pode desligar para o filho.
         O app bloqueia palavrões, telefones, endereços, links e redes sociais. Mensagens somem depois de 60 dias.
       </p>
       <label className="linha" style={{ gap: 8, fontWeight: 800 }}>
@@ -846,7 +856,7 @@ function ChatDaTurma({ token, id, chat, avisos, criancas, aoMudar }: { token: st
         <input type="checkbox" checked={!!chat.mostrar_online} onChange={(ev) => void salvar({ online: ev.target.checked })} style={{ width: 22, height: 22 }} />
         Mostrar aos alunos quem está estudando agora
       </label>
-      {!!chat.chat && <span className="small" style={{ fontWeight: 700 }}>{liberadas} de {criancas.length} {criancas.length === 1 ? 'criança liberada' : 'crianças liberadas'} pelos responsáveis.</span>}
+      {!!chat.chat && <span className="small" style={{ fontWeight: 700 }}>{liberadas} de {criancas.length} {criancas.length === 1 ? 'criança pode' : 'crianças podem'} escrever (as outras foram desligadas pelo responsável ou não têm conta da família).</span>}
       <button className="btn btn-escuro" style={{ minHeight: 42, fontSize: 15 }} onClick={() => (ler ? setLer(null) : void carregarConversa())}>{ler ? 'Fechar a conversa' : 'Ler a conversa'}</button>
       {erro && <div className="aviso aviso-erro small" role="alert">{erro}</div>}
       {ler && (
@@ -941,7 +951,7 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
                   <span className="display" style={{ fontSize: 18, display: 'block' }}>{k.apelido}</span>
                   <span className="muted small">{k.online ? 'estudando agora · ' : ''}{k.xp_semana} XP na semana · {k.xp ?? 0} XP no total · {k.cartas} cartas · visto {quando(k.visto)}{k.bloqueado_ate > Date.now() ? ' · bloqueado por PIN errado' : ''}</span>
                   {dados.chat?.chat ? <span className="small" style={{ display: 'block', fontWeight: 700, color: k.mudo_ate > Date.now() ? 'var(--t-coral)' : k.chat_ok ? 'var(--t-green)' : 'var(--muted)' }}>
-                    Chat: {k.mudo_ate > Date.now() ? `pausado até ${dataHora(k.mudo_ate)}` : k.chat_ok ? 'liberado pelo responsável' : k.familia ? 'responsável ainda não liberou' : 'sem conta da família (o responsável precisa criar para liberar)'}
+                    Chat: {k.mudo_ate > Date.now() ? `pausado até ${dataHora(k.mudo_ate)}` : k.chat_ok ? 'ligado' : k.familia ? 'desligado pelo responsável' : 'sem conta da família (o responsável precisa criar para liberar)'}
                   </span> : null}
                 </span>
               </div>

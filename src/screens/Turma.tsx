@@ -294,7 +294,7 @@ function SemTurma({ titulo, texto }: { titulo: string; texto: ReactNode }) {
           <button className="btn btn-amarelo btn-bloco" onClick={() => setEntrando(true)}>Entrar na minha turma</button>
           {!conta && <button className="btn btn-escuro btn-bloco" onClick={() => ir('entrar')}>Já tenho conta em outro aparelho</button>}
           <div className="painel coluna" style={{ gap: 10 }}>
-            {['Você precisa do código da turma, que o professor ou um adulto passa.', 'Só aparece seu apelido, nunca o nome completo.', 'Não tem chat: só propostas de troca de cartas.'].map((t) => (
+            {['Você precisa do código da turma, que o professor ou um adulto passa.', 'Só aparece seu apelido, nunca o nome completo.', 'A conversa da turma é só com os colegas, e os adultos podem ler.'].map((t) => (
               <div key={t} className="linha" style={{ gap: 10, fontWeight: 700 }}><span style={{ color: 'var(--t-cyan)' }}><Icone nome="escudo" tamanho={20} /></span>{t}</div>
             ))}
           </div>

@@ -101,6 +101,8 @@ export const MIGRACOES = [
   )`,
   // Chat da turma (decisão do Lucas em 04/11/2026). Só grupo da turma, sem mensagem privada.
   // O professor liga para a turma (chat = 1) e escolhe o horário; o responsável autoriza cada filho (chat_ok = 1).
+  // Desde 05/11/2026 (Lucas) turma nova e filho novo já vêm com o chat ligado (o servidor grava 1 ao criar);
+  // professor e responsável podem desligar. O DEFAULT 0 daqui fica para quem já existia.
   `ALTER TABLE turmas ADD COLUMN chat INTEGER NOT NULL DEFAULT 0`,
   `ALTER TABLE turmas ADD COLUMN chat_inicio INTEGER NOT NULL DEFAULT 7`,
   `ALTER TABLE turmas ADD COLUMN chat_fim INTEGER NOT NULL DEFAULT 21`,
