@@ -45,7 +45,26 @@ def recortar_brilho(im: Image.Image) -> Image.Image:
         fila.extend(p for p in ((y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)) if 0 <= p[0] < h and 0 <= p[1] < w)
     alpha = np.where(fundo, np.clip((255 - mn) / (255 - limite), 0, 1), 1.0)[..., None]
     rgb = (a - 255 * (1 - alpha)) / np.maximum(alpha, 0.01)
-    return Image.fromarray(np.dstack([np.clip(rgb, 0, 255), alpha[..., 0] * 255]).astype('uint8'), 'RGBA')
+    rgb, al = fechar_frestas(np.clip(rgb, 0, 255), alpha[..., 0] * 255)
+    return Image.fromarray(np.dstack([rgb, al]).astype('uint8'), 'RGBA')
+
+def media_vizinhos(x: np.ndarray, r: int = 4) -> np.ndarray:
+    p = np.pad(x, r, mode='edge').cumsum(0).cumsum(1)
+    p = np.pad(p, ((1, 0), (1, 0)))
+    n = 2 * r + 1
+    return (p[n:, n:] - p[:-n, n:] - p[n:, :-n] + p[:-n, :-n]) / (n * n)
+
+def fechar_frestas(rgb: np.ndarray, al: np.ndarray):
+    """Fecha frestas finas no corpo rosa (ex.: a linha de brilho entre a nadadeira e as costas do boto),
+    pintando com a cor de perto. Só onde a cor em volta é rosa, para não mexer na água."""
+    A = Image.fromarray(al.astype('uint8'))
+    fechado = np.asarray(A.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.MinFilter(9))).astype(float)
+    peso = (al / 255) ** 2
+    perto = np.dstack([media_vizinhos(rgb[..., c] * peso) for c in range(3)]) / (media_vizinhos(peso) + 1e-6)[..., None]
+    rosa = (perto[..., 0] - perto[..., 1]) > 50
+    fechado = np.where(rosa, np.maximum(fechado, al), al)
+    novo = ((fechado - al) / 255)[..., None]
+    return rgb * (1 - novo) + perto * novo, fechado
 
 def contorno(img: Image.Image, cor) -> Image.Image:
     """Desenha uma luz da cor dada em volta do bicho, por trás dele."""
