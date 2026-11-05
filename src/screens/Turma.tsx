@@ -111,7 +111,13 @@ export function EntrarTurma({ inicio, aoEntrar }: { inicio?: { codigo: string; t
           <p className="muted small" style={{ margin: 0 }}>Só o apelido, não o nome completo. Os colegas vão ver esse apelido no ranking e nas trocas.</p>
           {novo && <EscolherCor cor={cor} aoEscolher={setCor} />}
           <button className="btn btn-amarelo btn-bloco" disabled={apelido.trim().length < 2 || ocupado}>{conta ? (ocupado ? 'Entrando…' : 'Entrar na turma') : 'Continuar'}</button>
-          {conta && <p className="muted small" style={{ margin: 0 }}>Você continua com a mesma conta, as mesmas cartas e o mesmo PIN.</p>}
+          {conta && <p className="muted small" style={{ margin: 0 }}>Você continua com a mesma conta, as mesmas cartas e o mesmo PIN.{conta.codigo && conta.codigo !== codigo ? ` Você sai da turma ${conta.turma}.` : ''}</p>}
+          {!conta && (
+            <div className="aviso small" style={{ fontWeight: 700 }}>
+              Já joga em outra turma? Não crie outra conta: ela começa sem cartas. Volte, digite o código da turma antiga, entre com seu PIN
+              e, em "Minha conta", toque em "Mudar de turma". Suas cartas vão junto.
+            </div>
+          )}
         </form>
       )}
       {passo === 'pin' && <Pin valor={pin} onChange={setPin} rotulo="Crie um PIN de 4 números" />}
@@ -608,6 +614,8 @@ export function MinhaConta() {
   const { conta, perfis } = useConta();
   const e = useEstado();
   const [confirmar, setConfirmar] = useState(false);
+  const [mudar, setMudar] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const outros = perfis.filter((p) => p.id !== conta?.id);
   const sub = conta ? (conta.codigo ? `Turma ${conta.turma}` : 'Conta da família') : 'Salvo só neste aparelho';
@@ -644,7 +652,19 @@ export function MinhaConta() {
               <div className="display" style={{ fontSize: 19 }}>Apelido: {conta.apelido}</div>
               <div className="muted small">e o seu PIN secreto.{conta.familia ? ' Ou use o código da família, que o adulto da sua casa tem.' : ''}</div>
             </div>
-          ) : (
+          ) : null}
+          {aviso && <div className="aviso aviso-ok" role="status">{aviso}</div>}
+          {conta.codigo && (mudar ? (
+            <div className="painel coluna" style={{ gap: 10 }}>
+              <div className="linha" style={{ alignItems: 'flex-end' }}>
+                <Ara tamanho={60} />
+                <div className="balao" style={{ flex: 1, marginBottom: 8 }}>Digite o código da turma nova. Você leva <strong>todas as suas cartas</strong>, o XP e as Sabicoins.</div>
+              </div>
+              <EntrarTurma aoEntrar={() => { setMudar(false); setAviso('Pronto! Você mudou de turma com todas as suas cartas.'); }} />
+              <button className="btn btn-escuro btn-bloco" onClick={() => setMudar(false)}>Cancelar</button>
+            </div>
+          ) : <button className="btn btn-ciano btn-bloco" onClick={() => { setAviso(null); setMudar(true); }}>Mudar de turma</button>)}
+          {!conta.codigo && (
             <>
               <div className="painel coluna" style={{ gap: 4 }}>
                 <div style={{ fontWeight: 800 }}>Suas cartas estão guardadas na conta da família.</div>
