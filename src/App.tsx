@@ -47,7 +47,7 @@ export function App() {
   let aba = pagina;
   let comNav = true;
   switch (pagina) {
-    case 'mundos': tela = <Mundos />; break;
+    case 'mundos': tela = <Mundos materia={a} />; break;
     case 'mundo': tela = <Mundo id={a} />; aba = 'mundos'; break;
     case 'fase':
       tela = FASES.includes(b as Fase) ? <TelaFase capId={a} fase={b as Fase} /> : <Mundos />;

@@ -98,6 +98,25 @@ para quem chegou depois, faltou ou quer revisar (a matéria volta no bimestre). 
 data: isso seria pressão de tempo e deixaria para trás quem chegou depois. Se a turma e a família marcarem datas
 diferentes, vale a da turma. Código: `src/lib/provas.ts` e a tabela `datas_prova` no servidor.
 
+### Matemática: aprender fazendo (Lucas, 05/11/2026)
+
+Em História a criança precisa lembrar e entender; em Matemática, precisa **saber fazer**. Ouvir explicação ajuda
+pouco: o que ensina é ver um exemplo resolvido e logo depois resolver um igual, muitas vezes, com correção na hora.
+Por isso, nos capítulos de Matemática (campo `matematica`), as fases do mapa mudam por dentro:
+
+| Fase | Em Matemática | Por quê |
+|---|---|---|
+| Ouvir os temas | **Ver como se faz**: exemplo resolvido passo a passo, e "Agora você" com uma conta igual | exemplo resolvido + prática logo em seguida é o jeito mais eficiente de começar |
+| Jogo da memória | **Treino de contas**: 10 contas digitadas | digitar o número impede o chute e a eliminação de opções |
+| Linha do tempo | **Balança e sequências**: balança desenhada, setas de ida e volta, múltiplos | os desenhos do próprio livro, para "ver" a igualdade e a operação inversa |
+| Quiz relâmpago | igual (verdadeiro ou falso, com contas) | erros comuns |
+| Prova | **Prova da unidade**: 10 contas e problemas digitados, correção no fim | o que a professora cobra |
+
+- **Números novos a cada partida** (`src/lib/contas.ts`): jogar de novo é treinar, não decorar. O livro é a base;
+  as contas seguem o mesmo nível e o mesmo método.
+- **Revisão do Ará**: guarda o *tipo* de conta errado e traz uma conta nova desse tipo.
+- A explicação de cada conta mostra o método (a operação inversa, a prova real), não só o resultado.
+
 ---
 
 ## 4. Como prender o foco (sem viciar)

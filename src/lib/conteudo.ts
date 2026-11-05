@@ -1,6 +1,7 @@
 // Regras de qualidade do conteúdo de estudo, por idade.
 // Usadas por `npm run conferir` (scripts/conferir.ts) e pelos testes. Explicação completa em docs/ESTUDOS.md.
 
+import { GERADORES } from './contas';
 import type { Capitulo, Questao } from '../data/tipos';
 
 export interface PerfilIdade {
@@ -66,9 +67,21 @@ export function validarCapitulo(cap: Capitulo, ano = 4): string[] {
   const erro = (m: string) => out.push('ERRO: ' + m);
   const aviso = (m: string) => out.push('AVISO: ' + m);
 
-  if (!cap.temas.length) erro('nenhum tema');
-  if (cap.pares.length < 6) erro(`só ${cap.pares.length} pares (mínimo 6)`);
-  if (cap.linha.length < 6) erro(`só ${cap.linha.length} fatos na linha do tempo (mínimo 6)`);
+  if (!cap.temas.length && !cap.matematica) erro('nenhum tema');
+  const m = cap.matematica;
+  if (!m && cap.pares.length < 6) erro(`só ${cap.pares.length} pares (mínimo 6)`);
+  if (!m && cap.linha.length < 6) erro(`só ${cap.linha.length} fatos na linha do tempo (mínimo 6)`);
+  if (m) {
+    const tipoOk = (onde: string, t: string) => { if (!GERADORES[t]) erro(`${onde}: tipo de conta "${t}" não existe em src/lib/contas.ts`); };
+    if (m.exemplos.length < 3) erro(`só ${m.exemplos.length} exemplos resolvidos (mínimo 3)`);
+    m.exemplos.forEach((x, i) => { tipoOk(`exemplo ${i + 1}`, x.treino); if (x.passos.length < 2) erro(`exemplo ${i + 1}: precisa de 2 passos ou mais`); });
+    m.treino.forEach((t) => tipoOk('treino', t));
+    m.desafio.forEach((t) => tipoOk('balança e sequências', t));
+    m.prova.forEach((t) => tipoOk('prova de contas', t));
+    if (m.treino.length < 8) aviso(`treino com ${m.treino.length} contas (ideal: 8 a 10)`);
+    if (m.desafio.length < 6) aviso(`balança e sequências com ${m.desafio.length} contas (ideal: 6 a 10)`);
+    if (m.prova.length !== 10) erro(`a prova de contas tem ${m.prova.length} contas (precisa de 10)`);
+  }
   if (cap.prova.length !== 10) erro(`a prova tem ${cap.prova.length} questões (precisa de 10)`);
   if (cap.quiz.length < 8) aviso(`só ${cap.quiz.length} frases no quiz (ideal: 10 ou mais)`);
 

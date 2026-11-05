@@ -7,7 +7,7 @@ O Claude lê este arquivo no começo de cada conversa (está pedido no `CLAUDE.m
 - Quando o Lucas der uma ideia nova, o Claude confere aqui antes e avisa: "isso já existe", "isso já foi testado e trocado por X" ou "isso vai contra a regra Y".
 - Ao terminar qualquer mudança, o Claude atualiza este caderno (o que mudou, a data e quem decidiu).
 
-Última revisão geral: **04/11/2026**. Última mudança: **05/11/2026** (missões do dia e marcos de sequência).
+Última revisão geral: **04/11/2026**. Última mudança: **05/11/2026** (Matemática, unidade 9).
 
 ---
 
@@ -37,7 +37,9 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 ## 3. O que já existe (confira aqui antes de criar algo "novo")
 
 ### Estudo
-- **Mundos** = capítulos do livro. Hoje: **História cap. 9** ("Um continente chamado África") e **cap. 10** ("Terra à vista!"). Ciências e Geografia aparecem como "Em breve".
+- **Mundos** = capítulos do livro. Hoje: **História cap. 9** ("Um continente chamado África") e **cap. 10** ("Terra à vista!") e **Matemática unidade 9** ("O preparo de alimentos e o pensamento algébrico"). Ciências e Geografia aparecem como "Em breve".
+- **Matérias** (05/11/2026): o Início mostra um botão para cada matéria que já tem capítulo; tocar abre só os mundos dela (`#/mundos/<matéria>`). Nas narrações, os sinais de conta (×, ÷, +, −, =) viram palavras (`scripts/vozes.ts`).
+- **Matemática se estuda fazendo** (Lucas, 05/11/2026; `src/lib/contas.ts`, `src/screens/Contas.tsx`, regras em `docs/ESTUDOS.md`): o mapa tem as mesmas 5 fases (estrelas, nota 7, pacotes), mas por dentro são **Ver como se faz** (exemplo resolvido passo a passo + "Agora você"), **Treino de contas** (10), **Balança e sequências** (balança desenhada, setas de ida e volta, múltiplos), **Quiz relâmpago** e **Prova da unidade** (10 contas, correção no fim). A criança **digita a resposta** num teclado de números, e **os números mudam a cada partida**. O livro é a base, mas pode ter outras contas e exemplos do mesmo nível e método. Contas erradas voltam na Revisão do Ará com números novos. O Duelo usa o quiz e a prova de múltipla escolha do capítulo.
 - Cada mundo tem **5 fases** em ordem (uma libera a próxima):
   1. **Ouvir os temas** (áudio com 3 vozes: Nina, Otto, Graziella; o app lembra os temas já ouvidos)
   2. **Jogo da memória** (ligar palavra e significado)
@@ -149,6 +151,7 @@ Guia de arte: `docs/ARTE-SABIMONS.md`.
 | Pacote sem pedir nota | Pacote só com nota 7 ou mais | 04/11/2026 |
 | Botão "Já li este tema" com áudio | Precisa ouvir o áudio | 04/11/2026 |
 | Nenhum chat entre crianças (só propostas de troca) | Chat da turma supervisionado, desligado no começo | 04/11/2026 |
+| Matemática do jeito de História (ouvir temas, ligar palavras, escolher opções) | Ver como se faz + contas digitadas com números que mudam | 05/11/2026 |
 | Duelo valendo cartas (quem perde entrega carta) | **Duelo do Saber** sem aposta: ninguém perde carta, vence quem acerta mais. Motivos: pacote/carta só vem do estudo, briga e choro na turma, e as lojas e o ECA Digital olham aposta para criança como jogo de azar | 05/11/2026 |
 | Voz única (Kokoro) | 3 vozes ElevenLabs: Nina, Otto, Graziella | 04/11/2026 |
 | Logo de texto simples | Letras-figurinha coloridas | 04/11/2026 |
@@ -168,7 +171,7 @@ Decididos pelo Lucas em 04/11/2026, depois da revisão geral:
    - Cartas inventadas: **resolvido** (05/11/2026): o servidor sorteia a carta do pacote. Versões antigas do app que ainda abrem no aparelho: o servidor ignora a carta que o aparelho escolheu e sorteia ele mesmo (só para pacote que ele já conhecia).
    - Ainda depende do aparelho: **ganhar** o pacote (o app diz que terminou a fase). Os limites acima seguram o abuso; corrigir as fases no servidor seria o próximo passo, se precisar.
 
-Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geografia só "Em breve".
+Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geografia só "Em breve"; Matemática não usa narração por enquanto (o "Ver como se faz" é na tela, passo a passo).
 
 ### Antes de publicar nas lojas (ou ter muitas escolas)
 - [x] **Abrir os pacotes no servidor** (feito em 05/11/2026).
@@ -179,6 +182,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **05/11/2026** · **Matemática, unidade 9** ("O preparo de alimentos e o pensamento algébrico", p. 100–143), feita a partir das fotos do livro: valor desconhecido, operações inversas, os 7 passos e a prova real, igualdade e balança, sequências e múltiplos. Primeira matéria fora de História: o Início ganhou um botão por matéria. O problema dos bolinhos de chuva (p. 122) ficou de fora porque o livro não traz a resposta (Lucas).
+- **05/11/2026** · **Matemática se estuda fazendo**: em vez de ouvir e escolher opções (jeito de História), exemplo resolvido + contas digitadas com números novos a cada vez, balança e setas desenhadas, prova de contas e revisão por tipo de conta. Regra nova: o livro é a base, mas pode ter outras contas e exemplos do mesmo nível e método (Lucas).
 - **05/11/2026** · Segurança antes das lojas: **o servidor sorteia a carta do pacote** (criança com conta precisa de internet para abrir), 60 pacotes por dia, épico só com a prova feita; **30 códigos errados** pela mesma internet bloqueiam 15 minutos (Lucas).
 - **05/11/2026** · Os "dias seguidos" do início viraram botão para a tela **Meu dia**: 3 missões do dia (as 3 dão 1 pacote) e marcos de 3, 7, 14 e 30 dias (1 pacote cada). A sequência agora aceita 1 dia de folga por semana, como já pedia `docs/ESTUDOS.md`. O Claude sugeriu Sabicoins/enfeites como prêmio para não facilitar demais o álbum; o Lucas escolheu pacotes (Lucas).
 - **05/11/2026** · **Pacote de boas-vindas** para toda conta nova de criança (carta na sorte), para ela entender o jogo logo de cara. Muda a regra "pacotes só vêm do estudo": essa é a única exceção. Quem não tem carta continua sem poder duelar (com uma lição já ganha pacote) (Lucas).

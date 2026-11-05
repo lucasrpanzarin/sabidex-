@@ -15,6 +15,20 @@ export const FASE_INFO: Record<Fase, { titulo: string; sub: string; xp: number }
   prova: { titulo: 'Prova do capítulo', sub: 'Nota 7 ou mais libera o pacote épico', xp: 120 },
 };
 
+/** Em Matemática, as fases têm outro nome (o XP é o mesmo). */
+const FASE_MATEMATICA: Partial<Record<Fase, { titulo: string; sub: string }>> = {
+  ouvir: { titulo: 'Ver como se faz', sub: 'Veja o exemplo e resolva um igual' },
+  memoria: { titulo: 'Treino de contas', sub: 'Resolva e digite a resposta' },
+  linha: { titulo: 'Balança e sequências', sub: 'Descubra o número que falta' },
+  prova: { titulo: 'Prova da unidade', sub: 'Nota 7 ou mais libera o pacote épico' },
+};
+
+/** Nome e explicação da fase para este capítulo. */
+export function infoFase(f: Fase, cap?: { matematica?: unknown }) {
+  const m = cap?.matematica ? FASE_MATEMATICA[f] : undefined;
+  return m ? { ...FASE_INFO[f], ...m } : FASE_INFO[f];
+}
+
 /** Fases que dão um pacote normal na primeira vez que a criança termina. */
 export const FASES_COM_PACOTE: Fase[] = ['memoria', 'quiz'];
 export const NOTA_MINIMA = 7;

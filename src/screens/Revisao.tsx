@@ -9,6 +9,7 @@ import { concluirRevisao, paraHoje, proximaData, registrarResposta, type ItemRev
 import { Moeda } from '../components/Loja';
 import { ir } from '../lib/rota';
 import { getEstado, setEstado } from '../lib/store';
+import { Pergunta } from './Contas';
 
 const LETRAS = ['A', 'B', 'C', 'D'];
 
@@ -100,7 +101,12 @@ export function Revisao() {
       <div className="barra barra-rosa"><div style={{ width: `${(i / itens.length) * 100}%` }} /></div>
       <div className="eyebrow" style={{ color: 'var(--muted)' }}>Mundo {it.cap.numero} · {it.cap.titulo}</div>
 
-      {it.tipo === 'quiz' ? (
+      {it.tipo === 'conta' ? (
+        // Matemática: uma conta nova do tipo que a criança errou (ou precisa revisar), digitando a resposta.
+        <Pergunta key={i} conta={it.q} rotuloProxima={i + 1 < itens.length ? 'Próxima' : 'Terminar'}
+          onResposta={(ok) => { if (ok) setAcertos((a) => a + 1); setEstado((e) => ({ ...e, revisao: registrarResposta(e.revisao, it.id, ok, dia) })); }}
+          onProxima={proxima} />
+      ) : it.tipo === 'quiz' ? (
         <>
           <div className="painel-destaque" style={{ minHeight: 130, display: 'grid', placeItems: 'center' }}>
             <p className="display" style={{ fontSize: 22, margin: 0, textAlign: 'center' }}>{it.q.frase}</p>

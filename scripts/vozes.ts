@@ -21,7 +21,10 @@ async function api(caminho: string, init: RequestInit = {}) {
 
 function texto(t: { titulo: string; pontos: string[] }) {
   return (t.titulo + '. ' + t.pontos.join(' '))
-    .replace(/\*\*/g, '').replace(/a\.C\./g, 'antes de Cristo').replace(/\bséculo 19\b/g, 'século dezenove');
+    .replace(/\*\*/g, '').replace(/a\.C\./g, 'antes de Cristo').replace(/\bséculo 19\b/g, 'século dezenove')
+    // Contas de Matemática: o sinal vira palavra para a voz ler certo.
+    .replace(/\s*×\s*/g, ' vezes ').replace(/\s*÷\s*/g, ' dividido por ').replace(/\s+−\s+/g, ' menos ')
+    .replace(/\s+\+\s+/g, ' mais ').replace(/\s+=\s+/g, ' é igual a ').replace(/_{3}/g, 'um número');
 }
 
 async function falar(voz: Voz, frase: string, modelo: string) {

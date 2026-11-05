@@ -3,6 +3,7 @@
 // Errou → volta para a caixa 0 e aparece de novo amanhã. Funções puras, para poder testar.
 
 import type { Capitulo, Afirmacao, Questao } from '../data/tipos';
+import { gerarConta, type Conta } from './contas';
 import { hoje as hojeStr, premiar, type Estado, type Resultado } from './jogo';
 
 /** Dias até a pergunta voltar, para cada caixa. */
@@ -20,6 +21,8 @@ export function somarDias(dia: string, n: number) {
 /** id de uma pergunta: "historia-9:q3" (quiz) ou "historia-9:p0" (prova). */
 export const idQuiz = (cap: string, i: number) => `${cap}:q${i}`;
 export const idProva = (cap: string, i: number) => `${cap}:p${i}`;
+/** Matemática: guarda o TIPO de conta ("matematica-9:c-falta-soma"); na revisão vem uma conta nova desse tipo. */
+export const idConta = (cap: string, tipo: string) => `${cap}:c-${tipo}`;
 
 /**
  * Registra uma resposta. Acerto só sobe de caixa se a pergunta é nova ou já estava na hora de revisar
@@ -35,9 +38,16 @@ export function registrarResposta(rev: Revisao, id: string, acertou: boolean, di
 
 export type ItemRevisao =
   | { id: string; cap: Capitulo; tipo: 'quiz'; q: Afirmacao }
-  | { id: string; cap: Capitulo; tipo: 'prova'; q: Questao };
+  | { id: string; cap: Capitulo; tipo: 'prova'; q: Questao }
+  | { id: string; cap: Capitulo; tipo: 'conta'; q: Conta };
 
 export function itemDe(id: string, capitulos: Capitulo[]): ItemRevisao | null {
+  const c = id.match(/^(.+):c-([a-z-]+)$/);
+  if (c) {
+    const cap = capitulos.find((x) => x.id === c[1]);
+    const q = cap ? gerarConta(c[2]) : null;
+    return cap && q ? { id, cap, tipo: 'conta', q } : null;
+  }
   const m = id.match(/^(.+):([qp])(\d+)$/);
   if (!m) return null;
   const cap = capitulos.find((c) => c.id === m[1]);

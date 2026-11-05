@@ -4,13 +4,14 @@ import { Icone } from '../components/Icone';
 import { Moeda } from '../components/Loja';
 import { capituloPorId } from '../data';
 import type { Capitulo } from '../data/tipos';
-import { FASE_INFO, NOTA_MINIMA, PERDA_POR_ERRO, XP_MINIMO, concluirFase, embaralhar, estrelasDaNota, hoje, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
+import { NOTA_MINIMA, infoFase, PERDA_POR_ERRO, XP_MINIMO, concluirFase, embaralhar, estrelasDaNota, hoje, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
 import { idProva, idQuiz, registrarResposta } from '../lib/revisao';
 import { aplicarMissoes } from '../lib/missoes';
 import { ir } from '../lib/rota';
 import { jogar, proximaFase } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import { VOZES, audioDaVoz, setVoz, useVoz } from '../lib/voz';
+import { FaseContas, VerComoSeFaz } from './Contas';
 
 /** Transforma **negrito** em <strong>. */
 export function Texto({ t }: { t: string }) {
@@ -18,15 +19,15 @@ export function Texto({ t }: { t: string }) {
   return <>{partes.map((p, i) => (i % 2 ? <strong key={i}>{p}</strong> : p))}</>;
 }
 
-function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: ReactNode }) {
+export function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: ReactNode }) {
   return (
     <div className="coluna" style={{ gap: 2 }}>
       <div className="linha" style={{ justifyContent: 'space-between' }}>
         <button className="voltar" onClick={() => ir('mundo', cap.id)}><Icone nome="voltar" tamanho={18} espessura={3} />Mundo {cap.numero}</button>
         {extra}
       </div>
-      <h1 className="display h2">{FASE_INFO[fase].titulo}</h1>
-      <div className="muted small">{FASE_INFO[fase].sub}</div>
+      <h1 className="display h2">{infoFase(fase, cap).titulo}</h1>
+      <div className="muted small">{infoFase(fase, cap).sub}</div>
     </div>
   );
 }
@@ -123,7 +124,7 @@ export function Fim({ cap, r, titulo, placar, detalhe, aprovado = true, onDeNovo
 }
 
 /** Guarda a resposta na Revisão do Ará (erros voltam amanhã; acertos em alguns dias). */
-function lembrar(ids: [string, boolean][]) {
+export function lembrar(ids: [string, boolean][]) {
   const dia = hoje();
   setEstado((e) => ({ ...e, revisao: ids.reduce((rev, [id, ok]) => registrarResposta(rev, id, ok, dia), e.revisao) }));
 }
@@ -138,9 +139,9 @@ export function ContaErros({ erros }: { erros: number }) {
   );
 }
 
-const AVISO_REVISAO = <div className="balao small" style={{ marginTop: 4 }}>As perguntas que você errou voltam na <strong>Revisão do Ará</strong> amanhã.</div>;
+export const AVISO_REVISAO = <div className="balao small" style={{ marginTop: 4 }}>As perguntas que você errou voltam na <strong>Revisão do Ará</strong> amanhã.</div>;
 
-function useFinalizar(cap: Capitulo, fase: Fase) {
+export function useFinalizar(cap: Capitulo, fase: Fase) {
   const [res, setRes] = useState<Resultado | null>(null);
   const finalizar = (nota?: number, erros = 0) => {
     const antes = getEstado();
@@ -548,6 +549,10 @@ export function TelaFase({ capId, fase }: { capId: string; fase: Fase }) {
         <button className="btn btn-amarelo" onClick={() => ir('mundo', cap.id)}>Voltar ao mundo</button>
       </main>
     );
+  }
+  // Matemática: ver como se faz e contas digitadas (o quiz é o mesmo).
+  if (cap.matematica && fase !== 'quiz') {
+    return fase === 'ouvir' ? <VerComoSeFaz key={capId} cap={cap} /> : <FaseContas key={`${capId}-${fase}`} cap={cap} fase={fase} />;
   }
   const Comp = { ouvir: Ouvir, memoria: Memoria, linha: Linha, quiz: Quiz, prova: Prova }[fase];
   return <Comp key={`${capId}-${fase}`} cap={cap} />;
