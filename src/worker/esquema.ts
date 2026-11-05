@@ -177,6 +177,20 @@ export const MIGRACOES = [
   // toca no próprio nome e digita o PIN. Mesmo formato do código da turma (ex.: ARARA-4821) e nunca igual a um.
   `ALTER TABLE adultos ADD COLUMN codigo_familia TEXT`,
   `CREATE UNIQUE INDEX IF NOT EXISTS adultos_codigo_familia ON adultos (codigo_familia)`,
+  // Pacotes abertos pelo servidor (Lucas, 05/11/2026): quem sorteia a carta é o servidor.
+  // sem_novo = garantia; pacotes_dia/pacotes_hoje = limite por dia; epicos = épicos já abertos;
+  // ultimo_pacote = o último aberto (se a internet cair no meio, a criança recebe a mesma carta de novo).
+  `ALTER TABLE criancas ADD COLUMN sem_novo INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE criancas ADD COLUMN pacotes_dia TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE criancas ADD COLUMN pacotes_hoje INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE criancas ADD COLUMN epicos INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE criancas ADD COLUMN ultimo_pacote TEXT NOT NULL DEFAULT ''`,
+  // Códigos errados por internet (IP): muitos erros seguidos bloqueiam por um tempo.
+  `CREATE TABLE IF NOT EXISTS tentativas (
+    chave TEXT PRIMARY KEY,
+    n INTEGER NOT NULL,
+    inicio INTEGER NOT NULL
+  )`,
 ];
 
 export const SEM_TURMA = 'familia:';

@@ -69,6 +69,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | **Pacote de boas-vindas** (única exceção à regra acima; Lucas, 05/11/2026) | toda conta nova de criança (família ou turma) já nasce com 1 pacote normal; a carta sai na sorte. O Ará apresenta na tela inicial e, depois de abrir, explica que os próximos vêm do estudo. Quem já tinha conta não ganha | `src/shared/sync.ts` (`comBoasVindas`) |
 | Pacote | **1 Sabimon** (sempre a forma 1). Chances: comum 62%, rara 26%, épica 9%, lendária 3%. Épico: 80% épica, 20% lendária | |
 | Garantia | depois de 9 pacotes sem bicho novo, o 10º traz um que a criança não tem | |
+| **Quem sorteia** (05/11/2026) | Criança com conta: **o servidor** sorteia a carta e guarda tudo de uma vez. Precisa de internet (sem internet o pacote volta inteiro, com aviso). Se a internet cair no meio, a criança recebe a mesma carta de novo. Limites: 60 pacotes por dia; pacote épico só com a prova do capítulo feita e no máximo 1 por capítulo (senão abre como normal). Quem joga sem conta (antigos) ainda abre no aparelho | `src/shared/pacotes.ts`, `/api/crianca/abrir-pacote` |
 | **Nunca** | vender pacote (nem por moeda do jogo, nem por dinheiro), desconto ou pressão de tempo | |
 
 ### Cartas e álbum
@@ -103,6 +104,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - Pergunta de conta (ex.: "Quanto é 6 × 15?") antes da área dos adultos.
 - **Entrar na conta em outro aparelho**: código da turma (o aparelho lembra o último usado) → a criança toca no próprio nome na lista da turma → PIN. Não precisa decorar o apelido. A lista (apelido + cor) só aparece para quem tem o código, igual ao ranking.
 - 5 PINs errados bloqueiam 15 minutos.
+- **30 códigos errados** (turma ou família) seguidos pela mesma internet bloqueiam 15 minutos (05/11/2026). Numa escola a turma toda divide a internet, por isso o número é alto.
 - Botão "Apagar minha conta"; política de privacidade em `#/privacidade`.
 - **Da criança só guardamos**: apelido, cor, PIN embaralhado e o progresso do jogo.
 
@@ -163,18 +165,21 @@ Decididos pelo Lucas em 04/11/2026, depois da revisão geral:
 3. Frase de 22 palavras no tema "Os griôs" (cap. 9): **fica como está** (o áudio já fala esse texto).
 4. Segurança:
    - XP de dois aparelhos sem internet (fica o maior, não a soma): **fica como está**.
-   - Cartas inventadas: **feita a proteção pequena** (o servidor só aceita 1 carta nova por pacote novo aberto). A proteção completa está na lista abaixo.
+   - Cartas inventadas: **resolvido** (05/11/2026): o servidor sorteia a carta do pacote. Versões antigas do app que ainda abrem no aparelho: o servidor ignora a carta que o aparelho escolheu e sorteia ele mesmo (só para pacote que ele já conhecia).
+   - Ainda depende do aparelho: **ganhar** o pacote (o app diz que terminou a fase). Os limites acima seguram o abuso; corrigir as fases no servidor seria o próximo passo, se precisar.
 
 Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geografia só "Em breve".
 
 ### Antes de publicar nas lojas (ou ter muitas escolas)
-- [ ] **Abrir os pacotes no servidor** (não no aparelho). Assim ninguém consegue inventar cartas. Abrir pacote passa a precisar de internet.
+- [x] **Abrir os pacotes no servidor** (feito em 05/11/2026).
+- [x] **Limite de códigos errados** (feito em 05/11/2026).
 - [ ] Ligar `sabidex.com` na Cloudflare.
 
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **05/11/2026** · Segurança antes das lojas: **o servidor sorteia a carta do pacote** (criança com conta precisa de internet para abrir), 60 pacotes por dia, épico só com a prova feita; **30 códigos errados** pela mesma internet bloqueiam 15 minutos (Lucas).
 - **05/11/2026** · Os "dias seguidos" do início viraram botão para a tela **Meu dia**: 3 missões do dia (as 3 dão 1 pacote) e marcos de 3, 7, 14 e 30 dias (1 pacote cada). A sequência agora aceita 1 dia de folga por semana, como já pedia `docs/ESTUDOS.md`. O Claude sugeriu Sabicoins/enfeites como prêmio para não facilitar demais o álbum; o Lucas escolheu pacotes (Lucas).
 - **05/11/2026** · **Pacote de boas-vindas** para toda conta nova de criança (carta na sorte), para ela entender o jogo logo de cara. Muda a regra "pacotes só vêm do estudo": essa é a única exceção. Quem não tem carta continua sem poder duelar (com uma lição já ganha pacote) (Lucas).
 - **05/11/2026** · "Continuar com o Google" ligado para os pais: projeto Sabidex no Google Cloud, ID do cliente em `wrangler.jsonc` (só vale em sabidex.com.br e www) (Lucas).
