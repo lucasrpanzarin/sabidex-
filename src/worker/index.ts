@@ -5,7 +5,7 @@ import { Hono, type Context } from 'hono';
 import { capitulos } from '../data';
 import { FASES, POR_PACOTE, chaveExtra, extrasDo } from '../lib/jogo';
 import { idEvolucao, itemPorId, migrarFormas, podeEvoluir, premiosLivres, PRECO_EVOLUCAO, protegido, refCompra } from '../lib/loja';
-import { figurinhaPorId, idCarta, IDS_CARTAS, IDS_PACOTE } from '../lib/figurinhas';
+import { figurinhaPorId, idCarta, IDS_CARTAS } from '../lib/figurinhas';
 import {
   gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
@@ -17,6 +17,7 @@ import { APPLE, conferirCracha, GOOGLE } from './jwt';
 import {
   corrigir, DUELOS_COM_XP_POR_DIA, diaBrasilia, MAX_DESAFIOS_ESPERANDO, montarDuelo, mundosEmComum, VALIDADE_DUELO_MS, vencedorDe,
 } from '../shared/duelo';
+import { diaBR, sortearPacote, type Contadores } from '../shared/pacotes';
 import { aleatorio, hashSegredo, iguais, pinAleatorio, sha256 } from './seguranca';
 
 interface Env {
@@ -93,6 +94,31 @@ interface Crianca {
   id: string; turma_id: string; apelido: string; cor: string; pin_hash: string; pin_sal: string;
   falhas: number; bloqueado_ate: number; progresso: string; xp_semana: number; semana: string;
   familia_id: string | null; chat_ok: number; mostrar_online: number; mudo_ate: number; ativo: number;
+  sem_novo: number; pacotes_dia: string; pacotes_hoje: number; epicos: number; ultimo_pacote: string;
+}
+
+const contadoresDe = (k: Crianca): Contadores => ({ semNovo: k.sem_novo ?? 0, dia: k.pacotes_dia ?? '', hoje: k.pacotes_hoje ?? 0, epicos: k.epicos ?? 0 });
+
+/* ---------------- Limite de códigos errados ---------------- */
+
+/** Erros de código permitidos por internet (IP) a cada 15 minutos. Numa escola, a turma toda divide a mesma internet. */
+const MAX_ERROS_CODIGO = 30;
+const JANELA_ERROS = 15 * 60_000;
+const MSG_MUITOS_ERROS = 'Muitos códigos errados seguidos. Espere 15 minutos e tente de novo.';
+const ipDe = (c: C) => c.req.header('CF-Connecting-IP') ?? 'local';
+
+async function muitosErros(c: C) {
+  const r = await c.env.DB.prepare('SELECT n, inicio FROM tentativas WHERE chave = ?').bind('codigo:' + ipDe(c)).first<{ n: number; inicio: number }>();
+  return !!r && Date.now() - r.inicio < JANELA_ERROS && r.n >= MAX_ERROS_CODIGO;
+}
+
+async function contarErro(c: C) {
+  const agora = Date.now();
+  await c.env.DB.prepare(`INSERT INTO tentativas (chave, n, inicio) VALUES (?1, 1, ?2)
+    ON CONFLICT (chave) DO UPDATE SET n = CASE WHEN ?2 - inicio > ?3 THEN 1 ELSE n + 1 END, inicio = CASE WHEN ?2 - inicio > ?3 THEN ?2 ELSE inicio END`)
+    .bind('codigo:' + ipDe(c), agora, JANELA_ERROS).run();
+  // De vez em quando, limpa as linhas velhas.
+  if (Math.random() < 0.02) await c.env.DB.prepare('DELETE FROM tentativas WHERE inicio < ?').bind(agora - DIA).run();
 }
 
 const MSG_BLOQUEIO = 'Muitas tentativas erradas. Espere 15 minutos ou peça para um adulto trocar seu PIN.';
@@ -151,9 +177,8 @@ function upsertCartas(db: D1Database, id: string, delta: Record<string, number>)
 }
 
 /**
- * Proteção simples contra cartas inventadas: cada pacote aberto dá 1 carta,
- * então o aparelho só pode mandar tantas cartas novas quantos pacotes novos ele abriu.
- * (A proteção completa é abrir os pacotes no servidor; está no caderno, para antes de publicar nas lojas.)
+ * Só para o progresso que já estava no aparelho antes de ter conta (entrar na turma ou criar o perfil
+ * levando o que foi feito): no máximo 1 carta por pacote aberto. Depois de ter conta, quem sorteia é o servidor.
  */
 function limitarCartas(delta: Record<string, number>, pacotesNovos: number): Record<string, number> {
   let resta = Math.max(0, pacotesNovos) * POR_PACOTE;
@@ -164,7 +189,6 @@ function limitarCartas(delta: Record<string, number>, pacotesNovos: number): Rec
   }
   return out;
 }
-const pacotesNovos = (antes: string[], agora: string[]) => { const ja = new Set(antes); return new Set(agora.filter((id) => !ja.has(id))).size; };
 
 /* ---------------- Datas das provas da escola ---------------- */
 
@@ -236,12 +260,14 @@ async function codigoDaFamilia(db: D1Database, adultoId: string, novo = false): 
 }
 
 app.post('/turma/info', async (c) => {
+  if (await muitosErros(c)) return erro(c, 429, MSG_MUITOS_ERROS);
   const b = await corpo(c);
   const codigo = normalizarCodigo(String(b.codigo ?? ''));
   const t = await c.env.DB.prepare('SELECT nome FROM turmas WHERE codigo = ?').bind(codigo).first<{ nome: string }>();
   if (!t) {
     const f = await c.env.DB.prepare('SELECT 1 FROM adultos WHERE codigo_familia = ?').bind(codigo).first();
     if (f) return erro(c, 400, 'Esse é o código da família, não de uma turma. A turma tem outro código, que o professor passa.');
+    await contarErro(c);
     return erro(c, 404, 'Não achei essa turma. Confira o código com seu professor ou responsável.');
   }
   return c.json({ nome: t.nome, codigo });
@@ -252,6 +278,7 @@ app.post('/turma/info', async (c) => {
  * para tocar no próprio nome em vez de decorar o apelido. A conta continua protegida pelo PIN.
  */
 app.post('/turma/alunos', async (c) => {
+  if (await muitosErros(c)) return erro(c, 429, MSG_MUITOS_ERROS);
   const b = await corpo(c);
   const codigo = normalizarCodigo(String(b.codigo ?? ''));
   const t = await c.env.DB.prepare('SELECT id, nome FROM turmas WHERE codigo = ?').bind(codigo).first<{ id: string; nome: string }>();
@@ -261,7 +288,7 @@ app.post('/turma/alunos', async (c) => {
   }
   // Código da família: mostra os filhos (apelido e cor). Entrar continua pedindo o PIN de cada um.
   const f = await c.env.DB.prepare('SELECT id FROM adultos WHERE codigo_familia = ?').bind(codigo).first<{ id: string }>();
-  if (!f) return erro(c, 404, 'Não achei esse código. Confira com seu professor ou com um adulto da sua casa.');
+  if (!f) { await contarErro(c); return erro(c, 404, 'Não achei esse código. Confira com seu professor ou com um adulto da sua casa.'); }
   const r = await c.env.DB.prepare('SELECT id, apelido, cor FROM criancas WHERE familia_id = ? ORDER BY criado').bind(f.id).all<{ id: string; apelido: string; cor: string }>();
   return c.json({ nome: 'Sua família', codigo, familia: true, alunos: r.results });
 });
@@ -275,8 +302,9 @@ app.post('/crianca/entrar-turma', async (c) => {
   if (apelido.length < 2) return erro(c, 400, 'O apelido precisa ter pelo menos 2 letras.');
   if (!COR.test(cor)) return erro(c, 400, 'Cor inválida.');
   if (!pinValido(b.pin)) return erro(c, 400, 'O PIN precisa ter 4 números.');
+  if (await muitosErros(c)) return erro(c, 429, MSG_MUITOS_ERROS);
   const t = await c.env.DB.prepare('SELECT id FROM turmas WHERE codigo = ?').bind(codigo).first<{ id: string }>();
-  if (!t) return erro(c, 404, 'Não achei essa turma. Confira o código.');
+  if (!t) { await contarErro(c); return erro(c, 404, 'Não achei essa turma. Confira o código.'); }
   if (await contarNaTurma(c.env.DB, t.id) >= 60) return erro(c, 409, 'Essa turma já está cheia.');
 
   const id = aleatorio(8);
@@ -300,6 +328,7 @@ app.post('/crianca/entrar-turma', async (c) => {
 
 /** Criança entra na conta dela (em outro aparelho, por exemplo). */
 app.post('/crianca/entrar', async (c) => {
+  if (await muitosErros(c)) return erro(c, 429, MSG_MUITOS_ERROS);
   const b = await corpo(c);
   const codigo = normalizarCodigo(String(b.codigo ?? ''));
   const apelido = normalizarApelido(String(b.apelido ?? ''));
@@ -307,7 +336,7 @@ app.post('/crianca/entrar', async (c) => {
   const k = await c.env.DB.prepare(`SELECT k.* FROM criancas k JOIN turmas t ON t.id = k.turma_id WHERE t.codigo = ? AND k.apelido_chave = ?`)
     .bind(codigo, chaveApelido(apelido)).first<Crianca>();
   const generico = 'Código, apelido ou PIN não conferem. Tente de novo.';
-  if (!k) return erro(c, 401, generico);
+  if (!k) { await contarErro(c); return erro(c, 401, generico); }
   const falha = await conferirPin(c.env.DB, k, b.pin, generico);
   if (falha) return erro(c, falha.status, falha.msg);
   const km = await migrarCrianca(c.env.DB, k);
@@ -372,8 +401,9 @@ app.post('/crianca/turma', async (c) => {
   const codigo = normalizarCodigo(String(b.codigo ?? ''));
   const apelido = normalizarApelido(String(b.apelido ?? k.apelido));
   if (apelido.length < 2) return erro(c, 400, 'O apelido precisa ter pelo menos 2 letras.');
+  if (await muitosErros(c)) return erro(c, 429, MSG_MUITOS_ERROS);
   const t = await c.env.DB.prepare('SELECT id FROM turmas WHERE codigo = ?').bind(codigo).first<{ id: string }>();
-  if (!t) return erro(c, 404, 'Não achei essa turma. Confira o código.');
+  if (!t) { await contarErro(c); return erro(c, 404, 'Não achei essa turma. Confira o código.'); }
   if (t.id === k.turma_id) return c.json(await respostaConta(c.env.DB, k, sanitizar(JSON.parse(k.progresso), FASES_VALIDAS)));
   if (await contarNaTurma(c.env.DB, t.id) >= 60) return erro(c, 409, 'Essa turma já está cheia.');
   try {
@@ -415,7 +445,8 @@ app.post('/crianca/sync', async (c) => {
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
   const b = await corpo(c);
   const doAparelho = sanitizar(b.progresso, FASES_VALIDAS);
-  const recebidas = sanitizarDelta(b.cartas, IDS_PACOTE);
+  // As cartas que o aparelho diz ter tirado não valem mais: quem sorteia é o servidor (veja /crianca/abrir-pacote).
+  // Versões antigas do app ainda abrem pacote no aparelho; para esses pacotes, o servidor sorteia a carta aqui.
   const db = c.env.DB;
   // Grava só se ninguém mudou o progresso no meio do caminho (uma evolução, outra aba).
   // Se mudou, lê de novo e junta outra vez: assim nenhuma evolução ou compra do servidor se perde.
@@ -423,7 +454,18 @@ app.post('/crianca/sync', async (c) => {
   for (let tentativa = 0; tentativa < 4; tentativa++) {
     const antes = sanitizar(JSON.parse(atual.progresso), FASES_VALIDAS);
     const m = conferirCompras(antes, mesclar(antes, doAparelho));
-    const delta = limitarCartas(recebidas, pacotesNovos(antes.abertos, doAparelho.abertos));
+    // Só ganha carta o pacote que o servidor já conhecia; os outros só fecham.
+    const delta: Record<string, number> = {};
+    const tem = await cartasDe(db, atual.id);
+    let cont = contadoresDe(atual);
+    for (const id of m.abertos.filter((x) => !antes.abertos.includes(x))) {
+      const p = antes.pacotes.find((x) => x.id === id);
+      if (!p) continue;
+      const s = sortearPacote({ ...antes, feitas: m.feitas, pacotes: [p], abertos: [] }, id, tem, cont, { capitulos: capitulos.length, dia: diaBR() });
+      if ('erro' in s) continue;
+      for (const carta of s.cartas) { delta[carta] = (delta[carta] ?? 0) + 1; tem[carta] = (tem[carta] ?? 0) + 1; }
+      cont = s.contadores;
+    }
     const semana = semanaDe();
     const ganho = Math.max(0, m.xp - antes.xp);
     const xpSemana = (atual.semana === semana ? atual.xp_semana : 0) + Math.min(ganho, 2000);
@@ -434,10 +476,51 @@ app.post('/crianca/sync', async (c) => {
       ...Object.entries(delta).map(([carta, n]) =>
         db.prepare(`INSERT INTO cartas (crianca_id, carta_id, qtd) SELECT ?, ?, ? WHERE ${trava}
           ON CONFLICT (crianca_id, carta_id) DO UPDATE SET qtd = qtd + excluded.qtd`).bind(atual.id, carta, n, atual.id, atual.progresso)),
-      db.prepare('UPDATE criancas SET progresso = ?, xp_semana = ?, semana = ?, visto = ? WHERE id = ? AND progresso = ?')
-        .bind(novo, xpSemana, semana, Date.now(), atual.id, atual.progresso),
+      db.prepare(`UPDATE criancas SET progresso = ?, xp_semana = ?, semana = ?, visto = ?, sem_novo = ?, pacotes_dia = ?, pacotes_hoje = ?, epicos = ?
+        WHERE id = ? AND progresso = ?`)
+        .bind(novo, xpSemana, semana, Date.now(), cont.semNovo, cont.dia, cont.hoje, cont.epicos, atual.id, atual.progresso),
     ]);
     if (res[res.length - 1].meta.changes === 1) return c.json(await respostaConta(db, atual, m));
+    const relido = await db.prepare('SELECT * FROM criancas WHERE id = ?').bind(k.id).first<Crianca>();
+    if (!relido) return erro(c, 401, 'Entre de novo na sua conta.');
+    atual = relido;
+  }
+  return erro(c, 409, 'Muita coisa ao mesmo tempo. Tente de novo.');
+});
+
+/**
+ * Abre um pacote: o servidor sorteia o Sabimon e guarda a carta e o pacote aberto numa vez só.
+ * Se a internet cair no meio e a criança tentar de novo, recebe a mesma carta (não ganha outra).
+ */
+app.post('/crianca/abrir-pacote', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  const b = await corpo(c);
+  const id = String(b.id ?? '').slice(0, 40);
+  const db = c.env.DB;
+  let atual = k;
+  for (let tentativa = 0; tentativa < 4; tentativa++) {
+    const prog = sanitizar(JSON.parse(atual.progresso), FASES_VALIDAS);
+    if (prog.abertos.includes(id)) {
+      const ultimo = (() => { try { return JSON.parse(atual.ultimo_pacote || 'null') as { id: string; cartas: string[] } | null; } catch { return null; } })();
+      if (ultimo?.id === id) return c.json({ ...(await respostaConta(db, atual, prog)), cartasDoPacote: ultimo.cartas });
+      return erro(c, 409, 'Esse pacote já foi aberto.');
+    }
+    const s = sortearPacote(prog, id, await cartasDe(db, atual.id), contadoresDe(atual), { capitulos: capitulos.length, dia: diaBR() });
+    if ('erro' in s) return erro(c, 409, s.erro);
+    const novo = JSON.stringify(s.progresso);
+    const trava = `EXISTS (SELECT 1 FROM criancas WHERE id = ? AND progresso = ?)`;
+    const res = await db.batch([
+      ...s.cartas.map((carta) => db.prepare(`INSERT INTO cartas (crianca_id, carta_id, qtd) SELECT ?, ?, 1 WHERE ${trava}
+        ON CONFLICT (crianca_id, carta_id) DO UPDATE SET qtd = qtd + 1`).bind(atual.id, carta, atual.id, atual.progresso)),
+      db.prepare(`UPDATE criancas SET progresso = ?, sem_novo = ?, pacotes_dia = ?, pacotes_hoje = ?, epicos = ?, ultimo_pacote = ?, visto = ?
+        WHERE id = ? AND progresso = ?`)
+        .bind(novo, s.contadores.semNovo, s.contadores.dia, s.contadores.hoje, s.contadores.epicos, JSON.stringify({ id, cartas: s.cartas }), Date.now(), atual.id, atual.progresso),
+    ]);
+    if (res[res.length - 1].meta.changes === 1) {
+      const depois = { ...atual, progresso: novo };
+      return c.json({ ...(await respostaConta(db, depois, s.progresso)), cartasDoPacote: s.cartas });
+    }
     const relido = await db.prepare('SELECT * FROM criancas WHERE id = ?').bind(k.id).first<Crianca>();
     if (!relido) return erro(c, 401, 'Entre de novo na sua conta.');
     atual = relido;

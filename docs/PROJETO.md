@@ -64,6 +64,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | Pacotes (só do estudo) | memória e quiz (1ª vez com nota 7), prova aprovada (pacote **épico**), terminar os 4 extras, 1ª atividade do dia com nota 7, cada nível novo | `src/lib/jogo.ts` |
 | Pacote | **1 Sabimon** (sempre a forma 1). Chances: comum 62%, rara 26%, épica 9%, lendária 3%. Épico: 80% épica, 20% lendária | |
 | Garantia | depois de 9 pacotes sem bicho novo, o 10º traz um que a criança não tem | |
+| **Quem sorteia** (05/11/2026) | Criança com conta: **o servidor** sorteia a carta e guarda tudo de uma vez. Precisa de internet (sem internet o pacote volta inteiro, com aviso). Se a internet cair no meio, a criança recebe a mesma carta de novo. Limites: 60 pacotes por dia; pacote épico só com a prova do capítulo feita e no máximo 1 por capítulo (senão abre como normal). Quem joga sem conta (antigos) ainda abre no aparelho | `src/shared/pacotes.ts`, `/api/crianca/abrir-pacote` |
 | **Nunca** | vender pacote (nem por moeda do jogo, nem por dinheiro), desconto ou pressão de tempo | |
 
 ### Cartas e álbum
@@ -98,6 +99,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - Pergunta de conta (ex.: "Quanto é 6 × 15?") antes da área dos adultos.
 - **Entrar na conta em outro aparelho**: código da turma (o aparelho lembra o último usado) → a criança toca no próprio nome na lista da turma → PIN. Não precisa decorar o apelido. A lista (apelido + cor) só aparece para quem tem o código, igual ao ranking.
 - 5 PINs errados bloqueiam 15 minutos.
+- **30 códigos errados** (turma ou família) seguidos pela mesma internet bloqueiam 15 minutos (05/11/2026). Numa escola a turma toda divide a internet, por isso o número é alto.
 - Botão "Apagar minha conta"; política de privacidade em `#/privacidade`.
 - **Da criança só guardamos**: apelido, cor, PIN embaralhado e o progresso do jogo.
 
@@ -158,17 +160,21 @@ Decididos pelo Lucas em 04/11/2026, depois da revisão geral:
 3. Frase de 22 palavras no tema "Os griôs" (cap. 9): **fica como está** (o áudio já fala esse texto).
 4. Segurança:
    - XP de dois aparelhos sem internet (fica o maior, não a soma): **fica como está**.
-   - Cartas inventadas: **feita a proteção pequena** (o servidor só aceita 1 carta nova por pacote novo aberto). A proteção completa está na lista abaixo.
+   - Cartas inventadas: **resolvido** (05/11/2026): o servidor sorteia a carta do pacote. Versões antigas do app que ainda abrem no aparelho: o servidor ignora a carta que o aparelho escolheu e sorteia ele mesmo (só para pacote que ele já conhecia).
+   - Ainda depende do aparelho: **ganhar** o pacote (o app diz que terminou a fase). Os limites acima seguram o abuso; corrigir as fases no servidor seria o próximo passo, se precisar.
 
 Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geografia só "Em breve".
 
 ### Antes de publicar nas lojas (ou ter muitas escolas)
-- [ ] **Abrir os pacotes no servidor** (não no aparelho). Assim ninguém consegue inventar cartas. Abrir pacote passa a precisar de internet.
+- [x] **Abrir os pacotes no servidor** (feito em 05/11/2026).
+- [x] **Limite de códigos errados** (feito em 05/11/2026).
 - [ ] Ligar `sabidex.com` na Cloudflare.
 
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
+
+- **05/11/2026** · Segurança antes das lojas: **o servidor sorteia a carta do pacote** (criança com conta precisa de internet para abrir), 60 pacotes por dia, épico só com a prova feita; **30 códigos errados** pela mesma internet bloqueiam 15 minutos (Lucas).
 
 - **05/11/2026** · "Continuar com o Google" ligado para os pais: projeto Sabidex no Google Cloud, ID do cliente em `wrangler.jsonc` (só vale em sabidex.com.br e www) (Lucas).
 
