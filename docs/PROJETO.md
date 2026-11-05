@@ -196,10 +196,22 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 - [x] **Abrir os pacotes no servidor** (feito em 05/11/2026).
 - [x] **Limite de códigos errados** (feito em 05/11/2026).
 - [ ] Ligar `sabidex.com` na Cloudflare.
+- [ ] **App nas lojas** (sugestão do Claude, o Lucas ainda não respondeu): fazer uma "casca" de app (Capacitor) em volta do site, 2 a 4 semanas. Passos: testar no celular do Lucas antes de pagar loja → Google Play primeiro (US$ 25) → Apple depois (US$ 99 por ano, precisa de Mac ou serviço na internet). Na Apple, "Entrar com a Apple" passa a ser obrigatório (porque tem Google); dentro do app o Google precisa de um plugin próprio; o chat da turma é o que as lojas mais olham.
+- [ ] Conferir se o envio de e-mail está ligado no servidor (`RESEND_API_KEY` + `EMAIL_REMETENTE` na Cloudflare e domínio verificado no resend.com). Sem isso, a trava do e-mail confirmado não vale. Jeito fácil de ver: se "Esqueci minha senha" aparece na tela do adulto, está ligado.
+
+### Ideias e pendências das conversas (anotadas em 05/11/2026)
+- **Botão "Apagar criança" no Painel do dono**: o Claude ofereceu (para casos como o "Tony 2", conta repetida com 0 XP); o Lucas não respondeu. Hoje só o responsável apaga uma criança da família.
+- **Crianças para ajeitar** (não é regra, é tarefa): Gabriela (só da turma, sem responsável: não escreve no chat até o responsável ligar o perfil em "Já tem conta na turma"); GAH (do Gabriel, tem família mas está sem turma); Anthony (recuperar as cartas entrando na conta antiga e usando "Mudar de turma"); Tony 2 (apagar ou trocar o apelido; pela regra, conta antiga não ganha o pacote de boas-vindas).
+- **Mensagem para o grupo de pais do 4º B**: o texto feito antes dizia que "a conversa da turma começa desligada". Isso mudou (o chat vem ligado); corrigir antes de mandar e trocar o [CÓDIGO DA TURMA] pelo código de verdade.
+- **Parceria com o Poliedro** (ideia, sem decisão): o conteúdo do livro tem direito autoral, então para várias escolas a parceria seria obrigatória. Sugestão do Claude: provar primeiro numa escola e depois levar a proposta.
+- **Logo na tela de Branding do Google** (ideia, para depois): o Google leva dias para conferir.
+- **Ideias de segurança não escolhidas**: data de nascimento no cadastro do adulto (barrar menores de 18) e "PIN do adulto" no lugar da conta de multiplicar. O Lucas escolheu só o e-mail confirmado e a conta mais fácil.
 
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
+
+- **05/11/2026** · Caderno conferido com as conversas da nuvem: anotadas as ideias e pendências que não estavam aqui (app nas lojas, envio de e-mail, crianças para ajeitar, mensagem aos pais, Poliedro) na seção 6. Nada do app mudou (Lucas pediu a conferência).
 
 - **05/11/2026** · Publicadas 3 mudanças que tinham ficado paradas (painel do dono com dias de uso e "Como usam", aceite da política só em mudança importante, chat vem ligado). O chat só vem ligado para o filho de um adulto com **e-mail já confirmado**, para manter a trava do e-mail; quem não confirmou liga depois de confirmar. A política pede aceite de novo por causa do chat ligado. O painel do dono ganhou espaço para as 5 abas no celular (Lucas).
 - **05/11/2026** · Política de privacidade: o adulto só precisa aceitar de novo quando a mudança for importante, não a cada novidade do app (antes pediu 3 vezes em 2 dias) (Lucas).
