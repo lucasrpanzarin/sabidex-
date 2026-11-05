@@ -10,7 +10,7 @@ import {
   comBoasVindas, gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
 } from '../shared/sync';
-import { ESQUEMA, MIGRACOES, temTurma, turmaDaFamilia } from './esquema';
+import { ESQUEMA, MIGRACOES, temTurma, turmaDaFamilia, VERSAO_ESQUEMA } from './esquema';
 import { dataValida, type DatasProva } from '../lib/provas';
 import { conferirMensagem, dentroDoHorario, GUARDAR_DIAS, JANELA_LIMITE, LIMITE_MENSAGENS, MOTIVO as MOTIVO_CHAT, ONLINE_MS } from '../shared/chat';
 import { APPLE, conferirCracha, GOOGLE } from './jwt';
@@ -51,9 +51,20 @@ app.use('*', async (c, next) => {
   // Nas versões de teste (previews) não há banco: a turma fica desligada, com aviso claro.
   if (!(c.env as Partial<Env>).DB) return c.json({ erro: 'A turma não funciona nesta versão de teste.' }, 503);
   if (!esquemaPronto) {
-    await c.env.DB.batch(ESQUEMA.map((s) => c.env.DB.prepare(s)));
-    for (const m of MIGRACOES) {
-      try { await c.env.DB.prepare(m).run(); } catch (e) { if (!String(e).includes('duplicate column')) throw e; }
+    // Cada vez que o servidor "acorda", confere as tabelas. Se já estão na versão certa, é uma consulta só
+    // (antes rodava umas 40, uma depois da outra, e a primeira tela demorava).
+    const db = c.env.DB;
+    const v = await db.prepare('SELECT versao FROM esquema_versao LIMIT 1').first<{ versao: string }>().catch(() => null);
+    if (v?.versao !== VERSAO_ESQUEMA) {
+      await db.batch(ESQUEMA.map((s) => db.prepare(s)));
+      for (const m of MIGRACOES) {
+        try { await db.prepare(m).run(); } catch (e) { if (!String(e).includes('duplicate column')) throw e; }
+      }
+      await db.batch([
+        db.prepare('CREATE TABLE IF NOT EXISTS esquema_versao (versao TEXT NOT NULL)'),
+        db.prepare('DELETE FROM esquema_versao'),
+        db.prepare('INSERT INTO esquema_versao (versao) VALUES (?)').bind(VERSAO_ESQUEMA),
+      ]);
     }
     esquemaPronto = true;
   }
@@ -356,13 +367,20 @@ app.post('/crianca/entrar-perfil', async (c) => {
 });
 
 async function crianca(c: C) {
-  const id = await sessao(c, 'crianca');
-  if (!id) return null;
-  const k = await c.env.DB.prepare('SELECT * FROM criancas WHERE id = ?').bind(id).first<Crianca>();
+  // Sessão e criança numa consulta só (cada ida ao banco demora um pouco).
+  const t = (c.req.header('Authorization') ?? '').replace(/^Bearer\s+/i, '');
+  if (!t) return null;
+  const k = await c.env.DB.prepare(`SELECT k.* FROM sessoes s JOIN criancas k ON k.id = s.ref_id
+    WHERE s.token_hash = ? AND s.tipo = 'crianca' AND s.expira >= ?`).bind(await sha256(t), Date.now()).first<Crianca>();
   if (!k) return null;
   // "Estudando agora": guarda quando a criança mexeu no app (no máximo uma gravação a cada 30 s).
+  // Grava sem fazer a criança esperar.
   const agora = Date.now();
-  if (agora - (k.ativo ?? 0) > 30_000) { await c.env.DB.prepare('UPDATE criancas SET ativo = ? WHERE id = ?').bind(agora, k.id).run(); k.ativo = agora; }
+  if (agora - (k.ativo ?? 0) > 30_000) {
+    const gravar = c.env.DB.prepare('UPDATE criancas SET ativo = ? WHERE id = ?').bind(agora, k.id).run();
+    try { c.executionCtx.waitUntil(gravar); } catch { await gravar; }
+    k.ativo = agora;
+  }
   return migrarCrianca(c.env.DB, k);
 }
 
@@ -372,6 +390,8 @@ async function crianca(c: C) {
  */
 async function migrarCrianca(db: D1Database, k: Crianca): Promise<Crianca> {
   const prog = sanitizar(JSON.parse(k.progresso), FASES_VALIDAS);
+  // Quase sempre já migrou: confere só pelo progresso, sem ler as cartas do banco.
+  if (!migrarFormas({ compras: prog.compras, cartas: {} })) return k;
   const m = migrarFormas({ compras: prog.compras, cartas: await cartasDe(db, k.id) });
   if (!m) return k;
   const progresso = JSON.stringify({ ...prog, compras: m.compras });
@@ -601,8 +621,9 @@ app.get('/crianca/ranking', async (c) => {
   const r = await c.env.DB.prepare(`SELECT id, apelido, cor, CASE WHEN semana = ? THEN xp_semana ELSE 0 END AS xp,
     (SELECT COUNT(*) FROM cartas WHERE crianca_id = criancas.id AND qtd > 0) AS cartas,
     (SELECT COUNT(*) FROM duelos d WHERE d.turma_id = criancas.turma_id AND d.status = 'feito' AND d.resolvido >= ?
-      AND ((d.vencedor = 'de' AND d.de_id = criancas.id) OR (d.vencedor = 'para' AND d.para_id = criancas.id))) AS vitorias
-    FROM criancas WHERE turma_id = ?`).bind(semanaDe(), inicioSemana, k.turma_id).all();
+      AND ((d.vencedor = 'de' AND d.de_id = criancas.id) OR (d.vencedor = 'para' AND d.para_id = criancas.id))) AS vitorias,
+    ((SELECT mostrar_online FROM turmas WHERE id = criancas.turma_id) = 1 AND mostrar_online = 1 AND ativo > ? AND id != ?) AS online
+    FROM criancas WHERE turma_id = ?`).bind(semanaDe(), inicioSemana, Date.now() - ONLINE_MS, k.id, k.turma_id).all();
   return c.json({ eu: k.id, semana: semanaDe(), participantes: r.results });
 });
 
