@@ -84,7 +84,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - **Não existe jogar sem conta** (desde 04/11/2026). **Primeira tela** (Lucas, 05/11/2026): "Oi! Quem está aí?" com duas figurinhas grandes, **Sou criança** e **Sou adulto** (tocou, já segue). Se o aparelho já tem perfis da família, eles aparecem antes.
 - **Entrada da criança** (Lucas, 05/11/2026): uma caixa só, "Qual é o seu código?", que aceita o código da **turma** ou o da **família**. Depois toca no nome e digita o PIN. Na turma, "Sou novo na turma" cria apelido, cor e PIN. "Ainda não tenho código" manda um recado pronto para um adulto (WhatsApp etc.), sem número de propaganda.
 - **Código da família** (Lucas, 05/11/2026): cada família tem um código no mesmo formato da turma (ex.: TREM-7656), nunca igual ao de uma turma. Aparece na área dos adultos com "Enviar para meu filho" e "Trocar código". Quem tem o código vê só os apelidos e cores dos filhos; para entrar precisa do PIN.
-- **Conta da família**: o adulto (e-mail + senha, ou Google/Apple quando ligados) cria os perfis dos filhos (apelido + cor + PIN de 4 números). Até 6 filhos.
+- **Conta da família**: o adulto (e-mail + senha, ou Google, ligado em 05/11/2026; Apple quando ligado) cria os perfis dos filhos (apelido + cor + PIN de 4 números). Até 6 filhos.
 - **Turma**: o professor cria e recebe um código fácil (ex.: ARARA-4821). Até 60 crianças por turma; até 20 turmas por adulto.
 - **Aba "Turma"** (no menu de baixo; antes se chamava "Trocas", Lucas trocou em 05/11/2026): junta as trocas, o Duelo do Saber e a conversa da turma.
 - **Trocas**: só propostas de carta por carta, com colegas da mesma turma. Até 5 propostas esperando.
@@ -169,6 +169,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
+
+- **05/11/2026** · "Continuar com o Google" ligado para os pais: projeto Sabidex no Google Cloud, ID do cliente em `wrangler.jsonc` (só vale em sabidex.com.br e www) (Lucas).
 
 - **05/11/2026** · A aba "Trocas" do menu virou **"Turma"** (ícone de duas pessoas; título "Minha turma"), porque ali ficam trocas, duelos e conversa (Lucas).
 - **05/11/2026** · Estrelas no mapa do mundo (melhor nota de cada fase e jogo extra) e **Duelo do Saber** entre colegas da turma, sem apostar cartas; aba "Duelos" no ranking. A ideia de duelar valendo cartas foi trocada por essa (ver seção 5). Política de privacidade cita os duelos (versão `2026-11-duelo`: os adultos aceitam de novo ao entrar) (Lucas).
