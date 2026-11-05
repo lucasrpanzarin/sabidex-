@@ -75,7 +75,7 @@ function Setas({ v }: { v: Extract<Visual, { tipo: 'setas' }> }) {
 /** Cano dividido em partes iguais, com algumas pintadas (como os canos do Marcelo no livro). */
 function Barra({ v }: { v: Extract<Visual, { tipo: 'barra' }> }) {
   return (
-    <figure className="barra-fracao" role="img" aria-label={`Cano dividido em ${v.partes} partes iguais, com ${v.pintadas} pintada${v.pintadas === 1 ? '' : 's'}.`}>
+    <figure className="barra-fracao" role="img" aria-label={`Barra dividida em ${v.partes} partes iguais, com ${v.pintadas} pintada${v.pintadas === 1 ? '' : 's'}.`}>
       {Array.from({ length: v.partes }, (_, i) => <span key={i} className={i < v.pintadas ? 'pintada' : ''} />)}
     </figure>
   );

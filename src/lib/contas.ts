@@ -213,15 +213,16 @@ function multiplosSequencia(r: Rng): Conta {
 
 function multiplosReceita(r: Rng): Conta {
   const por = entre(r, 2, 6), n = entre(r, 3, 10);
-  const [item, quantos, receita, plural] = um(r, [
-    ['ovos', 'Quantos', 'torta', 'tortas'],
-    ['copos de leite', 'Quantos', 'torta', 'tortas'],
-    ['colheres de achocolatado', 'Quantas', 'bolo de caneca', 'bolos de caneca'],
-    ['laranjas', 'Quantas', 'copo de suco', 'copos de suco'],
+  // quantos/quantas: o primeiro combina com o ingrediente; o segundo, com a receita.
+  const [item, quantos, receita, plural, quantosReceita] = um(r, [
+    ['ovos', 'Quantos', 'torta', 'tortas', 'quantas'],
+    ['copos de leite', 'Quantos', 'torta', 'tortas', 'quantas'],
+    ['colheres de achocolatado', 'Quantas', 'bolo de caneca', 'bolos de caneca', 'quantos'],
+    ['laranjas', 'Quantas', 'copo de suco', 'copos de suco', 'quantos'],
   ] as const);
   if (r() < 0.6) return { tipo: 'multiplos-receita', enunciado: `Cada ${receita} usa ${por} ${item}. ${quantos} ${item} para fazer ${n} ${plural}?`, resposta: por * n, unidade: item,
     explicacao: `São múltiplos de ${por}: ${n} × ${por} = ${por * n}.` };
-  return { tipo: 'multiplos-receita', enunciado: `Cada ${receita} usa ${por} ${item}. Com ${por * n} ${item}, quantos ${plural} dá para fazer?`, resposta: n, unidade: plural,
+  return { tipo: 'multiplos-receita', enunciado: `Cada ${receita} usa ${por} ${item}. Com ${por * n} ${item}, ${quantosReceita} ${plural} dá para fazer?`, resposta: n, unidade: plural,
     explicacao: `Usamos a divisão: ${por * n} ÷ ${por} = ${n}. Prova real: ${n} × ${por} = ${por * n}.` };
 }
 
@@ -282,12 +283,15 @@ function fracaoQuantidade(r: Rng): Conta {
 
 /** Problemas das profissões: quanto já foi feito ou quanto ainda falta. */
 function fracaoProblema(r: Rng): Conta {
-  const d = um(r, [4, 5, 10] as const), k = entre(r, 1, d - 1), m = entre(r, 2, 30), total = d * m, feito = k * m;
-  const [frase, unidade, perguntaFeito, perguntaFalta] = um(r, [
+  const d = um(r, [4, 5, 10] as const), k = entre(r, 1, d - 1);
+  const caso = entre(r, 0, 2);
+  // Prédio de verdade: até 30 andares. Fio e tijolos podem ser mais.
+  const m = caso === 0 ? entre(r, 1, Math.floor(30 / d)) : entre(r, 2, 30), total = d * m, feito = k * m;
+  const [frase, unidade, perguntaFeito, perguntaFalta] = ([
     [`O prédio tem ${total} andares, e ${k}/${d} deles estão prontos.`, 'andares', 'Quantos andares estão prontos?', 'Quantos andares ainda faltam?'],
     [`O rolo tem ${total} metros de fio, e Gustavo já usou ${k}/${d} do rolo.`, 'metros', 'Quantos metros ele usou?', 'Quantos metros ainda há no rolo?'],
     [`A parede vai ter ${total} tijolos, e Rose já assentou ${k}/${d} deles.`, 'tijolos', 'Quantos tijolos ela assentou?', 'Quantos tijolos ainda faltam?'],
-  ] as const);
+  ] as const)[caso];
   if (r() < 0.5) return { tipo: 'fracao-problema', enunciado: `${frase} ${perguntaFeito}`, resposta: feito, unidade,
     explicacao: `1/${d} de ${total} é ${total} ÷ ${d} = ${m}. Então ${k}/${d} é ${m} × ${k} = ${feito}.` };
   return { tipo: 'fracao-problema', enunciado: `${frase} ${perguntaFalta}`, resposta: total - feito, unidade,
@@ -297,8 +301,12 @@ function fracaoProblema(r: Rng): Conta {
 /** Parte do todo: "dos 12 operários, 3 não usavam capacete; que fração usava?". */
 function fracaoParteTodo(r: Rng): Conta {
   const total = entre(r, 5, 20), nao = entre(r, 1, total - 1), sim = total - nao;
-  const [grupo, sem, com] = um(r, [['operários', 'não usavam capacete', 'usavam capacete'], ['pedreiros', 'estavam de folga', 'estavam trabalhando'], ['azulejos', 'quebraram', 'ficaram inteiros']] as const);
-  return { tipo: 'fracao-parte-todo', enunciado: `Dos ${total} ${grupo}, ${nao} ${sem}. Que fração ${com}?`, resposta: [sim, total],
+  const [grupo, sem, pergunta, com] = um(r, [
+    ['operários', 'não usavam capacete', 'Que fração dos operários usava capacete?', 'usavam capacete'],
+    ['pedreiros', 'estavam de folga', 'Que fração dos pedreiros estava trabalhando?', 'estavam trabalhando'],
+    ['azulejos', 'quebraram', 'Que fração dos azulejos ficou inteira?', 'ficaram inteiros'],
+  ] as const);
+  return { tipo: 'fracao-parte-todo', enunciado: `Dos ${total} ${grupo}, ${nao} ${sem}. ${pergunta}`, resposta: [sim, total],
     explicacao: `${total} − ${nao} = ${sim} ${com}, de ${total} ao todo: ${sim}/${total}.` };
 }
 
