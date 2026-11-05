@@ -173,6 +173,10 @@ export const MIGRACOES = [
   `CREATE INDEX IF NOT EXISTS duelos_de ON duelos (de_id, status)`,
   `CREATE INDEX IF NOT EXISTS duelos_para ON duelos (para_id, status)`,
   `CREATE INDEX IF NOT EXISTS duelos_turma ON duelos (turma_id, status, resolvido)`,
+  // Código da família (Lucas, 05/11/2026): a criança entra sozinha no aparelho dela com esse código,
+  // toca no próprio nome e digita o PIN. Mesmo formato do código da turma (ex.: ARARA-4821) e nunca igual a um.
+  `ALTER TABLE adultos ADD COLUMN codigo_familia TEXT`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS adultos_codigo_familia ON adultos (codigo_familia)`,
 ];
 
 export const SEM_TURMA = 'familia:';

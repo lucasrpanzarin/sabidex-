@@ -23,7 +23,7 @@ Estilo "massinha" da skill (borda grossa 3px, cantos 16–24px, sombra dupla) no
 **Ícone do celular:** mini carta amarela com o "S" branco do logo, num fundo holográfico (a borda das lendárias). Fonte: `public/icons/icon.svg` (o "S" está desenhado em linhas, não depende da fonte). Os `icon-192.png` e `icon-512.png` saem dele; a carta cabe no círculo do Android.
 
 ## Por que não parece o Baobab
-Sem roxo/lilás, sem fundo pastel liso: o que marca o Sabidex é o contorno escuro + sombra de adesivo + papel.
+O Sabidex não pode ser uma cópia do Baobab. Roxo pode ser usado (Lucas, 05/11/2026), mas o que marca o Sabidex é o contorno escuro + sombra de adesivo + papel, e não o roxo/lilás em tudo com fundo pastel liso, que é o jeito do Baobab.
 
 ## Lojinha
 - Item = mini carta com moldura da raridade, desenho grande, selo do efeito e fato real.
@@ -33,7 +33,7 @@ Sem roxo/lilás, sem fundo pastel liso: o que marca o Sabidex é o contorno escu
 ## O que a skill sugeriu e NÃO seguimos
 | Skill sugeriu | Sabidex usa | Por quê |
 |---|---|---|
-| Índigo/roxo como cor principal | Coral, amarelo, turquesa | Nada de roxo (parece o Baobab) |
+| Índigo/roxo como cor principal | Coral, amarelo, turquesa | Na época, nada de roxo. Desde 05/11/2026 o roxo pode entrar, sem copiar o Baobab |
 | Fontes Baloo 2 / Comic Neue | Lilita One / Nunito | Regra de visual do `CLAUDE.md` |
 | Animação de "quique" | Só em momentos de prêmio | Telas paradas não tremem |
 

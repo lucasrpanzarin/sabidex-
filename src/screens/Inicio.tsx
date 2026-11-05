@@ -14,49 +14,46 @@ import { FIGURINHAS } from '../lib/figurinhas';
 import { podeEvoluir, saldo } from '../lib/loja';
 import { Desejo } from './Loja';
 import { EscolherPerfil } from '../components/Perfis';
-import { EntrarTurma } from './Turma';
 import { Logo } from '../components/Logo';
 
 export const CORES = ['#22D3EE', '#F472B6', '#FACC15', '#4ADE80', '#FB923C', '#A78BFA'];
 
 /**
- * Primeira tela. Só entra quem tem turma (código do professor) ou conta da família
- * (o adulto abre o perfil). Não existe mais "jogar sem turma": cada turma estuda o livro dela.
+ * Primeira tela: "Quem está aí?". A criança vai para o código (turma ou família) e o adulto vai para a área dos adultos.
+ * Não existe "jogar sem conta": cada turma estuda o livro dela. Se o aparelho já tem perfis da família, eles aparecem primeiro.
  */
 export function BoasVindas() {
   const { perfis } = useConta();
   const [outra, setOutra] = useState(false);
-  const [entrando, setEntrando] = useState(false);
-  const escolherPerfil = perfis.length > 0 && !outra && !entrando;
+  if (perfis.length > 0 && !outra) {
+    return (
+      <main className="tela" style={{ justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+        <Logo tamanho={48} />
+        <Ara tamanho={110} />
+        <div className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}>
+          <EscolherPerfil perfis={perfis} titulo="Quem vai jogar?" />
+          <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => setOutra(true)}>Sou outra pessoa</button>
+        </div>
+      </main>
+    );
+  }
   return (
     <main className="tela" style={{ justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
       <Logo tamanho={48} />
-      <Ara tamanho={130} />
-      <div className="balao" style={{ maxWidth: 320 }}>
-        {entrando
-          ? <>Que bom! Vamos achar a sua turma.</>
-          : <>Oi! Eu sou o <strong>Ará</strong>. Vamos estudar, ganhar Sabimons e completar o álbum?</>}
+      <h1 className="display h2" style={{ margin: '8px 0 0' }}>Oi! Quem está aí?</h1>
+      <div className="escolha-quem">
+        <button type="button" className="cartao-quem cartao-quem-crianca" onClick={() => ir('entrar')}>
+          <Ara tamanho={96} />
+          <span className="display" style={{ fontSize: 22 }}>Sou criança</span>
+          <span className="small" style={{ fontWeight: 800 }}>Vou estudar e ganhar Sabimons</span>
+        </button>
+        <button type="button" className="cartao-quem cartao-quem-adulto" onClick={() => ir('adulto')}>
+          <span className="cartao-quem-icone"><Icone nome="familia" tamanho={56} espessura={2.5} /></span>
+          <span className="display" style={{ fontSize: 22 }}>Sou adulto</span>
+          <span className="small" style={{ fontWeight: 800 }}>Pai, mãe, responsável ou professor</span>
+        </button>
       </div>
-      {escolherPerfil && (
-        <div className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}>
-          <EscolherPerfil perfis={perfis} titulo="Quem vai jogar?" />
-          <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => setOutra(true)}>Sou outra criança</button>
-        </div>
-      )}
-      {!escolherPerfil && entrando && (
-        <div className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}>
-          <EntrarTurma />
-          <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => setEntrando(false)}>Voltar</button>
-        </div>
-      )}
-      {!escolherPerfil && !entrando && (
-        <div className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}>
-          <button type="button" className="btn btn-amarelo btn-bloco" onClick={() => setEntrando(true)}>Entrar na minha turma</button>
-          <button type="button" className="btn btn-escuro btn-bloco" onClick={() => ir('entrar')}>Já tenho conta</button>
-          <p className="muted small" style={{ margin: 0 }}>Sem código da turma? Peça para o professor ou para um adulto da sua casa.</p>
-        </div>
-      )}
-      <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => ir('adulto')}>Sou pai, mãe ou professor</button>
+      {outra && <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => setOutra(false)}>Voltar para os perfis</button>}
     </main>
   );
 }

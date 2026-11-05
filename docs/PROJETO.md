@@ -26,7 +26,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | **Logo** | "Letras-figurinha": cada letra de Sabidex é uma figurinha colorida e torta (coral, amarelo, turquesa, rosa, verde, coral, amarelo), fonte Lilita One, contorno escuro e sombra de adesivo | `src/components/Logo.tsx` (sempre usar esse componente) |
 | **Ícone do celular** | Mini carta lendária amarela com o "S" branco do logo, num fundo holográfico | `public/icons/icon.svg` (PNG 192/512 saem dele) |
 | **Estilo** | "Álbum de figurinhas": papel claro, contorno escuro grosso, sombra de adesivo | `src/styles.css`, `design-system/sabidex/MASTER.md` |
-| **Cores** | Coral, amarelo, turquesa, rosa, verde. Texto colorido só nas versões escuras (`--t-...`). **Nada de roxo** (parece o app Baobab) | `src/styles.css` |
+| **Cores** | Coral, amarelo, turquesa, rosa, verde. Texto colorido só nas versões escuras (`--t-...`). Roxo pode ser usado; só não pode ficar uma cópia do Baobab (Lucas, 05/11/2026) | `src/styles.css` |
 | **Fontes** | Lilita One (títulos e botões), Nunito (textos) | |
 | **Mascote** | **Ará**, a arara, com mochila e lápis. É a guia, não é um Sabimon. 4 caras 3D: feliz, pensando, comemorando, triste | `src/components/Ara.tsx`, `public/mascote/` |
 | **Raridades** | comum ★ cinza · rara ★★ turquesa · épica ★★★ rosa · lendária ★★★★ amarelo com borda holográfica | |
@@ -81,7 +81,9 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - Itens antigos que saíram da vitrine mas continuam valendo: Medalha de prata, Escudo, Raio de força, Medalha de ouro, Duas estrelas de ouro.
 
 ### Contas, turma e família
-- **Não existe jogar sem conta** (desde 04/11/2026). A primeira tela tem só: "Entrar na minha turma", "Já tenho conta" e "Sou pai, mãe ou professor".
+- **Não existe jogar sem conta** (desde 04/11/2026). **Primeira tela** (Lucas, 05/11/2026): "Oi! Quem está aí?" com duas figurinhas grandes, **Sou criança** e **Sou adulto** (tocou, já segue). Se o aparelho já tem perfis da família, eles aparecem antes.
+- **Entrada da criança** (Lucas, 05/11/2026): uma caixa só, "Qual é o seu código?", que aceita o código da **turma** ou o da **família**. Depois toca no nome e digita o PIN. Na turma, "Sou novo na turma" cria apelido, cor e PIN. "Ainda não tenho código" manda um recado pronto para um adulto (WhatsApp etc.), sem número de propaganda.
+- **Código da família** (Lucas, 05/11/2026): cada família tem um código no mesmo formato da turma (ex.: TREM-7656), nunca igual ao de uma turma. Aparece na área dos adultos com "Enviar para meu filho" e "Trocar código". Quem tem o código vê só os apelidos e cores dos filhos; para entrar precisa do PIN.
 - **Conta da família**: o adulto (e-mail + senha, ou Google/Apple quando ligados) cria os perfis dos filhos (apelido + cor + PIN de 4 números). Até 6 filhos.
 - **Turma**: o professor cria e recebe um código fácil (ex.: ARARA-4821). Até 60 crianças por turma; até 20 turmas por adulto.
 - **Aba "Turma"** (no menu de baixo; antes se chamava "Trocas", Lucas trocou em 05/11/2026): junta as trocas, o Duelo do Saber e a conversa da turma.
@@ -170,6 +172,8 @@ Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
 - **05/11/2026** · A aba "Trocas" do menu virou **"Turma"** (ícone de duas pessoas; título "Minha turma"), porque ali ficam trocas, duelos e conversa (Lucas).
 - **05/11/2026** · Estrelas no mapa do mundo (melhor nota de cada fase e jogo extra) e **Duelo do Saber** entre colegas da turma, sem apostar cartas; aba "Duelos" no ranking. A ideia de duelar valendo cartas foi trocada por essa (ver seção 5). Política de privacidade cita os duelos (versão `2026-11-duelo`: os adultos aceitam de novo ao entrar) (Lucas).
+- **05/11/2026** · Nova entrada: primeira tela "Sou criança / Sou adulto", código da família para a criança entrar sozinha no aparelho dela, uma caixa só para o código (turma ou família) e "Ainda não tenho código" com recado para o adulto. Ideia vinda da análise da entrada do Baobab, sem copiar o visual nem o número de propaganda (Lucas).
+- **05/11/2026** · Regra das cores corrigida: o roxo pode ser usado; a regra é só não ficar uma cópia do Baobab (Lucas).
 
 - **05/11/2026** · Pingoró (boto, forma 1): o recorte tirou o clarão branco em volta da barriga e da bolha d'água (`TIRAR_BRILHO` em `scripts/recortar-sabimons.py`) e fechou a fresta entre a nadadeira de cima e as costas, que fazia a nadadeira parecer solta (Lucas).
 
