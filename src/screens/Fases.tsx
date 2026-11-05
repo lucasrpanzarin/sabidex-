@@ -431,7 +431,7 @@ function Quiz({ cap }: { cap: Capitulo }) {
       <Topo cap={cap} fase="quiz" />
       <div className="coluna" style={{ alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'center' }}>
         <Ara tamanho={110} />
-        <div className="balao">Você tem <strong>{TEMPO} segundos</strong>. Diga se cada frase é verdadeira ou falsa! O relógio para enquanto você lê a explicação.</div>
+        <div className="balao">Você tem <strong>{TEMPO} segundos</strong>. Diga se cada frase é verdadeira ou falsa! O relógio para enquanto você lê a explicação.{cap.matematica && <> Deixe <strong>papel e lápis</strong> por perto para as contas.</>}</div>
         <button className="btn btn-amarelo btn-bloco" onClick={() => setComecou(true)}>Valendo!</button>
       </div>
     </main>

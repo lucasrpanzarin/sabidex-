@@ -357,6 +357,13 @@ export const GERADORES: Record<string, (r: Rng) => Conta> = {
   'porcentagem': porcentagem,
 };
 
+/** Contas em que vale a pena armar no papel (aparece a dica "arme a conta no papel"). */
+export const TIPOS_PAPEL = new Set([
+  'problema-soma', 'problema-subtracao', 'problema-vezes', 'problema-divisao', 'prova-real',
+  'balanca-falta', 'balanca-diferenca', 'multiplos-receita',
+  'fracao-unitaria-quantidade', 'fracao-quantidade', 'fracao-problema',
+]);
+
 export const ehFracao = (r: Resposta): r is [number, number] => Array.isArray(r);
 
 /** Confere a resposta digitada. Fração: aceita outra escrita do mesmo valor (2/4 = 1/2), menos quando a conta pede `exata`. */
