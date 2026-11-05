@@ -890,7 +890,7 @@ function Administradores({ token, id, nomeTurma }: { token: string; id: string; 
 }
 
 interface ChatTurma { chat: number; chat_inicio: number; chat_fim: number; mostrar_online: number }
-interface DadosTurma { turma: TurmaDetalhe; chat?: ChatTurma; avisos?: number; criancas: Kid[]; provas?: DatasProva; pedidos?: PedidoRecebido[] }
+interface DadosTurma { turma: TurmaDetalhe; donoDoApp?: boolean; chat?: ChatTurma; avisos?: number; criancas: Kid[]; provas?: DatasProva; pedidos?: PedidoRecebido[] }
 
 const HORAS = Array.from({ length: 25 }, (_, h) => h);
 
@@ -1059,12 +1059,12 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
           ))}
         </div>
       </div>
-      {turma.dono && <ApagarTurma token={token} turma={turma} criancas={criancas} />}
+      {dados.donoDoApp && <ApagarTurma token={token} turma={turma} criancas={criancas} />}
     </>
   );
 }
 
-/** Apagar a turma (Lucas, 05/11/2026): só quem criou ou o dono do app. Escreve o nome para confirmar. */
+/** Apagar a turma (Lucas, 05/11/2026): só o dono do app, porque não dá para desfazer. Escreve o nome para confirmar. */
 function ApagarTurma({ token, turma, criancas }: { token: string; turma: TurmaDetalhe; criancas: Kid[] }) {
   const [aberto, setAberto] = useState(false);
   const [nome, setNome] = useState('');

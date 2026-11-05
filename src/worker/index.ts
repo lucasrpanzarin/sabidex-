@@ -1202,7 +1202,7 @@ app.get('/adulto/turmas/:id', async (c) => {
     chat_ok, mudo_ate, (ativo > ?) AS online
     FROM criancas WHERE turma_id = ? ORDER BY apelido_chave`).bind(semanaDe(), Date.now() - ONLINE_MS, t.id).all();
   const avisos = await c.env.DB.prepare('SELECT COUNT(DISTINCT mensagem_id) n FROM avisos_chat WHERE turma_id = ? AND resolvido = 0').bind(t.id).first<{ n: number }>();
-  return c.json({ turma: t, chat: await turmaChat(c.env.DB, t.id), avisos: avisos?.n ?? 0, criancas: r.results, provas: await datasDe(c.env.DB, [t.id]), pedidos: await pedidosRecebidos(c.env.DB, t.id) });
+  return c.json({ turma: t, donoDoApp: a.admin, chat: await turmaChat(c.env.DB, t.id), avisos: avisos?.n ?? 0, criancas: r.results, provas: await datasDe(c.env.DB, [t.id]), pedidos: await pedidosRecebidos(c.env.DB, t.id) });
 });
 
 app.post('/adulto/turmas/:id/provas', async (c) => {
@@ -1247,7 +1247,8 @@ const doAdulto = (c: C, adultoId: string) =>
   c.env.DB.prepare('SELECT * FROM criancas WHERE id = ? AND familia_id = ?').bind(c.req.param('cid'), adultoId).first<Crianca>();
 
 /**
- * Apagar uma turma (Lucas, 05/11/2026). Só quem criou a turma ou o dono do app; escreve o nome da turma para confirmar.
+ * Apagar uma turma (Lucas, 05/11/2026). Só o dono do app (não dá para desfazer, então quem criou a turma não vê o botão);
+ * escreve o nome da turma para confirmar.
  * Crianças com conta da família saem da turma com tudo (cartas, XP, Sabicoins). Crianças sem responsável
  * não deixam apagar: antes, um adulto muda elas de turma ou remove (assim nenhuma conta some sem querer).
  * Somem junto: o código, a conversa, as datas de prova, os administradores, os convites e os pedidos esperando.
@@ -1257,7 +1258,7 @@ app.post('/adulto/turmas/:id/apagar', async (c) => {
   if (!a) return erro(c, 401, 'Entre de novo.');
   const t = await turmaDoAdulto(c, a);
   if (!t) return erro(c, 404, 'Turma não encontrada.');
-  if (!t.dono) return erro(c, 403, 'Só quem criou a turma pode apagar.');
+  if (!a.admin) return erro(c, 403, 'Só a equipe do Sabidex pode apagar uma turma. Fale com a gente.');
   const nome = (x: string) => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
   if (nome(String((await corpo(c)).confirmar ?? '')) !== nome(t.nome)) return erro(c, 400, `Escreva o nome da turma (${t.nome}) para confirmar.`);
   const db = c.env.DB;
