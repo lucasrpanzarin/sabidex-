@@ -107,6 +107,8 @@ export interface ExemploResolvido {
  * Os números mudam a cada partida. `prova` (múltipla escolha) do capítulo continua valendo para o Duelo do Saber.
  */
 export interface Matematica {
+  /** nome da fase 3 nesta unidade (padrão: "Balança e sequências") e a explicação embaixo do nome */
+  nomeDesafio?: [string, string];
   exemplos: ExemploResolvido[];
   treino: string[];
   desafio: string[];

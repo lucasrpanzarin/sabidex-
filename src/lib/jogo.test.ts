@@ -206,6 +206,20 @@ describe('jogos extras', () => {
     expect(repetido.xpGanho).toBe(20);
     expect(repetido.pacotesGanhos.map((p) => p.motivo)).not.toContain('extras');
   });
+
+  it('pacote dos extras só com nota 7 em todos; com nota baixa ele fica esperando', async () => {
+    const { concluirExtra, estadoInicial: ini } = await import('./jogo');
+    let e = ini();
+    e = concluirExtra(e, historia9, 'lacunas', undefined, 0, 9).estado;
+    e = concluirExtra(e, historia9, 'quemsou', undefined, 0, 8).estado;
+    e = concluirExtra(e, historia9, 'grupos', undefined, 0, 10).estado;
+    const baixo = concluirExtra(e, historia9, 'causas', undefined, 0, 4);
+    expect(baixo.pacotesGanhos.map((p) => p.motivo)).not.toContain('extras');
+    const deNovo = concluirExtra(baixo.estado, historia9, 'causas', undefined, 0, 8);
+    expect(deNovo.pacotesGanhos.map((p) => p.motivo)).toContain('extras');
+    const maisUma = concluirExtra(deNovo.estado, historia9, 'causas', undefined, 0, 10);
+    expect(maisUma.pacotesGanhos.map((p) => p.motivo)).not.toContain('extras');
+  });
 });
 
 describe('estrelas no mapa', () => {

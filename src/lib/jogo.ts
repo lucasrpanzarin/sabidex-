@@ -24,7 +24,9 @@ const FASE_MATEMATICA: Partial<Record<Fase, { titulo: string; sub: string }>> = 
 };
 
 /** Nome e explicação da fase para este capítulo. */
-export function infoFase(f: Fase, cap?: { matematica?: unknown }) {
+export function infoFase(f: Fase, cap?: { matematica?: { nomeDesafio?: [string, string] } }) {
+  const nome = f === 'linha' ? cap?.matematica?.nomeDesafio : undefined;
+  if (nome) return { ...FASE_INFO[f], titulo: nome[0], sub: nome[1] };
   const m = cap?.matematica ? FASE_MATEMATICA[f] : undefined;
   return m ? { ...FASE_INFO[f], ...m } : FASE_INFO[f];
 }
@@ -97,7 +99,8 @@ export function premiar(
 /**
  * Termina um jogo extra. 1ª vez: XP cheio; depois, metade. Cada erro tira 10% do XP.
  * O pacote do dia só vem com nota 7 ou mais.
- * Quem termina todos os extras do capítulo pela 1ª vez ganha um pacote.
+ * Quem termina todos os extras do capítulo com nota 7 ou mais ganha um pacote (uma vez só).
+ * Se tirar menos de 7 em algum, o pacote fica esperando: vem quando jogar de novo e passar.
  */
 export function concluirExtra(e: Estado, cap: Capitulo, x: Extra, agora = new Date(), erros = 0, nota?: number): Resultado {
   const k = chaveExtra(cap.id, x);
@@ -106,10 +109,14 @@ export function concluirExtra(e: Estado, cap: Capitulo, x: Extra, agora = new Da
   const xpGanho = xpComErros(cheio, erros);
   const feitas = { ...e.feitas, [k]: true as const };
   const todos = extrasDo(cap);
-  const completou = primeiraVez && todos.length > 0 && todos.every((y) => feitas[chaveExtra(cap.id, y)]);
+  const notasDepois = nota === undefined ? e.notas : { ...e.notas, [k]: Math.max(nota, e.notas[k] ?? 0) };
+  // Extra feito antes de o app guardar a nota conta como passado (quem jogava antes não perde nada).
+  const todosPassados = (f: Estado['feitas'], n: Estado['notas']) =>
+    todos.length > 0 && todos.every((y) => { const ky = chaveExtra(cap.id, y); return f[ky] && (n[ky] ?? NOTA_MINIMA) >= NOTA_MINIMA; });
+  const completou = !todosPassados(e.feitas, e.notas) && todosPassados(feitas, notasDepois);
   const passou = nota === undefined || nota >= NOTA_MINIMA;
   const r = premiar(e, cap.id, xpGanho, completou ? [{ tipo: 'normal', motivo: 'extras' }] : [], primeiraVez, feitas, agora, passou);
-  const estado = nota === undefined ? r.estado : { ...r.estado, notas: { ...r.estado.notas, [k]: Math.max(nota, e.notas[k] ?? 0) } };
+  const estado = nota === undefined ? r.estado : { ...r.estado, notas: { ...r.estado.notas, [k]: notasDepois[k] } };
   return { ...r, estado, erros, xpSemErros: cheio };
 }
 

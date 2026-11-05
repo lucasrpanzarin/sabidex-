@@ -137,7 +137,7 @@ strong { color: var(--t-coral); font-weight: 900; }
 .cartao-quem:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
 @media (max-width: 340px) { .escolha-quem { grid-template-columns: 1fr; } .cartao-quem { min-height: 0; } }
 .painel-breve { background: transparent; border-style: dashed; border-color: #10213F66; box-shadow: none; }
-.pilula { display: inline-flex; align-items: center; gap: 6px; font-weight: 900; font-size: 15px; background: var(--surface); border: var(--borda); border-radius: 999px; padding: 3px 12px; box-shadow: 3px 3px 0 var(--ink); color: var(--ink); }
+.pilula { position: relative; display: inline-flex; align-items: center; gap: 6px; font-weight: 900; font-size: 15px; background: var(--surface); border: var(--borda); border-radius: 999px; padding: 3px 12px; box-shadow: 3px 3px 0 var(--ink); color: var(--ink); }
 .balao { background: var(--surface); color: var(--ink); border: var(--borda); border-radius: 20px 20px 20px 6px; padding: 12px 14px; font-weight: 800; line-height: 1.35; box-shadow: var(--adesivo); }
 .balao strong { color: var(--t-pink); }
 
@@ -565,6 +565,32 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
 .setas-meio { display: flex; flex-direction: column; gap: 10px; font-family: var(--display); font-size: 18px; }
 .setas-ida { color: var(--t-green); }
 .setas-volta { color: var(--t-coral); }
+/* Frações (unidade 10): fração em pé, cano dividido, reta numérica e resposta em duas caixas */
+.fracao { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; margin: 0 2px; font-size: .9em; }
+.fracao-n { padding: 0 3px 2px; border-bottom: 2px solid currentColor; }
+.fracao-d { padding: 2px 3px 0; }
+.barra-fracao { margin: 4px 0 0; width: 100%; max-width: 320px; height: 40px; display: flex; border: 3px solid var(--ink); border-radius: 12px; overflow: hidden; background: #D6D3CD; box-shadow: var(--adesivo); }
+.barra-fracao span { flex: 1; border-left: 3px solid var(--ink); }
+.barra-fracao span:first-child { border-left: 0; }
+.barra-fracao span.pintada { background: var(--coral); }
+.reta-numerica { position: relative; margin: 6px 0 0; width: calc(100% - 32px); max-width: 300px; height: 76px; }
+.reta-linha { position: absolute; left: 0; right: 0; top: 34px; height: 3px; background: var(--ink); }
+.reta-linha::after { content: ''; position: absolute; right: -14px; top: -6px; border: 7px solid transparent; border-left: 10px solid var(--ink); }
+.reta-tick { position: absolute; top: -8px; width: 3px; height: 18px; margin-left: -1.5px; background: var(--ink); }
+.reta-tick.ponta { top: -11px; height: 24px; }
+.reta-rotulos span { position: absolute; top: 52px; transform: translateX(-50%); font-family: var(--display); font-size: 20px; }
+.reta-seta { position: absolute; top: 2px; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 16px solid var(--coral); filter: drop-shadow(0 0 0 var(--ink)); }
+.resposta-fracao { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.caixa-fracao { min-width: 76px; min-height: 44px; padding: 0 12px; color: var(--ink); cursor: pointer; }
+.caixa-fracao .display { font-size: 28px; }
+.caixa-fracao.ativa { border-color: var(--t-cyan); box-shadow: 0 0 0 3px var(--cyan-2), var(--adesivo); }
+.traco-fracao { width: 88px; height: 4px; border-radius: 2px; background: var(--ink); }
+.resposta-fracao { gap: 3px; }
+
+.area-resposta { position: sticky; bottom: 0; z-index: 2; margin: auto -6px 0; padding: 10px 6px calc(6px + env(safe-area-inset-bottom, 0px)); background: var(--bg); display: flex; flex-direction: column; gap: 10px; border-top: 2px dashed var(--line); }
+.resposta-linha { justify-content: center; gap: 12px; flex-wrap: nowrap; }
+.resposta-linha .dica-fracao { flex: 1; max-width: 150px; line-height: 1.25; }
+.resposta-linha #rotulo-resposta { flex: none; max-width: 70px; line-height: 1.2; }
 /* Celular pequeno: a conta e o teclado inteiros na tela, sem rolar (teclas continuam com 48px ou mais). */
 @media (max-height: 800px) {
   .conta-grande { font-size: clamp(22px, 7vw, 30px); }
@@ -579,12 +605,20 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
 /* Celular bem baixo (ex.: 375 × 667): esconde o que é só apoio para o teclado caber sem rolar. */
 @media (max-height: 700px) {
   .tela-contas { gap: 10px; }
+  .caixa-fracao { min-height: 40px; }
+  .caixa-fracao .display { font-size: 24px; }
+  .reta-numerica { height: 62px; }
+  .reta-linha { top: 28px; }
+  .reta-rotulos span { top: 40px; font-size: 18px; }
   .tela-contas h1 + .muted, .erros-contas { display: none; }
-  .rotulo-resposta { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .tecla { min-height: 46px; }
   .resposta-caixa { min-height: 46px; }
   .resposta-caixa .display { font-size: 28px; }
 }
+
+/* Botões em forma de pílula (moedas, dias seguidos): área de toque de 44px sem mudar o desenho. */
+button.pilula::after, .area-toque::after { content: ''; position: absolute; inset: -6px -2px; }
+
 /* Aviso "Coloque o Sabidex na tela do celular" (src/components/InstalarApp.tsx) */
 .instalar { gap: 12px; }
 .instalar-num { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--yellow); border: 2px solid var(--ink); display: grid; place-items: center; font: 400 15px var(--display); }

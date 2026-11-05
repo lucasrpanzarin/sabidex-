@@ -81,7 +81,7 @@ bantos x diáspora). Nenhum fato novo entrou. Além disso, a prova agora **embar
    tem pergunta para hoje. Código: `src/lib/revisao.ts` e `src/screens/Revisao.tsx`.
    Por enquanto a agenda da revisão fica só no aparelho (não vai para o servidor da turma).
 2. **Jogos extras — FEITOS** (`src/screens/Extras.tsx`). Ficam no mapa de cada mundo, abrem depois de "Ouvir os temas",
-   valem 40 XP cada e, quem termina os quatro, ganha um pacote. Só aparecem se o capítulo tiver o material
+   valem 40 XP cada e, quem termina os quatro com nota 7 ou mais em cada um, ganha um pacote (se tirar menos, o pacote espera até jogar de novo e passar). Só aparecem se o capítulo tiver o material
    (campos `lacunas`, `quemSou`, `classificar` e `causas` em `tipos.ts`):
    - **Complete a frase:** frase com uma lacuna e 4 palavras. Treina lembrar a palavra exata.
    - **Quem sou eu?:** 3 pistas, da mais difícil para a mais fácil. Acertar com 1 pista vale 3 pontos; errar abre a próxima pista.
@@ -116,6 +116,7 @@ Por isso, nos capítulos de Matemática (campo `matematica`), as fases do mapa m
   as contas seguem o mesmo nível e o mesmo método.
 - **Revisão do Ará**: guarda o *tipo* de conta errado e traz uma conta nova desse tipo.
 - A explicação de cada conta mostra o método (a operação inversa, a prova real), não só o resultado.
+- **Papel e lápis** (Lucas, 05/11/2026): fazer a conta no papel não é trapaça, é o que a escola cobra (conta armada, prova real). No começo de cada fase de Matemática o Ará pede papel e lápis (botão "Já peguei!"); nas contas mais difíceis aparece "Dica: arme a conta no papel" (`TIPOS_PAPEL` em `src/lib/contas.ts`). Rascunho na tela não: escrever número com o dedo no celular atrapalha mais do que ajuda.
 
 ---
 

@@ -11,7 +11,7 @@ import { ir } from '../lib/rota';
 import { jogar, proximaFase } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import { VOZES, audioDaVoz, setVoz, useVoz } from '../lib/voz';
-import { FaseContas, VerComoSeFaz } from './Contas';
+import { FaseContas, TextoMat, VerComoSeFaz } from './Contas';
 
 /** Transforma **negrito** em <strong>. */
 export function Texto({ t }: { t: string }) {
@@ -37,7 +37,7 @@ export const MOTIVO: Record<MotivoPacote, string> = {
   prova: 'Pacote épico por passar na prova: vem um épico ou lendário',
   dia: 'Pacote do dia, por estudar hoje',
   nivel: 'Pacote de presente pelo nível novo',
-  extras: 'Pacote por terminar todos os jogos extras do mundo',
+  extras: 'Pacote por terminar todos os jogos extras do mundo com nota 7',
   missoes: 'Pacote por fazer as missões do dia',
   marco: 'Pacote por estudar vários dias seguidos',
 };
@@ -404,7 +404,8 @@ function Quiz({ cap }: { cap: Capitulo }) {
   }, [comecou, res, retorno]);
 
   useEffect(() => {
-    if (comecou && resto <= 0 && !fim.current) { fim.current = true; finalizar(notaDe(acertos, lista.length), respondidas - acertos); }
+    // Quando o tempo acaba, as que ficaram sem resposta contam como erro (senão, esperar o relógio daria XP cheio).
+    if (comecou && resto <= 0 && !fim.current) { fim.current = true; finalizar(notaDe(acertos, lista.length), lista.length - acertos); }
   }, [resto, comecou]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const responder = (v: boolean) => {
@@ -430,7 +431,7 @@ function Quiz({ cap }: { cap: Capitulo }) {
       <Topo cap={cap} fase="quiz" />
       <div className="coluna" style={{ alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'center' }}>
         <Ara tamanho={110} />
-        <div className="balao">Você tem <strong>{TEMPO} segundos</strong>. Diga se cada frase é verdadeira ou falsa! O relógio para enquanto você lê a explicação.</div>
+        <div className="balao">Você tem <strong>{TEMPO} segundos</strong>. Diga se cada frase é verdadeira ou falsa! O relógio para enquanto você lê a explicação.{cap.matematica && <> Deixe <strong>papel e lápis</strong> por perto para as contas.</>}</div>
         <button className="btn btn-amarelo btn-bloco" onClick={() => setComecou(true)}>Valendo!</button>
       </div>
     </main>
@@ -443,11 +444,11 @@ function Quiz({ cap }: { cap: Capitulo }) {
       <div className="barra barra-amarela" aria-hidden="true"><div style={{ width: `${(Math.max(0, resto) / TEMPO) * 100}%`, transition: 'width 1s linear' }} /></div>
       <div className="muted small">Pergunta {i + 1} de {lista.length} · {acertos} certas</div>
       <div className="painel-destaque" style={{ minHeight: 150, display: 'grid', placeItems: 'center' }}>
-        <p className="display" style={{ fontSize: 23, margin: 0, textAlign: 'center' }}>{q.frase}</p>
+        <p className="display" style={{ fontSize: 23, margin: 0, textAlign: 'center' }}>{cap.matematica ? <TextoMat t={q.frase} /> : q.frase}</p>
       </div>
       {retorno ? (
         <div className="coluna sobe">
-          <div className={`aviso ${retorno.ok ? 'aviso-ok' : 'aviso-erro'}`}><span className="display" style={{ fontSize: 18 }}>{retorno.ok ? 'Acertou! ' : 'Ops! '}</span>{retorno.texto}</div>
+          <div className={`aviso ${retorno.ok ? 'aviso-ok' : 'aviso-erro'}`}><span className="display" style={{ fontSize: 18 }}>{retorno.ok ? 'Acertou! ' : 'Ops! '}</span>{cap.matematica ? <TextoMat t={retorno.texto} /> : retorno.texto}</div>
           <button className="btn btn-amarelo btn-bloco" onClick={proxima}>Próxima</button>
         </div>
       ) : (

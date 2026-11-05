@@ -3,10 +3,31 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Ara } from '../components/Ara';
 import type { Capitulo } from '../data/tipos';
-import { gerarConta, gerarContas, type Conta, type Visual } from '../lib/contas';
+import { TIPOS_PAPEL, confere, ehFracao, gerarConta, gerarContas, textoResposta, type Conta, type Resposta, type Visual } from '../lib/contas';
 import { NOTA_MINIMA, notaDe, type Fase } from '../lib/jogo';
 import { idConta } from '../lib/revisao';
-import { AVISO_REVISAO, ContaErros, Fim, Texto, Topo, lembrar, useFinalizar } from './Fases';
+import { AVISO_REVISAO, ContaErros, Fim, Topo, lembrar, useFinalizar } from './Fases';
+
+/* ---------- Texto com frações ---------- */
+
+/** Fração em pé (numerador em cima, denominador embaixo), como no livro. */
+export function Fracao({ n, d }: { n: number | string; d: number | string }) {
+  return (
+    <span className="fracao" role="math" aria-label={`${n} sobre ${d}`}>
+      <span className="fracao-n">{n}</span><span className="fracao-d">{d}</span>
+    </span>
+  );
+}
+
+/** Transforma **negrito** em <strong> e "3/4" em fração em pé. */
+export function TextoMat({ t }: { t: string }) {
+  // A pontuação logo depois da fração fica grudada nela (senão o ponto cai sozinho na linha de baixo).
+  const comFracoes = (x: string, chave: string) => x.split(/(\d+\/\d+[.,;:!?)]*)/g).map((p, i) => {
+    const m = p.match(/^(\d+)\/(\d+)([.,;:!?)]*)$/);
+    return m ? <span key={`${chave}-${i}`} style={{ whiteSpace: 'nowrap' }}><Fracao n={m[1]} d={m[2]} />{m[3]}</span> : p;
+  });
+  return <>{t.split(/\*\*(.+?)\*\*/g).map((p, i) => (i % 2 ? <strong key={i}>{comFracoes(p, String(i))}</strong> : comFracoes(p, String(i))))}</>;
+}
 
 /* ---------- Desenhos ---------- */
 
@@ -52,24 +73,53 @@ function Setas({ v }: { v: Extract<Visual, { tipo: 'setas' }> }) {
   );
 }
 
+/** Cano dividido em partes iguais, com algumas pintadas (como os canos do Marcelo no livro). */
+function Barra({ v }: { v: Extract<Visual, { tipo: 'barra' }> }) {
+  return (
+    <figure className="barra-fracao" role="img" aria-label={`Barra dividida em ${v.partes} partes iguais, com ${v.pintadas} pintada${v.pintadas === 1 ? '' : 's'}.`}>
+      {Array.from({ length: v.partes }, (_, i) => <span key={i} className={i < v.pintadas ? 'pintada' : ''} />)}
+    </figure>
+  );
+}
+
+/** Reta numérica do 0 ao 1, dividida em partes iguais, com uma seta numa marcação. */
+function Reta({ v }: { v: Extract<Visual, { tipo: 'reta' }> }) {
+  const pos = (i: number) => `${(i / v.partes) * 100}%`;
+  return (
+    <figure className="reta-numerica" role="img" aria-label={`Reta do 0 ao 1 dividida em ${v.partes} partes iguais. A seta está na marcação ${v.marca} depois do zero.`}>
+      <div className="reta-seta" style={{ left: pos(v.marca) }} aria-hidden="true" />
+      <div className="reta-linha">
+        {Array.from({ length: v.partes + 1 }, (_, i) => <span key={i} className={`reta-tick${i === 0 || i === v.partes ? ' ponta' : ''}`} style={{ left: pos(i) }} />)}
+      </div>
+      <div className="reta-rotulos" aria-hidden="true"><span style={{ left: 0 }}>0</span><span style={{ left: '100%' }}>1</span></div>
+    </figure>
+  );
+}
+
 function Desenho({ v }: { v?: Visual }) {
   if (!v) return null;
-  return v.tipo === 'balanca' ? <Balanca v={v} /> : <Setas v={v} />;
+  if (v.tipo === 'balanca') return <Balanca v={v} />;
+  if (v.tipo === 'barra') return <Barra v={v} />;
+  if (v.tipo === 'reta') return <Reta v={v} />;
+  return <Setas v={v} />;
 }
 
 /* ---------- Teclado de números ---------- */
 
-function Teclado({ valor, setValor, onConferir }: { valor: string; setValor: (s: string) => void; onConferir: () => void }) {
-  // Também dá para usar o teclado do computador.
+function Teclado({ valor, setValor, onConferir, pronto, onTrocar }: {
+  valor: string; setValor: (s: string) => void; onConferir: () => void; pronto: boolean; onTrocar?: () => void;
+}) {
+  // Também dá para usar o teclado do computador ("/" troca de caixa na fração; Tab continua andando pela tela).
   useEffect(() => {
     const f = (ev: KeyboardEvent) => {
       if (/^\d$/.test(ev.key)) setValor(valor.length < 5 ? valor + ev.key : valor);
       else if (ev.key === 'Backspace') setValor(valor.slice(0, -1));
-      else if (ev.key === 'Enter' && valor) onConferir();
+      else if (ev.key === 'Enter' && pronto) onConferir();
+      else if (ev.key === '/' && onTrocar) { ev.preventDefault(); onTrocar(); }
     };
     window.addEventListener('keydown', f);
     return () => window.removeEventListener('keydown', f);
-  }, [valor, setValor, onConferir]);
+  }, [valor, setValor, onConferir, pronto, onTrocar]);
   const tecla = (d: string) => (
     <button key={d} className="btn btn-escuro tecla" onClick={() => setValor(valor.length < 5 ? valor + d : valor)}>{d}</button>
   );
@@ -79,7 +129,7 @@ function Teclado({ valor, setValor, onConferir }: { valor: string; setValor: (s:
         {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(tecla)}
         <button className="btn btn-escuro tecla tecla-texto" onClick={() => setValor(valor.slice(0, -1))} disabled={!valor}>Apagar</button>
         {tecla('0')}
-        <button className="btn btn-verde tecla" aria-label="OK, conferir" onClick={onConferir} disabled={!valor}>OK</button>
+        <button className="btn btn-verde tecla" aria-label="OK, conferir" onClick={onConferir} disabled={!pronto}>OK</button>
       </div>
     </div>
   );
@@ -93,43 +143,90 @@ function Teclado({ valor, setValor, onConferir }: { valor: string; setValor: (s:
  */
 export function Pergunta({ conta, corrigirNaHora = true, rotuloProxima, onResposta, onProxima }: {
   conta: Conta; corrigirNaHora?: boolean; rotuloProxima: string;
-  onResposta: (ok: boolean, valor: number) => void; onProxima: () => void;
+  onResposta: (ok: boolean, digitado: string) => void; onProxima: () => void;
 }) {
-  const [valor, setValor] = useState('');
+  const fracao = ehFracao(conta.resposta);
+  // Na fração, são duas caixas: numerador (0) em cima e denominador (1) embaixo.
+  const [valores, setValores] = useState<[string, string]>(['', '']);
+  const [ativa, setAtiva] = useState<0 | 1>(0);
   const [respondida, setRespondida] = useState<{ ok: boolean } | null>(null);
+  const pronto = fracao ? !!valores[0] && !!valores[1] : !!valores[0];
+  const setValor = (v: string) => setValores((x) => (ativa === 0 ? [v, x[1]] : [x[0], v]));
   const conferir = () => {
-    if (!valor || respondida) return;
-    const n = Number(valor);
-    const ok = n === conta.resposta;
-    onResposta(ok, n);
+    if (!pronto || respondida) return;
+    const digitado: Resposta = fracao ? [Number(valores[0]), Number(valores[1])] : Number(valores[0]);
+    const ok = confere(conta, digitado);
+    onResposta(ok, textoResposta(digitado));
     if (corrigirNaHora) setRespondida({ ok });
     else onProxima();
   };
+  const estado = respondida ? (respondida.ok ? ' certa' : ' errada') : '';
+  const caixaFracao = (i: 0 | 1, nome: string) => (
+    <button type="button" className={`resposta-caixa caixa-fracao${estado}${!respondida && ativa === i ? ' ativa' : ''}`} disabled={!!respondida}
+      onClick={() => setAtiva(i)} aria-label={`${nome}: ${valores[i] || 'vazio'}`} aria-pressed={ativa === i}>
+      <span className="display">{valores[i] || '?'}</span>
+    </button>
+  );
+  const caixaNumero = (
+    <div className={`resposta-caixa${estado}`} role="group" aria-labelledby="rotulo-resposta">
+      <span className="display">{valores[0] || '?'}</span>{conta.unidade && <span className="muted small"> {conta.unidade}</span>}
+    </div>
+  );
   return (
     <>
       <div className="painel-destaque coluna" style={{ gap: 8, alignItems: 'center', textAlign: 'center', padding: 14 }}>
-        <p className="display" style={{ fontSize: 19, margin: 0, textWrap: 'balance' }}>{conta.enunciado}</p>
-        {conta.sentenca && <p className="display conta-grande" style={{ margin: 0 }}>{conta.sentenca}</p>}
+        <p className="display" style={{ fontSize: 19, margin: 0, textWrap: 'balance' }}><TextoMat t={conta.enunciado} /></p>
+        {conta.sentenca && <p className="display conta-grande" style={{ margin: 0 }}><TextoMat t={conta.sentenca} /></p>}
         <Desenho v={conta.visual} />
-        <div className="coluna" style={{ gap: 4, alignItems: 'center' }}>
-          <span className="muted small rotulo-resposta" id="rotulo-resposta" style={{ fontWeight: 800 }}>Sua resposta</span>
-          <div className={`resposta-caixa${respondida ? (respondida.ok ? ' certa' : ' errada') : ''}`} role="group" aria-labelledby="rotulo-resposta">
-            <span className="display">{valor || '?'}</span>{conta.unidade && <span className="muted small"> {conta.unidade}</span>}
-          </div>
-        </div>
+        {TIPOS_PAPEL.has(conta.tipo) && !respondida && <span className="muted small" style={{ fontWeight: 700 }}>Dica: arme a conta no papel.</span>}
       </div>
-      {respondida ? (
-        <div className="coluna sobe">
-          <div className={`aviso ${respondida.ok ? 'aviso-ok' : 'aviso-erro'}`} role="status">
-            <span className="display" style={{ fontSize: 18 }}>{respondida.ok ? 'Acertou! ' : `Era ${conta.resposta}${conta.unidade ? ' ' + conta.unidade : ''}. `}</span>
-            {conta.explicacao}
-          </div>
-          <button className="btn btn-amarelo btn-bloco" onClick={onProxima}>{rotuloProxima}</button>
+      {/* Resposta e teclado ficam presos embaixo da tela (como numa calculadora): o OK e o número digitado sempre aparecem. */}
+      <div className="area-resposta">
+        <div className="linha resposta-linha">
+          <span className="muted small" id="rotulo-resposta" style={{ fontWeight: 800 }}>Sua resposta</span>
+          {fracao ? (
+            <div className="resposta-fracao" role="group" aria-labelledby="rotulo-resposta">
+              {caixaFracao(0, 'Numerador')}
+              <span className="traco-fracao" aria-hidden="true" />
+              {caixaFracao(1, 'Denominador')}
+            </div>
+          ) : caixaNumero}
+          {fracao && !respondida && (
+            <span className="muted small dica-fracao" style={{ fontWeight: 700 }}>
+              {ativa === 0 ? 'Escreva o numerador (em cima). Depois toque na caixa de baixo.' : 'Agora o denominador (embaixo).'}
+            </span>
+          )}
         </div>
-      ) : (
-        <Teclado valor={valor} setValor={setValor} onConferir={conferir} />
-      )}
+        {respondida ? (
+          <div className="coluna sobe" style={{ gap: 10 }}>
+            <div className={`aviso ${respondida.ok ? 'aviso-ok' : 'aviso-erro'}`} role="status">
+              <span className="display" style={{ fontSize: 18 }}>{respondida.ok ? 'Acertou! ' : <>Era <TextoMat t={textoResposta(conta.resposta)} />{conta.unidade ? ' ' + conta.unidade : ''}. </>}</span>
+              <TextoMat t={conta.explicacao} />
+            </div>
+            <button className="btn btn-amarelo btn-bloco" onClick={onProxima}>{rotuloProxima}</button>
+          </div>
+        ) : (
+          <Teclado valor={valores[ativa]} setValor={setValor} onConferir={conferir} pronto={pronto}
+            onTrocar={fracao ? () => setAtiva((x) => (x === 0 ? 1 : 0)) : undefined} />
+        )}
+      </div>
     </>
+  );
+}
+
+/* ---------- Aviso do papel e lápis ---------- */
+
+/** No começo de cada fase de Matemática: o Ará lembra de pegar papel e lápis para armar as contas. */
+function AvisoPapel({ cap, fase, onComecar }: { cap: Capitulo; fase: Fase; onComecar: () => void }) {
+  return (
+    <main className="tela">
+      <Topo cap={cap} fase={fase} />
+      <div className="coluna" style={{ alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'center' }}>
+        <Ara tamanho={110} />
+        <div className="balao">Pegue <strong>um papel e um lápis</strong>! Você pode armar as contas no caderno, como na escola. Depois é só digitar a resposta aqui.</div>
+        <button className="btn btn-amarelo btn-bloco" onClick={onComecar} autoFocus>Já peguei!</button>
+      </div>
+    </main>
   );
 }
 
@@ -144,6 +241,8 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
   const [rodada, setRodada] = useState(0);
   const [acertos, setAcertos] = useState(0);
   const conta = useMemo(() => gerarConta(exemplos[ex].treino), [exemplos, ex, rodada]);
+  const [comecou, setComecou] = useState(false);
+  if (!comecou) return <AvisoPapel cap={cap} fase="ouvir" onComecar={() => setComecou(true)} />;
 
   if (res) return <Fim cap={cap} r={res} titulo="Você viu como se faz!" placar={{ acertos, total: exemplos.length, nome: 'contas certas' }}
     onDeNovo={() => { setEx(0); setVistos(1); setTentando(false); setAcertos(0); setRodada((r) => r + 1); limpar(); }} />;
@@ -151,7 +250,8 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
   const e = exemplos[ex];
   const ultimo = ex + 1 === exemplos.length;
   const proximo = () => {
-    if (ultimo) { finalizar(); return; }
+    // As contas do "Agora você" contam: cada erro tira 10% do XP, e o pacote do dia pede nota 7.
+    if (ultimo) { finalizar(notaDe(acertos, exemplos.length), exemplos.length - acertos); return; }
     setEx(ex + 1); setVistos(1); setTentando(false);
   };
   return (
@@ -164,17 +264,17 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
             <Ara tamanho={70} humor="pensando" />
             <div className="balao" style={{ flex: 1 }}>
               <span className="eyebrow" style={{ display: 'block', color: 'var(--t-cyan)' }}>{e.titulo}</span>
-              <Texto t={e.ideia} />
+              <TextoMat t={e.ideia} />
             </div>
           </div>
           <div className="painel-destaque">
             <span className="eyebrow" style={{ color: 'var(--t-yellow)' }}>Exemplo</span>
-            <p className="display" style={{ fontSize: 20, margin: '4px 0 0' }}><Texto t={e.situacao} /></p>
+            <p className="display" style={{ fontSize: 20, margin: '4px 0 0' }}><TextoMat t={e.situacao} /></p>
           </div>
           <ol className="coluna passos" style={{ gap: 8, margin: 0, padding: 0, listStyle: 'none' }}>
             {e.passos.slice(0, vistos).map((p, i) => (
               <li key={i} className="painel linha" style={{ padding: '10px 12px', gap: 10, fontWeight: 700 }}>
-                <span className="passo-num" aria-hidden="true">{i + 1}</span><span><Texto t={p} /></span>
+                <span className="passo-num" aria-hidden="true">{i + 1}</span><span><TextoMat t={p} /></span>
               </li>
             ))}
           </ol>
@@ -211,9 +311,12 @@ export function FaseContas({ cap, fase }: { cap: Capitulo; fase: 'memoria' | 'li
   const [rodada, setRodada] = useState(0);
   const contas = useMemo(() => gerarContas(tipos), [tipos, rodada]);
   const [i, setI] = useState(0);
-  const [respostas, setRespostas] = useState<number[]>([]);
-  const acertos = respostas.filter((r, k) => r === contas[k].resposta).length;
+  // Cada resposta: se acertou e o que a criança digitou.
+  const [respostas, setRespostas] = useState<{ ok: boolean; texto: string }[]>([]);
+  const acertos = respostas.filter((r) => r.ok).length;
   const erros = respostas.length - acertos;
+  const [comecou, setComecou] = useState(false);
+  if (!comecou) return <AvisoPapel cap={cap} fase={fase} onComecar={() => setComecou(true)} />;
 
   const deNovo = () => { setRodada((r) => r + 1); setI(0); setRespostas([]); limpar(); };
 
@@ -235,13 +338,13 @@ export function FaseContas({ cap, fase }: { cap: Capitulo; fase: 'memoria' | 'li
           <section className="tela" style={{ paddingTop: 0 }} aria-label="Correção">
             <h2 className="display h2">Correção</h2>
             {contas.map((c, k) => {
-              const certo = respostas[k] === c.resposta;
+              const certo = respostas[k]?.ok;
               return (
                 <div key={k} className={`aviso ${certo ? 'aviso-ok' : 'aviso-erro'}`}>
-                  <div className="display" style={{ fontSize: 16 }}>{k + 1}. {c.enunciado}{c.sentenca ? ` ${c.sentenca}` : ''}</div>
-                  {!certo && <div className="small" style={{ color: 'var(--t-red)' }}>Você digitou: {respostas[k]}</div>}
-                  <div className="small">Certa: <strong>{c.resposta}{c.unidade ? ` ${c.unidade}` : ''}</strong></div>
-                  <div className="small muted">{c.explicacao}</div>
+                  <div className="display" style={{ fontSize: 16 }}>{k + 1}. <TextoMat t={c.enunciado + (c.sentenca ? ` ${c.sentenca}` : '')} /></div>
+                  {!certo && <div className="small" style={{ color: 'var(--t-red)' }}>Você digitou: <TextoMat t={respostas[k]?.texto ?? ''} /></div>}
+                  <div className="small">Certa: <strong><TextoMat t={textoResposta(c.resposta)} />{c.unidade ? ` ${c.unidade}` : ''}</strong></div>
+                  <div className="small muted"><TextoMat t={c.explicacao} /></div>
                 </div>
               );
             })}
@@ -253,10 +356,10 @@ export function FaseContas({ cap, fase }: { cap: Capitulo; fase: 'memoria' | 'li
 
   const conta = contas[i];
   const ultima = i + 1 === contas.length;
-  const proxima = (lista: number[]) => {
+  const proxima = (lista: { ok: boolean; texto: string }[]) => {
     if (lista.length < contas.length) { setI(lista.length); return; }
-    const certas = lista.filter((r, k) => r === contas[k].resposta).length;
-    lembrar(contas.map((c, k) => [idConta(cap.id, c.tipo), lista[k] === c.resposta]));
+    const certas = lista.filter((r) => r.ok).length;
+    lembrar(contas.map((c, k) => [idConta(cap.id, c.tipo), !!lista[k]?.ok]));
     finalizar(notaDe(certas, contas.length), contas.length - certas);
   };
   return (
@@ -266,7 +369,7 @@ export function FaseContas({ cap, fase }: { cap: Capitulo; fase: 'memoria' | 'li
       {!prova && <div className="erros-contas"><ContaErros erros={erros} /></div>}
       {/* Na prova, cada resposta vai direto para a próxima conta; a correção aparece no fim. */}
       <Pergunta key={`${rodada}-${i}`} conta={conta} corrigirNaHora={!prova} rotuloProxima={ultima ? 'Terminar' : 'Próxima'}
-        onResposta={(_, n) => { const novo = [...respostas, n]; setRespostas(novo); if (prova) proxima(novo); }}
+        onResposta={(ok, texto) => { const novo = [...respostas, { ok, texto }]; setRespostas(novo); if (prova) proxima(novo); }}
         onProxima={() => { if (!prova) proxima(respostas); }} />
     </main>
   );
