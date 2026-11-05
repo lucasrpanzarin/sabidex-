@@ -13,7 +13,7 @@ import { TelaExtra } from './screens/Extras';
 import { EXTRAS, type Extra } from './lib/jogo';
 import { Loja } from './screens/Loja';
 import { Privacidade } from './screens/Privacidade';
-import { ContaCriada, EntrarConta, MinhaConta, Ranking, Trocas } from './screens/Turma';
+import { EntrarConta, MinhaConta, Ranking, Trocas } from './screens/Turma';
 import { useEffect } from 'react';
 import { api, useConta } from './lib/conta';
 import { Chat } from './screens/Chat';
@@ -22,7 +22,7 @@ import { Duelos } from './screens/Duelo';
 export function App() {
   const e = useEstado();
   const [pagina = '', a, b] = useRota();
-  const { contaNova, conta } = useConta();
+  const { conta } = useConta();
 
   // "Estudando agora": com o app aberto e na tela, avisa o servidor a cada minuto (só para quem está numa turma).
   useEffect(() => {
@@ -41,8 +41,6 @@ export function App() {
   if (pagina === 'adulto') return <div className="app"><Adulto turmaId={a} /></div>;
   if (pagina === 'entrar') return <div className="app"><EntrarConta aoTerminar={() => ir()} aoVoltar={() => (e.perfil ? ir('trocas') : ir())} /></div>;
   if (!e.perfil) return <div className="app"><BoasVindas /></div>;
-  // Logo depois de criar a conta na turma: mostra código, apelido e PIN para um adulto anotar.
-  if (contaNova) return <div className="app"><ContaCriada /></div>;
 
   let tela;
   let aba = pagina;

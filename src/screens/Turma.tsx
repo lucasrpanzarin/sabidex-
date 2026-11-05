@@ -4,7 +4,7 @@ import { CartaView, ROTULO } from '../components/CartaView';
 import { Icone } from '../components/Icone';
 import { Pin } from '../components/Pin';
 import { FIGURINHAS, figurinhaPorId, type Figurinha } from '../lib/figurinhas';
-import { api, entrarNaConta, entrarNoPerfil, ultimoCodigo, entrarNaTurma, entrarNaTurmaComConta, esquecerContaNova, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
+import { api, entrarNaConta, entrarNoPerfil, ultimoCodigo, entrarNaTurmaComConta, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
 import { EscolherPerfil } from '../components/Perfis';
 import { ir } from '../lib/rota';
 import { paraTrocar, protegido, saldo } from '../lib/loja';
@@ -29,41 +29,23 @@ export function Erro({ texto }: { texto: string | null }) {
   return texto ? <div className="aviso aviso-erro" role="alert">{texto}</div> : null;
 }
 
-/* ---------------- Entrar numa turma pela primeira vez ---------------- */
-export function ContaCriada() {
-  const { contaNova } = useConta();
-  if (!contaNova) return null;
-  return (
-    <main className="tela" style={{ alignItems: 'center', textAlign: 'center' }}>
-      <div className="pop"><Ara tamanho={110} /></div>
-      <h1 className="display h2" style={{ color: 'var(--t-yellow)' }}>Você entrou na turma!</h1>
-      <div className="painel" style={{ width: '100%' }}>
-        <div className="muted small">Para entrar em outro celular você vai precisar de:</div>
-        <div className="display" style={{ fontSize: 20, marginTop: 6 }}>Código: {contaNova.codigo}</div>
-        <div className="display" style={{ fontSize: 20 }}>Apelido: {contaNova.apelido}</div>
-        <div className="display" style={{ fontSize: 20 }}>PIN: {contaNova.pin}</div>
-        <div className="muted small" style={{ marginTop: 6 }}>Mostre para um adulto anotar. Não conte seu PIN para os colegas!</div>
-      </div>
-      <button className="btn btn-amarelo btn-bloco" onClick={esquecerContaNova}>Continuar</button>
-    </main>
-  );
-}
-
-/** `inicio`: a turma já foi achada (código digitado na tela anterior); começa no apelido. */
-export function EntrarTurma({ inicio, aoEntrar }: { inicio?: { codigo: string; turma: string }; aoEntrar?: () => void } = {}) {
+/* ---------------- Entrar numa turma ---------------- */
+/**
+ * Só para quem já tem conta (perfil criado pelo responsável): entra na turma com o código e
+ * continua com as mesmas cartas. Quem não tem conta não cria sozinho: pede para um adulto
+ * (decidido pelo Lucas em 05/11/2026, para toda criança ter responsável).
+ */
+export function EntrarTurma({ aoEntrar }: { aoEntrar?: () => void } = {}) {
   const e = useEstado();
   const { conta } = useConta();
-  const [passo, setPasso] = useState<'codigo' | 'apelido' | 'pin' | 'pin2'>(inicio ? 'apelido' : 'codigo');
-  const [codigo, setCodigo] = useState(inicio?.codigo ?? '');
-  const [turma, setTurma] = useState(inicio?.turma ?? '');
+  const [passo, setPasso] = useState<'codigo' | 'apelido'>('codigo');
+  const [codigo, setCodigo] = useState('');
+  const [turma, setTurma] = useState('');
   const [apelido, setApelido] = useState(conta?.apelido ?? e.perfil?.nome ?? '');
-  const [cor, setCor] = useState(e.perfil?.cor ?? CORES[0]);
-  const [pin, setPin] = useState('');
-  const [pin2, setPin2] = useState('');
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
-  /** Criança nova neste aparelho: ainda escolhe a cor. */
-  const novo = !e.perfil && !conta;
+
+  if (!conta) return <PecaParaAdulto />;
 
   const conferirCodigo = async () => {
     setOcupado(true); setErro(null);
@@ -73,28 +55,12 @@ export function EntrarTurma({ inicio, aoEntrar }: { inicio?: { codigo: string; t
     setTurma(r.nome); setCodigo(r.codigo); setPasso('apelido');
   };
 
-  const entrarComConta = async () => {
+  const entrar = async () => {
     setOcupado(true); setErro(null);
     const msg = await entrarNaTurmaComConta(codigo, apelido);
     setOcupado(false);
     if (msg) setErro(msg); else aoEntrar?.();
   };
-
-  useEffect(() => {
-    if (passo === 'pin' && pin.length === 4) setTimeout(() => setPasso('pin2'), 200);
-  }, [pin, passo]);
-
-  useEffect(() => {
-    if (passo !== 'pin2' || pin2.length !== 4) return;
-    if (pin2 !== pin) { setErro('Os PINs não são iguais. Vamos tentar de novo.'); setPin(''); setPin2(''); setPasso('pin'); return; }
-    (async () => {
-      setOcupado(true); setErro(null);
-      const msg = await entrarNaTurma(codigo, apelido, cor, pin);
-      setOcupado(false);
-      if (msg) { setErro(msg); setPin(''); setPin2(''); setPasso(msg.includes('apelido') ? 'apelido' : 'pin'); }
-      else aoEntrar?.();
-    })();
-  }, [pin2]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="coluna">
@@ -108,24 +74,42 @@ export function EntrarTurma({ inicio, aoEntrar }: { inicio?: { codigo: string; t
         </form>
       )}
       {passo === 'apelido' && (
-        <form className="coluna" onSubmit={(ev) => { ev.preventDefault(); if (apelido.trim().length >= 2) { setErro(null); if (conta) void entrarComConta(); else setPasso('pin'); } }}>
+        <form className="coluna" onSubmit={(ev) => { ev.preventDefault(); if (apelido.trim().length >= 2) void entrar(); }}>
           <div className="aviso aviso-ok">Turma encontrada: <strong>{turma}</strong></div>
           <label htmlFor="apelido-turma" className="display h3">Seu apelido na turma</label>
           <input id="apelido-turma" value={apelido} maxLength={14} onChange={(ev) => setApelido(ev.target.value)} autoComplete="off" style={{ ...campo, textAlign: 'center' }} />
           <p className="muted small" style={{ margin: 0 }}>Só o apelido, não o nome completo. Os colegas vão ver esse apelido no ranking e nas trocas.</p>
-          {novo && <EscolherCor cor={cor} aoEscolher={setCor} />}
-          <button className="btn btn-amarelo btn-bloco" disabled={apelido.trim().length < 2 || ocupado}>{conta ? (ocupado ? 'Entrando…' : 'Entrar na turma') : 'Continuar'}</button>
-          {conta && <p className="muted small" style={{ margin: 0 }}>Você continua com a mesma conta, as mesmas cartas e o mesmo PIN.{conta.codigo && conta.codigo !== codigo ? ` Você sai da turma ${conta.turma}.` : ''}</p>}
-          {!conta && (
-            <div className="aviso small" style={{ fontWeight: 700 }}>
-              Já joga em outra turma? Não crie outra conta: ela começa sem cartas. Volte, digite o código da turma antiga, entre com seu PIN
-              e, em "Minha conta", toque em "Mudar de turma". Suas cartas vão junto.
-            </div>
-          )}
+          <button className="btn btn-amarelo btn-bloco" disabled={apelido.trim().length < 2 || ocupado}>{ocupado ? 'Entrando…' : 'Entrar na turma'}</button>
+          <p className="muted small" style={{ margin: 0 }}>Você continua com a mesma conta, as mesmas cartas e o mesmo PIN.{conta.codigo && conta.codigo !== codigo ? ` Você sai da turma ${conta.turma}.` : ''}</p>
         </form>
       )}
-      {passo === 'pin' && <Pin valor={pin} onChange={setPin} rotulo="Crie um PIN de 4 números" />}
-      {passo === 'pin2' && <Pin valor={pin2} onChange={setPin2} rotulo={ocupado ? 'Entrando…' : 'Digite o PIN de novo'} />}
+    </div>
+  );
+}
+
+/** Criança sem perfil: quem cria é um adulto da casa. O botão manda um recado pronto (com o código da turma, se ela já tem). */
+function PecaParaAdulto({ codigo, turma }: { codigo?: string; turma?: string }) {
+  const [feito, setFeito] = useState<'enviado' | 'copiado' | null>(null);
+  const link = `${location.origin}/#/adulto`;
+  const recado = codigo
+    ? `Oi! Quero estudar no Sabidex com a minha turma (${turma}). Você pode criar o meu perfil? Abra ${link}, crie a conta da família e, em "Adicionar criança", coloque o código da turma: ${codigo}`
+    : `Oi! Quero estudar no Sabidex. Você pode criar a conta da nossa família e o meu perfil? É só abrir: ${link}`;
+  const enviar = async () => {
+    try {
+      if (navigator.share) { await navigator.share({ title: 'Sabidex', text: recado }); setFeito('enviado'); return; }
+    } catch (e) { if ((e as Error).name === 'AbortError') return; }
+    try { await navigator.clipboard.writeText(recado); setFeito('copiado'); } catch { setFeito(null); }
+  };
+  return (
+    <div className="painel coluna" style={{ gap: 10 }}>
+      <div className="linha" style={{ alignItems: 'flex-end' }}>
+        <Ara tamanho={70} humor="pensando" />
+        <div className="balao" style={{ flex: 1, marginBottom: 10 }}>Quem cria o seu perfil é um <strong>adulto da sua casa</strong>. Depois ele te passa o código da família.</div>
+      </div>
+      <button type="button" className="btn btn-amarelo btn-bloco" onClick={() => void enviar()}>Mandar recado para um adulto</button>
+      {feito === 'copiado' && <div className="aviso aviso-ok" role="status">Recado copiado! Cole no WhatsApp do adulto.</div>}
+      {feito === 'enviado' && <div className="aviso aviso-ok" role="status">Recado enviado! Quando o adulto te passar o código, digite aqui.</div>}
+      {!codigo && <p className="muted small" style={{ margin: 0 }}>Na escola, quem passa o código da turma é o professor.</p>}
     </div>
   );
 }
@@ -149,10 +133,10 @@ interface Pessoa { id?: string; apelido: string; cor: string }
 
 /**
  * A criança digita um código só: o da turma (o professor passa) ou o da família (um adulto da casa passa).
- * Depois toca no próprio nome e digita o PIN. Na turma, quem é novo cria apelido, cor e PIN.
+ * Depois toca no próprio nome e digita o PIN. Quem ainda não tem perfil pede para um adulto da casa criar.
  */
 export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; aoVoltar: () => void }) {
-  const [passo, setPasso] = useState<'codigo' | 'quem' | 'pin' | 'novo'>('codigo');
+  const [passo, setPasso] = useState<'codigo' | 'quem' | 'pin'>('codigo');
   const [codigo, setCodigo] = useState(ultimoCodigo);
   const [turma, setTurma] = useState('');
   const [familia, setFamilia] = useState(false);
@@ -170,8 +154,7 @@ export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; 
     if (r.erro) return setErro(r.erro);
     setTurma(r.nome); setCodigo(r.codigo); setFamilia(!!r.familia); setAlunos(r.alunos);
     if (r.familia && !r.alunos.length) return setErro('Essa família ainda não tem nenhum perfil. Peça para o adulto criar o seu na área dos adultos.');
-    // Turma sem ninguém ainda: a criança é a primeira, vai direto criar o apelido.
-    setPasso(!r.familia && !r.alunos.length ? 'novo' : 'quem');
+    setPasso('quem');
   };
 
   useEffect(() => {
@@ -188,17 +171,16 @@ export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; 
   const voltar = () => {
     setErro(null); setPin('');
     if (passo === 'pin') setPasso('quem');
-    else if (passo === 'novo' && alunos.length) setPasso('quem');
     else if (passo !== 'codigo') setPasso('codigo');
     else aoVoltar();
   };
-  const titulo = passo === 'codigo' ? 'Qual é o seu código?' : passo === 'quem' ? 'Quem é você?' : passo === 'novo' ? 'Sou novo na turma' : '';
+  const titulo = passo === 'codigo' ? 'Qual é o seu código?' : passo === 'quem' ? 'Quem é você?' : '';
 
   return (
     <main className="tela">
       <button className="voltar" onClick={voltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
       {titulo && <h1 className="display h1">{titulo}</h1>}
-      {passo !== 'novo' && <Erro texto={erro} />}
+      <Erro texto={erro} />
       {passo === 'codigo' && (
         <>
           <form className="coluna" onSubmit={(ev) => { ev.preventDefault(); void buscar(); }}>
@@ -211,7 +193,7 @@ export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; 
             {ultimoCodigo() && codigo === ultimoCodigo() && <p className="muted small" style={{ margin: 0 }}>Este aparelho lembrou o seu último código.</p>}
             <button className="btn btn-amarelo btn-bloco" disabled={codigo.trim().length < 5 || ocupado}>{ocupado ? 'Procurando…' : 'Continuar'}</button>
           </form>
-          {semCodigo ? <SemCodigo /> : (
+          {semCodigo ? <PecaParaAdulto /> : (
             <button type="button" className="btn btn-escuro btn-bloco" onClick={() => setSemCodigo(true)}>Ainda não tenho código</button>
           )}
         </>
@@ -219,7 +201,7 @@ export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; 
       {passo === 'quem' && (
         <div className="coluna">
           <div className="aviso aviso-ok">{familia ? 'Achei a sua família!' : <>Turma: <strong>{turma}</strong></>}</div>
-          <h2 className="display h3" style={{ margin: 0 }}>Toque no seu nome.</h2>
+          {!!alunos.length && <h2 className="display h3" style={{ margin: 0 }}>Toque no seu nome.</h2>}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
             {alunos.map((a) => (
               <button key={a.id ?? a.apelido} className="painel linha" onClick={() => { setEu(a); setPin(''); setErro(null); setPasso('pin'); }}
@@ -229,8 +211,10 @@ export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; 
               </button>
             ))}
           </div>
-          {!familia && <button className="btn btn-ciano btn-bloco" onClick={() => { setErro(null); setPasso('novo'); }}>Sou novo na turma</button>}
-          {familia && <p className="muted small" style={{ margin: 0 }}>Seu nome não está aqui? Peça para o adulto criar o seu perfil.</p>}
+          {!!alunos.length && <p className="muted small" style={{ margin: 0 }}>Seu nome não está aqui? Peça para um adulto da sua casa criar o seu perfil.</p>}
+          {!familia && (semCodigo ? <PecaParaAdulto codigo={codigo} turma={turma} /> : (
+            <button type="button" className="btn btn-escuro btn-bloco" onClick={() => setSemCodigo(true)}>Ainda não tenho perfil</button>
+          ))}
           <p className="muted small" style={{ margin: 0 }}>Se este aparelho já tinha um jogo, ele vai ser trocado pelo da sua conta.</p>
         </div>
       )}
@@ -245,33 +229,7 @@ export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; 
           <p className="muted small" style={{ textAlign: 'center' }}>Esqueceu o PIN? Peça para {familia ? 'o adulto da sua casa' : 'o adulto da turma'} criar um novo.</p>
         </>
       )}
-      {passo === 'novo' && <EntrarTurma inicio={{ codigo, turma }} aoEntrar={aoTerminar} />}
     </main>
-  );
-}
-
-/** "Ainda não tenho código": a criança manda um recado pronto para um adulto (pelo WhatsApp, por exemplo). */
-function SemCodigo() {
-  const [feito, setFeito] = useState<'enviado' | 'copiado' | null>(null);
-  const link = `${location.origin}/#/adulto`;
-  const recado = `Oi! Quero estudar no Sabidex. Você pode criar a conta da nossa família e me passar o código? É só abrir: ${link}`;
-  const enviar = async () => {
-    try {
-      if (navigator.share) { await navigator.share({ title: 'Sabidex', text: recado }); setFeito('enviado'); return; }
-    } catch (e) { if ((e as Error).name === 'AbortError') return; }
-    try { await navigator.clipboard.writeText(recado); setFeito('copiado'); } catch { setFeito(null); }
-  };
-  return (
-    <div className="painel coluna" style={{ gap: 10 }}>
-      <div className="linha" style={{ alignItems: 'flex-end' }}>
-        <Ara tamanho={70} humor="pensando" />
-        <div className="balao" style={{ flex: 1, marginBottom: 10 }}>Sem problema! Um adulto da sua casa cria a <strong>conta da família</strong> e te passa o código.</div>
-      </div>
-      <button type="button" className="btn btn-amarelo btn-bloco" onClick={() => void enviar()}>Mandar recado para um adulto</button>
-      {feito === 'copiado' && <div className="aviso aviso-ok" role="status">Recado copiado! Cole no WhatsApp do adulto.</div>}
-      {feito === 'enviado' && <div className="aviso aviso-ok" role="status">Recado enviado! Quando o adulto te passar o código, digite aqui em cima.</div>}
-      <p className="muted small" style={{ margin: 0 }}>Na escola, quem passa o código da turma é o professor.</p>
-    </div>
   );
 }
 
@@ -317,7 +275,7 @@ function AvatarOnline({ nome, cor, tamanho, online }: { nome: string; cor: strin
 }
 
 export function Ranking() {
-  const { conta, contaNova: contaNovaR } = useConta();
+  const { conta } = useConta();
   const e = useEstado();
   const [aba, setAba] = useState<'xp' | 'cartas' | 'vitorias'>('xp');
   const codigo = conta?.codigo ?? '';
@@ -338,7 +296,6 @@ export function Ranking() {
     return () => { vivo = false; };
   }, [codigo, e.xp]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (contaNovaR) return <ContaCriada />;
   if (!conta?.codigo) return <SemTurma titulo="Quem estudou mais?" texto={<>Entre na sua <strong>turma</strong> para ver o placar da semana com os colegas!</>} />;
 
   const num = (p: Participante) => (aba === 'xp' ? p.xp : aba === 'cartas' ? p.cartas : p.vitorias ?? 0);
@@ -412,7 +369,7 @@ function Mini({ id }: { id: string }) {
 }
 
 export function Trocas() {
-  const { conta, contaNova: contaNovaT, desafiosNovos } = useConta();
+  const { conta, desafiosNovos } = useConta();
   const e = useEstado();
   const [modo, setModo] = useState<'lista' | 'nova'>('lista');
   const [dados, setDados] = useState<{ eu: string; trocas: TrocaApi[] } | null>(null);
@@ -436,7 +393,6 @@ export function Trocas() {
     return () => clearInterval(t);
   }, [conta?.codigo, modo]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (contaNovaT) return <ContaCriada />;
   if (!conta?.codigo) {
     const repetidas = Object.values(e.cartas).reduce((s, n) => s + Math.max(0, n - 1), 0);
     return <SemTurma titulo="Troque com os amigos" texto={<>Entre na sua <strong>turma</strong> para trocar cartas. Você já tem <strong>{repetidas}</strong> {repetidas === 1 ? 'carta repetida' : 'cartas repetidas'}!</>} />;

@@ -403,6 +403,7 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
   const [form, setForm] = useState<'nenhum' | 'novo' | 'ligar'>('nenhum');
   const [abrir, setAbrir] = useState<string | null>(null);
   const [apagar, setApagar] = useState<string | null>(null);
+  const [renomear, setRenomear] = useState<{ id: string; apelido: string } | null>(null);
   const [codigo, setCodigo] = useState<string | null>(null);
   const [pedidos, setPedidos] = useState<PedidoFeito[]>([]);
   const carregar = () => {
@@ -430,6 +431,15 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
     setErro(null);
     const r = await api<{ pin: string }>(`/adulto/familia/${f.id}/pin`, { corpo: {}, tokenProprio: token });
     if (r.erro) setErro(r.erro); else { setAviso(`Novo PIN de ${f.apelido}: ${r.pin}. Anote e passe para a criança.`); void carregar(); }
+  };
+  const trocarApelido = async (f: Filho) => {
+    if (!renomear) return;
+    setErro(null);
+    const r = await api<{ apelido: string }>(`/adulto/familia/${f.id}/apelido`, { corpo: { apelido: renomear.apelido }, tokenProprio: token });
+    if (r.erro) return setErro(r.erro);
+    setRenomear(null);
+    setAviso(`Agora o apelido é ${r.apelido}.`);
+    void carregar();
   };
   const sairTurma = async (f: Filho) => {
     const r = await api(`/adulto/familia/${f.id}/sair-turma`, { corpo: {}, tokenProprio: token });
@@ -477,10 +487,20 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
                 <button className="btn btn-vermelho" style={botaoPequeno} onClick={() => void tirar(f)}>Apagar</button>
               </div>
             </div>
+          ) : renomear?.id === f.id ? (
+            <form className="aviso coluna" style={{ gap: 8 }} onSubmit={(ev) => { ev.preventDefault(); void trocarApelido(f); }}>
+              <label htmlFor={`apelido-${f.id}`} className="small" style={{ fontWeight: 700 }}>Novo apelido <span className="muted">(não use o nome completo)</span></label>
+              <input id={`apelido-${f.id}`} style={campo} value={renomear.apelido} maxLength={14} autoComplete="off" onChange={(ev) => setRenomear({ id: f.id, apelido: ev.target.value })} />
+              <div className="linha" style={{ gap: 8 }}>
+                <button type="button" className="btn btn-escuro" style={botaoPequeno} onClick={() => setRenomear(null)}>Cancelar</button>
+                <button className="btn btn-amarelo" style={botaoPequeno} disabled={renomear.apelido.trim().length < 2}>Salvar</button>
+              </div>
+            </form>
           ) : (
             <div className="linha" style={{ gap: 8, flexWrap: 'wrap' }}>
               {contaAberta?.id !== f.id && <button className="btn btn-amarelo" style={botaoPequeno} onClick={() => setAbrir(f.id)}>Abrir neste aparelho</button>}
               <button className="btn btn-escuro" style={botaoPequeno} onClick={() => void novoPin(f)}>Novo PIN</button>
+              <button className="btn btn-escuro" style={botaoPequeno} onClick={() => { setErro(null); setApagar(null); setAbrir(null); setRenomear({ id: f.id, apelido: f.apelido }); }}>Trocar apelido</button>
               {f.turma && <button className="btn btn-escuro" style={botaoPequeno} onClick={() => void sairTurma(f)}>Tirar da turma</button>}
               <button className="btn btn-escuro" style={botaoPequeno} onClick={() => setApagar(f.id)}>Apagar</button>
             </div>
@@ -618,6 +638,7 @@ function NovoFilho({ token, solto, aoFechar, aoCriar }: { token: string; solto: 
   const [apelido, setApelido] = useState(solto ? perfil?.nome ?? '' : '');
   const [cor, setCor] = useState(solto ? perfil?.cor ?? CORES[0] : CORES[0]);
   const [pin, setPin] = useState('');
+  const [codigo, setCodigo] = useState('');
   const [levar, setLevar] = useState(solto);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
@@ -625,7 +646,7 @@ function NovoFilho({ token, solto, aoFechar, aoCriar }: { token: string; solto: 
   const criar = async () => {
     setOcupado(true); setErro(null);
     const r = await api<{ id: string }>('/adulto/familia', {
-      corpo: { apelido, cor, pin, ...(levar ? { progresso: progressoDe(e), cartas: e.cartas } : {}) }, tokenProprio: token,
+      corpo: { apelido, cor, pin, ...(codigo.trim() ? { codigo } : {}), ...(levar ? { progresso: progressoDe(e), cartas: e.cartas } : {}) }, tokenProprio: token,
     });
     setOcupado(false);
     if (r.erro) setErro(r.erro); else aoCriar(r.id, apelido.trim(), levar);
@@ -643,6 +664,8 @@ function NovoFilho({ token, solto, aoFechar, aoCriar }: { token: string; solto: 
       </fieldset>
       <label htmlFor="f-pin" className="small" style={rotulo}>PIN de 4 números <span className="muted">(a criança usa para trocar de perfil)</span></label>
       <input id="f-pin" style={{ ...campo, letterSpacing: '.3em' }} inputMode="numeric" autoComplete="off" maxLength={4} value={pin} onChange={(ev) => setPin(ev.target.value.replace(/\D/g, '').slice(0, 4))} />
+      <label htmlFor="f-codigo" className="small" style={rotulo}>Código da turma <span className="muted">(se o professor já passou; pode deixar vazio)</span></label>
+      <input id="f-codigo" style={{ ...campo, letterSpacing: '.06em' }} placeholder="Ex.: ARARA-4821" autoComplete="off" autoCapitalize="characters" spellCheck={false} value={codigo} onChange={(ev) => setCodigo(ev.target.value.toUpperCase())} />
       {solto && (
         <label className="linha small" style={{ gap: 10, alignItems: 'flex-start', fontWeight: 700 }}>
           <input type="checkbox" checked={levar} onChange={(ev) => setLevar(ev.target.checked)} style={{ width: 22, height: 22, flex: 'none', marginTop: 2 }} />
