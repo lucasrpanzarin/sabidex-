@@ -305,23 +305,38 @@ function SemTurma({ titulo, texto }: { titulo: string; texto: ReactNode }) {
 }
 
 /* ---------------- Ranking ---------------- */
-interface Participante { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias?: number }
+interface Participante { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias?: number; online?: number }
+
+/** Guarda o último placar e a lista de colegas: ao voltar para a tela, aparecem na hora e atualizam sozinhos. */
+let rankingGuardado: { codigo: string; dados: { eu: string; participantes: Participante[] } } | null = null;
+let colegasGuardados: { codigo: string; colegas: Colega[] } | null = null;
+
+/** Bolinha verde no avatar de quem está estudando agora. */
+function AvatarOnline({ nome, cor, tamanho, online }: { nome: string; cor: string; tamanho?: number; online?: number | boolean }) {
+  return <span style={{ position: 'relative', display: 'inline-flex' }}><Avatar nome={nome} cor={cor} tamanho={tamanho} />{!!online && <span className="colega-online" aria-hidden="true" />}</span>;
+}
 
 export function Ranking() {
   const { conta, contaNova: contaNovaR } = useConta();
   const e = useEstado();
   const [aba, setAba] = useState<'xp' | 'cartas' | 'vitorias'>('xp');
-  const [dados, setDados] = useState<{ eu: string; participantes: Participante[] } | null>(null);
+  const codigo = conta?.codigo ?? '';
+  const [dados, setDados] = useState<{ eu: string; participantes: Participante[] } | null>(rankingGuardado?.codigo === codigo ? rankingGuardado.dados : null);
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!conta?.codigo) return;
-    (async () => {
-      await sincronizar();
+    if (!codigo) return;
+    let vivo = true;
+    const buscar = async () => {
       const r = await api<{ eu: string; participantes: Participante[] }>('/crianca/ranking');
-      if (r.erro) setErro(r.erro); else { setDados(r); setErro(null); }
-    })();
-  }, [conta?.codigo, e.xp]); // eslint-disable-line react-hooks/exhaustive-deps
+      if (!vivo) return;
+      if (r.erro) { if (!rankingGuardado) setErro(r.erro); } else { rankingGuardado = { codigo, dados: r }; setDados(r); setErro(null); }
+    };
+    // Mostra o placar logo; depois de mandar o progresso novo para o servidor, atualiza de novo.
+    void buscar();
+    void sincronizar().then(() => buscar());
+    return () => { vivo = false; };
+  }, [codigo, e.xp]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (contaNovaR) return <ContaCriada />;
   if (!conta?.codigo) return <SemTurma titulo="Quem estudou mais?" texto={<>Entre na sua <strong>turma</strong> para ver o placar da semana com os colegas!</>} />;
@@ -355,7 +370,7 @@ export function Ranking() {
             const p = lista[i];
             return (
               <div key={p.id} className="coluna" style={{ alignItems: 'center', gap: 6 }}>
-                <Avatar nome={p.apelido} cor={p.cor} tamanho={i === 0 ? 58 : 48} />
+                <AvatarOnline nome={p.apelido} cor={p.cor} tamanho={i === 0 ? 58 : 48} online={p.online} />
                 <div className="display" style={{ fontSize: 15, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.id === dados?.eu ? 'Você' : p.apelido}</div>
                 <div style={{ alignSelf: 'stretch', height: [120, 92, 76][i], borderRadius: '18px 18px 8px 8px', background: ouro[i][0], boxShadow: `inset 0 -5px 0 ${ouro[i][1]}, inset 0 2px 0 #FFFFFF99`, color: 'var(--ink)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <div className="display" style={{ fontSize: 30, lineHeight: 1 }}>{i + 1}º</div>
@@ -372,8 +387,8 @@ export function Ranking() {
           return (
             <li key={p.id} className="linha" style={{ minHeight: 52, padding: '6px 12px', borderRadius: 16, background: eu ? '#CFFAFE' : 'var(--surface)', boxShadow: `inset 0 0 0 1.5px ${eu ? 'var(--cyan)' : 'var(--line)'}` }}>
               <span className="display" style={{ width: 26, color: 'var(--muted)' }}>{j + (lista.length >= 2 ? 4 : 1)}</span>
-              <Avatar nome={p.apelido} cor={p.cor} tamanho={34} />
-              <span style={{ flex: 1, fontWeight: 900 }}>{eu ? 'Você' : p.apelido}</span>
+              <AvatarOnline nome={p.apelido} cor={p.cor} tamanho={34} online={p.online} />
+              <span style={{ flex: 1, fontWeight: 900 }}>{eu ? 'Você' : p.apelido}{!!p.online && <span className="muted small" style={{ display: 'block', fontWeight: 700 }}>Estudando agora</span>}</span>
               <span style={{ fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>{valor(p)}</span>
             </li>
           );
@@ -382,7 +397,7 @@ export function Ranking() {
       {frente && falta > 1 && <div className="painel" style={{ borderColor: 'var(--pink)', padding: 12, fontWeight: 700 }}>Faltam <strong>{unidade(falta)}</strong> para você passar {frente.apelido}!</div>}
       {frente && falta === 1 && <div className="painel" style={{ borderColor: 'var(--pink)', padding: 12, fontWeight: 700 }}>Você está <strong>empatado</strong> com {frente.apelido}. {aba === 'xp' ? 'Jogue uma fase' : aba === 'cartas' ? 'Ganhe mais uma carta' : 'Vença mais um duelo'} e passe na frente!</div>}
       {meuIdx === 0 && lista.length > 1 && <div className="painel" style={{ borderColor: 'var(--yellow)', padding: 12, fontWeight: 700 }}>Você está em <strong>1º lugar</strong>! Continue estudando para não perder.</div>}
-      <p className="muted small" style={{ textAlign: 'center', margin: 0 }}>{aba === 'vitorias' ? 'Vitórias no Duelo do Saber nesta semana. ' : ''}O placar da semana zera toda segunda-feira.</p>
+      <p className="muted small" style={{ textAlign: 'center', margin: 0 }}>{aba === 'vitorias' ? 'Vitórias no Duelo do Saber nesta semana. ' : ''}O placar da semana zera toda segunda-feira.{lista.some((p) => p.online) ? ' A bolinha verde mostra quem está estudando agora.' : ''}</p>
     </main>
   );
 }
@@ -404,8 +419,12 @@ export function Trocas() {
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState<string | null>(null);
+  const codigo = conta?.codigo ?? '';
+  const [colegas, setColegas] = useState<Colega[] | null>(colegasGuardados?.codigo === codigo ? colegasGuardados.colegas : null);
 
   const carregar = async () => {
+    // Trocas e colegas ao mesmo tempo (um não espera o outro).
+    void api<{ colegas: Colega[] }>('/crianca/turma').then((r) => { if (!r.erro) { colegasGuardados = { codigo, colegas: r.colegas }; setColegas(r.colegas); } });
     const r = await api<{ eu: string; trocas: TrocaApi[] }>('/crianca/trocas');
     if (r.erro) setErro(r.erro); else { setDados(r); setErro(null); }
     void verPropostas();
@@ -457,6 +476,7 @@ export function Trocas() {
       <button className="btn btn-escuro btn-bloco" onClick={() => ir('chat')}>Conversa da turma</button>
       {aviso && <div className="aviso aviso-ok pop" role="status">{aviso}</div>}
       <Erro texto={erro} />
+      {colegas && <EstudandoAgora colegas={colegas} />}
 
       <section className="coluna" aria-label="Propostas para você">
         <h2 className="display h3">Propostas de troca {recebidas.length > 0 && <span className="pilula" style={{ marginLeft: 6, borderColor: 'var(--pink)' }}>{recebidas.length}</span>}</h2>
@@ -514,6 +534,22 @@ export function Trocas() {
   );
 }
 
+/** Quem da turma está com o app aberto agora (some quando o professor ou o responsável desligam). */
+function EstudandoAgora({ colegas }: { colegas: Colega[] }) {
+  const online = colegas.filter((c) => c.online);
+  if (colegas.length === 0) return null;
+  return (
+    <section className="painel coluna" aria-label="Estudando agora" style={{ padding: 12, gap: 8 }}>
+      <h2 className="display h3" style={{ margin: 0 }}>Estudando agora {online.length > 0 && <span className="pilula" style={{ marginLeft: 6, borderColor: 'var(--green)' }}>{online.length}</span>}</h2>
+      {online.length === 0
+        ? <p className="muted small" style={{ margin: 0 }}>Nenhum colega agora. Que tal chamar alguém para um duelo?</p>
+        : <div className="linha" style={{ flexWrap: 'wrap', gap: 10 }}>
+            {online.map((c) => <span key={c.id} className="linha" style={{ gap: 6 }}><AvatarOnline nome={c.apelido} cor={c.cor} tamanho={30} online /><span className="small" style={{ fontWeight: 800 }}>{c.apelido}</span></span>)}
+          </div>}
+    </section>
+  );
+}
+
 function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void }) {
   const e = useEstado();
   const [colegas, setColegas] = useState<Colega[] | null>(null);
@@ -562,7 +598,7 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
           {colegas?.length === 0 && <div className="balao">Ainda não tem colegas na turma. Chame seus amigos!</div>}
           {colegas?.map((c) => (
             <button key={c.id} className="linha" onClick={() => setColega(c)} style={{ minHeight: 60, borderRadius: 16, padding: '8px 12px', background: 'var(--surface)', border: '3px solid var(--ink)', textAlign: 'left' }}>
-              <span style={{ position: 'relative' }}><Avatar nome={c.apelido} cor={c.cor} />{!!c.online && <span className="colega-online" aria-hidden="true" />}</span>
+              <AvatarOnline nome={c.apelido} cor={c.cor} online={c.online} />
               <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 18, display: 'block' }}>{c.apelido}</span><span className="muted small">{c.online ? 'Estudando agora · ' : ''}{c.cartas} {c.cartas === 1 ? 'carta diferente' : 'cartas diferentes'}</span></span>
               <Icone nome="seguir" />
             </button>

@@ -1,3 +1,4 @@
+import { InstalarApp } from '../components/InstalarApp';
 import { PACOTE_BOAS_VINDAS } from '../shared/sync';
 import { useState } from 'react';
 import { Ara } from '../components/Ara';
@@ -37,6 +38,7 @@ export function BoasVindas() {
         <div className="coluna" style={{ width: '100%', maxWidth: 340, marginTop: 8 }}>
           <EscolherPerfil perfis={perfis} titulo="Quem vai jogar?" />
           <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => setOutra(true)}>Sou outra pessoa</button>
+          <InstalarApp />
         </div>
       </main>
     );
@@ -58,6 +60,7 @@ export function BoasVindas() {
         </button>
       </div>
       {outra && <button type="button" className="voltar" style={{ alignSelf: 'center' }} onClick={() => setOutra(false)}>Voltar para os perfis</button>}
+      <div style={{ width: '100%', maxWidth: 420, marginTop: 8 }}><InstalarApp /></div>
     </main>
   );
 }
@@ -140,7 +143,7 @@ export function Inicio() {
       <div className="linha" style={{ justifyContent: 'space-between' }}>
         <Logo />
         <span className="linha" style={{ gap: 8 }}>
-        <button onClick={() => ir('loja')} style={{ border: 0, background: 'none', padding: 0, color: 'inherit', font: 'inherit' }} aria-label={`${saldo(e)} Sabicoins. Abrir a lojinha`}><Saldo valor={saldo(e)} /></button>
+        <button className="area-toque" onClick={() => ir('loja')} style={{ position: 'relative', border: 0, background: 'none', padding: 0, color: 'inherit', font: 'inherit' }} aria-label={`${saldo(e)} Sabicoins. Abrir a lojinha`}><Saldo valor={saldo(e)} /></button>
         <button className={`pilula${!estudouHoje && dias > 0 ? ' pilula-hoje' : ''}`} onClick={() => ir('dia')} style={{ cursor: 'pointer', position: 'relative' }}
           aria-label={`${dias} ${dias === 1 ? 'dia' : 'dias'} seguidos estudando.${!estudouHoje && dias > 0 ? ' Estude hoje para não perder.' : ''} Ver missões do dia`}>
           <Chama />
@@ -168,6 +171,8 @@ export function Inicio() {
         <div style={{ flex: 'none' }}><Ara tamanho={76} /></div>
         <div className="balao" style={{ flex: 1, marginBottom: 14 }}>{fala}</div>
       </div>
+
+      <InstalarApp />
 
       {e.pacotes.length > 0 && (
         <button className="aviso-pacote linha" onClick={() => ir('pacote')}>

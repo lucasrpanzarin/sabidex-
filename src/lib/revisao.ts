@@ -4,7 +4,7 @@
 
 import type { Capitulo, Afirmacao, Questao } from '../data/tipos';
 import { gerarConta, type Conta } from './contas';
-import { hoje as hojeStr, premiar, type Estado, type Resultado } from './jogo';
+import { NOTA_MINIMA, hoje as hojeStr, notaDe, premiar, type Estado, type Resultado } from './jogo';
 
 /** Dias até a pergunta voltar, para cada caixa. */
 export const INTERVALOS = [1, 3, 7, 21, 60];
@@ -93,5 +93,6 @@ export function proximaData(rev: Revisao, dia: string): string | null {
  */
 export function concluirRevisao(e: Estado, acertos: number, total: number, caps: string[], agora = new Date()): Resultado {
   const xpGanho = acertos * XP_POR_ACERTO + (total ? 10 : 0);
-  return premiar(e, caps[0] ?? 'revisao', xpGanho, [], false, e.feitas, agora);
+  // Pacote do dia só com nota 7 ou mais, como nas fases.
+  return premiar(e, caps[0] ?? 'revisao', xpGanho, [], false, e.feitas, agora, notaDe(acertos, total) >= NOTA_MINIMA);
 }
