@@ -863,7 +863,7 @@ app.post('/crianca/duelos/:id/:acao', async (c) => {
 
 /* ============================ Adultos ============================ */
 
-interface Adulto { id: string; nome: string; email: string; senha_hash: string; senha_sal: string; falhas: number; bloqueado_ate: number; aceite_versao: string; tem_senha: number }
+interface Adulto { id: string; nome: string; email: string; senha_hash: string; senha_sal: string; falhas: number; bloqueado_ate: number; aceite_versao: string; tem_senha: number; email_ok: number }
 
 /** Versão da política de privacidade aceita no cadastro (mudar quando o texto mudar). */
 const VERSAO_PRIVACIDADE = '2026-11-busca-turmas';
@@ -889,7 +889,8 @@ app.post('/adulto/cadastro', async (c) => {
     if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já existe uma conta com esse e-mail. Use "Entrar".');
     throw e;
   }
-  return c.json({ token: await novaSessao(c.env.DB, 'adulto', id), adulto: { nome, email, admin: ehAdmin(c.env, email), precisaAceite: false, temSenha: true } });
+  if (mandaEmail(c.env)) await mandarConfirmacao(c, { id, nome, email });
+  return c.json({ token: await novaSessao(c.env.DB, 'adulto', id), adulto: dadosAdulto(c.env, { nome, email, aceite_versao: VERSAO_PRIVACIDADE, tem_senha: 1, email_ok: 0 }) });
 });
 
 app.post('/adulto/entrar', async (c) => {
@@ -909,14 +910,47 @@ app.post('/adulto/entrar', async (c) => {
   return c.json({ token: await novaSessao(c.env.DB, 'adulto', a.id), adulto: dadosAdulto(c.env, a) });
 });
 
-const dadosAdulto = (env: Env, a: Pick<Adulto, 'nome' | 'email' | 'aceite_versao' | 'tem_senha'>) =>
-  ({ nome: a.nome, email: a.email, admin: ehAdmin(env, a.email), precisaAceite: a.aceite_versao !== VERSAO_PRIVACIDADE, temSenha: !!a.tem_senha });
+const dadosAdulto = (env: Env, a: Pick<Adulto, 'nome' | 'email' | 'aceite_versao' | 'tem_senha' | 'email_ok'>) =>
+  ({ nome: a.nome, email: a.email, admin: ehAdmin(env, a.email), precisaAceite: a.aceite_versao !== VERSAO_PRIVACIDADE, temSenha: !!a.tem_senha,
+    precisaConfirmar: !confirmado(env, a) });
+
+/** O servidor manda e-mail? (sem isso, não dá para pedir a confirmação e nada fica travado). */
+const mandaEmail = (env: Env) => !!(env.RESEND_API_KEY && env.EMAIL_REMETENTE);
+/** E-mail confirmado (ou o servidor ainda não manda e-mail). O administrador geral nunca fica travado. */
+const confirmado = (env: Env, a: Pick<Adulto, 'email' | 'email_ok'>) => !!a.email_ok || !mandaEmail(env) || ehAdmin(env, a.email);
+const PRECISA_CONFIRMAR = 'Antes, confirme seu e-mail: abra o link que mandamos para você (olhe também o spam). Assim sabemos que é um adulto.';
+
+async function enviarEmail(env: Env, para: string, assunto: string, texto: string, html: string) {
+  const r = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: env.EMAIL_REMETENTE, to: [para], subject: assunto, text: texto, html }),
+  }).catch((e) => { console.error('resend', e); return null; });
+  if (r && !r.ok) console.error('resend', r.status, await r.text());
+  return !!r?.ok;
+}
+
+/** Manda o link de confirmar o e-mail (vale 24 horas). No máximo 3 por hora. */
+async function mandarConfirmacao(c: C, a: { id: string; nome: string; email: string }) {
+  const db = c.env.DB;
+  const recentes = await db.prepare('SELECT COUNT(*) n FROM confirmacoes_email WHERE adulto_id = ? AND criado > ?').bind(a.id, Date.now() - 3_600_000).first<{ n: number }>();
+  if ((recentes?.n ?? 0) >= 3) return 'limite';
+  const token = aleatorio(32);
+  await db.prepare('INSERT INTO confirmacoes_email (token_hash, adulto_id, expira, criado) VALUES (?, ?, ?, ?)')
+    .bind(await sha256(token), a.id, Date.now() + DIA, Date.now()).run();
+  const link = `${new URL(c.req.url).origin}/#/confirmar-email/${token}`;
+  const nome = a.nome.replace(/[<>&"]/g, '');
+  const ok = await enviarEmail(c.env, a.email, 'Sabidex: confirme seu e-mail',
+    `Olá, ${a.nome}!\n\nPara confirmar seu e-mail no Sabidex, abra este link (vale por 24 horas):\n${link}\n\nDepois disso você pode criar turmas e liberar o chat da turma para seus filhos.\n\nSe não foi você que criou a conta, ignore este e-mail.`,
+    `<p>Olá, ${nome}!</p><p>Para confirmar seu e-mail no Sabidex, toque no link abaixo. Ele vale por 24 horas.</p><p><a href="${link}">Confirmar meu e-mail</a></p><p>Depois disso você pode criar turmas e liberar o chat da turma para seus filhos.</p><p>Se não foi você que criou a conta, ignore este e-mail.</p>`);
+  return ok ? 'ok' : 'falhou';
+}
 
 async function adulto(c: C) {
   const id = await sessao(c, 'adulto');
   if (!id) return null;
-  const a = await c.env.DB.prepare('SELECT id, nome, email, aceite_versao, tem_senha FROM adultos WHERE id = ?').bind(id)
-    .first<{ id: string; nome: string; email: string; aceite_versao: string; tem_senha: number }>();
+  const a = await c.env.DB.prepare('SELECT id, nome, email, aceite_versao, tem_senha, email_ok FROM adultos WHERE id = ?').bind(id)
+    .first<{ id: string; nome: string; email: string; aceite_versao: string; tem_senha: number; email_ok: number }>();
   return a ? { ...a, admin: ehAdmin(c.env, a.email) } : null;
 }
 
@@ -951,14 +985,18 @@ app.post('/adulto/social', async (c) => {
   if (!cracha.emailVerificado || !emailValido(cracha.email)) return erro(c, 401, 'Sua conta precisa ter um e-mail confirmado.');
   const db = c.env.DB;
   const a = await db.prepare('SELECT * FROM adultos WHERE email = ?').bind(cracha.email).first<Adulto>();
-  if (a) return c.json({ token: await novaSessao(db, 'adulto', a.id), adulto: dadosAdulto(c.env, a) });
+  if (a) {
+    // O Google/Apple já confirmou esse e-mail.
+    if (!a.email_ok) await db.prepare('UPDATE adultos SET email_ok = 1 WHERE id = ?').bind(a.id).run();
+    return c.json({ token: await novaSessao(db, 'adulto', a.id), adulto: dadosAdulto(c.env, { ...a, email_ok: 1 }) });
+  }
   const nome = (String(b.nome ?? '').trim() || cracha.nome || cracha.email.split('@')[0]).slice(0, 60);
   if (b.aceite !== true) return c.json({ precisaAceite: true, nome, email: cracha.email });
   const id = aleatorio(8), sal = aleatorio(16);
   // Sem senha: guarda um segredo sorteado que ninguém conhece. Dá para criar senha depois em "Esqueci minha senha".
-  await db.prepare('INSERT INTO adultos (id, nome, email, senha_hash, senha_sal, criado, aceite, aceite_versao, tem_senha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)')
+  await db.prepare('INSERT INTO adultos (id, nome, email, senha_hash, senha_sal, criado, aceite, aceite_versao, tem_senha, email_ok) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 1)')
     .bind(id, nome, cracha.email, await hashSegredo(aleatorio(32), sal), sal, Date.now(), Date.now(), VERSAO_PRIVACIDADE).run();
-  return c.json({ token: await novaSessao(db, 'adulto', id), adulto: { nome, email: cracha.email, admin: ehAdmin(c.env, cracha.email), precisaAceite: false, temSenha: false } });
+  return c.json({ token: await novaSessao(db, 'adulto', id), adulto: { nome, email: cracha.email, admin: ehAdmin(c.env, cracha.email), precisaAceite: false, temSenha: false, precisaConfirmar: false } });
 });
 
 /** Esqueci minha senha: manda um link por e-mail. Responde igual exista ou não a conta. */
@@ -975,16 +1013,9 @@ app.post('/adulto/esqueci', async (c) => {
   await c.env.DB.prepare('INSERT INTO recuperacoes (token_hash, adulto_id, expira, criado) VALUES (?, ?, ?, ?)')
     .bind(await sha256(token), a.id, Date.now() + 3_600_000, Date.now()).run();
   const link = `${new URL(c.req.url).origin}/#/nova-senha/${token}`;
-  const r = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${c.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: c.env.EMAIL_REMETENTE, to: [email], subject: 'Sabidex: criar uma senha nova',
-      text: `Olá, ${a.nome}!\n\nPara criar uma senha nova no Sabidex, abra este link (vale por 1 hora):\n${link}\n\nSe não foi você que pediu, ignore este e-mail.`,
-      html: `<p>Olá, ${a.nome.replace(/[<>&"]/g, '')}!</p><p>Para criar uma senha nova no Sabidex, toque no link abaixo. Ele vale por 1 hora.</p><p><a href="${link}">Criar senha nova</a></p><p>Se não foi você que pediu, ignore este e-mail.</p>`,
-    }),
-  }).catch((e) => { console.error('resend', e); return null; });
-  if (r && !r.ok) console.error('resend', r.status, await r.text());
+  await enviarEmail(c.env, email, 'Sabidex: criar uma senha nova',
+    `Olá, ${a.nome}!\n\nPara criar uma senha nova no Sabidex, abra este link (vale por 1 hora):\n${link}\n\nSe não foi você que pediu, ignore este e-mail.`,
+    `<p>Olá, ${a.nome.replace(/[<>&"]/g, '')}!</p><p>Para criar uma senha nova no Sabidex, toque no link abaixo. Ele vale por 1 hora.</p><p><a href="${link}">Criar senha nova</a></p><p>Se não foi você que pediu, ignore este e-mail.</p>`);
   return resposta;
 });
 
@@ -999,7 +1030,7 @@ app.post('/adulto/nova-senha', async (c) => {
   const sal = aleatorio(16);
   await c.env.DB.batch([
     c.env.DB.prepare('UPDATE recuperacoes SET usado = 1 WHERE token_hash = ?').bind(h),
-    c.env.DB.prepare('UPDATE adultos SET senha_hash = ?, senha_sal = ?, tem_senha = 1, falhas = 0, bloqueado_ate = 0 WHERE id = ?').bind(await hashSegredo(senha, sal), sal, rec.adulto_id),
+    c.env.DB.prepare('UPDATE adultos SET senha_hash = ?, senha_sal = ?, tem_senha = 1, email_ok = 1, falhas = 0, bloqueado_ate = 0 WHERE id = ?').bind(await hashSegredo(senha, sal), sal, rec.adulto_id),
     c.env.DB.prepare(`DELETE FROM sessoes WHERE tipo = 'adulto' AND ref_id = ?`).bind(rec.adulto_id),
   ]);
   const a = await c.env.DB.prepare('SELECT * FROM adultos WHERE id = ?').bind(rec.adulto_id).first<Adulto>();
@@ -1012,6 +1043,30 @@ app.get('/adulto/eu', async (c) => {
   const a = await adulto(c);
   if (!a) return erro(c, 401, 'Entre de novo.');
   return c.json({ adulto: dadosAdulto(c.env, a) });
+});
+
+/** Manda de novo o link para confirmar o e-mail. */
+app.post('/adulto/confirmar-email/enviar', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  if (confirmado(c.env, a)) return c.json({ ok: true, confirmado: true });
+  const r = await mandarConfirmacao(c, a);
+  if (r === 'limite') return erro(c, 429, 'Já mandamos alguns e-mails agora. Olhe a caixa de entrada e o spam, ou tente de novo daqui a 1 hora.');
+  if (r === 'falhou') return erro(c, 409, 'Não consegui mandar o e-mail agora. Tente de novo daqui a pouco.');
+  return c.json({ ok: true });
+});
+
+/** O adulto abriu o link do e-mail. */
+app.post('/adulto/confirmar-email', async (c) => {
+  const h = await sha256(String((await corpo(c)).token ?? ''));
+  const db = c.env.DB;
+  const v = await db.prepare('SELECT adulto_id, expira, usado FROM confirmacoes_email WHERE token_hash = ?').bind(h).first<{ adulto_id: string; expira: number; usado: number }>();
+  if (!v || v.usado || v.expira < Date.now()) return erro(c, 400, 'Esse link não vale mais. Entre na área dos adultos e toque em "Mandar o e-mail de novo".');
+  await db.batch([
+    db.prepare('UPDATE confirmacoes_email SET usado = 1 WHERE token_hash = ?').bind(h),
+    db.prepare('UPDATE adultos SET email_ok = 1 WHERE id = ?').bind(v.adulto_id),
+  ]);
+  return c.json({ ok: true });
 });
 
 app.get('/adulto/turmas', async (c) => {
@@ -1032,6 +1087,7 @@ app.post('/adulto/turmas', async (c) => {
   const nome = String(b.nome ?? '').trim().slice(0, 50);
   const escola = normalizarEscola(String(b.escola ?? ''));
   if (nome.length < 2) return erro(c, 400, 'Dê um nome para a turma, por exemplo "4º ano B".');
+  if (!confirmado(c.env, a)) return erro(c, 403, PRECISA_CONFIRMAR);
   const n = await c.env.DB.prepare('SELECT COUNT(*) n FROM turmas WHERE dono_id = ?').bind(a.id).first<{ n: number }>();
   if ((n?.n ?? 0) >= 20 && !a.admin) return erro(c, 429, 'Limite de 20 turmas por adulto.');
   for (let i = 0; i < 6; i++) {
@@ -1602,6 +1658,7 @@ app.post('/adulto/turmas/:id/chat', async (c) => {
     online: typeof b.online === 'boolean' ? Number(b.online) : atual.mostrar_online,
   };
   if (novo.inicio === novo.fim) return erro(c, 400, 'O chat precisa abrir e fechar em horas diferentes.');
+  if (novo.chat && !atual.chat && !confirmado(c.env, a)) return erro(c, 403, PRECISA_CONFIRMAR);
   await c.env.DB.prepare('UPDATE turmas SET chat = ?, chat_inicio = ?, chat_fim = ?, mostrar_online = ? WHERE id = ?').bind(novo.chat, novo.inicio, novo.fim, novo.online, t.id).run();
   return c.json({ chat: (await turmaChat(c.env.DB, t.id))! });
 });
@@ -1665,6 +1722,7 @@ app.post('/adulto/familia/:cid/chat', async (c) => {
   if (!k) return erro(c, 404, 'Criança não encontrada.');
   const b = await corpo(c);
   const chatOk = typeof b.chat === 'boolean' ? Number(b.chat) : k.chat_ok;
+  if (chatOk && !k.chat_ok && !confirmado(c.env, a)) return erro(c, 403, PRECISA_CONFIRMAR);
   const online = typeof b.online === 'boolean' ? Number(b.online) : k.mostrar_online;
   await c.env.DB.prepare('UPDATE criancas SET chat_ok = ?, mostrar_online = ? WHERE id = ?').bind(chatOk, online, k.id).run();
   return c.json({ chat_ok: chatOk, mostrar_online: online });

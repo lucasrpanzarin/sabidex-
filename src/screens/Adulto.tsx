@@ -83,7 +83,7 @@ function Portao({ aoPassar }: { aoPassar: () => void }) {
   );
 }
 
-interface Eu { nome: string; email: string; admin: boolean; precisaAceite: boolean; temSenha: boolean }
+interface Eu { nome: string; email: string; admin: boolean; precisaAceite: boolean; temSenha: boolean; precisaConfirmar?: boolean }
 const guardarToken = (t: string) => { try { localStorage.setItem(K, t); } catch { /* */ } };
 
 export function Adulto({ turmaId }: { turmaId?: string }) {
@@ -277,6 +277,50 @@ export function NovaSenha({ token }: { token: string }) {
   );
 }
 
+/** Aviso no painel enquanto o e-mail não foi confirmado (sem isso, não cria turma nem libera chat). */
+function ConfirmeEmail({ token, email }: { token: string; email: string }) {
+  const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+  const reenviar = async () => {
+    setOcupado(true);
+    const r = await api<{ confirmado?: boolean }>('/adulto/confirmar-email/enviar', { corpo: {}, tokenProprio: token });
+    setOcupado(false);
+    if (r.erro) setMsg({ ok: false, texto: r.erro });
+    else if (r.confirmado) location.reload();
+    else setMsg({ ok: true, texto: 'Mandamos de novo. Olhe também a caixa de spam.' });
+  };
+  return (
+    <div className="aviso aviso-atencao coluna" role="status" style={{ gap: 8 }}>
+      <strong>Confirme seu e-mail</strong>
+      <span className="small">Mandamos um link para <strong>{email}</strong>. Abra o link para poder criar turmas e liberar o chat da turma. É assim que sabemos que é um adulto.</span>
+      {msg && <span className={`aviso ${msg.ok ? 'aviso-ok' : 'aviso-erro'}`} role="alert">{msg.texto}</span>}
+      <button className="btn btn-escuro" style={{ alignSelf: 'flex-start', fontSize: 16, minHeight: 44 }} disabled={ocupado} onClick={() => void reenviar()}>{ocupado ? 'Mandando…' : 'Mandar o e-mail de novo'}</button>
+    </div>
+  );
+}
+
+/** Tela aberta pelo link do e-mail de confirmação. */
+export function ConfirmarEmail({ token }: { token: string }) {
+  const [estado, setEstado] = useState<'carregando' | 'ok' | string>('carregando');
+  useEffect(() => {
+    void api('/adulto/confirmar-email', { corpo: { token }, tokenProprio: null }).then((r) => setEstado(r.erro ?? 'ok'));
+  }, [token]);
+  return (
+    <main className="tela" style={{ maxWidth: 640, margin: '0 auto', width: '100%' }}>
+      <div className="coluna">
+        <div>
+          <div className="eyebrow">Área dos adultos</div>
+          <h1 className="display h1">{estado === 'ok' ? 'E-mail confirmado!' : 'Confirmar e-mail'}</h1>
+        </div>
+        {estado === 'carregando' ? <p className="muted">Confirmando…</p>
+          : estado === 'ok' ? <p>Pronto. Agora você pode criar turmas e liberar o chat da turma para seus filhos.</p>
+          : <div className="aviso aviso-erro" role="alert">{estado}</div>}
+        <button className="btn btn-amarelo btn-bloco" onClick={() => ir('adulto')}>Ir para a área dos adultos</button>
+      </div>
+    </main>
+  );
+}
+
 function Acesso({ aoEntrar }: { aoEntrar: (t: string) => void }) {
   const [modo, setModo] = useState<'entrar' | 'cadastro' | 'esqueci'>('cadastro');
   const [nome, setNome] = useState('');
@@ -331,6 +375,7 @@ function Painel({ token, eu, aoSair, aoApagar }: { token: string; eu: Eu; aoSair
         <div className="eyebrow">Olá, {eu.nome}{eu.admin ? ' · administrador' : ''}</div>
         <h1 className="display h1">Minha família</h1>
       </div>
+      {eu.precisaConfirmar && <ConfirmeEmail token={token} email={eu.email} />}
       <Familia token={token} aoSair={aoSair} />
       <Turmas token={token} admin={eu.admin} />
       <ApagarConta token={token} temSenha={eu.temSenha} aoApagar={aoApagar} />
