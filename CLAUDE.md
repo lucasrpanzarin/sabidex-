@@ -24,7 +24,7 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 - **Duelo do Saber** (decidido pelo Lucas em 05/11/2026; `src/shared/duelo.ts`, `src/screens/Duelo.tsx`): só com colega da mesma turma, sem mensagens. As mesmas 10 perguntas dos mundos que os dois já estudaram; vence quem acerta mais. O Sabimon parceiro só enfeita a batalha: **nunca apostar nem perder carta**, e a força da carta não decide. 4 XP por acerto nos 3 primeiros duelos do dia, sem pacote. O servidor corrige.
 - Jogos: cada item tem uma chance só (errou, o app mostra o certo e segue). Todo jogo termina com estrelas, "X de Y certas" e nota (`Placar` em `src/screens/Fases.tsx`). O mapa do mundo mostra as estrelas da melhor vez de cada fase e jogo extra.
 - Data da prova da escola: o professor (turma) ou o adulto (família) marca na área dos adultos (`src/lib/provas.ts`, tabela `datas_prova`). Depois da data, o capítulo vai para "Já teve prova na escola" e continua valendo XP e pacotes; sem bônus por fazer antes.
-- Pacotes só vêm do estudo (fase nova, prova, 1ª fase do dia, nível novo) e só com nota 7 ou mais (menos o de nível novo). Cada erro tira 10% do XP da fase (mínimo 20%), em `src/lib/jogo.ts`. Nunca vender pacote, nem por moeda do jogo nem por dinheiro.
+- Pacotes só vêm do estudo (fase nova, prova, 1ª fase do dia, as 3 missões do dia, marcos de 3/7/14/30 dias seguidos em `src/lib/missoes.ts`, nível novo) e só com nota 7 ou mais (menos o de nível novo). Cada erro tira 10% do XP da fase (mínimo 20%), em `src/lib/jogo.ts`. Nunca vender pacote, nem por moeda do jogo nem por dinheiro.
 
 ## Visual (não mudar sem o Lucas pedir)
 

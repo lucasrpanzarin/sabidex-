@@ -5,6 +5,7 @@ import { Icone } from '../components/Icone';
 import { capituloPorId } from '../data';
 import type { Capitulo } from '../data/tipos';
 import { EXTRA_INFO, notaDe, concluirExtra, embaralhar, extrasDo, extrasLiberados, type Extra, type Resultado } from '../lib/jogo';
+import { aplicarMissoes } from '../lib/missoes';
 import { ir } from '../lib/rota';
 import { getEstado, setEstado } from '../lib/store';
 import { ContaErros, Fim } from './Fases';
@@ -30,7 +31,9 @@ function useFim(cap: Capitulo, x: Extra) {
     res,
     /** acertos de total dão a nota (7 ou mais libera o pacote do dia); cada erro tira 10% do XP */
     finalizar: (acertos: number, total: number, erros: number) => {
-      const r = concluirExtra(getEstado(), cap, x, new Date(), erros, notaDe(acertos, total));
+      const antes = getEstado();
+      const nota = notaDe(acertos, total);
+      const r = aplicarMissoes(antes, concluirExtra(antes, cap, x, new Date(), erros, nota), { tipo: 'extra', nota });
       setEstado(r.estado); setRes(r);
     },
     limpar: () => setRes(null),
