@@ -19,6 +19,7 @@ import {
   acertosPorPergunta, DUELOS_COM_XP_POR_DIA, PERGUNTAS_DUELO, perguntaDuelo, rodadas, XP_POR_ACERTO_DUELO, xpDoDuelo, type PerguntaDuelo,
 } from '../shared/duelo';
 import { Placar } from './Fases';
+import { TextoMat } from './Contas';
 import { Avatar, Erro } from './Turma';
 
 interface DueloApi {
@@ -364,7 +365,7 @@ function JogarDuelo({ d, eu, carta, aoSair }: { d: DueloApi; eu: string; carta: 
       </div>
       <div>
         <div className="eyebrow">Duelo contra {d.de_id === eu ? d.para_apelido : d.de_apelido} · {p.cap.titulo}</div>
-        <h1 className="display h2" style={{ marginTop: 4 }}>{p.pergunta}</h1>
+        <h1 className="display h2" style={{ marginTop: 4 }}><TextoMat t={p.pergunta} /></h1>
       </div>
       <div className="barra barra-ciano" aria-hidden="true"><div style={{ width: `${(i / perguntas.length) * 100}%` }} /></div>
       <fieldset style={{ border: 0, padding: 0, margin: 0 }} className="coluna" disabled={respondida}>
@@ -377,13 +378,13 @@ function JogarDuelo({ d, eu, carta, aoSair }: { d: DueloApi; eu: string; carta: 
           return (
             <label key={orig} className="linha" style={{ minHeight: 56, borderRadius: 16, padding: '10px 12px', cursor: respondida ? 'default' : 'pointer', fontWeight: 700, background: fundo, border: `3px solid ${borda}` }}>
               <input type="radio" name={`d${i}`} checked={marcada} onChange={() => setEscolha(orig)} style={{ position: 'absolute', opacity: 0 }} />
-              {p.opcoes[orig]}
+              <TextoMat t={p.opcoes[orig]} />
             </label>
           );
         })}
       </fieldset>
       {respondida && (
-        <div className={`aviso sobe ${ok ? 'aviso-ok' : 'aviso-erro'}`}><span className="display" style={{ fontSize: 18 }}>{ok ? 'Acertou! ' : 'Ops! '}</span>{p.explicacao}</div>
+        <div className={`aviso sobe ${ok ? 'aviso-ok' : 'aviso-erro'}`}><span className="display" style={{ fontSize: 18 }}>{ok ? 'Acertou! ' : 'Ops! '}</span><TextoMat t={p.explicacao} /></div>
       )}
       <Erro texto={erro} />
       <div style={{ marginTop: 'auto' }}>
@@ -466,8 +467,8 @@ function ResultadoDuelo({ d, eu, aoSair, embutido = false }: { d: DueloApi; eu: 
               const deleOk = souDe ? certasPara[k] : certasDe[k];
               return (
                 <div key={id} className={`aviso ${meuOk ? 'aviso-ok' : 'aviso-erro'}`}>
-                  <div className="display" style={{ fontSize: 15 }}>{k + 1}. {p.pergunta}</div>
-                  <div className="small">Certa: <strong>{p.opcoes[p.certa]}</strong></div>
+                  <div className="display" style={{ fontSize: 15 }}>{k + 1}. <TextoMat t={p.pergunta} /></div>
+                  <div className="small">Certa: <strong><TextoMat t={p.opcoes[p.certa]} /></strong></div>
                   <div className="small muted">Você {meuOk ? 'acertou' : 'errou'} · {ele.nome} {deleOk ? 'acertou' : 'errou'}</div>
                 </div>
               );

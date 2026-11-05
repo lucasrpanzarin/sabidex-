@@ -9,7 +9,7 @@ import { concluirRevisao, paraHoje, proximaData, registrarResposta, type ItemRev
 import { Moeda } from '../components/Loja';
 import { ir } from '../lib/rota';
 import { getEstado, setEstado } from '../lib/store';
-import { Pergunta } from './Contas';
+import { Pergunta, TextoMat } from './Contas';
 
 const LETRAS = ['A', 'B', 'C', 'D'];
 
@@ -109,7 +109,7 @@ export function Revisao() {
       ) : it.tipo === 'quiz' ? (
         <>
           <div className="painel-destaque" style={{ minHeight: 130, display: 'grid', placeItems: 'center' }}>
-            <p className="display" style={{ fontSize: 22, margin: 0, textAlign: 'center' }}>{it.q.frase}</p>
+            <p className="display" style={{ fontSize: 22, margin: 0, textAlign: 'center' }}><TextoMat t={it.q.frase} /></p>
           </div>
           {!retorno && (
             <div className="linha" style={{ gap: 10 }}>
@@ -120,7 +120,7 @@ export function Revisao() {
         </>
       ) : (
         <fieldset style={{ border: 0, padding: 0, margin: 0 }} className="coluna">
-          <legend className="display" style={{ fontSize: 22, marginBottom: 12 }}>{it.q.pergunta}</legend>
+          <legend className="display" style={{ fontSize: 22, marginBottom: 12 }}><TextoMat t={it.q.pergunta} /></legend>
           {ordens[i].map((orig, k) => {
             const q = it.q as Extract<ItemRevisao, { tipo: 'prova' }>['q'];
             const ehCerta = orig === q.certa;
@@ -130,7 +130,7 @@ export function Revisao() {
                 style={{ minHeight: 60, borderRadius: 16, padding: '10px 12px', textAlign: 'left', fontWeight: 700,
                   background: retorno && ehCerta ? '#DCFCE7' : 'var(--surface)', border: `3px solid ${cor}`, opacity: retorno && !ehCerta ? 0.6 : 1 }}>
                 <span style={{ width: 32, height: 32, flex: 'none', borderRadius: '50%', display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', background: 'var(--bg)' }}>{LETRAS[k]}</span>
-                {q.opcoes[orig]}
+                <TextoMat t={q.opcoes[orig]} />
               </button>
             );
           })}
@@ -140,7 +140,7 @@ export function Revisao() {
       {retorno && (
         <div className="coluna sobe" style={{ marginTop: 'auto' }}>
           <div className={`aviso ${retorno.ok ? 'aviso-ok' : 'aviso-erro'}`}>
-            <span className="display" style={{ fontSize: 18 }}>{retorno.ok ? 'Acertou! ' : `Era: ${retorno.certa}. `}</span>{retorno.explicacao}
+            <span className="display" style={{ fontSize: 18 }}>{retorno.ok ? 'Acertou! ' : <>Era: <TextoMat t={retorno.certa} />. </>}</span><TextoMat t={retorno.explicacao} />
           </div>
           <button className="btn btn-amarelo btn-bloco" onClick={proxima}>{i + 1 < itens.length ? 'Próxima' : 'Terminar'}</button>
         </div>

@@ -108,13 +108,13 @@ function Desenho({ v }: { v?: Visual }) {
 function Teclado({ valor, setValor, onConferir, pronto, onTrocar }: {
   valor: string; setValor: (s: string) => void; onConferir: () => void; pronto: boolean; onTrocar?: () => void;
 }) {
-  // Também dá para usar o teclado do computador ("/" ou Tab troca de caixa na fração).
+  // Também dá para usar o teclado do computador ("/" troca de caixa na fração; Tab continua andando pela tela).
   useEffect(() => {
     const f = (ev: KeyboardEvent) => {
       if (/^\d$/.test(ev.key)) setValor(valor.length < 5 ? valor + ev.key : valor);
       else if (ev.key === 'Backspace') setValor(valor.slice(0, -1));
       else if (ev.key === 'Enter' && pronto) onConferir();
-      else if ((ev.key === '/' || ev.key === 'Tab') && onTrocar) { ev.preventDefault(); onTrocar(); }
+      else if (ev.key === '/' && onTrocar) { ev.preventDefault(); onTrocar(); }
     };
     window.addEventListener('keydown', f);
     return () => window.removeEventListener('keydown', f);
@@ -166,46 +166,48 @@ export function Pergunta({ conta, corrigirNaHora = true, rotuloProxima, onRespos
       <span className="display">{valores[i] || '?'}</span>
     </button>
   );
+  const caixaNumero = (
+    <div className={`resposta-caixa${estado}`} role="group" aria-labelledby="rotulo-resposta">
+      <span className="display">{valores[0] || '?'}</span>{conta.unidade && <span className="muted small"> {conta.unidade}</span>}
+    </div>
+  );
   return (
     <>
       <div className="painel-destaque coluna" style={{ gap: 8, alignItems: 'center', textAlign: 'center', padding: 14 }}>
         <p className="display" style={{ fontSize: 19, margin: 0, textWrap: 'balance' }}><TextoMat t={conta.enunciado} /></p>
         {conta.sentenca && <p className="display conta-grande" style={{ margin: 0 }}><TextoMat t={conta.sentenca} /></p>}
         <Desenho v={conta.visual} />
-        <div className="coluna" style={{ gap: 4, alignItems: 'center' }}>
-          <span className="muted small rotulo-resposta" id="rotulo-resposta" style={{ fontWeight: 800 }}>Sua resposta</span>
+      </div>
+      {/* Resposta e teclado ficam presos embaixo da tela (como numa calculadora): o OK e o número digitado sempre aparecem. */}
+      <div className="area-resposta">
+        <div className="linha resposta-linha">
+          <span className="muted small" id="rotulo-resposta" style={{ fontWeight: 800 }}>Sua resposta</span>
           {fracao ? (
             <div className="resposta-fracao" role="group" aria-labelledby="rotulo-resposta">
               {caixaFracao(0, 'Numerador')}
               <span className="traco-fracao" aria-hidden="true" />
               {caixaFracao(1, 'Denominador')}
             </div>
-          ) : (
-            <div className={`resposta-caixa${estado}`} role="group" aria-labelledby="rotulo-resposta">
-              <span className="display">{valores[0] || '?'}</span>{conta.unidade && <span className="muted small"> {conta.unidade}</span>}
-            </div>
-          )}
-        </div>
-      </div>
-      {respondida ? (
-        <div className="coluna sobe">
-          <div className={`aviso ${respondida.ok ? 'aviso-ok' : 'aviso-erro'}`} role="status">
-            <span className="display" style={{ fontSize: 18 }}>{respondida.ok ? 'Acertou! ' : <>Era <TextoMat t={textoResposta(conta.resposta)} />{conta.unidade ? ' ' + conta.unidade : ''}. </>}</span>
-            <TextoMat t={conta.explicacao} />
-          </div>
-          <button className="btn btn-amarelo btn-bloco" onClick={onProxima}>{rotuloProxima}</button>
-        </div>
-      ) : (
-        <>
-          {fracao && (
-            <div className="muted small dica-fracao" style={{ textAlign: 'center', fontWeight: 700, marginTop: -4 }}>
+          ) : caixaNumero}
+          {fracao && !respondida && (
+            <span className="muted small dica-fracao" style={{ fontWeight: 700 }}>
               {ativa === 0 ? 'Escreva o numerador (em cima). Depois toque na caixa de baixo.' : 'Agora o denominador (embaixo).'}
-            </div>
+            </span>
           )}
+        </div>
+        {respondida ? (
+          <div className="coluna sobe" style={{ gap: 10 }}>
+            <div className={`aviso ${respondida.ok ? 'aviso-ok' : 'aviso-erro'}`} role="status">
+              <span className="display" style={{ fontSize: 18 }}>{respondida.ok ? 'Acertou! ' : <>Era <TextoMat t={textoResposta(conta.resposta)} />{conta.unidade ? ' ' + conta.unidade : ''}. </>}</span>
+              <TextoMat t={conta.explicacao} />
+            </div>
+            <button className="btn btn-amarelo btn-bloco" onClick={onProxima}>{rotuloProxima}</button>
+          </div>
+        ) : (
           <Teclado valor={valores[ativa]} setValor={setValor} onConferir={conferir} pronto={pronto}
             onTrocar={fracao ? () => setAtiva((x) => (x === 0 ? 1 : 0)) : undefined} />
-        </>
-      )}
+        )}
+      </div>
     </>
   );
 }
@@ -228,7 +230,8 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
   const e = exemplos[ex];
   const ultimo = ex + 1 === exemplos.length;
   const proximo = () => {
-    if (ultimo) { finalizar(); return; }
+    // As contas do "Agora você" contam: cada erro tira 10% do XP, e o pacote do dia pede nota 7.
+    if (ultimo) { finalizar(notaDe(acertos, exemplos.length), exemplos.length - acertos); return; }
     setEx(ex + 1); setVistos(1); setTentando(false);
   };
   return (

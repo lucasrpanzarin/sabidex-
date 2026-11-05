@@ -404,7 +404,8 @@ function Quiz({ cap }: { cap: Capitulo }) {
   }, [comecou, res, retorno]);
 
   useEffect(() => {
-    if (comecou && resto <= 0 && !fim.current) { fim.current = true; finalizar(notaDe(acertos, lista.length), respondidas - acertos); }
+    // Quando o tempo acaba, as que ficaram sem resposta contam como erro (senão, esperar o relógio daria XP cheio).
+    if (comecou && resto <= 0 && !fim.current) { fim.current = true; finalizar(notaDe(acertos, lista.length), lista.length - acertos); }
   }, [resto, comecou]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const responder = (v: boolean) => {
@@ -447,7 +448,7 @@ function Quiz({ cap }: { cap: Capitulo }) {
       </div>
       {retorno ? (
         <div className="coluna sobe">
-          <div className={`aviso ${retorno.ok ? 'aviso-ok' : 'aviso-erro'}`}><span className="display" style={{ fontSize: 18 }}>{retorno.ok ? 'Acertou! ' : 'Ops! '}</span>{retorno.texto}</div>
+          <div className={`aviso ${retorno.ok ? 'aviso-ok' : 'aviso-erro'}`}><span className="display" style={{ fontSize: 18 }}>{retorno.ok ? 'Acertou! ' : 'Ops! '}</span>{cap.matematica ? <TextoMat t={retorno.texto} /> : retorno.texto}</div>
           <button className="btn btn-amarelo btn-bloco" onClick={proxima}>Próxima</button>
         </div>
       ) : (

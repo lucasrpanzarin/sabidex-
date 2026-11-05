@@ -238,7 +238,7 @@ export const lerFracao = (n: number, d: number) => `${NUMERAIS[n] ?? n} ${PARTES
 const DENS = [2, 3, 4, 5, 6, 8, 10];
 
 function fracaoUnitaria(r: Rng): Conta {
-  const d = um(r, [2, 3, 4, 5, 6, 8, 10]);
+  const d = um(r, DENS);
   return { tipo: 'fracao-unitaria', enunciado: 'O cano foi cortado em partes iguais. Que fração do cano é a parte pintada?', resposta: [1, d],
     visual: { tipo: 'barra', partes: d, pintadas: 1 },
     explicacao: `O cano tem ${d} partes iguais e 1 está pintada: 1/${d}, ${lerFracao(1, d)}.` };
@@ -252,7 +252,7 @@ function fracaoFigura(r: Rng): Conta {
 }
 
 function fracaoReta(r: Rng): Conta {
-  const d = um(r, [2, 3, 4, 5, 6, 8, 10]), k = entre(r, 1, d - 1);
+  const d = um(r, DENS), k = entre(r, 1, d - 1);
   return { tipo: 'fracao-reta', enunciado: 'Que fração a seta está mostrando na reta?', resposta: [k, d],
     visual: { tipo: 'reta', partes: d, marca: k },
     explicacao: `Do 0 ao 1 há ${d} partes iguais. A seta está na marcação ${k} depois do zero: ${k}/${d}.` };
@@ -300,7 +300,8 @@ function fracaoProblema(r: Rng): Conta {
 
 /** Parte do todo: "dos 12 operários, 3 não usavam capacete; que fração usava?". */
 function fracaoParteTodo(r: Rng): Conta {
-  const total = entre(r, 5, 20), nao = entre(r, 1, total - 1), sim = total - nao;
+  // Pelo menos 2 de cada lado, para o verbo ficar sempre no plural ("2 quebraram", nunca "1 quebraram").
+  const total = entre(r, 5, 20), nao = entre(r, 2, total - 2), sim = total - nao;
   const [grupo, sem, pergunta, com] = um(r, [
     ['operários', 'não usavam capacete', 'Que fração dos operários usava capacete?', 'usavam capacete'],
     ['pedreiros', 'estavam de folga', 'Que fração dos pedreiros estava trabalhando?', 'estavam trabalhando'],

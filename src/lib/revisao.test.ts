@@ -55,4 +55,11 @@ describe('revisão do Ará', () => {
     const b = concluirRevisao(a.estado, 5, 5, ['historia-9'], agora);
     expect(b.pacotesGanhos).toEqual([]);
   });
+
+  it('pacote do dia da revisão só com nota 7 ou mais', () => {
+    const agora = new Date(2026, 10, 4);
+    const r = concluirRevisao(estadoInicial(), 1, 8, ['historia-9'], agora);
+    expect(r.pacotesGanhos).toEqual([]);
+    expect(r.estado.pacoteDia).not.toBe(D);
+  });
 });
