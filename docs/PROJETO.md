@@ -161,6 +161,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **05/11/2026** · Pingoró (boto, forma 1): o recorte tirou o clarão branco em volta da barriga e da bolha d'água (`TIRAR_BRILHO` em `scripts/recortar-sabimons.py`) e fechou a fresta entre a nadadeira de cima e as costas, que fazia a nadadeira parecer solta (Lucas).
+
 - **04/11/2026** · "Entrar na minha conta" ficou mais fácil: o aparelho lembra o código da turma e a criança toca no nome dela numa lista, em vez de digitar o apelido; depois só o PIN (Lucas).
 
 - **04/11/2026** · Chat da turma supervisionado, "Estudando agora" e vários administradores por turma (Lucas).
