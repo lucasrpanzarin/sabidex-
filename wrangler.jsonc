@@ -34,7 +34,10 @@
     // Quem vê todas as turmas (administrador geral).
     "ADMIN_EMAILS": "lucasrpanzarin@gmail.com,lucas@fastgsa.com",
     // Remetente do e-mail de "Esqueci minha senha" (a chave RESEND_API_KEY fica como segredo no painel).
-    "EMAIL_REMETENTE": "Sabidex <nao-responda@sabidex.com.br>"
+    "EMAIL_REMETENTE": "Sabidex <nao-responda@sabidex.com.br>",
+    // "Continuar com o Google" na área dos adultos (projeto Sabidex no Google Cloud; não é segredo).
+    // Só vale em sabidex.com.br e www.sabidex.com.br, por isso não vai para as versões de teste.
+    "GOOGLE_CLIENT_ID": "614728003395-oc2fd08l5tiof4c90g7qmdl6h6af2asb.apps.googleusercontent.com"
   },
   "observability": { "enabled": true },
   // Versões de teste de cada pull request (comando "wrangler preview" da Cloudflare).
