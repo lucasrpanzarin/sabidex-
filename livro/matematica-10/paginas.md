@@ -478,3 +478,112 @@ O que há de errado nas afirmações dos encanadores?
 Pinte os baldes conforme essa receita nas cores indicadas.
 [Legenda: Areia (laranja), Cimento (cinza), Cal (roxo).]
 [IMAGEM: 10 baldes vazios, em 2 fileiras de 5.]
+
+## Página 168
+
+5. Gustavo é eletricista e está instalando fios elétricos em uma residência. Ele já utilizou 1/4 de um rolo de 100 metros de fio.
+[IMAGEM: foto de um eletricista numa escada, com um rolo de fio.]
+Legenda: Gustavo segurando rolo de fio e medindo a quantidade que precisará utilizar.
+a) Quantos metros de fio Gustavo já utilizou?
+b) Quantos metros de fio ainda há no rolo?
+
+6. Rebeca vai preparar uma mistura composta de cimento, areia e água para construir uma pequena mureta. Para isso, ela vai utilizar uma lata inteira e mais 1/5 de uma lata de água.
+[IMAGEM: foto de uma pessoa assentando tijolos.]
+Legenda: Rebeca construindo uma parede com tijolos e cimento.
+a) Sabendo que cada lata tem 20 litros, quantos litros de água ela irá utilizar?
+
+## Página 169
+
+b) Se Rebeca precisar preparar o triplo dessa mistura, qual será a quantidade de água necessária?
+
+7. O arquiteto e urbanista é o profissional que planeja o projeto para a construção de casas e edifícios. De acordo com dados do Conselho de Arquitetura e Urbanismo do Brasil (CAU/BR) de 2020, as mulheres representam aproximadamente **60%** do total de arquitetos no Brasil.
+Observe o gráfico a seguir.
+
+**Profissionais de Arquitetura e Urbanismo por gênero, no Brasil, em 2020**
+[IMAGEM: gráfico de setores, um círculo dividido em 10 partes iguais: 6 roxas (Feminino) e 4 amarelas (Masculino).]
+Fonte: Conselho de Arquitetura e Urbanismo do Brasil (CAU/BR), 30 jun. 2020. Disponível em: https://caubr.gov.br/censo2020/. Acesso em: 19 jan. 2026.
+
+a) Que fração dos estudantes de Arquitetura e Urbanismo é do gênero feminino?
+b) Que fração dos estudantes de Arquitetura e Urbanismo é do gênero masculino?
+
+> **+AÇÃO** (selo: Educação socioemocional)
+> Existem profissões exclusivamente masculinas ou femininas?
+> Você conhece alguma profissional que se destacou em profissões consideradas "apenas para homens"?
+
+## Página 170
+
+8. Destaque os adesivos do **Material Complementar** e cole-os ao lado dos números na forma fracionária correspondente.
+a) 4/5 → [Cole aqui o adesivo]
+b) 3/4 → [Cole aqui o adesivo]
+c) 2/5 → [Cole aqui o adesivo]
+d) 7/10 → [Cole aqui o adesivo]
+e) 5/6 → [Cole aqui o adesivo]
+
+## Página 171
+
+f) 3/10 → [Cole aqui o adesivo]
+g) 2/3 → [Cole aqui o adesivo]
+h) 7/8 → [Cole aqui o adesivo]
+i) 2/8 → [Cole aqui o adesivo]
+j) 3/5 → [Cole aqui o adesivo]
+
+## Página 172
+
+9. Os equipamentos de proteção individual são essenciais para garantir a segurança do trabalhador. Na construção de um prédio de apartamentos, por exemplo, os trabalhadores devem usar capacetes, luvas, calçados e vestimentas com proteção adequada, além de protetor solar, óculos de proteção, entre outros acessórios.
+Uma equipe da prefeitura que fiscalizava a construção de um prédio residencial observou que, dos 12 operários, 3 não estavam usando capacete.
+[IMAGEM: foto de um operário de capacete trabalhando nas ferragens de uma obra.]
+Que fração da quantidade de operários estava usando capacete?
+
+10. Paula é engenheira civil. Ela trabalha com uma equipe em que 3/10 da quantidade de profissionais são pedreiros, 2/10 são eletricistas e 5/10 são encanadores. Pinte a quantidade de profissionais que exercem cada função de acordo com a legenda.
+[Legenda: Pedreiro (vermelho), Eletricista (laranja), Encanador (azul).]
+[IMAGEM: 20 bonequinhos sem cor, em 2 fileiras de 10.]
+
+## Página 173
+
+11. Rose trabalha como pedreira e está construindo uma parede de tijolos. Ela preparou 160 kg de argamassa e precisa assentar 800 tijolos.
+> **Argamassa**: material à base de cimento, areia, cal e água utilizado por pedreiros para unir blocos ou tijolos no processo de construção.
+[IMAGEM: foto de uma pedreira de capacete assentando tijolos.]
+Legenda: Rose assentando tijolos.
+a) Se Rose usou 2/5 da argamassa, quantos quilogramas ela já usou?
+b) Se Rose assentou 7/10 dos tijolos, quantos tijolos ela já assentou?
+c) Qual é a fração de tijolos que falta assentar? Considere a fração dos tijolos que Rose já assentou, apresentada no item b.
+
+## Página 174
+
+12. No jogo do tijolo, o jogador lança dois dados e obtém uma fração. O menor número é o numerador, e o maior número é o denominador da fração. Observe.
+[IMAGEM: dados com 5 e 3 → 3/5.]
+Depois, ele indica a carta sobre a mesa com a quantidade de tijolos pintados correspondente à fração obtida. Observe os dados a seguir, escreva a fração obtida e pinte os tijolos que correspondem a essa fração.
+a) [IMAGEM: dados com 5 e 1] → [fração vazia] → [parede de tijolos para pintar]
+b) [IMAGEM: dados com 1 e 3] → [fração vazia] → [parede de tijolos para pintar]
+c) [IMAGEM: dados com 6 e 3] → [fração vazia] → [parede de tijolos para pintar]
+
+## Página 175
+
+> **DESAFIANDO A CUCA**
+>
+> Gabriela está preparando uma musse de limão. Para fazer essa receita, ela irá utilizar 2/5 de quilograma de leite condensado, 1/5 de quilograma de creme de leite e 1/4 de litro de suco de limão.
+>
+> [IMAGEM: foto de uma taça de musse de limão com raspas.]
+> Legenda: Musse de limão.
+>
+> a) Quantos gramas de **leite condensado** são necessários?
+> b) Quantos gramas de **creme de leite** são necessários?
+> c) Quantos mililitros de **suco de limão** são necessários?
+> d) Qual é a medida total de suco de limão recomendada para preparar duas receitas de musse de limão?
+
+## Página 176
+
+# O QUE EU APRENDI
+
+> Leitura e escrita de números fracionários e suas representações na reta numérica.
+
+- Complete as informações de cada item a seguir. Observe o exemplo:
+  - Exemplo — "Um meio": [IMAGEM: barra dividida em 2 partes iguais em cima de uma reta de 0 a 1 com a marcação 1/2.]
+  - a) [título vazio] [IMAGEM: barra dividida em 3 partes; reta de 0 a 1 com a marcação 1/3.]
+  - b) [título vazio] [IMAGEM: barra dividida em 4 partes; reta de 0 a 1 com a marcação 1/4.]
+
+## Página 177
+
+  - c) [título vazio] [IMAGEM: barra dividida em 5 partes; reta de 0 a 1 com a marcação 1/5.]
+  - d) [título vazio] [IMAGEM: barra dividida em 10 partes; reta de 0 a 1 com a marcação 1/10.]
+  - e) [título vazio] [IMAGEM: quadriculado de 10 × 10 com a indicação 1/100.]
