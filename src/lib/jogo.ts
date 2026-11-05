@@ -132,10 +132,14 @@ export interface Estado {
   revisao: Record<string, { caixa: number; proxima: string }>;
   /** Fase "ouvir" pela metade: id do capítulo → temas já ouvidos. Fica só no aparelho; some ao terminar a fase. */
   ouvidos: Record<string, number[]>;
+  /** Missões do dia (src/lib/missoes.ts). Fica só no aparelho. */
+  missoes: { dia: string; lista: string[]; progresso: Record<string, number> } | null;
+  /** ids dos pacotes de marco de sequência já ganhos (para não ganhar duas vezes). Fica só no aparelho. */
+  marcos: string[];
 }
 
 export const estadoInicial = (): Estado => ({
-  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [], semNovo: 0, pacoteDia: '', compras: [], desejo: null, revisao: {}, ouvidos: {},
+  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [], semNovo: 0, pacoteDia: '', compras: [], desejo: null, revisao: {}, ouvidos: {}, missoes: null, marcos: [],
 });
 
 export function nivel(xp: number) {
@@ -155,18 +159,41 @@ export function hoje(d = new Date()) {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
-/** Dias seguidos estudando, contando até hoje (ou até ontem, se ainda não estudou hoje). */
-export function sequencia(dias: string[], agora = new Date()) {
+/** Quantos dias separam dois dias "AAAA-MM-DD". */
+function entre(a: string, b: string) {
+  const [x, y] = [a, b].map((t) => { const [ano, m, d] = t.split('-').map(Number); return Date.UTC(ano, m - 1, d); });
+  return Math.round((y - x) / 86_400_000);
+}
+
+/**
+ * Sequência de dias estudando, contando até hoje (ou até ontem, se ainda não estudou hoje).
+ * Regra de docs/ESTUDOS.md: faltar 1 dia por semana não quebra a sequência (a folga não conta como dia estudado).
+ * Devolve os dias estudados e o primeiro dia da sequência.
+ */
+export function sequenciaInfo(dias: string[], agora = new Date()): { dias: number; inicio: string | null } {
   const set = new Set(dias);
   const d = new Date(agora);
   if (!set.has(hoje(d))) d.setDate(d.getDate() - 1);
   let n = 0;
-  while (set.has(hoje(d))) { n++; d.setDate(d.getDate() - 1); }
-  return n;
+  let inicio: string | null = null;
+  let folga: string | null = null;
+  for (let i = 0; i < 800; i++) {
+    const dia = hoje(d);
+    if (set.has(dia)) { n++; inicio = dia; d.setDate(d.getDate() - 1); continue; }
+    // Faltou este dia: vira folga se o dia antes foi estudado e a última folga foi há 7 dias ou mais.
+    const antes = new Date(d); antes.setDate(antes.getDate() - 1);
+    if (!set.has(hoje(antes)) || (folga && entre(dia, folga) < 7)) break;
+    folga = dia;
+    d.setDate(d.getDate() - 1);
+  }
+  return { dias: n, inicio };
 }
 
+/** Dias de estudo seguidos (com 1 folga por semana). */
+export const sequencia = (dias: string[], agora = new Date()) => sequenciaInfo(dias, agora).dias;
+
 /** Por que a criança ganhou o pacote. */
-export type MotivoPacote = 'fase' | 'prova' | 'dia' | 'nivel' | 'extras';
+export type MotivoPacote = 'fase' | 'prova' | 'dia' | 'nivel' | 'extras' | 'missoes' | 'marco';
 
 export interface Resultado {
   estado: Estado;
@@ -181,6 +208,8 @@ export interface Resultado {
   xpSemErros?: number;
   /** a fase tem pacote esperando, mas faltou nota 7 para ganhar */
   faltouPacote?: boolean;
+  /** missão do dia que esta atividade completou (veja src/lib/missoes.ts) */
+  missao?: { texto: string; feitas: number; total: number };
 }
 
 let contador = 0;

@@ -6,6 +6,7 @@ import { Icone } from '../components/Icone';
 import { capitulos } from '../data';
 import { FASES, FASE_INFO, chave, hoje, nivel, sequencia } from '../lib/jogo';
 import { quantasHoje, MAX_POR_REVISAO } from '../lib/revisao';
+import { missoesDeHoje, quantasFeitas } from '../lib/missoes';
 import { ir } from '../lib/rota';
 import { getEstado, useEstado } from '../lib/store';
 import { getConta, useConta } from '../lib/conta';
@@ -84,6 +85,15 @@ export function SeloProva({ s }: { s: ReturnType<typeof situacao> }) {
   );
 }
 
+/** Chama laranja dos dias seguidos. */
+export function Chama({ tamanho = 22 }: { tamanho?: number }) {
+  return (
+    <span style={{ width: tamanho, height: tamanho, flex: 'none', borderRadius: '50%', background: 'linear-gradient(180deg,#FDBA74,#F97316)', display: 'grid', placeItems: 'center' }}>
+      <svg width={tamanho * 0.55} height={tamanho * 0.64} viewBox="0 0 12 14" aria-hidden="true"><path d="M6 0c1 3 5 5 5 9a5 5 0 01-10 0c0-2 1-3 2-4 1 1 2 2 2 2s1-3 1-7z" fill="#FFF7ED" /></svg>
+    </span>
+  );
+}
+
 export function Inicio() {
   const e = useEstado();
   const { conta, propostasNovas, desafiosNovos } = useConta();
@@ -96,6 +106,8 @@ export function Inicio() {
   const fasesAte = faltamPacote && prox ? FASES.indexOf(faltamPacote) - FASES.indexOf(prox.fase) + 1 : 0;
   const revisar = Math.min(quantasHoje(e.revisao, capitulos, hoje()), MAX_POR_REVISAO);
   const pacoteDaRevisao = e.pacoteDia !== hoje();
+  const mis = missoesDeHoje(e);
+  const misFeitas = quantasFeitas(mis);
 
   const evolui = FIGURINHAS.find((f) => podeEvoluir(e, f.id).ok);
   const fala = desafiosNovos > 0
@@ -122,12 +134,10 @@ export function Inicio() {
         <Logo />
         <span className="linha" style={{ gap: 8 }}>
         <button onClick={() => ir('loja')} style={{ border: 0, background: 'none', padding: 0, color: 'inherit', font: 'inherit' }} aria-label={`${saldo(e)} Sabicoins. Abrir a lojinha`}><Saldo valor={saldo(e)} /></button>
-        <span className="pilula" title="Dias seguidos estudando">
-          <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(180deg,#FDBA74,#F97316)', display: 'grid', placeItems: 'center' }}>
-            <svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><path d="M6 0c1 3 5 5 5 9a5 5 0 01-10 0c0-2 1-3 2-4 1 1 2 2 2 2s1-3 1-7z" fill="#FFF7ED" /></svg>
-          </span>
+        <button className="pilula" onClick={() => ir('dia')} aria-label={`${dias} ${dias === 1 ? 'dia' : 'dias'} seguidos estudando. Ver missões do dia`} style={{ cursor: 'pointer' }}>
+          <Chama />
           {dias} {dias === 1 ? 'dia' : 'dias'}
-        </span>
+        </button>
         </span>
       </div>
 
@@ -166,6 +176,17 @@ export function Inicio() {
             <span className="muted small" style={{ display: 'block' }}>{pacoteDaRevisao ? 'Vale o pacote do dia!' : 'Lembrar de novo deixa a memória forte'}</span>
           </span>
           <span className="btn btn-rosa" style={{ minHeight: 44, padding: '8px 18px' }}>Revisar</span>
+        </button>
+      )}
+
+      {mis.lista.length > 0 && (
+        <button className="painel linha" onClick={() => ir('dia')} style={{ textAlign: 'left', color: 'inherit', width: '100%' }}>
+          <Chama tamanho={40} />
+          <span style={{ flex: 1 }}>
+            <span className="display" style={{ fontSize: 19, display: 'block' }}>Missões do dia · {misFeitas} de {mis.lista.length}</span>
+            <span className="muted small">{misFeitas === mis.lista.length ? 'Pacote ganho! Volte amanhã.' : 'Faça todas e ganhe 1 pacote'}</span>
+          </span>
+          <Icone nome="seguir" espessura={3} />
         </button>
       )}
 

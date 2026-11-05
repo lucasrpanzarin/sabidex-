@@ -93,6 +93,20 @@ describe('sequência de dias', () => {
     expect(sequencia(['2026-11-02', '2026-11-03'], agora)).toBe(2);
     expect(sequencia(['2026-11-01'], agora)).toBe(0);
   });
+
+  it('1 dia de folga por semana não quebra a sequência', () => {
+    const agora = new Date(2026, 10, 10, 10);
+    // faltou o dia 8: continua (folga), mas a folga não conta como dia estudado
+    expect(sequencia(['2026-11-06', '2026-11-07', '2026-11-09', '2026-11-10'], agora)).toBe(4);
+    // ainda não estudou hoje e faltou ontem: ontem vira a folga
+    expect(sequencia(['2026-11-07', '2026-11-08'], agora)).toBe(2);
+    // dois dias seguidos sem estudar quebram
+    expect(sequencia(['2026-11-07'], agora)).toBe(0);
+    // duas folgas na mesma semana: a segunda quebra
+    expect(sequencia(['2026-11-05', '2026-11-07', '2026-11-09', '2026-11-10'], agora)).toBe(3);
+    // folgas com 7 dias de distância valem as duas
+    expect(sequencia(['2026-10-31', '2026-11-01', '2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-07', '2026-11-08', '2026-11-10'], agora)).toBe(9);
+  });
 });
 
 describe('pacotes', () => {

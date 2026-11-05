@@ -7,7 +7,7 @@ O Claude lê este arquivo no começo de cada conversa (está pedido no `CLAUDE.m
 - Quando o Lucas der uma ideia nova, o Claude confere aqui antes e avisa: "isso já existe", "isso já foi testado e trocado por X" ou "isso vai contra a regra Y".
 - Ao terminar qualquer mudança, o Claude atualiza este caderno (o que mudou, a data e quem decidiu).
 
-Última revisão geral: **04/11/2026**. Última mudança: **05/11/2026** (estrelas no mapa e Duelo do Saber).
+Última revisão geral: **04/11/2026**. Última mudança: **05/11/2026** (missões do dia e marcos de sequência).
 
 ---
 
@@ -49,6 +49,10 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - **Uma chance por item** em todos os jogos: errou, o app mostra o certo e segue.
 - **Placar igual em todos os jogos**: estrelas (3 = nota 10, 2 = nota 7 ou mais, 1 = abaixo de 7), "X de Y certas" e nota.
 - **Estrelas no mapa do mundo** (Lucas, 05/11/2026): cada fase feita e cada jogo extra mostra as estrelas da **melhor vez** num adesivo embaixo da bolinha; no topo aparece "X de Y estrelas" do mundo. Ouvir os temas não tem nota (não tem estrela); a prova só mostra depois de aprovada. Fases feitas antes disso sem nota guardada só ganham estrela quando a criança jogar de novo. Melhor nota em `notas['capitulo:fase']` e `notas['capitulo:extra-x']` (`estrelasDe` em `src/lib/jogo.ts`).
+- **Meu dia** (Lucas, 05/11/2026; `src/lib/missoes.ts`, `src/screens/MeuDia.tsx`): tocar nos dias seguidos do início (ou no cartão "Missões do dia") abre a tela.
+  - **Sequência de dias**: pode faltar **1 dia por semana** sem perder (regra de `docs/ESTUDOS.md`; a folga não conta como dia estudado). Antes, faltar 1 dia zerava.
+  - **Missões do dia**: 3 missões curtas de estudo, escolhidas pelo dia (iguais o dia todo, trocam no outro dia), só entre as que a criança já consegue fazer. A Revisão do Ará entra sempre que tiver. Cada jogo vale para **uma** missão e só conta com **nota 7 ou mais**. Fazer as 3 dá **1 pacote**. Depois, o Ará diz para descansar e voltar amanhã. Ficam só no aparelho.
+  - **Marcos de sequência**: 3, 7, 14 e 30 dias seguidos dão **1 pacote** cada (uma vez por sequência), na primeira atividade do dia com nota 7. Duelos não contam para missões nem marcos.
 - **Data da prova da escola**: o professor (turma) ou o adulto (família) marca. Depois da data o capítulo vai para "Já teve prova na escola" (continua valendo tudo).
 - Capítulo novo: o Lucas manda fotos do livro na conversa e o Claude segue a skill **capitulo-do-livro**. Regras pedagógicas em `docs/ESTUDOS.md`. Conferência automática: `npm run conferir -- historia-9`.
 
@@ -61,7 +65,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | Cada erro | tira 10% do XP da fase (mínimo 20%) | |
 | Nível | a cada 300 XP | |
 | **Sabicoins** | cada fase dá o mesmo número de XP e de Sabicoins. Saldo = XP total − compras | `src/lib/loja.ts` |
-| Pacotes (só do estudo) | memória e quiz (1ª vez com nota 7), prova aprovada (pacote **épico**), terminar os 4 extras, 1ª atividade do dia com nota 7, cada nível novo | `src/lib/jogo.ts` |
+| Pacotes (só do estudo) | memória e quiz (1ª vez com nota 7), prova aprovada (pacote **épico**), terminar os 4 extras, 1ª atividade do dia com nota 7, as 3 missões do dia, marcos de 3/7/14/30 dias seguidos, cada nível novo | `src/lib/jogo.ts` |
 | **Pacote de boas-vindas** (única exceção à regra acima; Lucas, 05/11/2026) | toda conta nova de criança (família ou turma) já nasce com 1 pacote normal; a carta sai na sorte. O Ará apresenta na tela inicial e, depois de abrir, explica que os próximos vêm do estudo. Quem já tinha conta não ganha | `src/shared/sync.ts` (`comBoasVindas`) |
 | Pacote | **1 Sabimon** (sempre a forma 1). Chances: comum 62%, rara 26%, épica 9%, lendária 3%. Épico: 80% épica, 20% lendária | |
 | Garantia | depois de 9 pacotes sem bicho novo, o 10º traz um que a criança não tem | |
@@ -176,6 +180,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
 - **05/11/2026** · Segurança antes das lojas: **o servidor sorteia a carta do pacote** (criança com conta precisa de internet para abrir), 60 pacotes por dia, épico só com a prova feita; **30 códigos errados** pela mesma internet bloqueiam 15 minutos (Lucas).
+- **05/11/2026** · Os "dias seguidos" do início viraram botão para a tela **Meu dia**: 3 missões do dia (as 3 dão 1 pacote) e marcos de 3, 7, 14 e 30 dias (1 pacote cada). A sequência agora aceita 1 dia de folga por semana, como já pedia `docs/ESTUDOS.md`. O Claude sugeriu Sabicoins/enfeites como prêmio para não facilitar demais o álbum; o Lucas escolheu pacotes (Lucas).
 - **05/11/2026** · **Pacote de boas-vindas** para toda conta nova de criança (carta na sorte), para ela entender o jogo logo de cara. Muda a regra "pacotes só vêm do estudo": essa é a única exceção. Quem não tem carta continua sem poder duelar (com uma lição já ganha pacote) (Lucas).
 - **05/11/2026** · "Continuar com o Google" ligado para os pais: projeto Sabidex no Google Cloud, ID do cliente em `wrangler.jsonc` (só vale em sabidex.com.br e www) (Lucas).
 - **05/11/2026** · A aba "Trocas" do menu virou **"Turma"** (ícone de duas pessoas; título "Minha turma"), porque ali ficam trocas, duelos e conversa (Lucas).

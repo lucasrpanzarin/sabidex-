@@ -81,6 +81,8 @@ export function aplicarServidor(
   const cartas: Record<string, number> = soValidos(r.cartas);
   for (const [id, n] of Object.entries(resto)) cartas[id] = (cartas[id] ?? 0) + n;
   estado = { ...estado, ...prog, cartas, perfil: { nome: r.conta.apelido, cor: r.conta.cor } };
+  // Outra criança no mesmo aparelho: as missões do dia e os marcos são de cada uma.
+  if (substituir) estado = { ...estado, missoes: null, marcos: [] };
   gravar(CHAVE, estado);
   avisar();
 }
