@@ -1,6 +1,7 @@
 import type { Capitulo } from './tipos';
 import { historia9 } from './historia9';
 import { historia10 } from './historia10';
+import { matematica8 } from './matematica8';
 import { matematica9 } from './matematica9';
 import { matematica10 } from './matematica10';
 
@@ -13,7 +14,7 @@ import { matematica10 } from './matematica10';
 export interface Conteudo { id: string; nome: string; capitulos: Capitulo[] }
 
 export const conteudos: Conteudo[] = [
-  { id: 'educativa-4b', nome: 'Educativa · 4º ano B', capitulos: [historia9, historia10, matematica9, matematica10] },
+  { id: 'educativa-4b', nome: 'Educativa · 4º ano B', capitulos: [historia9, historia10, matematica8, matematica9, matematica10] },
 ];
 
 /** Todos os capítulos que existem (para conferências e para o servidor validar o progresso). */
