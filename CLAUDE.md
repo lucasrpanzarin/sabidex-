@@ -27,7 +27,7 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 
 ## Visual (não mudar sem o Lucas pedir)
 
-- Visual **"álbum de figurinhas"** (escolhido pelo Lucas em 04/11/2026): fundo de papel claro (`--bg`), contorno escuro grosso (`--ink`) e sombra "de adesivo" em painéis, botões e cartas. Cores de preencher: coral `--coral`, amarelo `--yellow`, turquesa `--cyan`, rosa `--pink`, verde `--green`. Para **texto colorido** use as versões escuras (`--t-coral`, `--t-yellow` etc.), senão não dá para ler no papel. Nada de roxo como cor principal (fica parecido com o app Baobab).
+- Visual **"álbum de figurinhas"** (escolhido pelo Lucas em 04/11/2026): fundo de papel claro (`--bg`), contorno escuro grosso (`--ink`) e sombra "de adesivo" em painéis, botões e cartas. Cores de preencher: coral `--coral`, amarelo `--yellow`, turquesa `--cyan`, rosa `--pink`, verde `--green`. Para **texto colorido** use as versões escuras (`--t-coral`, `--t-yellow` etc.), senão não dá para ler no papel. Pode usar roxo; o que não pode é ficar uma cópia do Baobab (o mesmo jeito de telas, cores e desenhos dele). Decidido pelo Lucas em 05/11/2026.
 - Logo: letras-figurinha coloridas e tortas (`src/components/Logo.tsx`), escolhido pelo Lucas em 04/11/2026. Ícone do celular: mini carta lendária com o "S" (`public/icons/icon.svg`; os PNG 192/512 são fotos dele).
 - Títulos e botões na fonte **Lilita One**; textos em **Nunito**.
 - Botões "de jogo": cor viva, contorno escuro e "chão" embaixo (`.btn` em `src/styles.css`).
