@@ -13,6 +13,7 @@ const caminhos = {
   escudo: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
   relogio: 'M12 7v5l3 2M12 21a9 9 0 100-18 9 9 0 000 18z',
   som: 'M4 9h4l5-4v14l-5-4H4zM16 8.5a4 4 0 010 7M18.5 6a7.5 7.5 0 010 12',
+  familia: 'M9 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM2.5 21a6.5 6.5 0 0113 0M17 11.5a2.75 2.75 0 100-5.5 2.75 2.75 0 000 5.5zM16 14.6a5 5 0 016 4.9',
 };
 
 export type NomeIcone = keyof typeof caminhos;
