@@ -68,8 +68,8 @@ Arquivo: `src/components/Nav.tsx` e `.nav*` em `src/styles.css`.
 
 ## Chamar a atenção para o estudo (Lucas, 05/11/2026)
 Lucas pediu algo que chame a criança para o que ela precisa fazer. A skill desaconselha animação sem fim (distrai; no máximo 1–2 coisas animadas por tela), então ficou assim:
-- **Brilho** (`.chamar`): reflexo dourado passa (~0,8 s), espera ~2 s, passa de novo. Só no próximo passo de estudo, 1 por tela, some quando ela faz, nunca dentro dos jogos, desligado com "reduzir movimento". Dourado porque branco não aparece no cartão branco.
+- **Pulinho** (`.chamar`, Lucas trocou no mesmo dia): só no **botãozinho amarelo** (selo "Faça agora"/"Continue aqui", botão "Fazer agora", "Jogar", a fase "Agora" do mapa, "Entrar na minha turma"). Ele cresce 8% e volta, e solta um anel amarelo que se espalha e some; repete a cada ~2,4 s. Não acende e apaga (piscar cansa). 1 por tela, some quando ela faz, nunca dentro dos jogos; com "reduzir movimento" fica só um anel parado. A versão antiga (luz dourada passando pelo cartão inteiro) não ficou boa.
 - **Selo parado** `.selo-agora` (amarelo torto, texto escuro): "Faça agora", "Comece aqui", "Continue aqui".
-- Onde: Início = cartão das Missões do dia (bolinhas que enchem → pacote) enquanto falta missão; sem missões, o "Continuar". Meu dia = a primeira missão que falta ("Fazer agora"; as outras ficam "Ir" escuro). Lista de mundos = primeiro mundo não terminado. Mapa do mundo = a fase "Agora". Álbum = "Abrir pacotes".
+- Onde: Início = selo "Faça agora" do cartão das Missões do dia (bolinhas que enchem → pacote) enquanto falta missão; sem missões, o botão "Jogar" do "Continuar". Meu dia = a primeira missão que falta ("Fazer agora"; as outras ficam "Ir" escuro). Lista de mundos = primeiro mundo não terminado. Mapa do mundo = a fase "Agora". Sem turma = botão "Entrar na minha turma". O "Abrir pacotes" do álbum (rosa) não pula: só o amarelo.
 - **Dias seguidos**: se ainda não estudou hoje, a pílula fica coral clarinha com um "!" (parado).
 - No Início, a Lojinha foi para depois do "Continuar" (estudo primeiro).

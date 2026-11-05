@@ -29,10 +29,10 @@ export function Mundos({ materia }: { materia?: string }) {
     const s = situacao(conta?.provas, c.id, dia);
     const eProximo = c.id === proximo?.id;
     return (
-      <button key={c.id} className={`painel-destaque${eProximo ? ' chamar' : ''}`} onClick={() => ir('mundo', c.id)} style={{ textAlign: 'left', color: 'inherit' }}>
+      <button key={c.id} className="painel-destaque" onClick={() => ir('mundo', c.id)} style={{ textAlign: 'left', color: 'inherit' }}>
         <span className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
           <span className="eyebrow" style={{ color: n === 5 ? 'var(--t-green)' : 'var(--t-yellow)' }}>{daMateria === capitulos && materias.length > 1 ? `${c.materia} · ` : ''}Mundo {c.numero}{n === 5 ? ' · completo' : ''}</span>
-          {eProximo && s.tipo !== 'chegando' ? <span className="selo-agora">{n === 0 ? 'Comece aqui' : 'Continue aqui'}</span> : <SeloProva s={s} />}
+          {eProximo && s.tipo !== 'chegando' ? <span className="selo-agora chamar">{n === 0 ? 'Comece aqui' : 'Continue aqui'}</span> : <SeloProva s={s} />}
         </span>
         <span className="display" style={{ fontSize: 24, display: 'block', marginTop: 2 }}>{c.titulo}</span>
         <span className="muted small" style={{ display: 'block' }}>{c.subtitulo}{s.tipo === 'chegando' ? ` · prova no dia ${diaMes(conta!.provas![c.id])}` : ''}</span>

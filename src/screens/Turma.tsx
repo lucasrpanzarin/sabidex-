@@ -254,7 +254,7 @@ export function PrecisaTurma({ situacao, tela = false }: { situacao: SituacaoEst
       <button className="btn btn-escuro btn-bloco" onClick={() => ir('conta')}>Meu perfil</button>
     </div>
   ) : (
-    <div className="painel-destaque coluna chamar" style={{ gap: 10, borderColor: 'var(--yellow)' }}>
+    <div className="painel-destaque coluna" style={{ gap: 10, borderColor: 'var(--yellow)' }}>
       {tela ? (
         <div className="linha" style={{ alignItems: 'flex-end' }}>
           <div style={{ flex: 'none' }}><Ara tamanho={76} /></div>
@@ -263,7 +263,7 @@ export function PrecisaTurma({ situacao, tela = false }: { situacao: SituacaoEst
       ) : <span className="display" style={{ fontSize: 20 }}>Entre na sua turma da escola para jogar</span>}
       {entrando ? <EntrarTurma aoEntrar={() => setEntrando(false)} /> : (
         <>
-          <button className="btn btn-amarelo btn-bloco" onClick={() => setEntrando(true)}>Entrar na minha turma</button>
+          <button className="btn btn-amarelo btn-bloco chamar" onClick={() => setEntrando(true)}>Entrar na minha turma</button>
           {!conta && <button className="btn btn-escuro btn-bloco" onClick={() => ir('entrar')}>Já tenho conta em outro aparelho</button>}
         </>
       )}

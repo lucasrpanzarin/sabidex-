@@ -627,17 +627,20 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
 }
 
 /* ---------- Chamar a atenção para o próximo passo de estudo (Lucas, 05/11/2026) ----------
-   Um reflexo de luz passa, espera uns 2 segundos e passa de novo. Regras:
-   só UMA coisa por tela (o próximo passo de estudo), some quando a criança faz,
-   nunca dentro dos jogos, e não aparece com "reduzir movimento" ligado no celular. */
-.chamar { position: relative; overflow: hidden; isolation: isolate; }
-.chamar::after {
-  content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none; border-radius: inherit;
-  background: linear-gradient(105deg, transparent 28%, #FFD54A66 40%, #FFFFFFE0 48%, #FFD54A66 56%, transparent 68%);
-  transform: translateX(-130%); animation: chamar-brilho 2.8s ease-in-out .5s infinite;
+   Só no botãozinho amarelo do próximo passo (1 por tela): ele dá um pulinho leve e solta um anel
+   amarelo que cresce e some, a cada ~2,4 s. Não acende e apaga (piscar cansa e incomoda os olhos).
+   Some quando a criança faz, nunca dentro dos jogos, e fica parado com "reduzir movimento". */
+.chamar { position: relative; isolation: isolate; animation: chamar-pulo 2.4s ease-in-out .4s infinite; }
+.chamar::before {
+  content: ''; position: absolute; inset: -3px; z-index: -1; pointer-events: none; border-radius: inherit;
+  animation: chamar-anel 2.4s ease-out .4s infinite;
 }
-@keyframes chamar-brilho { 0% { transform: translateX(-130%); } 30%, 100% { transform: translateX(130%); } }
-@media (prefers-reduced-motion: reduce) { .chamar::after { animation: none; display: none; } }
+@keyframes chamar-pulo { 0%, 40%, 100% { scale: 1; } 12% { scale: 1.08; } 24% { scale: .98; } }
+@keyframes chamar-anel { 0% { box-shadow: 0 0 0 0 #FFC21AD9; } 50%, 100% { box-shadow: 0 0 0 14px #FFC21A00; } }
+@media (prefers-reduced-motion: reduce) {
+  .chamar { animation: none; }
+  .chamar::before { animation: none; box-shadow: 0 0 0 5px #FFC21A80; }
+}
 
 /* Selo parado "Faça agora": figurinha amarela torta. */
 .selo-agora {

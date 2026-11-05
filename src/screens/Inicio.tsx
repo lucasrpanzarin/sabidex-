@@ -204,7 +204,7 @@ export function Inicio() {
       )}
 
       {mis.lista.length > 0 && (
-        <button className={`painel coluna${brilhoMissoes ? ' chamar' : ''}`} onClick={() => ir('dia')}
+        <button className="painel coluna" onClick={() => ir('dia')}
           style={{ textAlign: 'left', color: 'inherit', width: '100%', gap: 10, borderColor: misFaltam ? 'var(--coral)' : 'var(--green)' }}>
           <span className="linha" style={{ gap: 10 }}>
             <Chama tamanho={40} />
@@ -214,7 +214,7 @@ export function Inicio() {
                 {misFaltam === 0 ? 'Pacote ganho! Volte amanhã.' : misFaltam === mis.lista.length ? `${misFaltam} missões te esperando!` : `Falta${misFaltam > 1 ? 'm' : ''} ${misFaltam} para o pacote!`}
               </span>
             </span>
-            {misFaltam > 0 ? <span className="selo-agora">Faça agora</span> : <Icone nome="seguir" espessura={3} />}
+            {misFaltam > 0 ? <span className="selo-agora chamar">Faça agora</span> : <Icone nome="seguir" espessura={3} />}
           </span>
           <span className="linha" style={{ gap: 10 }}>
             <span className="bolinhas-missao" aria-label={`${misFeitas} de ${mis.lista.length} missões feitas`}>
@@ -232,7 +232,7 @@ export function Inicio() {
       )}
 
       {prox && (
-        <button className={`painel-destaque${brilhoContinuar ? ' chamar' : ''}`} onClick={() => ir('mundo', prox.cap.id)} style={{ textAlign: 'left', color: 'inherit' }}>
+        <button className="painel-destaque" onClick={() => ir('mundo', prox.cap.id)} style={{ textAlign: 'left', color: 'inherit' }}>
           <span className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
             <span className="eyebrow" style={{ color: 'var(--t-yellow)' }}>Continuar · {prox.cap.materia}</span>
             {provaProx && <SeloProva s={provaProx} />}
@@ -243,7 +243,7 @@ export function Inicio() {
             <span style={{ flex: 1, display: 'flex', gap: 6 }} aria-label={`${feitasCap} de 5 fases`}>
               {FASES.map((f) => <span key={f} style={{ flex: 1, height: 10, borderRadius: 999, background: e.feitas[chave(prox.cap.id, f)] ? 'var(--green)' : 'var(--line)' }} />)}
             </span>
-            <span className="btn btn-amarelo" style={{ minHeight: 44, padding: '8px 20px' }}>Jogar</span>
+            <span className={`btn btn-amarelo${brilhoContinuar ? ' chamar' : ''}`} style={{ minHeight: 44, padding: '8px 20px' }}>Jogar</span>
           </span>
         </button>
       )}
