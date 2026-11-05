@@ -232,3 +232,249 @@ a) 1/3 de 90
 b) 1/4 de 96
 c) 1/5 de 175
 d) 1/100 de 600
+
+## Página 156
+
+> **A MATEMÁTICA NO DIA A DIA**
+>
+> Tânia ganha um salário de R$ 4.000,00 por mês e está estimando quanto irá gastar com as despesas mensais.
+>
+> [IMAGEM: foto de uma moça fazendo contas numa mesa, com calculadora e papéis.]
+> Legenda: Tânia calculando as despesas mensais.
+>
+> Observe a tabela que ela fez.
+>
+> **Despesas mensais**
+>
+> | Contas a pagar | Valores em reais |
+> |---|---|
+> | Água, luz e gás | 800 |
+> | Aluguel | 1000 |
+> | Compras de mercado | 1000 |
+> | Poupança | 800 |
+> | Outros | 400 |
+> | **Total** | **4000** |
+>
+> Fonte: Dados obtidos por Tânia.
+>
+> Agora, pinte as linhas da tabela de acordo com a legenda:
+> - [laranja] 1/10 do salário
+> - [azul] 1/5 do salário
+> - [vermelho] 1/4 do salário
+
+## Página 157
+
+## OUTRAS FRAÇÕES
+
+Andressa trabalha como pintora. Ela precisa pintar uma parede, assim a dividiu em três partes iguais. Observe a parte da parede que Andressa já pintou.
+
+[IMAGEM: parede dividida em 3 partes iguais; 2 partes pintadas e uma pintora com rolo na parte branca.]
+
+Andressa já pintou 2/3 da parede.
+
+Lemos a fração 2/3 como **dois terços**. Ela representa duas vezes um terço.
+
+A representação de uma fração utiliza dois números inteiros separados por uma barra horizontal. Esses números são chamados **numerador** e **denominador da fração**. Observe:
+
+> 2 → **Numerador da fração**: Partes que estamos considerando.
+> 3 → **Denominador da fração**: Quantidade total de partes iguais em que o inteiro foi dividido.
+
+> **CONHEÇA O MATEMÁTICO**
+> Por volta de 1202, Leonardo de Pisa empregou a notação de fração em sua obra *Liber Abaci* (Livro do Ábaco). Com isso, ele ajudou a popularizar essa escrita que já era conhecida dos árabes.
+> [IMAGEM: retrato antigo de um homem com chapéu.]
+> Legenda: Retrato de Leonardo de Pisa, conhecido como Fibonacci (1170-1250).
+
+## Página 158
+
+Na situação apresentada, a parte que Andressa pintou do muro pode ser representada pela fração 2/3, porque ela pintou 2 partes de um total de 3 partes iguais. Ou seja, o numerador dessa fração é 2, pois essa é a quantidade de partes pintadas, e o denominador é 3, porque essa é a quantidade de partes iguais em que o muro foi dividido.
+
+Em cada figura a seguir, a parte pintada de cinza corresponde a uma fração.
+
+[IMAGEM: um quadrado dividido em 4 triângulos, 3 cinza → 3/4; um pentágono dividido em 5 partes, 2 cinza → 2/5; um círculo dividido em 8 partes, 5 cinza → 5/8.]
+
+### Atividades do livro
+
+7. Escreva as frações correspondentes à parte pintada de cinza de cada figura a seguir.
+[IMAGEM: três figuras com partes cinza: um retângulo dividido em triângulos, um retângulo dividido em quadrados e um círculo dividido em fatias. [ILEGÍVEL: não dá para contar com certeza as partes de cada figura na foto.]]
+
+## LEITURA DE FRAÇÕES
+
+Observe como lemos as frações:
+
+> 1/3 → um terço
+> 2/3 → dois terços
+> 3/3 → três terços
+
+Lemos o algarismo no numerador da fração de modo direto, por exemplo: o número 1 lemos como um, o 2 como dois, o 3 como três, e assim sucessivamente.
+
+## Página 159
+
+Já o denominador, quando representado pelo número 2, é lido como **meio(s)**; quando representado pelo número 3, é lido como **terço(s)**; quando representado pelo número 4, é lido como **quarto(s)**, e assim sucessivamente. Observe alguns exemplos.
+
+> 3/4 → três quartos
+> 4/5 → quatro quintos
+> 7/10 → sete décimos
+
+Quando o numerador da fração é o número 1, o denominador é lido no singular. Exemplos:
+
+> 1/4 → um quarto
+> 1/5 → um quinto
+> 1/10 → um décimo
+
+### Atividades do livro
+
+8. Em cada item, escreva o número fracionário correspondente.
+a) três oitavos
+b) sete décimos
+c) quatro quintos
+
+9. Nos itens, escreva como se lê cada uma das frações.
+a) 2/6
+b) 60/100
+c) 3/4
+
+## Página 160
+
+## FRAÇÕES NA RETA NUMÉRICA
+
+Observe como podemos representar algumas frações na reta numérica:
+
+- Vimos que, para representar um terço, dividimos a unidade em três partes iguais e consideramos a primeira marcação à direita do zero. Então, para representar dois terços, consideramos a segunda marcação.
+  [IMAGEM: reta de 0 a 1 com as marcações 1/3 e 2/3; uma seta aponta para 2/3.]
+- Do mesmo modo, para representar dois quartos, dividimos a unidade em quatro partes iguais e consideramos a segunda marcação à direita do zero. Para representar três quartos, consideramos a terceira marcação.
+  [IMAGEM: reta de 0 a 1 com as marcações 1/4, 2/4 e 3/4; setas apontam para 2/4 e 3/4.]
+
+Agora é sua vez!
+
+### Atividades do livro
+
+10. Complete as marcações das retas numéricas a seguir com números na forma fracionária:
+a) [IMAGEM: reta de 0 a 1 com marcações vazias.]
+b) [IMAGEM: reta de 0 a 1 com mais marcações vazias.]
+[ILEGÍVEL: não dá para contar com certeza quantas marcações tem cada reta na foto.]
+
+## Página 161
+
+## FRAÇÃO DE QUANTIDADE
+
+Uma equipe de pedreiros está fazendo alguns reparos em todos os andares de um prédio. O prédio tem 10 andares, e 3/5 desses andares estão prontos. Quantos andares desse prédio estão prontos?
+
+[IMAGEM: desenho de um prédio de 10 andares coloridos.]
+
+Podemos determinar 3/5 de 10 em duas etapas.
+
+**1ª etapa:** descobrimos a quanto corresponde 1/5 de 10, dividindo 10 por 5.
+
+10 ÷ 5 = 2
+
+**2ª etapa:** 3/5 é o mesmo que 3 vezes 1/5. Portanto, basta multiplicar o número encontrado por 3.
+
+2 × 3 = 6
+
+Desse modo, podemos concluir que 3/5 de 10 é igual a 6.
+
+[IMAGEM: o mesmo prédio; 2 andares marcados como 1/5 e 6 andares marcados como 3/5.]
+
+Portanto, ___ andares do prédio estão prontos.
+
+## Página 162
+
+Agora é sua vez!
+
+### Atividades do livro
+
+11. Para cada caso, calcule a quantidade que corresponde a:
+a) 2/5 de 45
+b) 3/5 de 60
+c) 3/4 de 500
+d) 4/6 de 120
+e) 9/10 de 70
+f) 6/100 de 800
+g) 30/100 de 600
+
+> **AMPLIANDO**
+> As frações com denominador 100 podem ser escritas como porcentagem usando o símbolo %, que se lê **por cento**. Por exemplo: lê-se 5% como 5 por cento, que significa 5 a cada 100.
+> Veja outros exemplos:
+> 1/100 = 1% → um por cento
+> 8/100 = 8% → oito por cento
+> 25/100 = 25% → vinte e cinco por cento
+
+## Página 163
+
+> **A BRINCADEIRA É... JOGO DO TIJOLO**
+>
+> **Material para a brincadeira**
+> - Dois dados.
+> - 12 cartas disponíveis no **Material Complementar**.
+>
+> **Como brincar**
+> - Forme dupla com um colega, e coloquem as 12 cartas sobre a mesa sem que se sobreponham, com as imagens dos tijolos voltadas para cima.
+> - Decida com sua dupla quem será o primeiro a jogar.
+> - O primeiro jogador deve lançar os dois dados para obter uma fração. O menor número obtido nos dados será o numerador da fração, e o maior número será o denominador. Caso os dois números sejam iguais, a fração terá o numerador igual ao denominador. Observe alguns exemplos:
+>   [IMAGEM: dados com 5 e 3 → 3/5; dados com 2 e 2 → 2/2.]
+> - Usando a fração obtida, o primeiro jogador deve procurar sobre a mesa a carta na qual a quantidade de tijolos pintados representa a fração. Ao encontrar a carta, esse jogador deve pegá-la.
+> - Então, é a vez do segundo jogador, que também deve lançar os dados e procurar sobre a mesa a carta que representa a fração correspondente. Ao encontrar a carta, ele também deverá pegá-la. Caso a carta já tenha sido retirada, ele deve passar a vez.
+> - O jogo segue desse modo até que um dos jogadores pegue sete cartas, tornando-se o vencedor. Caso todas as cartas sobre a mesa tenham sido pegas e os dois jogadores tenham 6 cartas cada um, o jogo fica empatado.
+
+## Página 164
+
+> **AMPLIANDO**
+>
+> 1. Forme dupla com um colega e pesquisem em notícias, receitas ou outros tipos de textos as frações indicadas a seguir. Depois, copiem a frase em que essa fração aparece.
+>    - Uma fração unitária, ou seja, uma fração com numerador 1.
+>    - Uma fração com o numerador diferente de 1 e menor do que o denominador.
+> 2. Elaborem uma frase que contenha uma fração em que o numerador seja menor do que o denominador.
+>
+> Compartilhem com os colegas as frases que encontraram e elaboraram.
+
+> **SAIBA MAIS**
+> **LIVRO**
+> ***O pirulito do pato***, de Nilson José Machado. São Paulo: Scipione, 2004.
+> Nesse livro, você irá desvendar um enigma envolvendo um pirulito, alguns patos e frações.
+> [IMAGEM: capa do livro "O pirulito do pato".]
+
+## Página 165
+
+# MÃOS À OBRA!
+
+### Atividades do livro
+
+1. Ligue cada pintor ao balde de tinta correspondente.
+- Pintor 1: "Eu tenho 1/2 do balde de tinta."
+- Pintor 2: "Eu tenho 1/5 do balde de tinta."
+- Pintor 3: "Eu tenho 1/20 do balde de tinta."
+
+[IMAGEM: três baldes transparentes com tinta: um com tinta vermelha até mais ou menos a metade, um com tinta verde num nível baixo e um com tinta cinza num nível bem baixo.]
+
+## Página 166
+
+2. Leia o que cada encanador diz e depois responda.
+
+- Encanador 1: "Vou utilizar 1/2 de um cano novo."
+  [IMAGEM: foto de um encanador embaixo de uma pia.] Legenda: Encanador medindo um cano que precisará de reparo em uma pia de cozinha.
+  [IMAGEM: cano com uma parte vermelha marcada como 1/2.]
+- Encanador 2: "Vou utilizar 1/3 de um cano novo."
+  [IMAGEM: foto de outro encanador embaixo de uma pia.] Legenda: Outro encanador medindo um cano que precisará de reparo em uma pia de cozinha.
+  [IMAGEM: cano com uma parte vermelha marcada como 1/3, com linhas tracejadas dividindo o cano.]
+
+O que há de errado nas afirmações dos encanadores?
+
+## Página 167
+
+3. Complete o quadro com as informações que faltam, como no exemplo.
+
+| Representação gráfica | Número na forma fracionária | Como se lê |
+|---|---|---|
+| [retângulo dividido em 2 partes, 1 pintada] | 1/2 | Um meio ou meio |
+| [vazio] | 1/3 | [vazio] |
+| [retângulo dividido em 4 partes, 1 pintada] | [vazio] | [vazio] |
+| [vazio] | 1/5 | [vazio] |
+
+4. Um pedreiro precisa fazer uma massa para passar sobre a parede. A receita que ele costuma usar inclui areia, cal e cimento, que ele posteriormente mistura com água até dar o ponto da massa, conforme as medidas indicadas a seguir.
+> - Areia: 1/2 da medida total.
+> - Cimento: 1/5 da medida total.
+> - Cal: o resto da medida total.
+
+Pinte os baldes conforme essa receita nas cores indicadas.
+[Legenda: Areia (laranja), Cimento (cinza), Cal (roxo).]
+[IMAGEM: 10 baldes vazios, em 2 fileiras de 5.]
