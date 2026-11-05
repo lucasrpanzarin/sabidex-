@@ -63,10 +63,10 @@ function DatasDasProvas({ token, rota, provas, aoMudar, ajuda }: { token: string
   );
 }
 
-/** Pergunta que uma criança de 9 anos não responde de cabeça, antes da área dos adultos (pedido das lojas para apps infantis). */
+/** Portão das lojas para apps infantis: uma conta rápida para adulto, antes da área dos adultos (mesmo com o adulto já logado no aparelho). */
 let portaoAberto = false;
 function Portao({ aoPassar }: { aoPassar: () => void }) {
-  const [conta] = useState(() => { const a = 6 + Math.floor(Math.random() * 4), b = 13 + Math.floor(Math.random() * 7); return { a, b }; });
+  const [conta] = useState(() => { const a = 11 + Math.floor(Math.random() * 9), b = 3 + Math.floor(Math.random() * 3); return { a, b }; });
   const [resp, setResp] = useState('');
   const [erro, setErro] = useState(false);
   return (
@@ -89,7 +89,7 @@ const guardarToken = (t: string) => { try { localStorage.setItem(K, t); } catch 
 export function Adulto({ turmaId }: { turmaId?: string }) {
   const [token, setToken] = useState(lerToken());
   const [eu, setEu] = useState<Eu | null>(null);
-  const [passou, setPassou] = useState(portaoAberto || !!token);
+  const [passou, setPassou] = useState(portaoAberto);
 
   useEffect(() => {
     if (!token) return;

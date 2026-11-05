@@ -112,7 +112,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
   - Cada um escolhe um **Sabimon parceiro**: cada acerto vira um golpe na batalha (aparece a força da carta). **Ninguém perde carta.** Quem **acerta mais vence**; a força da carta não muda o resultado (assim vence quem estudou). Empate é empate.
   - Prêmio: **4 XP e 4 Sabicoins por acerto** (máx. 40), só nos **3 primeiros duelos do dia**. Sem pacote (só o de nível novo, que vem pelo XP). Vitórias entram no ranking da semana (aba "Duelos"). Erros vão para a Revisão do Ará.
   - Limites: até 5 desafios esperando; 1 duelo por vez entre os mesmos dois; vence em 7 dias sem jogar. O colega pode dizer "Agora não". Sem mensagem nenhuma entre eles. O servidor corrige as respostas e decide quem venceu.
-- Pergunta de conta (ex.: "Quanto é 6 × 15?") antes da área dos adultos.
+- Pergunta de conta rápida para adulto (ex.: "Quanto é 14 × 4?") antes da área dos adultos (exigência das lojas). Aparece **também quando o adulto já está logado** no aparelho (antes, nesse caso, a criança entrava direto). Vale até fechar o app.
 - **Entrar na conta em outro aparelho**: código da turma (o aparelho lembra o último usado) → a criança toca no próprio nome na lista da turma → PIN. Não precisa decorar o apelido. A lista (apelido + cor) só aparece para quem tem o código, igual ao ranking.
 - 5 PINs errados bloqueiam 15 minutos.
 - **30 códigos errados** (turma ou família) seguidos pela mesma internet bloqueiam 15 minutos (05/11/2026). Numa escola a turma toda divide a internet, por isso o número é alto.
@@ -192,6 +192,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **05/11/2026** · Conta do portão dos adultos mais fácil (de 6–9 × 13–19 para 11–19 × 3–5) e agora pedida também com o adulto já logado no aparelho. Fica por causa das lojas; a tranca de verdade é a senha (Lucas).
 - **05/11/2026** · **Chamar a atenção para o estudo**: brilho dourado passando a cada ~2 s no próximo passo (missões do dia no Início, primeira missão em Meu dia, mundo e fase "Agora", abrir pacotes no álbum), selos "Faça agora"/"Continue aqui", missões com bolinhas que enchem até o pacote, "!" nos dias seguidos quando ainda não estudou hoje e Lojinha depois do "Continuar". O Lucas pediu "piscando"; ficou o brilho (piscar distrai e é ruim para quem é sensível a luz). Muda a regra "telas paradas não se mexem" só para esse brilho (Lucas).
 - **05/11/2026** · **Menu de baixo** com a cara do app: desenhos coloridos de contorno escuro em cada aba e a aba aberta como adesivo colado (Lucas).
 - **05/11/2026** · "Minha conta" virou **Meu perfil**: nível, números e 16 conquistas (só figurinhas de honra, sem prêmio). O código da turma foi para baixo, porque a criança quer ver ela mesma (Lucas).
