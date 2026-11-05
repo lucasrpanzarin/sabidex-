@@ -1,4 +1,5 @@
 // Área dos adultos: conta da família (perfis dos filhos), turmas e apagar a conta.
+import type { Uso } from '../shared/uso';
 import { useEffect, useRef, useState } from 'react';
 import { Icone } from '../components/Icone';
 import { Bolinha } from '../components/Perfis';
@@ -1313,7 +1314,7 @@ const PERIODOS: { id: Periodo; nome: string }[] = [{ id: 'hoje', nome: 'Hoje' },
 function PainelDono({ token }: { token: string }) {
   const [dados, setDados] = useState<DonoDados | null>(null);
   const [erro, setErro] = useState<string | null>(null);
-  const [aba, setAba] = useState<'criancas' | 'adultos' | 'pedidos'>('criancas');
+  const [aba, setAba] = useState<'criancas' | 'adultos' | 'pedidos' | 'uso'>('criancas');
   const [periodo, setPeriodo] = useState<Periodo>('7');
   const [semTurma, setSemTurma] = useState(false);
   const [ocupado, setOcupado] = useState<string | null>(null);
@@ -1376,9 +1377,10 @@ function PainelDono({ token }: { token: string }) {
         <button role="tab" aria-selected={aba === 'criancas'} onClick={() => setAba('criancas')}>Crianças</button>
         <button role="tab" aria-selected={aba === 'adultos'} onClick={() => setAba('adultos')}>Adultos</button>
         <button role="tab" aria-selected={aba === 'pedidos'} onClick={() => setAba('pedidos')}>Pedidos{dados.pedidos.length ? ` (${dados.pedidos.length})` : ''}</button>
+        <button role="tab" aria-selected={aba === 'uso'} onClick={() => setAba('uso')}>Como usam</button>
       </div>
 
-      {aba !== 'pedidos' && (
+      {(aba === 'criancas' || aba === 'adultos') && (
         <div className="linha" style={{ flexWrap: 'wrap', gap: 8 }}>
           {PERIODOS.map((p) => <button key={p.id} className="filtro" aria-pressed={periodo === p.id} onClick={() => setPeriodo(p.id)}>{p.nome}</button>)}
           {aba === 'criancas' && <button className="filtro" aria-pressed={semTurma} onClick={() => setSemTurma(!semTurma)}>Só sem turma</button>}
@@ -1464,7 +1466,85 @@ function PainelDono({ token }: { token: string }) {
           ))}
         </section>
       )}
-      <button className="btn btn-escuro btn-bloco" onClick={() => void carregar()}>Atualizar</button>
+      {aba === 'uso' && <PainelUso token={token} />}
+      {aba !== 'uso' && <button className="btn btn-escuro btn-bloco" onClick={() => void carregar()}>Atualizar</button>}
     </>
+  );
+}
+
+/** "Como usam" (Lucas, 05/11/2026): números somados de todas as crianças, sem dizer quem é quem. */
+function PainelUso({ token }: { token: string }) {
+  const [uso, setUso] = useState<Uso | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const carregar = () => api<Uso>('/adulto/dono/uso', { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : (setErro(null), setUso(r))));
+  useEffect(() => { void carregar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!uso) return erro ? <div className="aviso aviso-erro" role="alert">{erro}</div> : <p className="muted">Carregando…</p>;
+  const pct = (n: number, de: number) => (de ? `${Math.round((n / de) * 100)}%` : '0%');
+  const celula = { padding: '6px 4px', borderBottom: '1px solid var(--line)', textAlign: 'right' as const };
+  return (
+    <section className="coluna" style={{ gap: 12 }} aria-label="Como as crianças usam o app">
+      <p className="muted small" style={{ margin: 0 }}>
+        Números de todas as {uso.criancas} crianças com conta, somados. Não mostra quem é quem. Quem joga só no aparelho, sem conta, não entra aqui.
+      </p>
+
+      <div className="painel coluna" style={{ gap: 6, padding: 12 }}>
+        <h2 className="display" style={{ fontSize: 20, margin: 0 }}>Estudo</h2>
+        <span className="small" style={{ fontWeight: 700 }}>{uso.estudaram} de {uso.criancas} fizeram pelo menos uma fase ({pct(uso.estudaram, uso.criancas)})</span>
+        <span className="small" style={{ fontWeight: 700 }}>{uso.voltaram} estudaram em 2 dias ou mais ({pct(uso.voltaram, uso.criancas)})</span>
+        <span className="small" style={{ fontWeight: 700 }}>Quem estuda, estuda em média {String(uso.mediaDias).replace('.', ',')} dias</span>
+      </div>
+
+      <div className="painel coluna" style={{ gap: 6, padding: 12 }}>
+        <h2 className="display" style={{ fontSize: 20, margin: 0 }}>Partes do app que usam</h2>
+        <p className="muted small" style={{ margin: 0 }}>Quantas crianças já usaram cada parte pelo menos uma vez. Número baixo pode querer dizer que a criança não achou o botão ou não entendeu para que serve.</p>
+        {[...uso.recursos].sort((x, y) => y.criancas - x.criancas).map((r) => (
+          <div key={r.nome} className="linha" style={{ gap: 8 }}>
+            <span className="small" style={{ flex: 1, fontWeight: 700 }}>{r.nome}</span>
+            <span className="small" style={{ fontWeight: 800 }}>{r.criancas} ({pct(r.criancas, uso.criancas)})</span>
+          </div>
+        ))}
+      </div>
+
+      {uso.capitulos.map((c) => (
+        <div key={c.id} className="painel coluna" style={{ gap: 6, padding: 12 }}>
+          <h2 className="display" style={{ fontSize: 18, margin: 0 }}>{c.nome}</h2>
+          <span className="muted small">{plural(c.comecaram, 'criança começou', 'crianças começaram')} este capítulo.</span>
+          {c.comecaram > 0 && (
+            <div style={{ overflowX: 'auto' }}>
+              <table className="small" style={{ width: '100%', borderCollapse: 'collapse', fontWeight: 700 }}>
+                <thead>
+                  <tr>
+                    <th style={{ ...celula, textAlign: 'left' }}>Fase</th>
+                    <th style={celula}>Terminaram</th>
+                    <th style={celula}>Nota média</th>
+                    <th style={celula}>Abaixo de 7</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {c.itens.map((i) => {
+                    const pouco = i.fizeram < c.comecaram / 2;
+                    const dificil = i.media !== null && i.media < 7;
+                    return (
+                      <tr key={i.nome}>
+                        <td style={{ ...celula, textAlign: 'left' }}>{i.nome}</td>
+                        <td style={{ ...celula, color: pouco ? 'var(--t-coral)' : undefined }}>{i.fizeram} ({pct(i.fizeram, c.comecaram)})</td>
+                        <td style={{ ...celula, color: dificil ? 'var(--t-coral)' : undefined }}>{i.media === null ? '–' : String(i.media).replace('.', ',')}</td>
+                        <td style={celula}>{i.media === null ? '–' : i.abaixo7}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      ))}
+
+      <p className="muted small" style={{ margin: 0 }}>
+        Em vermelho: fase que menos da metade de quem começou terminou (pode estar difícil ou escondida) ou com nota média abaixo de 7. A nota é a melhor vez de cada criança.
+      </p>
+      {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+      <button className="btn btn-escuro btn-bloco" onClick={() => void carregar()}>Atualizar</button>
+    </section>
   );
 }

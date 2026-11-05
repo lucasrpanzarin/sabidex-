@@ -3,7 +3,8 @@
 
 import { Hono, type Context } from 'hono';
 import { capitulos } from '../data';
-import { FASES, POR_PACOTE, chaveExtra, extrasDo } from '../lib/jogo';
+import { EXTRA_INFO, FASES, POR_PACOTE, chave, chaveExtra, extrasDo, infoFase } from '../lib/jogo';
+import { resumirUso, type CapituloUso } from '../shared/uso';
 import { idEvolucao, itemPorId, migrarFormas, podeEvoluir, premiosLivres, PRECO_EVOLUCAO, protegido, refCompra } from '../lib/loja';
 import { figurinhaPorId, idCarta, IDS_CARTAS } from '../lib/figurinhas';
 import {
@@ -1116,6 +1117,33 @@ app.get('/adulto/dono', async (c) => {
   });
   const listaAdultos = (adultos.results as Record<string, unknown>[]).map((x) => ({ ...x, dias: diasDe(String(x.id), [Number(x.criado), Number(x.visto)]) }));
   return c.json({ hoje, ontem, resumo: resumo.results[0], criancas: listaCriancas, adultos: listaAdultos, pedidos: pedidos.results, turmas: turmas.results });
+});
+
+// "Como usam" (Lucas, 05/11/2026): só números somados, com o que o servidor já guarda. Nunca diz quem é quem.
+const CAPITULOS_USO: CapituloUso[] = capitulos.map((c) => ({
+  id: c.id,
+  nome: `${c.materia} · Cap. ${c.numero}: ${c.titulo}`,
+  itens: [
+    ...FASES.map((f) => ({ chave: chave(c.id, f), nome: infoFase(f, c).titulo, nota: f === 'prova' ? c.id : chave(c.id, f) })),
+    ...extrasDo(c).map((x) => ({ chave: chaveExtra(c.id, x), nome: `${EXTRA_INFO[x].titulo} (extra)`, nota: chaveExtra(c.id, x) })),
+  ],
+}));
+
+app.get('/adulto/dono/uso', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  if (!a.admin) return erro(c, 404, 'Não encontrado.');
+  const r = await c.env.DB.prepare(`SELECT k.progresso,
+      (SELECT COUNT(*) FROM duelos WHERE (de_id = k.id OR para_id = k.id) AND status = 'feito') AS duelos,
+      (SELECT COUNT(*) FROM trocas WHERE (de_id = k.id OR para_id = k.id) AND status = 'aceita') AS trocas,
+      (SELECT COUNT(*) FROM mensagens WHERE crianca_id = k.id) AS mensagens
+    FROM criancas k`).all<{ progresso: string; duelos: number; trocas: number; mensagens: number }>();
+  const lista = r.results.map((k) => {
+    let p: unknown = {};
+    try { p = JSON.parse(k.progresso); } catch { /* progresso vazio */ }
+    return { progresso: sanitizar(p, FASES_VALIDAS), duelos: k.duelos, trocas: k.trocas, mensagens: k.mensagens };
+  });
+  return c.json(resumirUso(lista, CAPITULOS_USO));
 });
 
 // O dono do app coloca uma criança numa turma sem esperar o pedido do responsável (Lucas, 05/11/2026).
