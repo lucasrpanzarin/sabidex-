@@ -57,7 +57,7 @@ export interface PerguntaDuelo {
 
 export function perguntaDuelo(id: string, caps: Capitulo[]): PerguntaDuelo | null {
   const it = itemDe(id, caps);
-  if (!it) return null;
+  if (!it || it.tipo === 'conta') return null;
   if (it.tipo === 'quiz') {
     return { id, cap: it.cap, pergunta: it.q.frase, opcoes: ['Verdadeiro', 'Falso'], certa: it.q.verdadeira ? 0 : 1, explicacao: it.q.explicacao, vf: true };
   }

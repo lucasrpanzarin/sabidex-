@@ -86,14 +86,41 @@ export interface Sabimon {
   formas: [FormaSabimon, FormaSabimon, FormaSabimon];
 }
 
+/** Exemplo resolvido passo a passo (fase "Ver como se faz"). Depois dele, a criança resolve uma conta do mesmo tipo. */
+export interface ExemploResolvido {
+  titulo: string;
+  /** a ideia principal, em uma frase (pode ter **negrito**) */
+  ideia: string;
+  /** a situação do exemplo (do livro ou no mesmo nível) */
+  situacao: string;
+  /** cada passo aparece de um em um */
+  passos: string[];
+  /** tipo de conta para o "Agora você" (chave de GERADORES em src/lib/contas.ts) */
+  treino: string;
+}
+
+/**
+ * Matemática se aprende fazendo. As fases do mapa continuam as mesmas (estrelas, nota 7, pacotes),
+ * mas o que tem dentro muda: ouvir → "Ver como se faz", memória → "Treino de contas",
+ * linha → "Balança e sequências", prova → contas digitadas. O quiz continua de verdadeiro ou falso.
+ * As listas são tipos de conta de src/lib/contas.ts, na ordem em que aparecem (do mais fácil ao mais difícil).
+ * Os números mudam a cada partida. `prova` (múltipla escolha) do capítulo continua valendo para o Duelo do Saber.
+ */
+export interface Matematica {
+  exemplos: ExemploResolvido[];
+  treino: string[];
+  desafio: string[];
+  prova: string[];
+}
+
 export interface Capitulo {
   id: string;
   materia: string;
   numero: number;
   titulo: string;
   subtitulo: string;
-  /** true quando a "linha" não tem datas e sim etapas de um processo (ex.: Matemática): a fase vira "Passo a passo". */
-  passos?: boolean;
+  /** Só em Matemática: as fases viram exemplo resolvido, treino de contas digitadas e prova de contas (veja `Matematica`). */
+  matematica?: Matematica;
   temas: Tema[];
   pares: Par[];
   linha: Evento[];

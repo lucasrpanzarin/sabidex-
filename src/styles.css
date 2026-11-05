@@ -537,3 +537,30 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
 .chat-escrever { position: sticky; bottom: 0; display: flex; flex-direction: column; gap: 4px; background: var(--bg); padding-top: 8px; }
 .chat-escrever textarea { flex: 1; font: inherit; font-weight: 700; font-size: 17px; padding: 12px 14px; border-radius: 16px; border: 3px solid var(--ink); background: var(--surface); color: var(--ink); resize: none; min-height: 50px; max-height: 120px; line-height: 1.3; overflow-y: auto; }
 .colega-online { position: absolute; right: -2px; bottom: -2px; width: 14px; height: 14px; border-radius: 50%; background: var(--green); border: 2.5px solid var(--surface); }
+
+/* ---------- Matemática: contas digitadas, balança e setas (src/screens/Contas.tsx) ---------- */
+.conta-grande { font-size: clamp(24px, 7.5vw, 34px); letter-spacing: 1px; }
+.resposta-caixa { min-width: 120px; min-height: 64px; padding: 6px 16px; border: var(--borda); border-radius: 16px; background: var(--surface); display: inline-flex; align-items: baseline; justify-content: center; gap: 4px; box-shadow: var(--adesivo); }
+.resposta-caixa .display { font-size: 40px; line-height: 1.2; }
+.resposta-caixa.certa { background: #DCFCE7; }
+.resposta-caixa.errada { background: #FFE4E6; border-color: var(--t-red); }
+.teclado { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.tecla { min-height: 58px; font-size: 26px; padding: 6px; }
+.passo-num { width: 30px; height: 30px; flex: none; border-radius: 50%; border: 3px solid var(--ink); background: var(--cyan-2); display: grid; place-items: center; font-family: var(--display); }
+.peso { min-width: 46px; height: 42px; padding: 0 6px; border: 3px solid var(--ink); border-radius: 10px 10px 6px 6px; background: #E5E7EB; display: inline-flex; align-items: baseline; justify-content: center; gap: 1px; font-family: var(--display); font-size: 20px; line-height: 36px; }
+.peso small { font-size: 12px; }
+.peso-falta { background: var(--yellow); color: var(--ink); }
+.balanca { margin: 4px 0 0; width: 100%; max-width: 330px; display: flex; flex-direction: column; align-items: center; }
+.balanca-pratos { width: 100%; display: flex; justify-content: space-between; gap: 12px; }
+.balanca-lado { flex: 1; display: flex; flex-direction: column; align-items: center; }
+.balanca-pesos { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 4px; min-height: 44px; }
+.balanca-prato { width: 100%; height: 12px; border: 3px solid var(--ink); border-top: 0; border-radius: 0 0 40px 40px; background: var(--yellow); }
+.balanca-braco { width: 86%; height: 8px; margin-top: 6px; border: 3px solid var(--ink); border-radius: 6px; background: #C08A3E; }
+.balanca-pe { width: 18px; height: 30px; border: 3px solid var(--ink); border-top: 0; border-bottom: 0; background: #C08A3E; }
+.balanca-base { width: 96px; height: 12px; border: 3px solid var(--ink); border-radius: 6px; background: #C08A3E; }
+.balanca figcaption { margin-top: 6px; }
+.setas { margin: 4px 0 0; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.setas-caixa { min-width: 64px; height: 56px; padding: 0 8px; border: 3px solid var(--ink); border-radius: 14px; background: var(--surface); display: grid; place-items: center; font-family: var(--display); font-size: 28px; }
+.setas-meio { display: flex; flex-direction: column; gap: 10px; font-family: var(--display); font-size: 18px; }
+.setas-ida { color: var(--t-green); }
+.setas-volta { color: var(--t-coral); }

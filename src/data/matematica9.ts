@@ -1,172 +1,48 @@
 import type { Capitulo } from "./tipos";
 
-// Conteúdo conferido com o livro de Matemática do 4º ano (Unidade 9, páginas 100 a 143).
+// Matemática do 4º ano, Unidade 9 (páginas 100 a 143 do livro). O livro é a base: os exemplos e as contas
+// seguem o mesmo nível e o mesmo método, mas os números das contas mudam a cada partida (src/lib/contas.ts).
+// Matemática não usa temas, pares nem linha do tempo: as fases usam `matematica` (veja tipos.ts).
+// `quiz` e `prova` (múltipla escolha) continuam: o quiz é a fase 4 e os dois servem para o Duelo do Saber.
 export const matematica9: Capitulo = {
   "id": "matematica-9",
   "numero": 9,
   "titulo": "O preparo de alimentos e o pensamento algébrico",
   "subtitulo": "Valor desconhecido, operações inversas, igualdade e múltiplos",
   "materia": "Matemática",
-  "passos": true,
-  "temas": [
-    {
-      "titulo": "O valor desconhecido",
-      "pontos": [
-        "Às vezes falta um número na conta. Esse número é o **valor desconhecido**.",
-        "Lívia usou 6 batatas no purê e sobraram 8. Quantas ela comprou? Um número menos 6 é igual a 8.",
-        "Marcus usou 3 ovos em cada bolo e gastou 30 ovos. Um número vezes 3 é igual a 30.",
-        "Para descobrir o número que falta, usamos a **operação inversa**. Assim, Marcus fez **10 bolos**."
-      ]
-    },
-    {
-      "titulo": "Adição e subtração",
-      "pontos": [
-        "A **adição** e a **subtração** são **operações inversas**: uma desfaz a outra.",
-        "Tânia fez 24 croquetes e depois mais 16. Ao todo, 24 + 16 = 40. Se já fritou 16, faltam 40 − 16 = 24.",
-        "Na adição, os números que somamos são as **parcelas**. O resultado é a **soma**.",
-        "Na subtração, o **minuendo** menos o **subtraendo** dá a **diferença**.",
-        "Para achar a parcela que falta em ___ + 8 = 47, fazemos 47 − 8. A parcela é **39**."
-      ]
-    },
-    {
-      "titulo": "Multiplicação e divisão",
-      "pontos": [
-        "A **multiplicação** e a **divisão** também são **operações inversas**.",
-        "Ana assou 2 fileiras com 8 biscoitos: 2 × 8 = 16. Em cada fileira: 16 ÷ 2 = 8.",
-        "Na multiplicação, os números são os **fatores**. O resultado é o **produto**.",
-        "Na divisão, o **dividendo** dividido pelo **divisor** dá o **quociente**.",
-        "Para achar o fator que falta em ___ × 9 = 36, fazemos 36 ÷ 9. O fator é **4**."
-      ]
-    },
-    {
-      "titulo": "Os 7 passos e a prova real",
-      "pontos": [
-        "Primeiro: **compreender a situação**, **compreender a pergunta** e **identificar a operação**.",
-        "Depois: **escrever a operação**, **efetuar o cálculo**, **verificar o resultado** e **responder à pergunta**.",
-        "Conferir o resultado com a operação inversa se chama **prova real**.",
-        "Luciana serviu sopa para 34 e para 53 pacientes: 34 + 53 = 87. Prova real: 87 − 53 = 34.",
-        "Para conferir 150 ÷ 50 = 3, multiplicamos o quociente pelo divisor: 50 × 3 = 150."
-      ]
-    },
-    {
-      "titulo": "A igualdade e a balança",
-      "pontos": [
-        "A **balança de pratos** fica **equilibrada** quando os dois pratos têm a mesma massa.",
-        "**Sentenças matemáticas** são frases escritas em linguagem matemática. Algumas usam o sinal **=** (igual).",
-        "Em 4 + 3 = 5 + 2, o lado esquerdo é o **primeiro membro**. O lado direito é o **segundo membro**.",
-        "A igualdade continua verdadeira se **adicionarmos ou subtrairmos o mesmo número** dos dois membros."
-      ]
-    },
-    {
-      "titulo": "Sequências e múltiplos",
-      "pontos": [
-        "Carolina usa 2 copos de leite e 3 ovos em cada torta. Os números formam **sequências** com um **padrão**.",
-        "Os **múltiplos** de um número saem de multiplicá-lo pelos **números naturais**: 0, 1, 2, 3, 4...",
-        "Múltiplos de 2, os **pares**: 0, 2, 4, 6, 8. Múltiplos de 3: 0, 3, 6, 9, 12.",
-        "Múltiplos de 5: 0, 5, 10, 15, 20.",
-        "É **impossível dividir por zero**. Nenhum número vezes zero dá 25, então 25 ÷ 0 não tem resposta."
-      ]
-    }
-  ],
-  "pares": [
-    {
-      "palavra": "Valor desconhecido",
-      "significado": "O número que falta descobrir na conta"
-    },
-    {
-      "palavra": "Operações inversas",
-      "significado": "Uma operação desfaz a outra"
-    },
-    {
-      "palavra": "Parcela",
-      "significado": "Cada número que somamos na adição"
-    },
-    {
-      "palavra": "Minuendo",
-      "significado": "O número de onde tiramos na subtração"
-    },
-    {
-      "palavra": "Diferença",
-      "significado": "O resultado da subtração"
-    },
-    {
-      "palavra": "Fator",
-      "significado": "Cada número que multiplicamos"
-    },
-    {
-      "palavra": "Produto",
-      "significado": "O resultado da multiplicação"
-    },
-    {
-      "palavra": "Quociente",
-      "significado": "O resultado da divisão"
-    },
-    {
-      "palavra": "Prova real",
-      "significado": "Conferir a conta com a operação inversa"
-    },
-    {
-      "palavra": "Múltiplo",
-      "significado": "Um número vezes 0, 1, 2, 3..."
-    }
-  ],
-  "linha": [
-    {
-      "ano": "1º",
-      "ordem": 1,
-      "fato": "Compreender a situação"
-    },
-    {
-      "ano": "2º",
-      "ordem": 2,
-      "fato": "Compreender a pergunta"
-    },
-    {
-      "ano": "3º",
-      "ordem": 3,
-      "fato": "Identificar a operação matemática"
-    },
-    {
-      "ano": "4º",
-      "ordem": 4,
-      "fato": "Identificar os dados e escrever a operação"
-    },
-    {
-      "ano": "5º",
-      "ordem": 5,
-      "fato": "Efetuar o cálculo"
-    },
-    {
-      "ano": "6º",
-      "ordem": 6,
-      "fato": "Verificar o resultado com a prova real"
-    },
-    {
-      "ano": "7º",
-      "ordem": 7,
-      "fato": "Responder à pergunta do problema"
-    }
-  ],
+  "temas": [],
+  "pares": [],
+  "linha": [],
   "quiz": [
-    {
-      "frase": "A adição e a subtração são operações inversas.",
-      "verdadeira": true,
-      "explicacao": "Isso mesmo: uma desfaz a outra."
-    },
-    {
-      "frase": "A multiplicação é a operação inversa da adição.",
-      "verdadeira": false,
-      "explicacao": "A inversa da multiplicação é a divisão."
-    },
     {
       "frase": "Se 24 + 16 = 40, então 40 − 16 = 24.",
       "verdadeira": true,
       "explicacao": "Tirando uma parcela da soma, sobra a outra parcela."
     },
     {
-      "frase": "Em 40 − 16 = 24, o número 16 é o minuendo.",
+      "frase": "Para achar o número em ? + 8 = 47, fazemos 47 + 8.",
       "verdadeira": false,
-      "explicacao": "O 16 é o subtraendo. O minuendo é o 40."
+      "explicacao": "Usamos a operação inversa, a subtração: 47 − 8 = 39."
+    },
+    {
+      "frase": "Em ? × 9 = 36, o número que falta é 4.",
+      "verdadeira": true,
+      "explicacao": "A inversa da multiplicação é a divisão: 36 ÷ 9 = 4."
+    },
+    {
+      "frase": "Em ? ÷ 4 = 7, o número que falta é 11.",
+      "verdadeira": false,
+      "explicacao": "Multiplicamos o quociente pelo divisor: 7 × 4 = 28."
+    },
+    {
+      "frase": "A prova real de 87 − 53 = 34 é fazer 34 + 53.",
+      "verdadeira": true,
+      "explicacao": "Diferença mais subtraendo dá o minuendo: 34 + 53 = 87."
+    },
+    {
+      "frase": "A multiplicação é a operação inversa da adição.",
+      "verdadeira": false,
+      "explicacao": "A inversa da multiplicação é a divisão. A da adição é a subtração."
     },
     {
       "frase": "Em 2 × 8 = 16, o número 16 é o produto.",
@@ -174,34 +50,24 @@ export const matematica9: Capitulo = {
       "explicacao": "O resultado da multiplicação se chama produto."
     },
     {
-      "frase": "Para achar o número em ___ + 8 = 47, fazemos 47 + 8.",
+      "frase": "Em 40 − 16 = 24, o número 16 é o minuendo.",
       "verdadeira": false,
-      "explicacao": "Usamos a operação inversa, a subtração: 47 − 8 = 39."
+      "explicacao": "O 16 é o subtraendo. O minuendo é o 40."
     },
     {
-      "frase": "Prova real é conferir o resultado usando a operação inversa.",
+      "frase": "Se 4 + 3 = 5 + 2, então 4 + 3 + 6 = 5 + 2 + 6.",
       "verdadeira": true,
-      "explicacao": "Exemplo: 34 + 53 = 87 e 87 − 53 = 34."
+      "explicacao": "Somando o mesmo número aos dois membros, a igualdade continua verdadeira."
     },
     {
-      "frase": "Para conferir 95 − 42 = 53, fazemos 53 − 42.",
+      "frase": "Em 8 + 6 = 10 + ?, o número que falta é 6.",
       "verdadeira": false,
-      "explicacao": "Somamos a diferença ao subtraendo: 53 + 42 = 95."
+      "explicacao": "8 + 6 = 14. Então 10 + ? = 14, e o número é 4."
     },
     {
-      "frase": "Se somarmos o mesmo número aos dois membros, a igualdade continua verdadeira.",
+      "frase": "O número 30 é múltiplo de 5.",
       "verdadeira": true,
-      "explicacao": "É como pôr o mesmo peso nos dois pratos da balança."
-    },
-    {
-      "frase": "Em 4 + 3 = 5 + 2, o primeiro membro é 5 + 2.",
-      "verdadeira": false,
-      "explicacao": "O primeiro membro fica à esquerda do sinal de igual: 4 + 3."
-    },
-    {
-      "frase": "Os múltiplos de 5 são 0, 5, 10, 15, 20...",
-      "verdadeira": true,
-      "explicacao": "É só multiplicar o 5 por 0, 1, 2, 3, 4..."
+      "explicacao": "5 × 6 = 30."
     },
     {
       "frase": "Dá para dividir 25 por zero.",
@@ -527,5 +393,115 @@ export const matematica9: Capitulo = {
       "causa": "Nenhum número vezes zero dá 25",
       "consequencia": "É impossível dividir 25 por zero"
     }
-  ]
+  ],
+  "matematica": {
+    "exemplos": [
+      {
+        "titulo": "O valor desconhecido",
+        "ideia": "Quando falta um número na conta, usamos a **operação inversa**.",
+        "situacao": "Marcus separou 30 ovos e usou 3 em cada bolo. Quantos bolos ele fez?",
+        "passos": [
+          "A conta fica assim: **? × 3 = 30**.",
+          "A inversa da multiplicação é a **divisão**.",
+          "Fazemos 30 ÷ 3 = **10**.",
+          "Marcus fez **10 bolos**."
+        ],
+        "treino": "falta-multiplicacao"
+      },
+      {
+        "titulo": "Adição e subtração",
+        "ideia": "**Adição** e **subtração** são **operações inversas**: uma desfaz a outra.",
+        "situacao": "Qual é o número que falta em **? + 8 = 47**?",
+        "passos": [
+          "O número que falta é uma **parcela**.",
+          "Para achar uma parcela, tiramos a outra parcela da **soma**.",
+          "Fazemos 47 − 8 = **39**.",
+          "Conferindo: 39 + 8 = 47. Certo!"
+        ],
+        "treino": "falta-soma"
+      },
+      {
+        "titulo": "Multiplicação e divisão",
+        "ideia": "**Multiplicação** e **divisão** também são **operações inversas**.",
+        "situacao": "Qual é o número que falta em **? ÷ 4 = 7**?",
+        "passos": [
+          "O número que falta é o **dividendo**.",
+          "Multiplicamos o **quociente** pelo **divisor**: 7 × 4 = **28**.",
+          "Conferindo: 28 ÷ 4 = 7. Certo!"
+        ],
+        "treino": "falta-divisao"
+      },
+      {
+        "titulo": "Os 7 passos e a prova real",
+        "ideia": "Conferir a conta com a operação inversa se chama **prova real**.",
+        "situacao": "Luciana serviu sopa de legumes para 34 pacientes e sopa de abóbora para 53. Quantos pacientes ao todo?",
+        "passos": [
+          "1º **Compreender a situação**: duas sopas, 34 e 53 pacientes.",
+          "2º **Compreender a pergunta**: quantos pacientes ao todo?",
+          "3º **Identificar a operação**: adição, porque vamos juntar.",
+          "4º **Escrever a operação**: 34 + 53.",
+          "5º **Efetuar o cálculo**: 34 + 53 = 87.",
+          "6º **Verificar com a prova real**: 87 − 53 = 34. Certo!",
+          "7º **Responder**: foram servidos **87 pacientes**."
+        ],
+        "treino": "problema-soma"
+      },
+      {
+        "titulo": "A balança e a igualdade",
+        "ideia": "A igualdade continua verdadeira se pusermos **o mesmo número nos dois membros**.",
+        "situacao": "Uma balança equilibrada tem 8 kg e 6 kg na esquerda e 10 kg e 4 kg na direita. Pus mais 4 kg na esquerda.",
+        "passos": [
+          "Antes: 8 + 6 = 10 + 4. Os dois lados valem 14.",
+          "Com mais 4 kg na esquerda: 8 + 6 + 4 = 18.",
+          "Para equilibrar, ponho **4 kg** na direita também: 10 + 4 + 4 = 18."
+        ],
+        "treino": "balanca-falta"
+      },
+      {
+        "titulo": "Sequências e múltiplos",
+        "ideia": "Os **múltiplos** de um número saem de multiplicá-lo por 0, 1, 2, 3, 4...",
+        "situacao": "Carolina usa 3 ovos em cada torta. Quantos ovos para 4 tortas?",
+        "passos": [
+          "1 torta: 3 ovos. 2 tortas: 6 ovos. 3 tortas: 9 ovos.",
+          "Os números 0, 3, 6, 9, 12... são os **múltiplos de 3**.",
+          "4 tortas: 4 × 3 = **12 ovos**."
+        ],
+        "treino": "multiplos-receita"
+      }
+    ],
+    "treino": [
+      "falta-soma",
+      "falta-subtracao",
+      "falta-multiplicacao",
+      "falta-divisao",
+      "setas",
+      "prova-real",
+      "problema-soma",
+      "problema-subtracao",
+      "problema-vezes",
+      "problema-divisao"
+    ],
+    "desafio": [
+      "balanca-falta",
+      "balanca-diferenca",
+      "sentenca-membros",
+      "balanca-falta",
+      "sentenca-membros",
+      "multiplos-sequencia",
+      "multiplos-receita",
+      "multiplos-sequencia"
+    ],
+    "prova": [
+      "falta-soma",
+      "falta-subtracao",
+      "falta-multiplicacao",
+      "falta-divisao",
+      "problema-subtracao",
+      "problema-vezes",
+      "problema-divisao",
+      "balanca-falta",
+      "sentenca-membros",
+      "multiplos-receita"
+    ]
+  }
 };

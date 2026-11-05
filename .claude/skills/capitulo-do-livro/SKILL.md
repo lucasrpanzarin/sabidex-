@@ -55,6 +55,24 @@ Guarde também, em `livro/<capitulo>/fontes.md`, uma lista curta de "item → p�
 Capítulo já publicado: não reordene nem apague perguntas do `quiz` e da `prova` (a Revisão do Ará guarda pela posição).
 Para corrigir, edite o texto no mesmo lugar; para acrescentar, ponha no fim.
 
+### Matemática (diferente de História)
+
+Matemática se aprende fazendo (decisão do Lucas, 05/11/2026). O livro é a **base**: pode usar outras contas e
+exemplos, desde que sejam do **mesmo nível** (tamanho dos números, tipo de conta) e usem o **mesmo método** do livro.
+Veja `src/data/matematica9.ts` como modelo:
+
+- `temas`, `pares` e `linha` ficam vazios. No lugar, o campo `matematica`:
+  - `exemplos` (4 a 6): um por assunto do livro, na ordem dele. `ideia` (uma frase com **negrito**), `situacao`
+    (do livro ou parecida), `passos` (de 2 a 7, um de cada vez) e `treino` (tipo de conta do "Agora você").
+  - `treino` (10), `desafio` (6 a 10) e `prova` (10): listas de tipos de conta de `src/lib/contas.ts`,
+    do mais fácil para o mais difícil. Os números mudam a cada partida.
+- Unidade com assunto novo (frações, medidas, geometria...): crie os geradores em `src/lib/contas.ts`,
+  no nível do livro, com explicação que ensina o método, e rode `npm test` (o teste confere 500 contas de cada tipo).
+- `quiz` (10 a 12, V/F) e `prova` (10, múltipla escolha) continuam: o quiz é a fase 4 e os dois entram no Duelo do Saber.
+  Prefira frases com conta ("Em ? × 9 = 36, o número que falta é 4.").
+- Jogos extras (lacunas, quem sou eu, grupos, causas) ficam com os nomes e as ideias (parcela, quociente, prova real...).
+- Problema do livro sem resposta impressa e que pode ser contado de dois jeitos: deixe de fora e avise o Lucas.
+
 ## Etapa 3 — Conferir
 
 1. `npm run conferir -- <capitulo> --espalhar` (espalha as respostas certas entre A–D e mostra os problemas).

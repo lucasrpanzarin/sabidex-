@@ -11,6 +11,7 @@ import { ir } from '../lib/rota';
 import { jogar, proximaFase } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import { VOZES, audioDaVoz, setVoz, useVoz } from '../lib/voz';
+import { FaseContas, VerComoSeFaz } from './Contas';
 
 /** Transforma **negrito** em <strong>. */
 export function Texto({ t }: { t: string }) {
@@ -18,7 +19,7 @@ export function Texto({ t }: { t: string }) {
   return <>{partes.map((p, i) => (i % 2 ? <strong key={i}>{p}</strong> : p))}</>;
 }
 
-function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: ReactNode }) {
+export function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: ReactNode }) {
   return (
     <div className="coluna" style={{ gap: 2 }}>
       <div className="linha" style={{ justifyContent: 'space-between' }}>
@@ -123,7 +124,7 @@ export function Fim({ cap, r, titulo, placar, detalhe, aprovado = true, onDeNovo
 }
 
 /** Guarda a resposta na Revisão do Ará (erros voltam amanhã; acertos em alguns dias). */
-function lembrar(ids: [string, boolean][]) {
+export function lembrar(ids: [string, boolean][]) {
   const dia = hoje();
   setEstado((e) => ({ ...e, revisao: ids.reduce((rev, [id, ok]) => registrarResposta(rev, id, ok, dia), e.revisao) }));
 }
@@ -138,9 +139,9 @@ export function ContaErros({ erros }: { erros: number }) {
   );
 }
 
-const AVISO_REVISAO = <div className="balao small" style={{ marginTop: 4 }}>As perguntas que você errou voltam na <strong>Revisão do Ará</strong> amanhã.</div>;
+export const AVISO_REVISAO = <div className="balao small" style={{ marginTop: 4 }}>As perguntas que você errou voltam na <strong>Revisão do Ará</strong> amanhã.</div>;
 
-function useFinalizar(cap: Capitulo, fase: Fase) {
+export function useFinalizar(cap: Capitulo, fase: Fase) {
   const [res, setRes] = useState<Resultado | null>(null);
   const finalizar = (nota?: number, erros = 0) => {
     const antes = getEstado();
@@ -548,6 +549,10 @@ export function TelaFase({ capId, fase }: { capId: string; fase: Fase }) {
         <button className="btn btn-amarelo" onClick={() => ir('mundo', cap.id)}>Voltar ao mundo</button>
       </main>
     );
+  }
+  // Matemática: ver como se faz e contas digitadas (o quiz é o mesmo).
+  if (cap.matematica && fase !== 'quiz') {
+    return fase === 'ouvir' ? <VerComoSeFaz key={capId} cap={cap} /> : <FaseContas key={`${capId}-${fase}`} cap={cap} fase={fase} />;
   }
   const Comp = { ouvir: Ouvir, memoria: Memoria, linha: Linha, quiz: Quiz, prova: Prova }[fase];
   return <Comp key={`${capId}-${fase}`} cap={cap} />;
