@@ -4,7 +4,7 @@ import { CartaView, ROTULO } from '../components/CartaView';
 import { Icone } from '../components/Icone';
 import { Pin } from '../components/Pin';
 import { FIGURINHAS, figurinhaPorId, type Figurinha } from '../lib/figurinhas';
-import { api, entrarNaConta, entrarNaTurma, entrarNaTurmaComConta, esquecerContaNova, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
+import { api, entrarNaConta, ultimoCodigo, entrarNaTurma, entrarNaTurmaComConta, esquecerContaNova, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
 import { EscolherPerfil } from '../components/Perfis';
 import { ir } from '../lib/rota';
 import { paraTrocar, protegido } from '../lib/loja';
@@ -133,43 +133,78 @@ export function EscolherCor({ cor, aoEscolher }: { cor: string; aoEscolher: (c: 
 }
 
 /* ---------------- Entrar na conta (outro aparelho) ---------------- */
+interface Colega { apelido: string; cor: string }
+
+/** Código da turma (já vem preenchido se o aparelho lembra) → toca no seu nome → PIN. */
 export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; aoVoltar: () => void }) {
-  const [codigo, setCodigo] = useState('');
-  const [apelido, setApelido] = useState('');
+  const [passo, setPasso] = useState<'codigo' | 'quem' | 'pin'>('codigo');
+  const [codigo, setCodigo] = useState(ultimoCodigo);
+  const [turma, setTurma] = useState('');
+  const [alunos, setAlunos] = useState<Colega[]>([]);
+  const [eu, setEu] = useState<Colega | null>(null);
   const [pin, setPin] = useState('');
-  const [verPin, setVerPin] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
 
+  const buscarTurma = async () => {
+    setOcupado(true); setErro(null);
+    const r = await api<{ nome: string; codigo: string; alunos: Colega[] }>('/turma/alunos', { corpo: { codigo }, tokenProprio: null });
+    setOcupado(false);
+    if (r.erro) return setErro(r.erro);
+    if (!r.alunos.length) return setErro('Ainda não tem ninguém nessa turma. Para entrar pela primeira vez, volte e toque em "Entrar na minha turma".');
+    setTurma(r.nome); setCodigo(r.codigo); setAlunos(r.alunos); setPasso('quem');
+  };
+
   useEffect(() => {
-    if (pin.length !== 4) return;
+    if (pin.length !== 4 || !eu) return;
     (async () => {
       setOcupado(true); setErro(null);
-      const msg = await entrarNaConta(codigo, apelido, pin);
+      const msg = await entrarNaConta(codigo, eu.apelido, pin);
       setOcupado(false);
       if (msg) { setErro(msg); setPin(''); return; }
       aoTerminar();
     })();
   }, [pin]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const voltar = () => { setErro(null); setPin(''); if (passo === 'pin') setPasso('quem'); else if (passo === 'quem') setPasso('codigo'); else aoVoltar(); };
+
   return (
     <main className="tela">
-      <button className="voltar" onClick={aoVoltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
+      <button className="voltar" onClick={voltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
       <h1 className="display h1">Entrar na minha conta</h1>
       <Erro texto={erro} />
-      {!verPin ? (
-        <form className="coluna" onSubmit={(ev) => { ev.preventDefault(); setVerPin(true); }}>
+      {passo === 'codigo' && (
+        <form className="coluna" onSubmit={(ev) => { ev.preventDefault(); void buscarTurma(); }}>
           <label htmlFor="c-codigo" className="display h3">Código da turma</label>
-          <input id="c-codigo" value={codigo} onChange={(ev) => setCodigo(ev.target.value.toUpperCase())} placeholder="Ex.: ARARA-4821" autoComplete="off" style={{ ...campo, textAlign: 'center' }} />
-          <label htmlFor="c-apelido" className="display h3">Seu apelido</label>
-          <input id="c-apelido" value={apelido} maxLength={14} onChange={(ev) => setApelido(ev.target.value)} autoComplete="off" style={{ ...campo, textAlign: 'center' }} />
-          <p className="muted small" style={{ margin: 0 }}>O progresso deste aparelho vai ser trocado pelo da sua conta.</p>
-          <button className="btn btn-amarelo btn-bloco" disabled={codigo.length < 5 || apelido.trim().length < 2}>Continuar</button>
+          <input id="c-codigo" value={codigo} onChange={(ev) => setCodigo(ev.target.value.toUpperCase())} placeholder="Ex.: ARARA-4821" autoComplete="off" autoCapitalize="characters" style={{ ...campo, textAlign: 'center', letterSpacing: '.06em' }} />
+          <p className="muted small" style={{ margin: 0 }}>{ultimoCodigo() && codigo === ultimoCodigo() ? 'Este aparelho lembrou o código da sua turma.' : 'Não lembra? Peça para o professor ou um adulto da sua casa.'}</p>
+          <button className="btn btn-amarelo btn-bloco" disabled={codigo.trim().length < 5 || ocupado}>{ocupado ? 'Procurando…' : 'Continuar'}</button>
         </form>
-      ) : (
+      )}
+      {passo === 'quem' && (
+        <div className="coluna">
+          <div className="aviso aviso-ok">Turma: <strong>{turma}</strong></div>
+          <h2 className="display h3" style={{ margin: 0 }}>Quem é você? Toque no seu nome.</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
+            {alunos.map((a) => (
+              <button key={a.apelido} className="painel linha" onClick={() => { setEu(a); setPin(''); setErro(null); setPasso('pin'); }}
+                style={{ gap: 10, padding: '10px 12px', font: 'inherit', fontWeight: 800, fontSize: 17, color: 'var(--ink)', textAlign: 'left', cursor: 'pointer', minHeight: 56 }}>
+                <Avatar nome={a.apelido} cor={a.cor} tamanho={36} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.apelido}</span>
+              </button>
+            ))}
+          </div>
+          <p className="muted small" style={{ margin: 0 }}>O progresso deste aparelho vai ser trocado pelo da sua conta.</p>
+        </div>
+      )}
+      {passo === 'pin' && eu && (
         <>
+          <div className="linha" style={{ justifyContent: 'center', gap: 10 }}>
+            <Avatar nome={eu.apelido} cor={eu.cor} tamanho={44} />
+            <span className="display h3">Oi, {eu.apelido}!</span>
+          </div>
           <Pin valor={pin} onChange={setPin} rotulo={ocupado ? 'Entrando…' : 'Digite seu PIN'} />
-          <button className="voltar" style={{ alignSelf: 'center' }} onClick={() => { setVerPin(false); setPin(''); }}>Mudar código ou apelido</button>
+          <button className="voltar" style={{ alignSelf: 'center' }} onClick={voltar}>Não sou eu</button>
           <p className="muted small" style={{ textAlign: 'center' }}>Esqueceu o PIN? Peça para o adulto da turma criar um novo.</p>
         </>
       )}
