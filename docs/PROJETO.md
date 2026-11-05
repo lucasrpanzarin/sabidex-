@@ -118,7 +118,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - **E-mail do adulto confirmado** (Lucas, 05/11/2026): para uma criança não criar conta de adulto com e-mail inventado. Quem cria a conta com senha recebe um link por e-mail (vale 24 horas). Até abrir o link, pode cuidar dos filhos normalmente, mas **não cria turma, não liga o chat da turma e não libera o chat do filho** (desligar sempre pode). A área dos adultos mostra o aviso "Confirme seu e-mail" com "Mandar o e-mail de novo" (até 3 por hora). Google/Apple já vêm confirmados, e o link de "Esqueci minha senha" também confirma. Só funciona com o envio de e-mail ligado no servidor; sem ele, nada fica travado. Contas antigas com senha também precisam confirmar para essas 3 coisas (o que já está ligado continua ligado).
 - 5 PINs errados bloqueiam 15 minutos.
 - **30 códigos errados** (turma ou família) seguidos pela mesma internet bloqueiam 15 minutos (05/11/2026). Numa escola a turma toda divide a internet, por isso o número é alto.
-- Botão "Apagar minha conta"; política de privacidade em `#/privacidade`.
+- Botão "Apagar minha conta"; política de privacidade em `#/privacidade`. O adulto só aceita a política de novo quando a mudança é **importante** (dado novo guardado, alguém novo que pode ver, uso novo dos dados); mudança pequena no texto só troca a data "Atualizada em" (Lucas, 05/11/2026).
 - **Da criança só guardamos**: apelido, cor, PIN embaralhado e o progresso do jogo.
 - **Aviso "Coloque o Sabidex na tela do celular"** (Lucas, 05/11/2026; `src/components/InstalarApp.tsx`): aparece na primeira tela e no Início quando o site está aberto no navegador do celular. "Como fazer?" mostra o passo a passo do **iPhone/iPad** (Safari → Compartilhar → Adicionar à Tela de Início) ou do **Android** (Chrome → ⋮ → Adicionar à tela inicial). No Android, quando o Chrome deixa, aparece o botão **Instalar agora**. Some quando o app já foi aberto pelo ícone e no computador; "Agora não" esconde por 7 dias.
 
@@ -194,6 +194,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **05/11/2026** · Política de privacidade: o adulto só precisa aceitar de novo quando a mudança for importante, não a cada novidade do app (antes pediu 3 vezes em 2 dias) (Lucas).
 - **05/11/2026** · **Painel do dono do app** na área dos adultos (pedido do Lucas, para ver quem jogou e não apareceu na turma): crianças e adultos que usaram o app, quem está sem turma e os pedidos esperando aprovação, com Aceitar/Recusar.
 - **05/11/2026** · Painel do dono: botão **"Colocar numa turma"** / "Mudar de turma" em cada criança, sem precisar do pedido do responsável (decidido pelo Lucas, que sabe que isso pula a autorização do responsável; vale só para o dono do app, não para professores).
 - **05/11/2026** · **Confirmar o e-mail do adulto** antes de criar turma, ligar o chat da turma ou liberar o chat do filho. Antes qualquer um (até uma criança) criava conta de adulto com um e-mail inventado e podia montar uma turma com chat sem adulto de verdade (Lucas).
