@@ -81,7 +81,7 @@ bantos x diáspora). Nenhum fato novo entrou. Além disso, a prova agora **embar
    tem pergunta para hoje. Código: `src/lib/revisao.ts` e `src/screens/Revisao.tsx`.
    Por enquanto a agenda da revisão fica só no aparelho (não vai para o servidor da turma).
 2. **Jogos extras — FEITOS** (`src/screens/Extras.tsx`). Ficam no mapa de cada mundo, abrem depois de "Ouvir os temas",
-   valem 40 XP cada e, quem termina os quatro, ganha um pacote. Só aparecem se o capítulo tiver o material
+   valem 40 XP cada e, quem termina os quatro com nota 7 ou mais em cada um, ganha um pacote (se tirar menos, o pacote espera até jogar de novo e passar). Só aparecem se o capítulo tiver o material
    (campos `lacunas`, `quemSou`, `classificar` e `causas` em `tipos.ts`):
    - **Complete a frase:** frase com uma lacuna e 4 palavras. Treina lembrar a palavra exata.
    - **Quem sou eu?:** 3 pistas, da mais difícil para a mais fácil. Acertar com 1 pista vale 3 pontos; errar abre a próxima pista.

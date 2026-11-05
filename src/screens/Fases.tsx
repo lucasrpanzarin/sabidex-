@@ -37,7 +37,7 @@ export const MOTIVO: Record<MotivoPacote, string> = {
   prova: 'Pacote épico por passar na prova: vem um épico ou lendário',
   dia: 'Pacote do dia, por estudar hoje',
   nivel: 'Pacote de presente pelo nível novo',
-  extras: 'Pacote por terminar todos os jogos extras do mundo',
+  extras: 'Pacote por terminar todos os jogos extras do mundo com nota 7',
   missoes: 'Pacote por fazer as missões do dia',
   marco: 'Pacote por estudar vários dias seguidos',
 };

@@ -133,7 +133,7 @@ export function Mundo({ id }: { id: string }) {
           <div>
             <h2 className="display h3" style={{ margin: 0 }}>Jogos extras</h2>
             <div className="muted small">
-              {extrasLiberados(e, cap.id) ? 'Termine todos para ganhar um pacote' : 'Abrem depois de ouvir os temas'}
+              {extrasLiberados(e, cap.id) ? 'Tire nota 7 em todos para ganhar um pacote' : `Abrem depois de ${cap.matematica ? 'ver como se faz' : 'ouvir os temas'}`}
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>

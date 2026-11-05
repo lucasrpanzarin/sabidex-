@@ -135,7 +135,7 @@ export function Inicio() {
       <div className="linha" style={{ justifyContent: 'space-between' }}>
         <Logo />
         <span className="linha" style={{ gap: 8 }}>
-        <button onClick={() => ir('loja')} style={{ border: 0, background: 'none', padding: 0, color: 'inherit', font: 'inherit' }} aria-label={`${saldo(e)} Sabicoins. Abrir a lojinha`}><Saldo valor={saldo(e)} /></button>
+        <button className="area-toque" onClick={() => ir('loja')} style={{ position: 'relative', border: 0, background: 'none', padding: 0, color: 'inherit', font: 'inherit' }} aria-label={`${saldo(e)} Sabicoins. Abrir a lojinha`}><Saldo valor={saldo(e)} /></button>
         <button className="pilula" onClick={() => ir('dia')} aria-label={`${dias} ${dias === 1 ? 'dia' : 'dias'} seguidos estudando. Ver missões do dia`} style={{ cursor: 'pointer' }}>
           <Chama />
           {dias} {dias === 1 ? 'dia' : 'dias'}
