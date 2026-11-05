@@ -618,3 +618,7 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
 
 /* Botões em forma de pílula (moedas, dias seguidos): área de toque de 44px sem mudar o desenho. */
 button.pilula::after, .area-toque::after { content: ''; position: absolute; inset: -6px -2px; }
+
+/* Aviso "Coloque o Sabidex na tela do celular" (src/components/InstalarApp.tsx) */
+.instalar { gap: 12px; }
+.instalar-num { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--yellow); border: 2px solid var(--ink); display: grid; place-items: center; font: 400 15px var(--display); }
