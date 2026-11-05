@@ -1034,7 +1034,7 @@ app.get('/adulto/dono', async (c) => {
   // Quem saiu da conta não tem mais sessão; quem entrou antes desta versão não tem "visto". Usa o que tiver.
   const vistoAdulto = `MAX(a.visto, COALESCE((SELECT MAX(s.expira) - ${30 * DIA} FROM sessoes s WHERE s.tipo = 'adulto' AND s.ref_id = a.id), 0))`;
   const vistoCrianca = 'MAX(k.visto, k.ativo)';
-  const [resumo, criancas, adultos, pedidos] = await db.batch([
+  const [resumo, criancas, adultos, pedidos, turmas] = await db.batch([
     db.prepare(`SELECT
         (SELECT COUNT(*) FROM adultos) AS adultos,
         (SELECT COUNT(*) FROM adultos WHERE criado >= ?2) AS adultos_novos,
@@ -1061,8 +1061,30 @@ app.get('/adulto/dono', async (c) => {
       WHERE p.status = 'pendente'
         AND ((p.tipo = 'crianca' AND k.familia_id = p.adulto_id AND k.turma_id != p.turma_id) OR (p.tipo = 'juntar' AND o.id IS NOT NULL))
       ORDER BY p.criado`),
+    db.prepare(`SELECT t.id, t.nome, t.escola, (SELECT COUNT(*) FROM criancas WHERE turma_id = t.id) AS criancas FROM turmas t ORDER BY t.nome COLLATE NOCASE`),
   ]);
-  return c.json({ hoje, ontem, resumo: resumo.results[0], criancas: criancas.results, adultos: adultos.results, pedidos: pedidos.results });
+  return c.json({ hoje, ontem, resumo: resumo.results[0], criancas: criancas.results, adultos: adultos.results, pedidos: pedidos.results, turmas: turmas.results });
+});
+
+// O dono do app coloca uma criança numa turma sem esperar o pedido do responsável (Lucas, 05/11/2026).
+// A criança leva tudo (cartas, XP, Sabicoins); trocas, duelos e pedidos que esperavam são cancelados.
+app.post('/adulto/dono/criancas/:cid/turma', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  if (!a.admin) return erro(c, 404, 'Não encontrado.');
+  const db = c.env.DB;
+  const b = await corpo(c);
+  const k = await db.prepare('SELECT id, turma_id FROM criancas WHERE id = ?').bind(c.req.param('cid')).first<{ id: string; turma_id: string }>();
+  if (!k) return erro(c, 404, 'Criança não encontrada.');
+  const t = await db.prepare('SELECT id, nome FROM turmas WHERE id = ?').bind(String(b.turma ?? '')).first<{ id: string; nome: string }>();
+  if (!t) return erro(c, 404, 'Turma não encontrada.');
+  if (k.turma_id === t.id) return c.json({ ok: true, turma: t.nome });
+  if (await contarNaTurma(db, t.id) >= MAX_NA_TURMA) return erro(c, 409, `A turma já tem ${MAX_NA_TURMA} crianças.`);
+  try { await db.batch(await moverParaTurma(db, [k.id], t.id)); } catch (e) {
+    if (String(e).includes('UNIQUE')) return erro(c, 409, 'Não deu certo agora. Tente de novo.');
+    throw e;
+  }
+  return c.json({ ok: true, turma: t.nome });
 });
 
 app.get('/adulto/turmas', async (c) => {

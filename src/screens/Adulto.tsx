@@ -1242,7 +1242,8 @@ interface DonoCrianca { id: string; apelido: string; cor: string; criado: number
 interface DonoAdulto { id: string; nome: string; email: string; criado: number; visto: number; filhos: number; filhos_sem_turma: number; turmas: number }
 interface DonoPedido { id: string; tipo: 'crianca' | 'juntar'; criado: number; turma_id: string; turma: string; escola: string; quem: string; apelido: string | null; cor: string | null; origem: string | null }
 interface DonoResumo { adultos: number; adultos_novos: number; criancas: number; criancas_novas: number; sem_turma: number; ativas_hoje: number; ativas_semana: number; turmas: number; pedidos: number }
-interface DonoDados { hoje: number; ontem: number; resumo: DonoResumo; criancas: DonoCrianca[]; adultos: DonoAdulto[]; pedidos: DonoPedido[] }
+interface DonoTurma { id: string; nome: string; escola: string; criancas: number }
+interface DonoDados { hoje: number; ontem: number; resumo: DonoResumo; criancas: DonoCrianca[]; adultos: DonoAdulto[]; pedidos: DonoPedido[]; turmas: DonoTurma[] }
 
 const FUSO = 'America/Sao_Paulo';
 const diaDe = (ms: number) => new Date(ms).toLocaleDateString('pt-BR', { timeZone: FUSO });
@@ -1266,6 +1267,9 @@ function PainelDono({ token }: { token: string }) {
   const [periodo, setPeriodo] = useState<Periodo>('7');
   const [semTurma, setSemTurma] = useState(false);
   const [ocupado, setOcupado] = useState<string | null>(null);
+  const [colocando, setColocando] = useState<string | null>(null);
+  const [destino, setDestino] = useState('');
+  const [feito, setFeito] = useState<string | null>(null);
   const carregar = () => api<DonoDados>('/adulto/dono', { tokenProprio: token }).then((r) => (r.erro ? setErro(r.erro) : (setErro(null), setDados(r))));
   useEffect(() => { void carregar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1281,6 +1285,16 @@ function PainelDono({ token }: { token: string }) {
     const r = await api(`/adulto/turmas/${p.turma_id}/pedidos/${p.id}/${acao}`, { corpo: {}, tokenProprio: token });
     setOcupado(null);
     if (r.erro) setErro(r.erro);
+    void carregar();
+  };
+
+  const colocar = async (k: DonoCrianca) => {
+    setOcupado(k.id); setErro(null); setFeito(null);
+    const r = await api<{ turma: string }>(`/adulto/dono/criancas/${k.id}/turma`, { corpo: { turma: destino }, tokenProprio: token });
+    setOcupado(null);
+    if (r.erro) return setErro(r.erro);
+    setColocando(null); setDestino('');
+    setFeito(`${k.apelido} agora está na turma ${r.turma}, com todas as cartas e o XP.`);
     void carregar();
   };
 
@@ -1306,6 +1320,7 @@ function PainelDono({ token }: { token: string }) {
         {numero(resumo.turmas, 'turmas')}
       </div>
       {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+      {feito && <div className="aviso" role="status">{feito}</div>}
 
       <div className="abas" role="tablist" aria-label="O que ver">
         <button role="tab" aria-selected={aba === 'criancas'} onClick={() => setAba('criancas')}>Crianças</button>
@@ -1324,17 +1339,37 @@ function PainelDono({ token }: { token: string }) {
         <section className="coluna" style={{ gap: 8 }} aria-label="Crianças que usaram o app">
           <p className="muted small" style={{ margin: 0 }}>{plural(criancas.length, 'criança usou', 'crianças usaram')} o app nesse período. "Sem turma" quer dizer que a criança está só na conta da família: ela joga, mas não aparece em nenhuma turma.</p>
           {criancas.map((k) => (
-            <div key={k.id} className="painel-destaque linha" style={{ gap: 10, cursor: k.turma_id ? 'pointer' : undefined }} onClick={() => k.turma_id && ir('adulto', k.turma_id)}>
-              <Bolinha nome={k.apelido} cor={k.cor} tamanho={36} />
-              <span style={{ flex: 1, minWidth: 0 }}>
-                <span className="display" style={{ fontSize: 18, display: 'block' }}>{k.apelido}</span>
-                <span className="small" style={{ display: 'block', fontWeight: 800, color: k.turma_id ? undefined : 'var(--t-coral)' }}>{k.turma_id ? `Turma ${comEscola(k.turma, k.escola)}` : 'Sem turma (só na família)'}</span>
-                <span className="muted small" style={{ display: 'block', overflowWrap: 'anywhere' }}>
-                  Usou {quandoFoi(k.visto)} · {k.xp ?? 0} XP · conta criada {quandoFoi(k.criado)}
-                  {k.responsavel ? ` · responsável ${k.responsavel} (${k.responsavel_email})` : ' · sem responsável (entrou só pela turma)'}
+            <div key={k.id} className="painel-destaque coluna" style={{ gap: 8 }}>
+              <div className="linha" style={{ gap: 10, cursor: k.turma_id ? 'pointer' : undefined }} onClick={() => k.turma_id && ir('adulto', k.turma_id)}>
+                <Bolinha nome={k.apelido} cor={k.cor} tamanho={36} />
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span className="display" style={{ fontSize: 18, display: 'block' }}>{k.apelido}</span>
+                  <span className="small" style={{ display: 'block', fontWeight: 800, color: k.turma_id ? undefined : 'var(--t-coral)' }}>{k.turma_id ? `Turma ${comEscola(k.turma, k.escola)}` : 'Sem turma (só na família)'}</span>
+                  <span className="muted small" style={{ display: 'block', overflowWrap: 'anywhere' }}>
+                    Usou {quandoFoi(k.visto)} · {k.xp ?? 0} XP · conta criada {quandoFoi(k.criado)}
+                    {k.responsavel ? ` · responsável ${k.responsavel} (${k.responsavel_email})` : ' · sem responsável (entrou só pela turma)'}
+                  </span>
                 </span>
-              </span>
-              {k.turma_id && <Icone nome="seguir" />}
+                {k.turma_id && <Icone nome="seguir" />}
+              </div>
+              {colocando === k.id ? (
+                <div className="coluna" style={{ gap: 8 }}>
+                  <label htmlFor={`destino-${k.id}`} style={rotulo}>{k.turma_id ? 'Mudar para a turma' : 'Colocar na turma'}</label>
+                  <select id={`destino-${k.id}`} style={campo} value={destino} onChange={(ev) => setDestino(ev.target.value)}>
+                    <option value="">Escolha a turma…</option>
+                    {dados.turmas.filter((t) => t.id !== k.turma_id).map((t) => <option key={t.id} value={t.id}>{comEscola(t.nome, t.escola)} ({plural(t.criancas, 'criança', 'crianças')})</option>)}
+                  </select>
+                  <span className="muted small">{k.apelido} leva junto as cartas, o XP e as Sabicoins.{k.responsavel ? ' O responsável não precisa aprovar.' : ''}</span>
+                  <div className="linha" style={{ gap: 8 }}>
+                    <button className="btn btn-escuro" style={botaoPequeno} onClick={() => { setColocando(null); setDestino(''); }}>Cancelar</button>
+                    <button className="btn btn-verde" style={botaoPequeno} disabled={!destino || ocupado === k.id} onClick={() => void colocar(k)}>Confirmar</button>
+                  </div>
+                </div>
+              ) : (
+                <button className={`btn ${k.turma_id ? 'btn-escuro' : 'btn-amarelo'}`} style={{ minHeight: 40, fontSize: 15 }} onClick={() => { setColocando(k.id); setDestino(''); setFeito(null); }}>
+                  {k.turma_id ? 'Mudar de turma' : 'Colocar numa turma'}
+                </button>
+              )}
             </div>
           ))}
         </section>
