@@ -1,3 +1,4 @@
+import { PACOTE_BOAS_VINDAS } from '../shared/sync';
 import { useState } from 'react';
 import { Ara } from '../components/Ara';
 import { Pacote } from '../components/Pacote';
@@ -101,6 +102,8 @@ export function Inicio() {
     ? <>Um colega te chamou para um <strong>Duelo do Saber</strong>! Veja em Turma.</>
     : propostasNovas > 0
     ? <>Você tem <strong>{propostasNovas} {propostasNovas > 1 ? 'propostas' : 'proposta'} de troca</strong>! Veja em Turma.</>
+    : e.pacotes.some((p) => p.id === PACOTE_BOAS_VINDAS)
+    ? <>Oi! Eu sou o Ará. Tenho um <strong>presente de boas-vindas</strong> para você: um pacote com seu primeiro Sabimon. Vamos abrir?</>
     : e.pacotes.length > 0
     ? <>Você tem <strong>{e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</strong> esperando. Vamos abrir?</>
     : evolui

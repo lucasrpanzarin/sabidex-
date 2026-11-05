@@ -62,6 +62,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | Nível | a cada 300 XP | |
 | **Sabicoins** | cada fase dá o mesmo número de XP e de Sabicoins. Saldo = XP total − compras | `src/lib/loja.ts` |
 | Pacotes (só do estudo) | memória e quiz (1ª vez com nota 7), prova aprovada (pacote **épico**), terminar os 4 extras, 1ª atividade do dia com nota 7, cada nível novo | `src/lib/jogo.ts` |
+| **Pacote de boas-vindas** (única exceção à regra acima; Lucas, 05/11/2026) | toda conta nova de criança (família ou turma) já nasce com 1 pacote normal; a carta sai na sorte. O Ará apresenta na tela inicial e, depois de abrir, explica que os próximos vêm do estudo. Quem já tinha conta não ganha | `src/shared/sync.ts` (`comBoasVindas`) |
 | Pacote | **1 Sabimon** (sempre a forma 1). Chances: comum 62%, rara 26%, épica 9%, lendária 3%. Épico: 80% épica, 20% lendária | |
 | Garantia | depois de 9 pacotes sem bicho novo, o 10º traz um que a criança não tem | |
 | **Nunca** | vender pacote (nem por moeda do jogo, nem por dinheiro), desconto ou pressão de tempo | |
@@ -170,6 +171,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **05/11/2026** · **Pacote de boas-vindas** para toda conta nova de criança (carta na sorte), para ela entender o jogo logo de cara. Muda a regra "pacotes só vêm do estudo": essa é a única exceção. Quem não tem carta continua sem poder duelar (com uma lição já ganha pacote) (Lucas).
 - **05/11/2026** · A aba "Trocas" do menu virou **"Turma"** (ícone de duas pessoas; título "Minha turma"), porque ali ficam trocas, duelos e conversa (Lucas).
 - **05/11/2026** · Estrelas no mapa do mundo (melhor nota de cada fase e jogo extra) e **Duelo do Saber** entre colegas da turma, sem apostar cartas; aba "Duelos" no ranking. A ideia de duelar valendo cartas foi trocada por essa (ver seção 5). Política de privacidade cita os duelos (versão `2026-11-duelo`: os adultos aceitam de novo ao entrar) (Lucas).
 - **05/11/2026** · Nova entrada: primeira tela "Sou criança / Sou adulto", código da família para a criança entrar sozinha no aparelho dela, uma caixa só para o código (turma ou família) e "Ainda não tenho código" com recado para o adulto. Ideia vinda da análise da entrada do Baobab, sem copiar o visual nem o número de propaganda (Lucas).

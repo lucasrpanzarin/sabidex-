@@ -14,6 +14,7 @@ import { useConta, evoluirNaConta } from '../lib/conta';
 import { ir } from '../lib/rota';
 import { jogar } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
+import { PACOTE_BOAS_VINDAS } from '../shared/sync';
 
 type FaseAbrir = 'fechado' | 'abrindo' | 'verso' | 'revelado';
 
@@ -66,6 +67,7 @@ export function AbrirPacote() {
   const nNovos = aberto?.novos.size ?? 0;
   const luz = melhor ? LUZ[melhor.raridade] : '#FFFFFF';
   const sobra = e.pacotes.length;
+  const boasVindas = (aberto ? aberto.pacoteId : pacote?.id) === PACOTE_BOAS_VINDAS;
 
   return (
     <main className="tela tela-pacote" style={{ alignItems: 'center', textAlign: 'center', ['--luz' as string]: luz }}>
@@ -75,14 +77,14 @@ export function AbrirPacote() {
       </div>
 
       <h1 className={`display h1 titulo-premio${fase === 'revelado' ? ' pop' : ''}`} style={{ marginTop: 4, minHeight: '1.2em', visibility: fase === 'abrindo' ? 'hidden' : 'visible' }}>
-        {fase === 'fechado' && (epico ? 'Pacote épico!' : 'Novo pacote!')}
+        {fase === 'fechado' && (boasVindas ? 'Boas-vindas!' : epico ? 'Pacote épico!' : 'Novo pacote!')}
         {fase === 'verso' && 'O que será?'}
         {fase === 'revelado' && melhor && (melhor.raridade === 'lendaria' ? 'Lendário!' : melhor.raridade === 'epica' ? 'Épico!' : novo ? 'Sabimon novo!' : 'Repetido!')}
       </h1>
 
       <div className="palco-abrir">
         {(fase === 'fechado' || fase === 'abrindo') && (
-          <RasgarPacote key={pacote?.id ?? 'x'} epico={epico} texto={epico ? 'Vem épico ou lendário!' : '1 Sabimon surpresa'}
+          <RasgarPacote key={pacote?.id ?? 'x'} epico={epico} texto={epico ? 'Vem épico ou lendário!' : boasVindas ? 'Seu primeiro Sabimon!' : '1 Sabimon surpresa'}
             abrindo={fase === 'abrindo'} aoRasgar={sortear} />
         )}
         {fase === 'abrindo' && <span className="luz-pacote" aria-hidden="true" />}
@@ -102,12 +104,23 @@ export function AbrirPacote() {
         )}
       </div>
 
+      {fase === 'fechado' && boasVindas && (
+        <div className="linha" style={{ alignItems: 'flex-end', alignSelf: 'stretch' }}>
+          <Ara tamanho={70} />
+          <div className="balao small" style={{ flex: 1, marginBottom: 10, textAlign: 'left' }}>Um presente para começar! Passe o dedo para rasgar e conheça seu primeiro <strong>Sabimon</strong>.</div>
+        </div>
+      )}
       {fase === 'fechado' && garantiaAtiva(e) && <p className="small" style={{ color: 'var(--t-green)', fontWeight: 800, margin: 0 }}>Este pacote garante um Sabimon novo!</p>}
       {fase === 'fechado' && e.pacotes.length > 1 && <p className="muted small" style={{ margin: 0 }}>Mais {e.pacotes.length - 1} {e.pacotes.length > 2 ? 'pacotes' : 'pacote'} depois desse</p>}
       {fase === 'verso' && <p className="rasgar-ajuda pisca-suave">Toque na carta para virar!</p>}
 
       {fase === 'revelado' && aberto && melhor && (
         <div className="coluna sobe" style={{ width: '100%', marginTop: 'auto', animationDelay: '.5s' }}>
+          {boasVindas && (
+            <div className="balao small" style={{ textAlign: 'left' }}>
+              Este é o seu primeiro! Agora os pacotes vêm do <strong>estudo</strong>: termine as fases com nota 7 ou mais para ganhar mais, completar o álbum, evoluir e duelar com a turma.
+            </div>
+          )}
           <p className="muted small" style={{ margin: 0 }}>
             {nNovos ? (aberto.cartas.length > 1 ? `${nNovos} Sabimons novos no álbum!` : 'Novo no seu álbum!') : `Você tem ${e.cartas[melhor.id] ?? 1} cartas de ${melhor.formas[0].nome}. Junte 3 para evoluir, ou troque com os amigos.`}
           </p>
