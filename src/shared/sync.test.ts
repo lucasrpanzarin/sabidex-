@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { gerarCodigo, mesclar, normalizarCodigo, progressoVazio, sanitizar, sanitizarDelta, semanaDe } from './sync';
+import { comBoasVindas, gerarCodigo, PACOTE_BOAS_VINDAS, mesclar, normalizarCodigo, progressoVazio, sanitizar, sanitizarDelta, semanaDe } from './sync';
 
 describe('mesclar', () => {
   it('guarda o maior XP, junta fases, dias e notas', () => {
@@ -43,5 +43,14 @@ describe('códigos de turma', () => {
   it('têm palavra e 4 números', () => {
     for (let i = 0; i < 50; i++) expect(gerarCodigo()).toMatch(/^[A-Z]+-\d{4}$/);
     expect(normalizarCodigo(' arara - 4821 ')).toBe('ARARA-4821');
+  });
+});
+
+describe('pacote de boas-vindas', () => {
+  it('conta nova ganha 1 pacote, uma vez só', () => {
+    const p = comBoasVindas(progressoVazio());
+    expect(p.pacotes).toEqual([{ id: PACOTE_BOAS_VINDAS, tipo: 'normal', capitulo: PACOTE_BOAS_VINDAS }]);
+    expect(comBoasVindas(p).pacotes).toHaveLength(1);
+    expect(comBoasVindas({ ...progressoVazio(), abertos: [PACOTE_BOAS_VINDAS] }).pacotes).toHaveLength(0);
   });
 });
