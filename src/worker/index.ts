@@ -3,14 +3,15 @@
 
 import { Hono, type Context } from 'hono';
 import { capitulos, capitulosDe, conteudoPorId, conteudos } from '../data';
-import { FASES, POR_PACOTE, chaveExtra, extrasDo } from '../lib/jogo';
+import { EXTRA_INFO, FASES, POR_PACOTE, chave, chaveExtra, extrasDo, infoFase } from '../lib/jogo';
+import { resumirUso, type CapituloUso } from '../shared/uso';
 import { idEvolucao, itemPorId, migrarFormas, podeEvoluir, premiosLivres, PRECO_EVOLUCAO, protegido, refCompra } from '../lib/loja';
 import { figurinhaPorId, idCarta, IDS_CARTAS } from '../lib/figurinhas';
 import {
   comBoasVindas, gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
   sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
 } from '../shared/sync';
-import { ESQUEMA, MIGRACOES, SEM_TURMA, temTurma, turmaDaFamilia, VERSAO_ESQUEMA } from './esquema';
+import { AJUSTES_UMA_VEZ, ESQUEMA, MIGRACOES, SEM_TURMA, temTurma, turmaDaFamilia, VERSAO_ESQUEMA } from './esquema';
 import { dataValida, type DatasProva } from '../lib/provas';
 import { conferirMensagem, dentroDoHorario, GUARDAR_DIAS, JANELA_LIMITE, LIMITE_MENSAGENS, MOTIVO as MOTIVO_CHAT, ONLINE_MS } from '../shared/chat';
 import { APPLE, conferirCracha, GOOGLE } from './jwt';
@@ -36,6 +37,8 @@ interface Env {
 type C = Context<{ Bindings: Env }>;
 
 const DIA = 86_400_000;
+/** Guarda que a criança ou o adulto usou o app hoje (painel do dono: "Ontem" mostra todo mundo que usou ontem). */
+const marcarDia = (db: D1Database, ref: string) => db.prepare('INSERT OR IGNORE INTO uso_dias (ref_id, dia) VALUES (?, ?)').bind(ref, diaBR());
 const FASES_VALIDAS = new Set(capitulos.flatMap((c) => [...FASES.map((f) => `${c.id}:${f}`), ...extrasDo(c).map((x) => chaveExtra(c.id, x))]));
 // Todas as 60 cartas (trocas). Do aparelho só chegam cartas novas da forma 1 (as que vêm nos pacotes);
 // as formas 2 e 3 só nascem aqui no servidor, na evolução.
@@ -63,6 +66,15 @@ app.use('*', async (c, next) => {
       for (const m of MIGRACOES) {
         try { await db.prepare(m).run(); } catch (e) { if (!String(e).includes('duplicate column')) throw e; }
       }
+      // Cada ajuste roda junto com a anotação dele (tudo ou nada); se já foi anotado, os UPDATE não mudam nada.
+      for (const aj of AJUSTES_UMA_VEZ) {
+        const feito = await db.prepare('SELECT 1 AS ok FROM ajustes_feitos WHERE nome = ?').bind(aj.nome).first();
+        if (feito) continue;
+        await db.batch([
+          ...aj.sql.map((s) => db.prepare(`${s}${/\bWHERE\b/i.test(s) ? ' AND' : ' WHERE'} NOT EXISTS (SELECT 1 FROM ajustes_feitos WHERE nome = ?)`).bind(aj.nome)),
+          db.prepare('INSERT OR IGNORE INTO ajustes_feitos (nome, feito) VALUES (?, ?)').bind(aj.nome, Date.now()),
+        ]);
+      }
       await db.batch([
         db.prepare('CREATE TABLE IF NOT EXISTS esquema_versao (versao TEXT NOT NULL)'),
         db.prepare('DELETE FROM esquema_versao'),
@@ -87,7 +99,8 @@ async function novaSessao(db: D1Database, tipo: 'crianca' | 'adulto', ref: strin
   const validade = tipo === 'crianca' ? 180 * DIA : 30 * DIA;
   await db.prepare('INSERT INTO sessoes (token_hash, tipo, ref_id, expira) VALUES (?, ?, ?, ?)')
     .bind(await sha256(token), tipo, ref, Date.now() + validade).run();
-  if (tipo === 'adulto') await db.prepare('UPDATE adultos SET visto = ? WHERE id = ?').bind(Date.now(), ref).run();
+  if (tipo === 'adulto') await db.batch([db.prepare('UPDATE adultos SET visto = ? WHERE id = ?').bind(Date.now(), ref), marcarDia(db, ref)]);
+  else await marcarDia(db, ref).run();
   return token;
 }
 
@@ -165,6 +178,7 @@ function apagarCrianca(db: D1Database, cid: string) {
     db.prepare('DELETE FROM duelos WHERE de_id = ? OR para_id = ?').bind(cid, cid),
     db.prepare('DELETE FROM avisos_chat WHERE por_id = ?').bind(cid),
     db.prepare('DELETE FROM criancas WHERE id = ?').bind(cid),
+    db.prepare('DELETE FROM uso_dias WHERE ref_id = ?').bind(cid),
   ];
 }
 
@@ -372,7 +386,7 @@ async function crianca(c: C) {
   // Grava sem fazer a criança esperar.
   const agora = Date.now();
   if (agora - (k.ativo ?? 0) > 30_000) {
-    const gravar = c.env.DB.prepare('UPDATE criancas SET ativo = ? WHERE id = ?').bind(agora, k.id).run();
+    const gravar = c.env.DB.batch([c.env.DB.prepare('UPDATE criancas SET ativo = ? WHERE id = ?').bind(agora, k.id), marcarDia(c.env.DB, k.id)]);
     try { c.executionCtx.waitUntil(gravar); } catch { await gravar; }
     k.ativo = agora;
   }
@@ -856,8 +870,15 @@ app.post('/crianca/duelos/:id/:acao', async (c) => {
 
 interface Adulto { id: string; nome: string; email: string; senha_hash: string; senha_sal: string; falhas: number; bloqueado_ate: number; aceite_versao: string; tem_senha: number; email_ok: number }
 
-/** Versão da política de privacidade aceita no cadastro (mudar quando o texto mudar). */
-const VERSAO_PRIVACIDADE = '2026-11-busca-turmas';
+/**
+ * Versão da política de privacidade que o adulto aceitou. Mudar SÓ quando a mudança for importante
+ * (decidido pelo Lucas em 05/11/2026): um dado novo guardado, alguém novo que pode ver alguma coisa,
+ * ou um uso novo dos dados. Aí todos os adultos aceitam de novo ao entrar.
+ * Correção de texto, explicação melhor ou recurso que não mexe com dados: só muda `ATUALIZADA`
+ * em `src/screens/Privacidade.tsx`, sem pedir aceite de novo.
+ */
+// Chat da turma ligado no começo (05/11/2026): mudança importante, todos aceitam de novo.
+const VERSAO_PRIVACIDADE = '2026-11-chat-ligado';
 const MAX_FILHOS = 6;
 
 const emailValido = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 120;
@@ -1033,7 +1054,7 @@ app.post('/adulto/sair', sairSessao);
 app.get('/adulto/eu', async (c) => {
   const a = await adulto(c);
   if (!a) return erro(c, 401, 'Entre de novo.');
-  await c.env.DB.prepare('UPDATE adultos SET visto = ? WHERE id = ?').bind(Date.now(), a.id).run();
+  await c.env.DB.batch([c.env.DB.prepare('UPDATE adultos SET visto = ? WHERE id = ?').bind(Date.now(), a.id), marcarDia(c.env.DB, a.id)]);
   return c.json({ adulto: dadosAdulto(c.env, a) });
 });
 
@@ -1055,7 +1076,7 @@ app.get('/adulto/dono', async (c) => {
   // Quem saiu da conta não tem mais sessão; quem entrou antes desta versão não tem "visto". Usa o que tiver.
   const vistoAdulto = `MAX(a.visto, COALESCE((SELECT MAX(s.expira) - ${30 * DIA} FROM sessoes s WHERE s.tipo = 'adulto' AND s.ref_id = a.id), 0))`;
   const vistoCrianca = 'MAX(k.visto, k.ativo)';
-  const [resumo, criancas, adultos, pedidos, turmas] = await db.batch([
+  const [resumo, criancas, adultos, pedidos, turmas, usos] = await db.batch([
     db.prepare(`SELECT
         (SELECT COUNT(*) FROM adultos) AS adultos,
         (SELECT COUNT(*) FROM adultos WHERE criado >= ?2) AS adultos_novos,
@@ -1066,7 +1087,7 @@ app.get('/adulto/dono', async (c) => {
         (SELECT COUNT(*) FROM criancas k WHERE ${vistoCrianca} >= ?3) AS ativas_semana,
         (SELECT COUNT(*) FROM turmas) AS turmas,
         (SELECT COUNT(*) FROM pedidos_turma WHERE status = 'pendente') AS pedidos`).bind(hoje, semana, semana),
-    db.prepare(`SELECT k.id, k.apelido, k.cor, k.criado, ${vistoCrianca} AS visto, json_extract(k.progresso, '$.xp') AS xp,
+    db.prepare(`SELECT k.id, k.apelido, k.cor, k.criado, ${vistoCrianca} AS visto, json_extract(k.progresso, '$.xp') AS xp, k.ativo, json_extract(k.progresso, '$.dias') AS dias_estudo,
         CASE WHEN k.turma_id LIKE '${SEM_TURMA}%' THEN NULL ELSE k.turma_id END AS turma_id, t.nome AS turma, t.escola AS escola,
         r.nome AS responsavel, r.email AS responsavel_email
       FROM criancas k LEFT JOIN turmas t ON t.id = k.turma_id LEFT JOIN adultos r ON r.id = k.familia_id
@@ -1084,9 +1105,25 @@ app.get('/adulto/dono', async (c) => {
       ORDER BY p.criado`),
     db.prepare(`SELECT t.id, t.nome, t.escola, t.codigo, COALESCE(t.conteudo, '') AS conteudo, (SELECT COUNT(*) FROM criancas WHERE turma_id = t.id) AS criancas
       FROM turmas t ORDER BY t.nome COLLATE NOCASE`),
+    db.prepare('SELECT ref_id, dia FROM uso_dias WHERE dia >= ?').bind(diaBR(agora - 31 * DIA)),
   ]);
-  return c.json({
-    hoje, ontem, resumo: resumo.results[0], criancas: criancas.results, adultos: adultos.results, pedidos: pedidos.results, turmas: turmas.results,
+  // Todos os dias em que cada um usou o app (não só o último): quem usou ontem e hoje aparece nos dois.
+  // Para os dias antes da tabela uso_dias, usa os dias de estudo da criança, o dia em que a conta foi criada e o último uso.
+  const desde = diaBR(agora - 31 * DIA);
+  const usados = new Map<string, string[]>();
+  for (const u of usos.results as { ref_id: string; dia: string }[]) usados.set(u.ref_id, [...(usados.get(u.ref_id) ?? []), u.dia]);
+  const diasDe = (id: string, momentos: number[], extra: unknown[] = []) => [...new Set([
+    ...(usados.get(id) ?? []),
+    ...extra.filter((d): d is string => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)),
+    ...momentos.filter((m) => m > 0).map((m) => diaBR(m)),
+  ])].filter((d) => d >= desde).sort();
+  const listaCriancas = (criancas.results as Record<string, unknown>[]).map(({ ativo, dias_estudo, ...k }) => {
+    let estudo: unknown = [];
+    try { estudo = JSON.parse(String(dias_estudo ?? '[]')); } catch { /* sem dias de estudo */ }
+    return { ...k, dias: diasDe(String(k.id), [Number(k.criado), Number(k.visto), Number(ativo)], Array.isArray(estudo) ? estudo : []) };
+  });
+  const listaAdultos = (adultos.results as Record<string, unknown>[]).map((x) => ({ ...x, dias: diasDe(String(x.id), [Number(x.criado), Number(x.visto)]) }));
+  return c.json({ hoje, ontem, resumo: resumo.results[0], criancas: listaCriancas, adultos: listaAdultos, pedidos: pedidos.results, turmas: turmas.results,
     conteudos: conteudos.map((x) => ({ id: x.id, nome: x.nome, capitulos: x.capitulos.length })),
   });
 });
@@ -1102,6 +1139,33 @@ app.post('/adulto/dono/turmas/:id/conteudo', async (c) => {
   const r = await c.env.DB.prepare('UPDATE turmas SET conteudo = ? WHERE id = ?').bind(conteudo, c.req.param('id')).run();
   if (!r.meta.changes) return erro(c, 404, 'Turma não encontrada.');
   return c.json({ ok: true, conteudo });
+});
+
+// "Como usam" (Lucas, 05/11/2026): só números somados, com o que o servidor já guarda. Nunca diz quem é quem.
+const CAPITULOS_USO: CapituloUso[] = capitulos.map((c) => ({
+  id: c.id,
+  nome: `${c.materia} · Cap. ${c.numero}: ${c.titulo}`,
+  itens: [
+    ...FASES.map((f) => ({ chave: chave(c.id, f), nome: infoFase(f, c).titulo, nota: f === 'prova' ? c.id : chave(c.id, f) })),
+    ...extrasDo(c).map((x) => ({ chave: chaveExtra(c.id, x), nome: `${EXTRA_INFO[x].titulo} (extra)`, nota: chaveExtra(c.id, x) })),
+  ],
+}));
+
+app.get('/adulto/dono/uso', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  if (!a.admin) return erro(c, 404, 'Não encontrado.');
+  const r = await c.env.DB.prepare(`SELECT k.progresso,
+      (SELECT COUNT(*) FROM duelos WHERE (de_id = k.id OR para_id = k.id) AND status = 'feito') AS duelos,
+      (SELECT COUNT(*) FROM trocas WHERE (de_id = k.id OR para_id = k.id) AND status = 'aceita') AS trocas,
+      (SELECT COUNT(*) FROM mensagens WHERE crianca_id = k.id) AS mensagens
+    FROM criancas k`).all<{ progresso: string; duelos: number; trocas: number; mensagens: number }>();
+  const lista = r.results.map((k) => {
+    let p: unknown = {};
+    try { p = JSON.parse(k.progresso); } catch { /* progresso vazio */ }
+    return { progresso: sanitizar(p, FASES_VALIDAS), duelos: k.duelos, trocas: k.trocas, mensagens: k.mensagens };
+  });
+  return c.json(resumirUso(lista, CAPITULOS_USO));
 });
 
 // O dono do app coloca uma criança numa turma sem esperar o pedido do responsável (Lucas, 05/11/2026).
@@ -1176,7 +1240,7 @@ app.post('/adulto/turmas', async (c) => {
     if (!codigo) continue;
     try {
       // Turma nova nasce sem matérias: o dono do app escolhe o livro dela no Painel do dono.
-      await c.env.DB.prepare(`INSERT INTO turmas (id, codigo, nome, escola, busca, dono_id, criado, conteudo) VALUES (?, ?, ?, ?, ?, ?, ?, '')`)
+      await c.env.DB.prepare(`INSERT INTO turmas (id, codigo, nome, escola, busca, dono_id, criado, conteudo, chat) VALUES (?, ?, ?, ?, ?, ?, ?, '', 1)`)
         .bind(id, codigo, nome, escola, textoBusca(nome, escola), a.id, Date.now()).run();
       return c.json({ turma: { id, nome, escola, codigo } });
     } catch (e) { if (!String(e).includes('UNIQUE')) throw e; }
@@ -1311,6 +1375,10 @@ app.post('/adulto/familia/provas', async (c) => {
   return marcarData(c, turmaDaFamilia(a.id), await capitulosDasTurmas(c.env.DB, turmas.results.map((x) => x.turma_id)));
 });
 
+/** Chat do filho ao criar ou ligar o perfil: vem ligado, a não ser que o responsável desmarque (Lucas, 05/11/2026).
+ * Só liga se o e-mail do adulto já foi confirmado (senão ele liga depois, na área dos adultos). */
+const chatDoCadastro = (b: Record<string, unknown>) => (b.chat === false ? 0 : 1);
+
 /** Cria o perfil de um filho. Com `progresso`/`cartas`, leva junto o que já foi feito no aparelho. */
 app.post('/adulto/familia', async (c) => {
   const a = await adulto(c);
@@ -1336,9 +1404,9 @@ app.post('/adulto/familia', async (c) => {
   const progresso = comBoasVindas(mesclar(progressoVazio(), sanitizar(b.progresso, FASES_VALIDAS)));
   try {
     await c.env.DB.batch([
-      c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, familia_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)`)
-        .bind(id, turmaId, a.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semanaDe(), Date.now(), Date.now()),
+      c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, familia_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto, chat_ok)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)`)
+        .bind(id, turmaId, a.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semanaDe(), Date.now(), Date.now(), confirmado(c.env, a) ? chatDoCadastro(b) : 0),
       ...upsertCartas(c.env.DB, id, limitarCartas(sanitizarDelta(b.cartas, IDS_CARTAS), progresso.abertos.length)),
     ]);
   } catch (e) {
@@ -1366,7 +1434,9 @@ app.post('/adulto/familia/ligar', async (c) => {
   if (k.familia_id && k.familia_id !== a.id) return erro(c, 409, 'Essa conta já está ligada a outra família.');
   const n = await c.env.DB.prepare('SELECT COUNT(*) n FROM criancas WHERE familia_id = ?').bind(a.id).first<{ n: number }>();
   if (!k.familia_id && (n?.n ?? 0) >= MAX_FILHOS) return erro(c, 429, `Limite de ${MAX_FILHOS} crianças por família.`);
-  await c.env.DB.prepare('UPDATE criancas SET familia_id = ? WHERE id = ?').bind(a.id, k.id).run();
+  // Ao ligar pela primeira vez, vale o que o responsável escolheu na tela (o chat vem ligado).
+  if (k.familia_id) await c.env.DB.prepare('UPDATE criancas SET familia_id = ? WHERE id = ?').bind(a.id, k.id).run();
+  else await c.env.DB.prepare('UPDATE criancas SET familia_id = ?, chat_ok = ? WHERE id = ?').bind(a.id, confirmado(c.env, a) ? chatDoCadastro(b) : 0, k.id).run();
   return c.json({ id: k.id });
 });
 
@@ -1679,6 +1749,7 @@ app.post('/adulto/apagar-conta', async (c) => {
     db.prepare(`UPDATE pedidos_turma SET status = 'cancelado', resolvido = ? WHERE adulto_id = ? AND status = 'pendente'`).bind(Date.now(), a.id),
     db.prepare(`DELETE FROM sessoes WHERE tipo = 'adulto' AND ref_id = ?`).bind(a.id),
     db.prepare('DELETE FROM adultos WHERE id = ?').bind(a.id),
+    db.prepare('DELETE FROM uso_dias WHERE ref_id = ?').bind(a.id),
   ]);
   return c.json({ ok: true });
 });
@@ -1720,9 +1791,9 @@ const turmaChat = (db: D1Database, id: string) =>
 /** Por que a criança não pode escrever agora (ou null se pode). */
 function bloqueioChat(t: TurmaChat | null, k: Crianca): { motivo: string; texto: string } | null {
   if (!t) return { motivo: 'sem-turma', texto: 'Entre numa turma para conversar com os colegas.' };
-  if (!t.chat) return { motivo: 'desligado', texto: 'O chat da turma ainda não foi ligado pelo professor ou pelos adultos da turma.' };
-  if (!k.familia_id) return { motivo: 'sem-familia', texto: 'Para usar o chat, peça para seu responsável criar a conta da família no Sabidex e liberar o chat para você.' };
-  if (!k.chat_ok) return { motivo: 'sem-autorizacao', texto: 'Peça para seu responsável liberar o chat na área dos adultos.' };
+  if (!t.chat) return { motivo: 'desligado', texto: 'O chat da turma está desligado pelos adultos da turma.' };
+  if (!k.familia_id) return { motivo: 'sem-familia', texto: 'Para usar o chat, peça para seu responsável criar a conta da família no Sabidex e você poder usar o chat.' };
+  if (!k.chat_ok) return { motivo: 'sem-autorizacao', texto: 'Seu responsável desligou o chat para você. Se quiser conversar, fale com ele.' };
   if (k.mudo_ate > Date.now()) return { motivo: 'silenciado', texto: 'Um adulto da turma pausou suas mensagens por um tempo. Você ainda pode ler.' };
   if (!dentroDoHorario(t.chat_inicio, t.chat_fim)) return { motivo: 'horario', texto: `O chat abre das ${t.chat_inicio}h às ${t.chat_fim}h.` };
   return null;
