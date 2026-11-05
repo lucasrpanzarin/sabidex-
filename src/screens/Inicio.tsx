@@ -110,6 +110,11 @@ export function Inicio() {
   const pacoteDaRevisao = e.pacoteDia !== hoje();
   const mis = missoesDeHoje(e);
   const misFeitas = quantasFeitas(mis);
+  const misFaltam = mis.lista.length - misFeitas;
+  const estudouHoje = e.dias.includes(hoje());
+  // O próximo passo de estudo ganha o brilho (só um por tela): as missões do dia; se não há missão, continuar o mundo.
+  const brilhoMissoes = misFaltam > 0;
+  const brilhoContinuar = !brilhoMissoes && mis.lista.length === 0;
 
   const evolui = FIGURINHAS.find((f) => podeEvoluir(e, f.id).ok);
   const fala = desafiosNovos > 0
@@ -136,9 +141,11 @@ export function Inicio() {
         <Logo />
         <span className="linha" style={{ gap: 8 }}>
         <button onClick={() => ir('loja')} style={{ border: 0, background: 'none', padding: 0, color: 'inherit', font: 'inherit' }} aria-label={`${saldo(e)} Sabicoins. Abrir a lojinha`}><Saldo valor={saldo(e)} /></button>
-        <button className="pilula" onClick={() => ir('dia')} aria-label={`${dias} ${dias === 1 ? 'dia' : 'dias'} seguidos estudando. Ver missões do dia`} style={{ cursor: 'pointer' }}>
+        <button className={`pilula${!estudouHoje && dias > 0 ? ' pilula-hoje' : ''}`} onClick={() => ir('dia')} style={{ cursor: 'pointer', position: 'relative' }}
+          aria-label={`${dias} ${dias === 1 ? 'dia' : 'dias'} seguidos estudando.${!estudouHoje && dias > 0 ? ' Estude hoje para não perder.' : ''} Ver missões do dia`}>
           <Chama />
           {dias} {dias === 1 ? 'dia' : 'dias'}
+          {!estudouHoje && dias > 0 && <span className="badge-alerta" aria-hidden="true">!</span>}
         </button>
         </span>
       </div>
@@ -182,13 +189,26 @@ export function Inicio() {
       )}
 
       {mis.lista.length > 0 && (
-        <button className="painel linha" onClick={() => ir('dia')} style={{ textAlign: 'left', color: 'inherit', width: '100%' }}>
-          <Chama tamanho={40} />
-          <span style={{ flex: 1 }}>
-            <span className="display" style={{ fontSize: 19, display: 'block' }}>Missões do dia · {misFeitas} de {mis.lista.length}</span>
-            <span className="muted small">{misFeitas === mis.lista.length ? 'Pacote ganho! Volte amanhã.' : 'Faça todas e ganhe 1 pacote'}</span>
+        <button className={`painel coluna${brilhoMissoes ? ' chamar' : ''}`} onClick={() => ir('dia')}
+          style={{ textAlign: 'left', color: 'inherit', width: '100%', gap: 10, borderColor: misFaltam ? 'var(--coral)' : 'var(--green)' }}>
+          <span className="linha" style={{ gap: 10 }}>
+            <Chama tamanho={40} />
+            <span style={{ flex: 1 }}>
+              <span className="display" style={{ fontSize: 20, display: 'block' }}>Missões do dia</span>
+              <span className="small" style={{ fontWeight: 800, color: misFaltam ? 'var(--t-coral)' : 'var(--t-green)' }}>
+                {misFaltam === 0 ? 'Pacote ganho! Volte amanhã.' : misFaltam === mis.lista.length ? `${misFaltam} missões te esperando!` : `Falta${misFaltam > 1 ? 'm' : ''} ${misFaltam} para o pacote!`}
+              </span>
+            </span>
+            {misFaltam > 0 ? <span className="selo-agora">Faça agora</span> : <Icone nome="seguir" espessura={3} />}
           </span>
-          <Icone nome="seguir" espessura={3} />
+          <span className="linha" style={{ gap: 10 }}>
+            <span className="bolinhas-missao" aria-label={`${misFeitas} de ${mis.lista.length} missões feitas`}>
+              {mis.lista.map((id, i) => <span key={id} className={i < misFeitas ? 'feita' : ''}>{i < misFeitas && <Icone nome="check" tamanho={14} espessura={4} />}</span>)}
+            </span>
+            <Icone nome="seguir" tamanho={18} espessura={3} />
+            <Pacote tamanho="mini" />
+            <span className="small" style={{ fontWeight: 800 }}>1 pacote</span>
+          </span>
         </button>
       )}
 
@@ -196,16 +216,8 @@ export function Inicio() {
         <button className="btn btn-verde btn-bloco" onClick={() => ir('album', evolui.id)}>Evoluir {evolui.s.formas[evolui.forma - 1].nome}</button>
       )}
 
-      {e.desejo ? <Desejo onClick={() => ir('loja')} /> : (
-        <button className="painel linha" onClick={() => ir('loja')} style={{ textAlign: 'left', color: 'inherit', width: '100%' }}>
-          <Moeda tamanho={40} />
-          <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 19, display: 'block' }}>Lojinha</span><span className="muted small">Frutas, cristais e molduras para suas cartas</span></span>
-          <Icone nome="seguir" espessura={3} />
-        </button>
-      )}
-
       {prox && (
-        <button className="painel-destaque" onClick={() => ir('mundo', prox.cap.id)} style={{ textAlign: 'left', color: 'inherit' }}>
+        <button className={`painel-destaque${brilhoContinuar ? ' chamar' : ''}`} onClick={() => ir('mundo', prox.cap.id)} style={{ textAlign: 'left', color: 'inherit' }}>
           <span className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
             <span className="eyebrow" style={{ color: 'var(--t-yellow)' }}>Continuar · {prox.cap.materia}</span>
             {provaProx && <SeloProva s={provaProx} />}
@@ -218,6 +230,14 @@ export function Inicio() {
             </span>
             <span className="btn btn-amarelo" style={{ minHeight: 44, padding: '8px 20px' }}>Jogar</span>
           </span>
+        </button>
+      )}
+
+      {e.desejo ? <Desejo onClick={() => ir('loja')} /> : (
+        <button className="painel linha" onClick={() => ir('loja')} style={{ textAlign: 'left', color: 'inherit', width: '100%' }}>
+          <Moeda tamanho={40} />
+          <span style={{ flex: 1 }}><span className="display" style={{ fontSize: 19, display: 'block' }}>Lojinha</span><span className="muted small">Frutas, cristais e molduras para suas cartas</span></span>
+          <Icone nome="seguir" espessura={3} />
         </button>
       )}
 

@@ -35,6 +35,7 @@ O dono do projeto é o Lucas, que não é programador. Explique mudanças em por
 - Títulos e botões na fonte **Lilita One**; textos em **Nunito**.
 - Botões "de jogo": cor viva, contorno escuro e "chão" embaixo (`.btn` em `src/styles.css`).
 - Animação só em momentos de prêmio (abrir pacote, subir de nível, acertar). Telas paradas não tremem nem piscam. Sempre respeitar `prefers-reduced-motion`.
+- **Única exceção: o brilho de "próximo passo"** (Lucas, 05/11/2026; classe `.chamar` em `src/styles.css`): um reflexo dourado passa, espera uns 2 s e passa de novo, só na **próxima coisa de estudo** da tela (no máximo 1 por tela), some quando a criança faz, **nunca dentro dos jogos/fases**, e some com "reduzir movimento". Junto, selo parado `.selo-agora` ("Faça agora", "Continue aqui").
 - Raridades: comum ★ (cinza), rara ★★ (turquesa), épica ★★★ (rosa), lendária ★★★★ (amarelo, borda holográfica).
 - Mascote: Ará, a arara (`src/components/Ara.tsx`): guia da turma, com mochila e lápis (não é um Sabimon). Desenhos 3D em `public/mascote/ara-<humor>.webp` (feliz, pensando, comemorando, triste), feitos pelo pedido `{"acao": "mascote"}` em `arte/pedido.json`.
 - Para decisões de design, use a skill **ui-ux-pro-max** (fica em `.claude/skills/ui-ux-pro-max/`; busca: `python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<busca>" --domain <área>`). As decisões já tomadas estão em `design-system/sabidex/MASTER.md`: leia antes de mudar o visual.

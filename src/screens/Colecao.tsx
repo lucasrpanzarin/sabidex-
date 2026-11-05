@@ -303,7 +303,7 @@ export function Album({ id }: { id?: string }) {
       <div className="barra barra-verde" role="progressbar" aria-valuenow={tem} aria-valuemax={total} aria-label="Figurinhas no álbum"><div style={{ width: `${(tem / total) * 100}%` }} /></div>
       <p className="muted small" style={{ margin: 0 }}>3 cartas iguais viram a forma 2. 2 cartas da forma 2 viram a forma 3.</p>
 
-      {e.pacotes.length > 0 && <button className="btn btn-rosa btn-bloco" onClick={() => ir('pacote')}>Abrir {e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</button>}
+      {e.pacotes.length > 0 && <button className="btn btn-rosa btn-bloco chamar" onClick={() => ir('pacote')}>Abrir {e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</button>}
       <button className="btn btn-escuro btn-bloco" onClick={() => ir('loja')}><Moeda /> Lojinha · {saldo(e).toLocaleString('pt-BR')} Sabicoins</button>
 
       <div className="linha" style={{ gap: 8, flexWrap: 'wrap' }}>

@@ -33,7 +33,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | **Pacote** | Embalagem metálica holográfica 3D, rasga com o dedo; a carta pula de costas e a criança toca para virar | `src/components/RasgarPacote.tsx` |
 | **Verso das cartas** | Azul-noite com o logo do app | `src/components/CartaView.tsx` |
 | **Menu de baixo** | Cada aba com desenho colorido de contorno escuro; a aba aberta vira adesivo colado (torto, com sombra); nomes na Lilita One (Lucas, 05/11/2026) | `src/components/Nav.tsx` |
-| **Animação** | Só em momento de prêmio. Respeita "reduzir movimento" do celular | |
+| **Animação** | Só em momento de prêmio. Respeita "reduzir movimento" do celular. Exceção (Lucas, 05/11/2026): **brilho dourado** a cada ~2 s só no próximo passo de estudo da tela (1 por tela, some quando faz, nunca dentro dos jogos) + selo parado "Faça agora" | `.chamar`, `.selo-agora` em `src/styles.css`; detalhes em `design-system/sabidex/MASTER.md` |
 
 ## 3. O que já existe (confira aqui antes de criar algo "novo")
 
@@ -188,6 +188,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **05/11/2026** · **Chamar a atenção para o estudo**: brilho dourado passando a cada ~2 s no próximo passo (missões do dia no Início, primeira missão em Meu dia, mundo e fase "Agora", abrir pacotes no álbum), selos "Faça agora"/"Continue aqui", missões com bolinhas que enchem até o pacote, "!" nos dias seguidos quando ainda não estudou hoje e Lojinha depois do "Continuar". O Lucas pediu "piscando"; ficou o brilho (piscar distrai e é ruim para quem é sensível a luz). Muda a regra "telas paradas não se mexem" só para esse brilho (Lucas).
 - **05/11/2026** · **Menu de baixo** com a cara do app: desenhos coloridos de contorno escuro em cada aba e a aba aberta como adesivo colado (Lucas).
 - **05/11/2026** · "Minha conta" virou **Meu perfil**: nível, números e 16 conquistas (só figurinhas de honra, sem prêmio). O código da turma foi para baixo, porque a criança quer ver ela mesma (Lucas).
 - **05/11/2026** · Botão **"Mudar de turma"** em Minha conta (a criança leva tudo) e aviso em "Sou novo na turma" para não criar uma conta vazia. O Lucas perdeu as cartas do Anthony assim: ele saiu da conta e criou outra na turma nova (Lucas).
