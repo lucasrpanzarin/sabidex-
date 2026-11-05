@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react';
 import { Ara } from '../components/Ara';
 import { Icone } from '../components/Icone';
 import { capitulos } from '../data';
-import { embaralhar, hoje, nivel, type Resultado } from '../lib/jogo';
+import { embaralhar, hoje, nivel, notaDe, type Resultado } from '../lib/jogo';
+import { aplicarMissoes } from '../lib/missoes';
+import { AvisoMissao, MOTIVO } from './Fases';
 import { concluirRevisao, paraHoje, proximaData, registrarResposta, type ItemRevisao } from '../lib/revisao';
 import { Moeda } from '../components/Loja';
 import { ir } from '../lib/rota';
@@ -46,10 +48,11 @@ export function Revisao() {
             {fim.subiuNivel && <div className="display pop" style={{ fontSize: 22, color: 'var(--t-green)' }}>Subiu para o nível {nivel(fim.estado.xp).nivel}!</div>}
           </div>
         )}
+        {fim?.missao && <AvisoMissao m={fim.missao} />}
         {fim && fim.pacotesGanhos.length > 0 && (
           <div className="painel-destaque sobe" style={{ width: '100%', borderColor: 'var(--pink)' }}>
             <div className="display" style={{ fontSize: 22 }}>{fim.pacotesGanhos.length > 1 ? `Você ganhou ${fim.pacotesGanhos.length} pacotes!` : 'Você ganhou um pacote!'}</div>
-            <div className="muted small">{fim.pacotesGanhos.some((p) => p.motivo === 'dia') ? 'Pacote do dia, por estudar hoje' : 'Pacote de presente pelo nível novo'}</div>
+            {fim.pacotesGanhos.map((p, k) => <div key={k} className="muted small">{MOTIVO[p.motivo]}</div>)}
           </div>
         )}
         <div className="balao">
@@ -76,7 +79,8 @@ export function Revisao() {
     setRetorno(null);
     if (i + 1 < itens.length) { setI(i + 1); return; }
     const caps = [...new Set(itens.map((x) => x.cap.id))];
-    const r = concluirRevisao(getEstado(), acertos, itens.length, caps);
+    const antes = getEstado();
+    const r = aplicarMissoes(antes, concluirRevisao(antes, acertos, itens.length, caps), { tipo: 'revisao', nota: notaDe(acertos, itens.length) });
     setEstado(r.estado);
     setFim(r);
   };

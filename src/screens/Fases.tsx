@@ -6,6 +6,7 @@ import { capituloPorId } from '../data';
 import type { Capitulo } from '../data/tipos';
 import { FASE_INFO, NOTA_MINIMA, PERDA_POR_ERRO, XP_MINIMO, concluirFase, embaralhar, estrelasDaNota, hoje, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
 import { idProva, idQuiz, registrarResposta } from '../lib/revisao';
+import { aplicarMissoes } from '../lib/missoes';
 import { ir } from '../lib/rota';
 import { jogar, proximaFase } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
@@ -30,13 +31,28 @@ function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: ReactNo
   );
 }
 
-const MOTIVO: Record<MotivoPacote, string> = {
+export const MOTIVO: Record<MotivoPacote, string> = {
   fase: 'Pacote por terminar uma fase nova',
   prova: 'Pacote épico por passar na prova: vem um épico ou lendário',
   dia: 'Pacote do dia, por estudar hoje',
   nivel: 'Pacote de presente pelo nível novo',
   extras: 'Pacote por terminar todos os jogos extras do mundo',
+  missoes: 'Pacote por fazer as missões do dia',
+  marco: 'Pacote por estudar vários dias seguidos',
 };
+
+/** Aviso de missão do dia feita (aparece no fim dos jogos e da revisão). */
+export function AvisoMissao({ m }: { m: NonNullable<Resultado['missao']> }) {
+  return (
+    <button className="painel linha sobe" onClick={() => ir('dia')} style={{ width: '100%', textAlign: 'left', color: 'inherit', gap: 10, animationDelay: '.2s' }}>
+      <span style={{ width: 34, height: 34, flex: 'none', borderRadius: '50%', background: 'var(--green)', border: '3px solid var(--ink)', display: 'grid', placeItems: 'center' }}><Icone nome="check" tamanho={18} espessura={3.5} /></span>
+      <span style={{ flex: 1 }}>
+        <span className="display" style={{ fontSize: 18, display: 'block' }}>Missão do dia feita!</span>
+        <span className="muted small">{m.texto} · {m.feitas} de {m.total}</span>
+      </span>
+    </button>
+  );
+}
 
 /** Estrelas do resultado (3 = nota 10, 2 = nota 7 ou mais, 1 = abaixo de 7). */
 export const Estrelas = ({ n }: { n: number }) => (
@@ -81,6 +97,7 @@ export function Fim({ cap, r, titulo, placar, detalhe, aprovado = true, onDeNovo
         {r.subiuNivel && <div className="display pop" style={{ fontSize: 22, color: 'var(--t-green)' }}>Subiu para o nível {nv.nivel}!</div>}
         {!r.primeiraVez && aprovado && <div className="muted small">Fase repetida: metade do XP e das Sabicoins.</div>}
       </div>
+      {r.missao && <AvisoMissao m={r.missao} />}
       {r.faltouPacote && (
         <div className="balao small">O pacote desta fase ainda está esperando! Acerte <strong>7 de cada 10</strong> para ganhar. Jogue de novo!</div>
       )}
@@ -126,7 +143,8 @@ const AVISO_REVISAO = <div className="balao small" style={{ marginTop: 4 }}>As p
 function useFinalizar(cap: Capitulo, fase: Fase) {
   const [res, setRes] = useState<Resultado | null>(null);
   const finalizar = (nota?: number, erros = 0) => {
-    const r = concluirFase(getEstado(), cap.id, fase, nota, new Date(), erros);
+    const antes = getEstado();
+    const r = aplicarMissoes(antes, concluirFase(antes, cap.id, fase, nota, new Date(), erros), { tipo: 'fase', fase, nota });
     setEstado(r.estado);
     setRes(r);
   };

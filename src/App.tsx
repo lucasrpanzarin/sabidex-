@@ -8,6 +8,7 @@ import { TelaFase } from './screens/Fases';
 import { BoasVindas, Inicio } from './screens/Inicio';
 import { Mundo, Mundos } from './screens/Mundos';
 import { Revisao } from './screens/Revisao';
+import { MeuDia } from './screens/MeuDia';
 import { TelaExtra } from './screens/Extras';
 import { EXTRAS, type Extra } from './lib/jogo';
 import { Loja } from './screens/Loja';
@@ -61,6 +62,7 @@ export function App() {
     case 'trocas': tela = <Trocas />; break;
     case 'duelos': tela = <Duelos />; aba = 'trocas'; break;
     case 'chat': tela = <Chat />; aba = 'trocas'; comNav = false; break;
+    case 'dia': tela = <MeuDia />; aba = ''; break;
     case 'ranking': tela = <Ranking />; break;
     case 'conta': tela = <MinhaConta />; aba = ''; break;
     default: tela = <Inicio />; aba = '';
