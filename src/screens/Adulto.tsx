@@ -618,6 +618,7 @@ function NovoFilho({ token, solto, aoFechar, aoCriar }: { token: string; solto: 
   const [apelido, setApelido] = useState(solto ? perfil?.nome ?? '' : '');
   const [cor, setCor] = useState(solto ? perfil?.cor ?? CORES[0] : CORES[0]);
   const [pin, setPin] = useState('');
+  const [codigo, setCodigo] = useState('');
   const [levar, setLevar] = useState(solto);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
@@ -625,7 +626,7 @@ function NovoFilho({ token, solto, aoFechar, aoCriar }: { token: string; solto: 
   const criar = async () => {
     setOcupado(true); setErro(null);
     const r = await api<{ id: string }>('/adulto/familia', {
-      corpo: { apelido, cor, pin, ...(levar ? { progresso: progressoDe(e), cartas: e.cartas } : {}) }, tokenProprio: token,
+      corpo: { apelido, cor, pin, ...(codigo.trim() ? { codigo } : {}), ...(levar ? { progresso: progressoDe(e), cartas: e.cartas } : {}) }, tokenProprio: token,
     });
     setOcupado(false);
     if (r.erro) setErro(r.erro); else aoCriar(r.id, apelido.trim(), levar);
@@ -643,6 +644,8 @@ function NovoFilho({ token, solto, aoFechar, aoCriar }: { token: string; solto: 
       </fieldset>
       <label htmlFor="f-pin" className="small" style={rotulo}>PIN de 4 números <span className="muted">(a criança usa para trocar de perfil)</span></label>
       <input id="f-pin" style={{ ...campo, letterSpacing: '.3em' }} inputMode="numeric" autoComplete="off" maxLength={4} value={pin} onChange={(ev) => setPin(ev.target.value.replace(/\D/g, '').slice(0, 4))} />
+      <label htmlFor="f-codigo" className="small" style={rotulo}>Código da turma <span className="muted">(se o professor já passou; pode deixar vazio)</span></label>
+      <input id="f-codigo" style={{ ...campo, letterSpacing: '.06em' }} placeholder="Ex.: ARARA-4821" autoComplete="off" autoCapitalize="characters" spellCheck={false} value={codigo} onChange={(ev) => setCodigo(ev.target.value.toUpperCase())} />
       {solto && (
         <label className="linha small" style={{ gap: 10, alignItems: 'flex-start', fontWeight: 700 }}>
           <input type="checkbox" checked={levar} onChange={(ev) => setLevar(ev.target.checked)} style={{ width: 22, height: 22, flex: 'none', marginTop: 2 }} />

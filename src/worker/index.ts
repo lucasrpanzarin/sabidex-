@@ -122,6 +122,7 @@ const contadoresDe = (k: Crianca): Contadores => ({ semNovo: k.sem_novo ?? 0, di
 /** Erros de código permitidos por internet (IP) a cada 15 minutos. Numa escola, a turma toda divide a mesma internet. */
 const MAX_ERROS_CODIGO = 30;
 const JANELA_ERROS = 15 * 60_000;
+const MSG_SO_ADULTO_CRIA = 'Quem cria o seu perfil é um adulto da sua casa, na área dos adultos. Peça para ele!';
 const MSG_MUITOS_ERROS = 'Muitos códigos errados seguidos. Espere 15 minutos e tente de novo.';
 const ipDe = (c: C) => c.req.header('CF-Connecting-IP') ?? 'local';
 
@@ -312,37 +313,7 @@ app.post('/turma/alunos', async (c) => {
 });
 
 /** Criança entra numa turma pela primeira vez e cria o PIN. O progresso do aparelho vai junto. */
-app.post('/crianca/entrar-turma', async (c) => {
-  const b = await corpo(c);
-  const codigo = normalizarCodigo(String(b.codigo ?? ''));
-  const apelido = normalizarApelido(String(b.apelido ?? ''));
-  const cor = String(b.cor ?? '');
-  if (apelido.length < 2) return erro(c, 400, 'O apelido precisa ter pelo menos 2 letras.');
-  if (!COR.test(cor)) return erro(c, 400, 'Cor inválida.');
-  if (!pinValido(b.pin)) return erro(c, 400, 'O PIN precisa ter 4 números.');
-  if (await muitosErros(c)) return erro(c, 429, MSG_MUITOS_ERROS);
-  const t = await c.env.DB.prepare('SELECT id FROM turmas WHERE codigo = ?').bind(codigo).first<{ id: string }>();
-  if (!t) { await contarErro(c); return erro(c, 404, 'Não achei essa turma. Confira o código.'); }
-  if (await contarNaTurma(c.env.DB, t.id) >= 60) return erro(c, 409, 'Essa turma já está cheia.');
-
-  const id = aleatorio(8);
-  const sal = aleatorio(16);
-  const progresso = comBoasVindas(mesclar(progressoVazio(), sanitizar(b.progresso, FASES_VALIDAS)));
-  const semana = semanaDe();
-  try {
-    await c.env.DB.batch([
-      c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)`)
-        .bind(id, t.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semana, Date.now(), Date.now()),
-      ...upsertCartas(c.env.DB, id, limitarCartas(sanitizarDelta(b.cartas, IDS_CARTAS), progresso.abertos.length)),
-    ]);
-  } catch (e) {
-    if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já tem alguém com esse apelido na turma. Escolha outro, ou entre com o seu PIN se a conta for sua.');
-    throw e;
-  }
-  const k = await migrarCrianca(c.env.DB, (await c.env.DB.prepare('SELECT * FROM criancas WHERE id = ?').bind(id).first<Crianca>())!);
-  return c.json({ token: await novaSessao(c.env.DB, 'crianca', id), ...(await respostaConta(c.env.DB, k, sanitizar(JSON.parse(k.progresso), FASES_VALIDAS))) });
-});
+app.post('/crianca/entrar-turma', (c) => erro(c, 403, MSG_SO_ADULTO_CRIA));
 
 /** Criança entra na conta dela (em outro aparelho, por exemplo). */
 app.post('/crianca/entrar', async (c) => {
@@ -1275,17 +1246,30 @@ app.post('/adulto/familia', async (c) => {
   if (!pinValido(b.pin)) return erro(c, 400, 'O PIN precisa ter 4 números.');
   const n = await c.env.DB.prepare('SELECT COUNT(*) n FROM criancas WHERE familia_id = ?').bind(a.id).first<{ n: number }>();
   if ((n?.n ?? 0) >= MAX_FILHOS) return erro(c, 429, `Limite de ${MAX_FILHOS} crianças por família.`);
+  // Código da turma (opcional): a criança já nasce na turma da escola.
+  let turmaId = turmaDaFamilia(a.id);
+  const codigo = normalizarCodigo(String(b.codigo ?? ''));
+  if (codigo) {
+    const t = await c.env.DB.prepare('SELECT id FROM turmas WHERE codigo = ?').bind(codigo).first<{ id: string }>();
+    if (!t) return erro(c, 404, 'Não achei essa turma. Confira o código com o professor.');
+    if (await contarNaTurma(c.env.DB, t.id) >= 60) return erro(c, 409, 'Essa turma já está cheia.');
+    turmaId = t.id;
+  }
   const id = aleatorio(8), sal = aleatorio(16);
   const progresso = comBoasVindas(mesclar(progressoVazio(), sanitizar(b.progresso, FASES_VALIDAS)));
   try {
     await c.env.DB.batch([
       c.env.DB.prepare(`INSERT INTO criancas (id, turma_id, familia_id, apelido, apelido_chave, cor, pin_hash, pin_sal, progresso, xp_semana, semana, criado, visto)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)`)
-        .bind(id, turmaDaFamilia(a.id), a.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semanaDe(), Date.now(), Date.now()),
+        .bind(id, turmaId, a.id, apelido, chaveApelido(apelido), cor, await hashSegredo(b.pin as string, sal), sal, JSON.stringify(progresso), semanaDe(), Date.now(), Date.now()),
       ...upsertCartas(c.env.DB, id, limitarCartas(sanitizarDelta(b.cartas, IDS_CARTAS), progresso.abertos.length)),
     ]);
   } catch (e) {
-    if (String(e).includes('UNIQUE')) return erro(c, 409, 'Já tem uma criança com esse apelido na sua família.');
+    if (String(e).includes('UNIQUE')) {
+      return erro(c, 409, codigo
+        ? `Já tem alguém chamado ${apelido} nessa turma. Se for o seu filho, toque em "Já tem conta na turma". Se não for, escolha outro apelido.`
+        : 'Já tem uma criança com esse apelido na sua família.');
+    }
     throw e;
   }
   return c.json({ id });

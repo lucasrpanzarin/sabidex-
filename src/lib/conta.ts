@@ -28,7 +28,6 @@ let propostasNovas = 0;
 /** Desafios do Duelo do Saber esperando a criança jogar. */
 let desafiosNovos = 0;
 /** Dados mostrados uma vez logo depois de criar a conta (para anotar o PIN). */
-let contaNova: { codigo: string; apelido: string; pin: string } | null = null;
 setRegistrarCartas(!!token);
 
 const ouvintes = new Set<() => void>();
@@ -38,9 +37,8 @@ const mudou = () => { versao++; avisar(); };
 
 export function useConta() {
   useSyncExternalStore((f) => { ouvintes.add(f); return () => ouvintes.delete(f); }, () => versao);
-  return { conta, propostasNovas, desafiosNovos, contaNova, perfis };
+  return { conta, propostasNovas, desafiosNovos, perfis };
 }
-export function esquecerContaNova() { contaNova = null; mudou(); }
 export const getConta = () => conta;
 
 /** Chamada ao servidor. Devolve { erro } em vez de lançar, com mensagens para a criança. */
@@ -89,20 +87,6 @@ function desconectar() {
   setRegistrarCartas(false);
   limparPendente();
   mudou();
-}
-
-/** Primeira vez na turma: cria a conta levando o progresso deste aparelho. */
-export async function entrarNaTurma(codigo: string, apelido: string, cor: string, pin: string) {
-  const e = getEstado();
-  const r = await api<RespostaConta & { token: string }>('/crianca/entrar-turma', {
-    corpo: { codigo, apelido, cor, pin, progresso: progressoDe(e), cartas: e.cartas }, tokenProprio: null,
-  });
-  if (r.erro) return r.erro;
-  limparPendente();
-  aplicarServidor(r, {}, true);
-  contaNova = { codigo: r.conta.codigo, apelido: r.conta.apelido, pin };
-  guardar(r.token, r);
-  return null;
 }
 
 /** Entrar na conta que já existe (em outro aparelho): o progresso da conta substitui o deste aparelho. */
