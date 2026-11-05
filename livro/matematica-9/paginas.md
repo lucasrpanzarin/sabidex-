@@ -720,3 +720,148 @@ j) 23 + ___ + 42 = 100
 120 + ___ = 260
 Agora, troque de livro com um colega. Ele deve resolver o problema que você criou, e você resolverá o dele.
 Resposta: ___
+
+## Página 136
+
+### Atividades do livro
+
+5. No jogo **Valor desconhecido**, forma-se um par quando a carta verde apresenta um número que corresponde ao valor desconhecido da sentença na carta laranja. Observe as cartas a seguir. Elas formam um par? Explique sua resposta.
+[IMAGEM: carta laranja com "100 − ___ = 55" e carta verde com "25".]
+
+6. Eliane trabalha como cozinheira em uma escola. Na segunda-feira, ela anotou que 57 refeições foram consumidas pelos estudantes e, na terça-feira, foram consumidas 9 refeições a menos. Quantas refeições foram consumidas na terça-feira?
+Resposta: ___
+
+7. Vinicius prepara *cookies* para serem vendidos por meio de um aplicativo de entrega de alimentos. Na segunda-feira, ele vendeu 63 *cookies* e na terça-feira, 87 *cookies*. Quantos *cookies* ele vendeu no total nesses dois dias?
+Resposta: ___
+
+## Página 137
+
+8. Luma fez 240 brigadeiros para vender. Ela precisa colocá-los em embalagens que comportam 30 brigadeiros cada. Quantas embalagens são necessárias para acomodar todos os brigadeiros?
+[IMAGEM: foto de brigadeiros dentro de uma meia casca de ovo de chocolate, sobre granulado.]
+Resposta: ___
+
+9. Para fazer uma receita de massa de panqueca, são necessários 240 gramas de farinha de trigo. Quantos gramas de farinha de trigo uma pessoa deve usar para fazer 8 receitas?
+Resposta: ___
+
+## Página 138
+
+10. Verifique se a balança de pratos ficará em equilíbrio ou não e escreva a sentença matemática correspondente.
+a) [IMAGEM: balança. Esquerda: pacote de ARROZ 5 kg. Direita: pesos de 2 kg e 2 kg; uma mão vai colocar um peso de 1 kg no prato da direita.]
+b) [IMAGEM: balança. Esquerda: pacotes de FARINHA de 1 kg ([ILEGÍVEL: não dá para ter certeza se são 3 ou 4 pacotes]). Direita: peso de 2 kg; uma mão vai colocar outro peso de 2 kg no prato da direita.]
+c) [IMAGEM: balança. Esquerda: pacote de ARROZ 5 kg e pacote de 1 kg. Direita: pesos de 2 kg e 2 kg; uma mão vai colocar um peso de 2 kg no prato da direita.]
+
+## Página 139
+
+11. Use a calculadora para verificar se as sentenças estão corretas. Escreva **C** para as corretas e **I** para as incorretas.
+- 78 × 5 = 39 × 10
+- 93 × 6 = 110 × 5
+- 104 ÷ 2 = 320 ÷ 4
+- 350 ÷ 5 = 210 ÷ 3
+- 78 − 18 = 30 + 40
+- 56 + 23 = [ILEGÍVEL: número coberto por rabisco] − 20
+- 137 − 21 = 100 + 16
+- 17 + 13 = 31 − 1
+
+12. Para preparar uma receita de torta doce, são utilizadas 1 xícara com óleo, 2 xícaras com leite e 3 xícaras com farinha de trigo. Preencha a tabela a seguir com a quantidade dos ingredientes necessários para preparar cada quantidade de tortas doces, conforme os exemplos.
+
+| Número de tortas | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|---|---|---|---|---|---|---|---|---|---|
+| Xícara com óleo | 1 | 2 | 3 | | | | | | |
+| Xícara com leite | 2 | 4 | | | | | | | |
+| Xícara com farinha de trigo | 3 | 6 | | | | | | | |
+
+Agora, preencha as lacunas com a quantidade de xícaras com óleo, com leite e com farinha de trigo necessárias para fazer 10 tortas doces.
+___ xícaras com óleo.
+___ xícaras com leite.
+___ xícaras com farinha.
+
+## Página 140
+
+13. Complete as lacunas com os cinco primeiros:
+a) múltiplos de 3. 0, ___, 6, 9, ___.
+b) múltiplos de 10. ___, 10, 20, ___, 40.
+c) múltiplos de 11. 0, 11, ___, 33, ___.
+d) múltiplos de 15. ___, ___, 30, 45, 60.
+
+14. Observe no quadro a quantidade de frutas que Clara utiliza para fazer copos de suco de laranja.
+
+| Copos de suco | Quantidade de laranjas |
+|---|---|
+| [IMAGEM: 3 copos de suco] 3 copos de suco. | [IMAGEM: 12 laranjas] |
+| [IMAGEM: 4 copos de suco] 4 copos de suco. | [IMAGEM: 16 laranjas] |
+
+a) Quantas laranjas Clara usa para fazer 1 copo de suco?
+b) Quantas laranjas Clara usa para fazer 10 copos de suco de laranja?
+
+## Página 141
+
+15. Observe quantas colheres de sopa com achocolatado em pó a doceira Nina utiliza para fazer bolos de caneca.
+
+| Quantidade de bolos de caneca | [IMAGEM: 1 bolo] | [IMAGEM: 2 bolos] | [IMAGEM: 3 bolos] |
+|---|---|---|---|
+| Quantidade de colheres de sopa com achocolatado em pó | [IMAGEM: 2 colheres] | [IMAGEM: 4 colheres] | [IMAGEM: 6 colheres] |
+
+a) Quantas colheres com achocolatado em pó Nina usa para fazer 5 bolos de caneca?
+b) Com 18 colheres com achocolatado em pó, Nina consegue fazer quantas receitas de bolo de caneca?
+
+16. Observe as sequências e descubra o que os números têm em comum. Depois, ligue cada sequência à sua regularidade.
+
+Sequências:
+- 5, 10, 15, 20, 25, 30, 35
+- 6, 11, 16, 21, 26, 31, 36
+- 7, 12, 17, 22, 27, 32, 37
+- 8, 13, 18, 23, 28, 33, 38
+- 9, 14, 19, 24, 29, 34, 39
+
+Regularidades:
+- Números naturais que apresentam resto 1 quando divididos por 5.
+- Números naturais que apresentam resto 3 quando divididos por 5.
+- Números naturais que apresentam resto 4 quando divididos por 5.
+- Números naturais que apresentam resto 0 quando divididos por 5.
+- Números naturais que apresentam resto 2 quando divididos por 5.
+
+## Página 142
+
+# O QUE EU APRENDI
+
+> A **adição** e a **subtração** são **operações inversas**.
+
+- Em cada caso, complete a operação e sua inversa.
+  - 3 + 6 = ___, logo ___ − 6 = 3.
+  - 12 − 7 = ___, logo ___ + 7 = 12.
+  - 109 + 27 = ___, logo ___ − 27 = 109.
+  - 156 − 125 = ___, logo ___ + 125 = 156.
+  - 98 + 30 = ___, logo ___ − 30 = 98.
+  - 63 − 50 = ___, logo ___ + 50 = 63.
+  - 18 + 14 = ___, logo ___ − 14 = 18.
+  - 25 − 24 = ___, logo ___ + 24 = 25.
+
+> A **multiplicação** e a **divisão** são **operações inversas**.
+
+- Em cada caso, complete a operação e sua inversa.
+  - 4 × 3 = ___, logo ___ ÷ 4 = 3.
+  - 18 ÷ 3 = ___, logo ___ × 3 = 18.
+  - 65 ÷ 13 = ___, logo ___ × 13 = 65.
+  - 98 × 2 = ___, logo ___ ÷ 2 = 98.
+  - 130 ÷ 2 = ___, logo ___ × 2 = 130.
+  - 14 × 4 = ___, logo ___ ÷ 4 = 14.
+  - 144 ÷ 12 = ___, logo ___ × 12 = 144.
+  - 729 ÷ 9 = ___, logo ___ × 9 = 729.
+
+## Página 143
+
+> Utilizar operações inversas para verificar os cálculos (**prova real**).
+
+- Confira o resultado da operação a seguir calculando a operação inversa.
+  [CONTA ARMADA (C D U): 370 ÷ 5 = 74, resto 0 → quadro vazio para a multiplicação (C D U) ___ × ___]
+
+> Determinar valores desconhecidos em sentenças matemáticas.
+
+- Complete a sentença a seguir.
+  ___ − 7 = 8
+
+> Identificar padrões em sequências numéricas.
+
+- Observe as sequências a seguir e escreva o padrão numérico.
+  - 1, 14, 27, 40, 53, 66, 79, 92, 105, 118, 131, 144...
+  - 0, 13, 26, 39, 52, 65, 78, 91, 104, 117, 130, 143...
