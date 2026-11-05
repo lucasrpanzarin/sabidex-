@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Ara } from '../components/Ara';
 import { RasgarPacote } from '../components/RasgarPacote';
 import { CartaView, ROTULO, VersoCarta } from '../components/CartaView';
 import { Icone } from '../components/Icone';
-import { sabimons } from '../data';
+import { sabimons, sabimonPorId } from '../data';
 import type { Raridade, Sabimon } from '../data/tipos';
 import { abrirPacote, garantiaAtiva, guardarCartas, GARANTIA } from '../lib/jogo';
 import { Faixa, Moeda, Saldo } from '../components/Loja';
 import { ESPACOS, PRECO_EVOLUCAO, evoluir, itensDe, podeEvoluir, saldo, visualDe } from '../lib/loja';
 import { FIGURINHAS, figurinhaPorId, idCarta, proxima, type Figurinha } from '../lib/figurinhas';
 import { CARTAS_PARA_EVOLUIR, type Forma } from '../lib/sabimon';
-import { useConta, evoluirNaConta } from '../lib/conta';
+import { useConta, evoluirNaConta, abrirPacoteNaConta } from '../lib/conta';
 import { ir } from '../lib/rota';
 import { jogar } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
@@ -29,12 +29,21 @@ export function AbrirPacote() {
   const e = useEstado();
   const [aberto, setAberto] = useState<{ pacoteId: string; epico: boolean; cartas: Sabimon[]; novos: Set<string> } | null>(null);
   const [fase, setFase] = useState<FaseAbrir>('fechado');
+  const [erro, setErro] = useState<string | null>(null);
+  /** Muda quando a abertura falha, para o pacote voltar inteiro. */
+  const [tentativa, setTentativa] = useState(0);
+  const { conta } = useConta();
+  const inicio = useRef(0);
   const pacote = e.pacotes[0];
 
   // Linha do tempo da abertura: a aba voa, a carta pula de costas; depois a criança vira.
+  // Com conta, a carta vem do servidor: espera ela chegar antes de mostrar o verso.
   useEffect(() => {
-    if (fase === 'abrindo') { const t = setTimeout(() => setFase('verso'), 1150); return () => clearTimeout(t); }
-  }, [fase]);
+    if (fase === 'abrindo' && aberto) {
+      const t = setTimeout(() => setFase('verso'), Math.max(0, 1150 - (Date.now() - inicio.current)));
+      return () => clearTimeout(t);
+    }
+  }, [fase, aberto]);
 
   if (!pacote && !aberto) {
     return (
@@ -47,11 +56,26 @@ export function AbrirPacote() {
   }
 
   const epico = aberto ? aberto.epico : pacote.tipo === 'epico';
-  const sortear = () => {
-    const cartas = abrirPacote(sabimons, pacote.tipo, Math.random, { tem: e.cartas, garantia: garantiaAtiva(e) });
-    setAberto({ pacoteId: pacote.id, epico: pacote.tipo === 'epico', cartas, novos: new Set(cartas.filter((c) => !(e.cartas[c.id] > 0)).map((c) => c.id)) });
+  const sortear = async () => {
+    setErro(null);
+    const antes = e.cartas;
+    const p = pacote;
+    if (conta) {
+      // Com conta, quem sorteia é o servidor (ninguém consegue escolher a carta mexendo no aparelho).
+      inicio.current = Date.now();
+      if (!semMovimento()) setFase('abrindo');
+      const r = await abrirPacoteNaConta(p.id);
+      const cartas = 'erro' in r ? [] : r.cartas.map((id) => sabimonPorId.get(id)).filter((s): s is Sabimon => !!s);
+      if ('erro' in r || !cartas.length) { setFase('fechado'); setTentativa((n) => n + 1); setErro('erro' in r ? r.erro : 'Não consegui abrir o pacote. Tente de novo.'); return; }
+      setAberto({ pacoteId: p.id, epico: p.tipo === 'epico', cartas, novos: new Set(cartas.filter((c) => !(antes[c.id] > 0)).map((c) => c.id)) });
+      if (semMovimento()) setFase('revelado');
+      return;
+    }
+    const cartas = abrirPacote(sabimons, p.tipo, Math.random, { tem: antes, garantia: garantiaAtiva(e) });
+    setAberto({ pacoteId: p.id, epico: p.tipo === 'epico', cartas, novos: new Set(cartas.filter((c) => !(antes[c.id] > 0)).map((c) => c.id)) });
     // Guarda na hora: fechar o app no meio não devolve o pacote para sortear de novo.
-    setEstado((s) => guardarCartas(s, pacote.id, cartas));
+    setEstado((s) => guardarCartas(s, p.id, cartas));
+    inicio.current = Date.now();
     setFase(semMovimento() ? 'revelado' : 'abrindo');
   };
   const virar = () => {
@@ -84,8 +108,8 @@ export function AbrirPacote() {
 
       <div className="palco-abrir">
         {(fase === 'fechado' || fase === 'abrindo') && (
-          <RasgarPacote key={pacote?.id ?? 'x'} epico={epico} texto={epico ? 'Vem épico ou lendário!' : boasVindas ? 'Seu primeiro Sabimon!' : '1 Sabimon surpresa'}
-            abrindo={fase === 'abrindo'} aoRasgar={sortear} />
+          <RasgarPacote key={`${pacote?.id ?? 'x'}-${tentativa}`} epico={epico} texto={epico ? 'Vem épico ou lendário!' : boasVindas ? 'Seu primeiro Sabimon!' : '1 Sabimon surpresa'}
+            abrindo={fase === 'abrindo'} aoRasgar={() => void sortear()} />
         )}
         {fase === 'abrindo' && <span className="luz-pacote" aria-hidden="true" />}
         {fase === 'revelado' && raro && <div className="raios" aria-hidden="true" />}
@@ -104,13 +128,14 @@ export function AbrirPacote() {
         )}
       </div>
 
+      {fase === 'fechado' && erro && <div className="aviso aviso-erro" role="alert" style={{ width: '100%' }}>{erro}</div>}
       {fase === 'fechado' && boasVindas && (
         <div className="linha" style={{ alignItems: 'flex-end', alignSelf: 'stretch' }}>
           <Ara tamanho={70} />
           <div className="balao small" style={{ flex: 1, marginBottom: 10, textAlign: 'left' }}>Um presente para começar! Passe o dedo para rasgar e conheça seu primeiro <strong>Sabimon</strong>.</div>
         </div>
       )}
-      {fase === 'fechado' && garantiaAtiva(e) && <p className="small" style={{ color: 'var(--t-green)', fontWeight: 800, margin: 0 }}>Este pacote garante um Sabimon novo!</p>}
+      {fase === 'fechado' && !conta && garantiaAtiva(e) && <p className="small" style={{ color: 'var(--t-green)', fontWeight: 800, margin: 0 }}>Este pacote garante um Sabimon novo!</p>}
       {fase === 'fechado' && e.pacotes.length > 1 && <p className="muted small" style={{ margin: 0 }}>Mais {e.pacotes.length - 1} {e.pacotes.length > 2 ? 'pacotes' : 'pacote'} depois desse</p>}
       {fase === 'verso' && <p className="rasgar-ajuda pisca-suave">Toque na carta para virar!</p>}
 

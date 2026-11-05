@@ -197,6 +197,20 @@ export async function sincronizar() {
   }
 }
 
+/**
+ * Abre um pacote pela conta: o servidor sorteia o Sabimon. Precisa de internet.
+ * Devolve os ids das cartas que vieram, ou a mensagem de erro.
+ */
+export async function abrirPacoteNaConta(id: string): Promise<{ cartas: string[] } | { erro: string }> {
+  if (!token) return { erro: 'Entre na sua conta.' };
+  await sincronizar();
+  const r = await api<RespostaConta & { cartasDoPacote?: string[] }>('/crianca/abrir-pacote', { corpo: { id } });
+  if (r.status === 0) return { erro: 'Para abrir pacote precisa de internet. Conecte e tente de novo.' };
+  if (r.erro) { void sincronizar(); return { erro: r.erro }; }
+  aplicarServidor(r, {});
+  return { cartas: r.cartasDoPacote ?? [] };
+}
+
 /** Evolui uma carta pela conta (o servidor gasta as cartas). Devolve a mensagem de erro, se houver. */
 export async function evoluirNaConta(carta: string) {
   if (!token) return 'Entre na sua conta.';
