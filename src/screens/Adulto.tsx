@@ -1059,7 +1059,48 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
           ))}
         </div>
       </div>
+      {turma.dono && <ApagarTurma token={token} turma={turma} criancas={criancas} />}
     </>
+  );
+}
+
+/** Apagar a turma (Lucas, 05/11/2026): só quem criou ou o dono do app. Escreve o nome para confirmar. */
+function ApagarTurma({ token, turma, criancas }: { token: string; turma: TurmaDetalhe; criancas: Kid[] }) {
+  const [aberto, setAberto] = useState(false);
+  const [nome, setNome] = useState('');
+  const [ocupado, setOcupado] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const soltas = criancas.filter((k) => !k.familia);
+  const apagar = async () => {
+    setOcupado(true); setErro(null);
+    const r = await api(`/adulto/turmas/${turma.id}/apagar`, { corpo: { confirmar: nome }, tokenProprio: token });
+    setOcupado(false);
+    if (r.erro) return setErro(r.erro);
+    ir('adulto');
+  };
+  if (!aberto) return <button className="btn btn-escuro btn-bloco" style={{ marginTop: 8 }} onClick={() => setAberto(true)}>Apagar esta turma</button>;
+  return (
+    <section className="aviso aviso-erro coluna" style={{ gap: 8, marginTop: 8 }} aria-label="Apagar a turma">
+      <h2 className="display h3" style={{ margin: 0 }}>Apagar a turma {turma.nome}?</h2>
+      <span className="small" style={{ fontWeight: 700 }}>
+        {criancas.length
+          ? <>{criancas.length === 1 ? 'A criança sai' : `As ${criancas.length} crianças saem`} da turma e {criancas.length === 1 ? 'continua' : 'continuam'} com as cartas, o XP e as Sabicoins na conta da família. Sem turma, não aparecem jogos até entrar em outra. </>
+          : null}
+        O código {turma.codigo} para de funcionar, e a conversa, as datas de prova e os administradores desta turma são apagados. Não dá para desfazer.
+      </span>
+      {soltas.length > 0 && (
+        <span className="small" style={{ fontWeight: 800 }}>
+          Antes, cuide de {soltas.map((k) => k.apelido).join(', ')}: {soltas.length === 1 ? 'não tem' : 'não têm'} conta da família. Mude de turma (Painel do dono) ou toque em "Remover" na lista acima.
+        </span>
+      )}
+      <label htmlFor="apagar-nome" style={rotulo}>Para confirmar, escreva o nome da turma: {turma.nome}</label>
+      <input id="apagar-nome" style={campo} value={nome} onChange={(ev) => setNome(ev.target.value)} autoComplete="off" />
+      {erro && <div className="small" role="alert" style={{ fontWeight: 800 }}>{erro}</div>}
+      <div className="linha" style={{ gap: 8 }}>
+        <button className="btn btn-escuro" style={botaoPequeno} onClick={() => { setAberto(false); setNome(''); setErro(null); }}>Cancelar</button>
+        <button className="btn btn-vermelho" style={botaoPequeno} disabled={ocupado || !nome.trim() || soltas.length > 0} onClick={() => void apagar()}>{ocupado ? 'Apagando…' : 'Apagar turma'}</button>
+      </div>
+    </section>
   );
 }
 
