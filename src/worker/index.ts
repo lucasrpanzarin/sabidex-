@@ -622,18 +622,23 @@ app.get('/crianca/colega/:id', async (c) => {
   return c.json({ colega: o, cartas });
 });
 
-app.get('/crianca/ranking', async (c) => {
-  const k = await crianca(c);
-  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
-  if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
+/** Placar da semana da turma (XP, cartas, vitórias nos duelos e quem está estudando agora). */
+async function rankingDa(db: D1Database, turmaId: string, euId: string) {
   const inicioSemana = Date.parse(`${semanaDe()}T03:00:00Z`);
-  const r = await c.env.DB.prepare(`SELECT id, apelido, cor, CASE WHEN semana = ? THEN xp_semana ELSE 0 END AS xp,
+  const r = await db.prepare(`SELECT id, apelido, cor, CASE WHEN semana = ? THEN xp_semana ELSE 0 END AS xp,
     (SELECT COUNT(*) FROM cartas WHERE crianca_id = criancas.id AND qtd > 0) AS cartas,
     (SELECT COUNT(*) FROM duelos d WHERE d.turma_id = criancas.turma_id AND d.status = 'feito' AND d.resolvido >= ?
       AND ((d.vencedor = 'de' AND d.de_id = criancas.id) OR (d.vencedor = 'para' AND d.para_id = criancas.id))) AS vitorias,
     ((SELECT mostrar_online FROM turmas WHERE id = criancas.turma_id) = 1 AND mostrar_online = 1 AND ativo > ? AND id != ?) AS online
-    FROM criancas WHERE turma_id = ?`).bind(semanaDe(), inicioSemana, Date.now() - ONLINE_MS, k.id, k.turma_id).all();
-  return c.json({ eu: k.id, semana: semanaDe(), participantes: r.results });
+    FROM criancas WHERE turma_id = ?`).bind(semanaDe(), inicioSemana, Date.now() - ONLINE_MS, euId, turmaId).all();
+  return { eu: euId, semana: semanaDe(), participantes: r.results };
+}
+
+app.get('/crianca/ranking', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
+  return c.json(await rankingDa(c.env.DB, k.turma_id, k.id));
 });
 
 /* ---------------- Trocas ---------------- */
@@ -1955,6 +1960,17 @@ app.post('/adulto/familia/:cid/chat', async (c) => {
   const online = typeof b.online === 'boolean' ? Number(b.online) : k.mostrar_online;
   await c.env.DB.prepare('UPDATE criancas SET chat_ok = ?, mostrar_online = ? WHERE id = ?').bind(chatOk, online, k.id).run();
   return c.json({ chat_ok: chatOk, mostrar_online: online });
+});
+
+/** O responsável vê o placar da semana da turma do filho (o mesmo ranking que a criança vê). */
+app.get('/adulto/familia/:cid/turma', async (c) => {
+  const a = await adulto(c);
+  if (!a) return erro(c, 401, 'Entre de novo.');
+  const k = await doAdulto(c, a.id);
+  if (!k) return erro(c, 404, 'Criança não encontrada.');
+  if (!temTurma(k.turma_id)) return erro(c, 403, 'Esta criança ainda não está numa turma.');
+  // O próprio filho também aparece com a bolinha de "estudando agora" (o adulto não é colega).
+  return c.json({ ...(await rankingDa(c.env.DB, k.turma_id, '')), eu: k.id });
 });
 
 /** O responsável lê a conversa da turma do filho (as mensagens dele aparecem destacadas). */
