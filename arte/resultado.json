@@ -1,5 +1,5 @@
 {
-  "quando": "2026-11-06T12:17:12.712Z",
+  "quando": "2026-11-06T12:48:43.369Z",
   "imagens": [
     {
       "nome": "022-1",
@@ -23,41 +23,6 @@
       "altura": 1536
     },
     {
-      "nome": "025-1",
-      "sabimon": "Caiporita",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "026-1",
-      "sabimon": "Faiscatá",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "027-1",
-      "sabimon": "Iarinha",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "028-1",
-      "sabimon": "Uivinho",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "029-1",
-      "sabimon": "Bumbinho",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
       "nome": "022-2",
       "sabimon": "Redemoinhaci",
       "modelo": "alibaba/qwen-image-3/edit",
@@ -67,48 +32,6 @@
     {
       "nome": "023-2",
       "sabimon": "Pegadapira",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "024-2",
-      "sabimon": "Mulabrasa",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "025-2",
-      "sabimon": "Caipotrilha",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "026-2",
-      "sabimon": "Chamatá",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "027-2",
-      "sabimon": "Cantaiara",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "028-2",
-      "sabimon": "Uivolua",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "029-2",
-      "sabimon": "Bumbazão",
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
@@ -126,48 +49,6 @@
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
-    },
-    {
-      "nome": "024-3",
-      "sabimon": "Mulavulcão",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "025-3",
-      "sabimon": "Caiporainha",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "026-3",
-      "sabimon": "Boitatão",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "027-3",
-      "sabimon": "Rainhiara",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "028-3",
-      "sabimon": "Lobisolar",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "029-3",
-      "sabimon": "Bumbaréu",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
     }
   ],
   "pedido": {
@@ -180,13 +61,18 @@
     "numeros": [
       "022",
       "023",
-      "024",
-      "025",
-      "026",
-      "027",
-      "028",
-      "029"
-    ]
+      "024"
+    ],
+    "so": [
+      "022-1",
+      "022-2",
+      "022-3",
+      "023-1",
+      "023-2",
+      "023-3",
+      "024-1"
+    ],
+    "refazer": true
   },
   "ok": true
 }
