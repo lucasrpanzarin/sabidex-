@@ -1,4 +1,4 @@
-// As 60 figurinhas do álbum: cada forma de cada Sabimon é uma carta separada.
+// As figurinhas do álbum (3 por Sabimon): cada forma de cada Sabimon é uma carta separada.
 // Ids das cartas: forma 1 = "s001" (é a que vem nos pacotes), forma 2 = "s001-2", forma 3 = "s001-3".
 // Número no álbum: Brasinho (s001 forma 1) = 1, Brasão = 2, Fornalhuda = 3, Pingoró = 4...
 
@@ -11,7 +11,7 @@ export interface Figurinha {
   id: string;
   s: Sabimon;
   forma: Forma;
-  /** número no álbum, de 1 a 60 */
+  /** número no álbum, a partir de 1 */
   numero: number;
 }
 

@@ -188,6 +188,15 @@ export const sabimons: Sabimon[] = [
       { nome: 'Constelonça', poderes: ['Galáxia Pintada', 'Chuva de Cometas'], imagem: img('020', 3) },
     ],
   },
+  {
+    id: 's021', numero: 21, tipo: 'Água', raridade: 'epica',
+    fato: 'A orca é o maior golfinho do mundo. Ela vive no mar e às vezes visita o litoral do Brasil.',
+    formas: [
+      { nome: 'Ondorca', poderes: ['Salto Espirrado', 'Bolha Turquesa'], imagem: img('021', 1) },
+      { nome: 'Marorca', poderes: ['Barbatana Lâmina', 'Surfe na Onda'], imagem: img('021', 2) },
+      { nome: 'Tsunorca', poderes: ['Coroa das Ondas', 'Tsunami'], imagem: img('021', 3) },
+    ],
+  },
 ];
 
 export const sabimonPorId = new Map(sabimons.map((s) => [s.id, s]));

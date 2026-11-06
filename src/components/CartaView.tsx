@@ -22,7 +22,7 @@ interface Props {
   onClick?: () => void;
 }
 
-// Número da figurinha no álbum (1 a 60): cada forma tem o seu.
+// Número da figurinha no álbum: cada forma tem o seu.
 const num = (carta: Sabimon, forma: Forma) => String((carta.numero - 1) * 3 + forma).padStart(2, '0');
 
 function Desenho({ carta, forma, tem }: { carta: Sabimon; forma: Forma; tem: boolean }) {

@@ -20,6 +20,7 @@ CONTORNO = {
     '013': (34, 211, 238),   # Tucanuvem, Bicorrente, Tucaventania: turquesa
     '017': (250, 204, 21),   # Antarocha, Pedranta, Montanta: dourado
     '020': (34, 211, 238),   # Oncelestre, Onçastral, Constelonça: turquesa
+    '021': (34, 211, 238),   # Ondorca, Marorca, Tsunorca: turquesa
 }
 # Desenhos com sombra cinza no chão: o recorte também tira o cinza claro (não usar em bicho branco).
 TIRAR_SOMBRA = {'004-1', '016-2'}

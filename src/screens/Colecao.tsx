@@ -298,7 +298,7 @@ export function Album({ id }: { id?: string }) {
   }, [detalhe]);
   if (detalhe) return <Detalhe key={detalhe.id} f={detalhe} />;
 
-  // O álbum tem 60 figurinhas: as 3 formas de cada Sabimon, cada uma com seu número.
+  // O álbum tem as 3 formas de cada Sabimon, cada uma com seu número.
   const tem = FIGURINHAS.filter((f) => e.cartas[f.id] > 0).length;
   const total = FIGURINHAS.length;
   const lista = FIGURINHAS.filter((f) => filtro === 'todas' || f.s.raridade === filtro);
