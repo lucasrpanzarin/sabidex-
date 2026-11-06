@@ -221,6 +221,7 @@ Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 - **06/11/2026** · Missão "Faça a Revisão do Ará" ficava impossível: o Anthony fez a revisão (2 perguntas, 1 certa = nota 5, não vale para a missão) e as perguntas saíram de hoje, então a missão pedia revisão mas a tela dizia que não tinha nada. Agora, quando isso acontece, a missão troca por outra que a criança consegue fazer (Lucas avisou; jeito de corrigir: Claude).
 - **06/11/2026** · Álbum: ao abrir uma figurinha lá embaixo (ex.: bugio) e voltar, a tela voltava para o topo. Agora volta na figurinha que a criança abriu, pelo botão "Álbum" ou pelo voltar do celular (Lucas).
 - **06/11/2026** · Unidades na ordem do livro: antes, unidade com prova marcada subia para o começo (aparecia 9, 8, 10) e o "Continuar" no fim de uma fase da unidade 8 pulava para a 9. Agora a lista segue 8, 9, 10 (as que já tiveram prova continuam no fim) e o "Continuar" termina a unidade que a criança está fazendo antes de ir para outra (Lucas).
+- **06/11/2026** · Matemática, unidade 9: na pergunta da balança, "pus" e "pôr" viraram "coloquei" e "colocar" (palavras mais fáceis para a criança) (Lucas).
 
 - **05/11/2026** · Pais veem a turma do filho: botões "Ver a turma" (placar da semana e quem está estudando agora) e "Ver o chat da turma" no cartão do filho. O Lucas não achava o chat nem o ranking na área dos pais. Política de privacidade ganhou uma frase (sem pedir aceite de novo: os pais já liam o chat com os apelidos) (Lucas).
 

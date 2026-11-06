@@ -143,7 +143,7 @@ export const matematica9: Capitulo = {
       "explicacao": "Multiplicamos o quociente pelo divisor: 50 × 3 = 150, o dividendo."
     },
     {
-      "pergunta": "Numa balança equilibrada, pus mais 4 kg no prato da esquerda. Quanto devo pôr no da direita?",
+      "pergunta": "Numa balança equilibrada, coloquei mais 4 kg no prato da esquerda. Quanto devo colocar no da direita?",
       "opcoes": [
         "8 kg",
         "4 kg",
