@@ -226,7 +226,7 @@ export function Pergunta({ conta, corrigirNaHora = true, rotuloProxima, onRespos
         <p className="display" style={{ fontSize: 19, margin: 0, textWrap: 'balance' }}><TextoMat t={conta.enunciado} /></p>
         {conta.sentenca && <p className="display conta-grande" style={{ margin: 0 }}><TextoMat t={conta.sentenca} /></p>}
         <Desenho v={conta.visual} />
-        {TIPOS_PAPEL.has(conta.tipo) && !respondida && <span className="muted small" style={{ fontWeight: 700 }}>Dica: arme a conta no papel.</span>}
+        {TIPOS_PAPEL.has(conta.tipo) && !respondida && <span className="muted small" style={{ fontWeight: 700 }}>Dica: faça a conta no papel.</span>}
       </div>
       {/* Resposta e teclado ficam presos embaixo da tela (como numa calculadora): o OK e o número digitado sempre aparecem. */}
       <div className="area-resposta">
@@ -264,14 +264,14 @@ export function Pergunta({ conta, corrigirNaHora = true, rotuloProxima, onRespos
 
 /* ---------- Aviso do papel e lápis ---------- */
 
-/** No começo de cada fase de Matemática: o Ará lembra de pegar papel e lápis para armar as contas. */
+/** No começo de cada fase de Matemática: o Ará lembra de pegar papel e lápis para fazer as contas. */
 function AvisoPapel({ cap, fase, onComecar }: { cap: Capitulo; fase: Fase; onComecar: () => void }) {
   return (
     <main className="tela">
       <Topo cap={cap} fase={fase} />
       <div className="coluna" style={{ alignItems: 'center', textAlign: 'center', flex: 1, justifyContent: 'center' }}>
         <Ara tamanho={110} />
-        <div className="balao">Pegue <strong>um papel e um lápis</strong>! Você pode armar as contas no caderno, como na escola. Depois é só digitar a resposta aqui.</div>
+        <div className="balao">Pegue <strong>um papel e um lápis</strong>! Você pode fazer as contas no caderno, como na escola. Depois é só digitar a resposta aqui.</div>
         <button className="btn btn-amarelo btn-bloco" onClick={onComecar} autoFocus>Já peguei!</button>
       </div>
     </main>

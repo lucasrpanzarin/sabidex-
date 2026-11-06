@@ -12,7 +12,7 @@ export const FASE_INFO: Record<Fase, { titulo: string; sub: string; xp: number }
   memoria: { titulo: 'Jogo da memória', sub: 'Ligue cada palavra ao significado', xp: 60 },
   linha: { titulo: 'Linha do tempo', sub: 'Coloque os fatos na ordem certa', xp: 60 },
   quiz: { titulo: 'Quiz relâmpago', sub: 'Verdadeiro ou falso contra o relógio', xp: 80 },
-  prova: { titulo: 'Prova do capítulo', sub: 'Nota 7 ou mais libera o pacote épico', xp: 120 },
+  prova: { titulo: 'Prova da unidade', sub: 'Nota 7 ou mais libera o pacote épico', xp: 120 },
 };
 
 /** Em Matemática, as fases têm outro nome (o XP é o mesmo). */

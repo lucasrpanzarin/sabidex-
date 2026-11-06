@@ -17,7 +17,7 @@ const ERROS = {
   repetido: 'Esse Sabimon já tem esse item.',
   cheio: 'Os 3 espaços dessa carta já estão cheios.',
   moedas: 'Faltam Sabicoins para comprar.',
-  premio: 'Complete um mundo inteiro para ganhar uma coroa.',
+  premio: 'Complete uma unidade inteira para ganhar uma coroa.',
 };
 
 const ABAS = [['tudo', 'Tudo'], ['vida', 'Vida'], ['forca', 'Força'], ['enfeite', 'Enfeites']] as const;
@@ -25,7 +25,7 @@ type Aba = (typeof ABAS)[number][0];
 
 /** Explica o item com palavras simples (aparece quando a criança toca nele). */
 const explica = (it: Item) =>
-  it.premio ? 'Não se compra: você ganha uma coroa para cada mundo que completar.'
+  it.premio ? 'Não se compra: você ganha uma coroa para cada unidade que completar.'
     : it.visual ? 'Muda a moldura da carta. Não ocupa espaço da faixa.'
       : 'Vai para a faixa embaixo da carta e fica com o Sabimon quando ele evoluir.';
 
@@ -174,7 +174,7 @@ export function Loja({ sabimonId }: { sabimonId?: string }) {
           {item.premio ? (
             livres > 0
               ? <button className="btn btn-amarelo btn-bloco" disabled={meus.length === 0} onClick={() => (alvo && escolhido ? comprar(escolhido) : setPasso('sabimon'))}>Pegar a coroa</button>
-              : <div className="muted small" style={{ textAlign: 'center' }}>Termine as 5 fases de um mundo para ganhar uma coroa!</div>
+              : <div className="muted small" style={{ textAlign: 'center' }}>Termine as 5 fases de uma unidade para ganhar uma coroa!</div>
           ) : tem >= item.preco ? (
             <button className="btn btn-amarelo btn-bloco" disabled={meus.length === 0}
               onClick={() => (alvo && escolhido ? comprar(escolhido) : setPasso('sabimon'))}>

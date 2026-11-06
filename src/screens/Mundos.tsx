@@ -31,7 +31,7 @@ export function Mundos({ materia }: { materia?: string }) {
     return (
       <button key={c.id} className="painel-destaque" onClick={() => ir('mundo', c.id)} style={{ textAlign: 'left', color: 'inherit' }}>
         <span className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
-          <span className="eyebrow" style={{ color: n === 5 ? 'var(--t-green)' : 'var(--t-yellow)' }}>{daMateria === capitulos && materias.length > 1 ? `${c.materia} · ` : ''}Mundo {c.numero}{n === 5 ? ' · completo' : ''}</span>
+          <span className="eyebrow" style={{ color: n === 5 ? 'var(--t-green)' : 'var(--t-yellow)' }}>{daMateria === capitulos && materias.length > 1 ? `${c.materia} · ` : ''}Unidade {c.numero}{n === 5 ? ' · completa' : ''}</span>
           {eProximo && s.tipo !== 'chegando' ? <span className="selo-agora chamar">{n === 0 ? 'Comece aqui' : 'Continue aqui'}</span> : <SeloProva s={s} />}
         </span>
         <span className="display" style={{ fontSize: 24, display: 'block', marginTop: 2 }}>{c.titulo}</span>
@@ -44,7 +44,7 @@ export function Mundos({ materia }: { materia?: string }) {
     <main className="tela">
       <div>
         <div className="eyebrow">{titulo}</div>
-        <h1 className="display h1">Escolha o mundo</h1>
+        <h1 className="display h1">Escolha a unidade</h1>
       </div>
       {atuais.map(cartao)}
       {passadas.length > 0 && (
@@ -75,7 +75,7 @@ export function Mundo({ id }: { id: string }) {
   const e = useEstado();
   const { conta } = useConta();
   const cap = capituloPorId(id);
-  if (!cap) return <main className="tela"><p>Mundo não encontrado.</p></main>;
+  if (!cap) return <main className="tela"><p>Unidade não encontrada.</p></main>;
   const feitas = FASES.filter((f) => e.feitas[chave(cap.id, f)]).length;
   const agora = FASES.find((f) => !e.feitas[chave(cap.id, f)]);
   const recuo = [0, 56, 112, 56, 0];
@@ -86,7 +86,7 @@ export function Mundo({ id }: { id: string }) {
       <div className="coluna" style={{ gap: 2 }}>
         <button className="voltar" onClick={() => ir('mundos', cap.materia)}><Icone nome="voltar" tamanho={18} espessura={3} />{cap.materia}</button>
         <div className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
-          <div className="eyebrow">Mundo {cap.numero}</div>
+          <div className="eyebrow">Unidade {cap.numero}</div>
           <SeloProva s={situacao(conta?.provas, cap.id, hoje())} />
         </div>
         <h1 className="display h1">{cap.titulo}</h1>
@@ -166,7 +166,7 @@ export function Mundo({ id }: { id: string }) {
 
       <div className="painel-destaque linha" style={{ marginTop: 'auto' }}>
         <Pacote tamanho="mini" />
-        <div><div className="display" style={{ fontSize: 18 }}>Prêmios do mundo</div><div className="muted small">Pacote no jogo da memória, no quiz, nos jogos extras e um épico na prova</div></div>
+        <div><div className="display" style={{ fontSize: 18 }}>Prêmios da unidade</div><div className="muted small">Pacote no jogo da memória, no quiz, nos jogos extras e um épico na prova</div></div>
       </div>
     </main>
   );

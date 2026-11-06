@@ -237,7 +237,7 @@ export function Inicio() {
             <span className="eyebrow" style={{ color: 'var(--t-yellow)' }}>Continuar · {prox.cap.materia}</span>
             {provaProx && <SeloProva s={provaProx} />}
           </span>
-          <span className="display" style={{ fontSize: 26, display: 'block', marginTop: 4 }}>Cap. {prox.cap.numero} · {prox.cap.titulo}</span>
+          <span className="display" style={{ fontSize: 26, display: 'block', marginTop: 4 }}>Unidade {prox.cap.numero} · {prox.cap.titulo}</span>
           <span className="muted small" style={{ display: 'block' }}>Próxima: {infoFase(prox.fase, prox.cap).titulo}</span>
           <span className="linha" style={{ marginTop: 12 }}>
             <span style={{ flex: 1, display: 'flex', gap: 6 }} aria-label={`${feitasCap} de 5 fases`}>
@@ -264,7 +264,7 @@ export function Inicio() {
             return (
               <button key={m} className="painel" onClick={() => ir('mundos', m)} style={{ textAlign: 'center', borderColor: COR_MATERIA[i % COR_MATERIA.length], padding: 12, color: 'inherit' }}>
                 <span className="display" style={{ fontSize: 17, display: 'block' }}>{m}</span>
-                <span className="muted small">{n} {n === 1 ? 'capítulo' : 'capítulos'}</span>
+                <span className="muted small">{n} {n === 1 ? 'unidade' : 'unidades'}</span>
               </button>
             );
           })}

@@ -16,7 +16,7 @@ function Topo({ cap, x, extra }: { cap: Capitulo; x: Extra; extra?: ReactNode })
   return (
     <div className="coluna" style={{ gap: 2 }}>
       <div className="linha" style={{ justifyContent: 'space-between' }}>
-        <button className="voltar" onClick={() => ir('mundo', cap.id)}><Icone nome="voltar" tamanho={18} espessura={3} />Mundo {cap.numero}</button>
+        <button className="voltar" onClick={() => ir('mundo', cap.id)}><Icone nome="voltar" tamanho={18} espessura={3} />Unidade {cap.numero}</button>
         {extra}
       </div>
       <h1 className="display h2">{EXTRA_INFO[x].titulo}</h1>
@@ -311,7 +311,7 @@ export function TelaExtra({ capId, x }: { capId: string; x: Extra }) {
     return (
       <main className="tela" style={{ alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
         <Ara tamanho={110} humor="triste" />
-        <div className="balao">Os jogos extras abrem depois que você ouvir os temas do mundo!</div>
+        <div className="balao">Os jogos extras abrem depois que você fizer a 1ª fase da unidade!</div>
         <button className="btn btn-amarelo" onClick={() => ir('fase', cap.id, 'ouvir')}>Ouvir os temas</button>
       </main>
     );

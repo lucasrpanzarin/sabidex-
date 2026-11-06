@@ -47,15 +47,15 @@ function DatasDasProvas({ token, rota, provas, aoMudar, ajuda, capitulos }: { to
       <h2 className="display h3" style={{ margin: 0 }}>Datas das provas</h2>
       <p className="muted small" style={{ margin: 0 }}>{ajuda}</p>
       {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
-      {!capitulos.length && <p className="muted small" style={{ margin: 0 }}>A turma ainda não tem matérias no Sabidex. Quando o livro dela entrar, os capítulos aparecem aqui.</p>}
+      {!capitulos.length && <p className="muted small" style={{ margin: 0 }}>A turma ainda não tem matérias no Sabidex. Quando o livro dela entrar, as unidades aparecem aqui.</p>}
       {capitulos.map((c) => {
         const data = provas[c.id] ?? '';
         const t = textoProva(situacao(provas, c.id, dia));
         return (
           <label key={c.id} className="painel coluna" style={{ padding: 12, gap: 6 }}>
-            <span style={rotulo}>{c.materia} · Cap. {c.numero}: {c.titulo}</span>
+            <span style={rotulo}>{c.materia} · Unidade {c.numero}: {c.titulo}</span>
             <span className="linha" style={{ gap: 8 }}>
-              <input type="date" value={data} onChange={(ev) => void salvar(c.id, ev.target.value)} style={{ ...campo, flex: 1, padding: '8px 10px' }} aria-label={`Data da prova do capítulo ${c.numero}`} />
+              <input type="date" value={data} onChange={(ev) => void salvar(c.id, ev.target.value)} style={{ ...campo, flex: 1, padding: '8px 10px' }} aria-label={`Data da prova da unidade ${c.numero}`} />
               {data && <button type="button" className="btn btn-escuro" style={{ minHeight: 40, fontSize: 15 }} onClick={() => void salvar(c.id, '')}>Tirar</button>}
             </span>
             <span className="muted small">{data ? `${t} (${diaMes(data)})` : 'Sem data'}</span>
@@ -73,7 +73,7 @@ function MateriasDaTurma({ conteudo }: { conteudo?: string }) {
     <div className="painel coluna" style={{ gap: 4, borderColor: c ? undefined : 'var(--coral)' }}>
       <span style={rotulo}>Matérias da turma</span>
       {c
-        ? <span className="small">{c.nome}: {[...new Set(c.capitulos.map((x) => x.materia))].join(', ')} ({c.capitulos.length} capítulos).</span>
+        ? <span className="small">{c.nome}: {[...new Set(c.capitulos.map((x) => x.materia))].join(', ')} ({c.capitulos.length} unidades).</span>
         : <span className="small">Ainda sem matérias. As crianças entram na turma, mas os jogos só aparecem quando o Sabidex colocar o livro desta turma. Fale com a gente.</span>}
     </div>
   );
@@ -541,7 +541,7 @@ function Familia({ token, aoSair }: { token: string; aoSair: () => Promise<void>
       {!!filhos?.length && filhos.some((f) => f.codigo && capitulosDe(f.conteudo).length) && (
         <DatasDasProvas token={token} rota="/adulto/familia/provas" provas={provas} aoMudar={setProvas}
           capitulos={[...new Map(filhos.flatMap((f) => (f.codigo ? capitulosDe(f.conteudo) : [])).map((c) => [c.id, c])).values()]}
-          ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque. Depois, continua valendo para revisar. Se a turma do professor marcar outra data, vale a da turma." />
+          ajuda="Marque o dia da prova na escola. Antes da data, a unidade aparece em destaque. Depois, continua valendo para revisar. Se a turma do professor marcar outra data, vale a da turma." />
       )}
     </section>
   );
@@ -1088,7 +1088,7 @@ function DetalheTurma({ token, id }: { token: string; id: string }) {
       )}
       <MateriasDaTurma conteudo={turma.conteudo} />
       <DatasDasProvas token={token} rota={`/adulto/turmas/${id}/provas`} provas={dados.provas ?? {}} aoMudar={(p) => setDados({ ...dados, provas: p })} capitulos={capitulosDe(turma.conteudo)}
-        ajuda="Marque o dia da prova na escola. Antes da data, o capítulo aparece em destaque para as crianças. Depois, continua aberto e valendo para quem chegou depois ou quer revisar." />
+        ajuda="Marque o dia da prova na escola. Antes da data, a unidade aparece em destaque para as crianças. Depois, continua aberto e valendo para quem chegou depois ou quer revisar." />
       <Administradores token={token} id={id} nomeTurma={turma.nome} />
       <DadosDaTurma key={turma.id} token={token} turma={turma} criancas={criancas.length} aoMudar={(t) => setDados({ ...dados, turma: t })} />
       {dados.chat && <ChatDaTurma token={token} id={id} chat={dados.chat} avisos={dados.avisos ?? 0} criancas={criancas} aoMudar={() => void carregar()} />}
@@ -1622,7 +1622,7 @@ function PainelDono({ token }: { token: string }) {
               <select id={`materias-${t.id}`} style={{ ...campo, borderColor: t.conteudo ? undefined : 'var(--coral)' }} value={t.conteudo} disabled={ocupado === t.id}
                 onChange={(ev) => void mudarMaterias(t, ev.target.value)}>
                 <option value="">Sem matérias (não mostra jogos)</option>
-                {dados.conteudos.map((x) => <option key={x.id} value={x.id}>{x.nome} ({plural(x.capitulos, 'capítulo', 'capítulos')})</option>)}
+                {dados.conteudos.map((x) => <option key={x.id} value={x.id}>{x.nome} ({plural(x.capitulos, 'unidade', 'unidades')})</option>)}
               </select>
             </div>
           ))}
@@ -1690,7 +1690,7 @@ function PainelUso({ token }: { token: string }) {
       {uso.capitulos.map((c) => (
         <div key={c.id} className="painel coluna" style={{ gap: 6, padding: 12 }}>
           <h2 className="display" style={{ fontSize: 18, margin: 0 }}>{c.nome}</h2>
-          <span className="muted small">{plural(c.comecaram, 'criança começou', 'crianças começaram')} este capítulo.</span>
+          <span className="muted small">{plural(c.comecaram, 'criança começou', 'crianças começaram')} esta unidade.</span>
           {c.comecaram > 0 && (
             <div style={{ overflowX: 'auto' }}>
               <table className="small" style={{ width: '100%', borderCollapse: 'collapse', fontWeight: 700 }}>

@@ -23,7 +23,7 @@ export function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: 
   return (
     <div className="coluna" style={{ gap: 2 }}>
       <div className="linha" style={{ justifyContent: 'space-between' }}>
-        <button className="voltar" onClick={() => ir('mundo', cap.id)}><Icone nome="voltar" tamanho={18} espessura={3} />Mundo {cap.numero}</button>
+        <button className="voltar" onClick={() => ir('mundo', cap.id)}><Icone nome="voltar" tamanho={18} espessura={3} />Unidade {cap.numero}</button>
         {extra}
       </div>
       <h1 className="display h2">{infoFase(fase, cap).titulo}</h1>
@@ -37,7 +37,7 @@ export const MOTIVO: Record<MotivoPacote, string> = {
   prova: 'Pacote épico por passar na prova: vem um épico ou lendário',
   dia: 'Pacote do dia, por estudar hoje',
   nivel: 'Pacote de presente pelo nível novo',
-  extras: 'Pacote por terminar todos os jogos extras do mundo com nota 7',
+  extras: 'Pacote por terminar todos os jogos extras da unidade com nota 7',
   missoes: 'Pacote por fazer as missões do dia',
   marco: 'Pacote por estudar vários dias seguidos',
 };
@@ -116,7 +116,7 @@ export function Fim({ cap, r, titulo, placar, detalhe, aprovado = true, onDeNovo
           : aprovado
             ? <button className="btn btn-amarelo btn-bloco" onClick={jogar}>{proximaFase(r.estado.feitas) ? 'Próxima fase' : 'Continuar'}</button>
             : <button className="btn btn-amarelo btn-bloco" onClick={onDeNovo}>Tentar de novo</button>}
-        <button className="btn btn-escuro btn-bloco" onClick={() => ir('mundo', cap.id)}>Ver o mundo {cap.numero}</button>
+        <button className="btn btn-escuro btn-bloco" onClick={() => ir('mundo', cap.id)}>Ver a unidade {cap.numero}</button>
         {aprovado && <button className="btn btn-escuro btn-bloco" onClick={onDeNovo}>Jogar de novo</button>}
       </div>
     </main>
@@ -547,7 +547,7 @@ export function TelaFase({ capId, fase }: { capId: string; fase: Fase }) {
       <main className="tela" style={{ alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
         <Ara tamanho={110} humor="pensando" />
         <div className="balao">Essa fase ainda está trancada. Termine a anterior primeiro!</div>
-        <button className="btn btn-amarelo" onClick={() => ir('mundo', cap.id)}>Voltar ao mundo</button>
+        <button className="btn btn-amarelo" onClick={() => ir('mundo', cap.id)}>Voltar à unidade</button>
       </main>
     );
   }

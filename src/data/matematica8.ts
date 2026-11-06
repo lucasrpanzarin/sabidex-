@@ -84,7 +84,7 @@ export const matematica8: Capitulo = {
       "explicacao": "O desconto é a diferença: 118,99 − 87,50 = 31,49."
     },
     {
-      "pergunta": "Igor pagou um iogurte de R$ 4,50 com uma cédula de 10 reais. Como ele deve armar a conta do troco?",
+      "pergunta": "Igor pagou um iogurte de R$ 4,50 com uma cédula de 10 reais. Como ele deve escrever a conta do troco no papel?",
       "opcoes": ["0,10 − 4,50, com o 10 depois da vírgula", "10,00 − 4,50, com vírgula embaixo de vírgula", "10 − 450, sem usar a vírgula", "4,50 − 10,00, com o menor em cima"],
       "certa": 1,
       "explicacao": "10 reais se escreve 10,00. Com vírgula embaixo de vírgula: 10,00 − 4,50 = 5,50 de troco."
@@ -183,16 +183,16 @@ export const matematica8: Capitulo = {
       },
       {
         "titulo": "Adição com vírgula",
-        "ideia": "Armamos a conta com **vírgula embaixo de vírgula** e somamos da direita para a esquerda.",
+        "ideia": "Escrevemos um número embaixo do outro, com **vírgula embaixo de vírgula**, e somamos da direita para a esquerda.",
         "situacao": "Vicente vendeu duas blusas: uma de R$ 75,50 e outra de R$ 90,99. Qual foi o total?",
-        "passos": ["Armamos 75,50 em cima e 90,99 embaixo, **vírgula embaixo de vírgula**.", "Somamos centésimos, décimos, unidades e dezenas, com o \"vai um\".", "Pomos a vírgula no lugar: **166,49**. O total foi R$ 166,49."],
+        "passos": ["Escrevemos 75,50 em cima e 90,99 embaixo, **vírgula embaixo de vírgula**.", "Somamos centésimos, décimos, unidades e dezenas, com o \"vai um\".", "Pomos a vírgula no lugar: **166,49**. O total foi R$ 166,49."],
         "treino": "decimal-soma"
       },
       {
         "titulo": "Subtração e troco",
         "ideia": "Número inteiro ganha **vírgula e zeros**: 100 = **100,00**. Depois subtraímos com vírgula embaixo de vírgula.",
         "situacao": "O protetor solar custa R$ 87,50, e o cliente pagou com uma cédula de 100 reais. Qual é o troco?",
-        "passos": ["Escrevemos 100 como **100,00**.", "Armamos 100,00 − 87,50, vírgula embaixo de vírgula.", "Subtraímos da direita para a esquerda, trocando quando precisa: **12,50**.", "O troco é **R$ 12,50**."],
+        "passos": ["Escrevemos 100 como **100,00**.", "Escrevemos 100,00 em cima e 87,50 embaixo, vírgula embaixo de vírgula.", "Subtraímos da direita para a esquerda, trocando quando precisa: **12,50**.", "O troco é **R$ 12,50**."],
         "treino": "problema-troco"
       }
     ],

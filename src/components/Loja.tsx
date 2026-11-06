@@ -66,7 +66,7 @@ export function ItemCarta({ id, tem, desejo, selecionado, livre, onClick }: { id
         <span className={`efeito ${it.tipo}`}>{it.efeito}</span>
         {it.fato && <small>{it.fato}</small>}
         {it.premio
-          ? <span className="preco premio">{livre ? `Você pode pegar ${livre}!` : 'Complete um mundo'}</span>
+          ? <span className="preco premio">{livre ? `Você pode pegar ${livre}!` : 'Complete uma unidade'}</span>
           : <span className={`preco${tem >= it.preco ? '' : ' falta'}`}><Moeda />{it.preco.toLocaleString('pt-BR')}</span>}
       </span>
     </button>

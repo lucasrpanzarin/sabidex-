@@ -513,7 +513,7 @@ function decimalSoma(r: Rng): Conta {
   const casas = Math.max(casasDe(a), casasDe(b), 1);
   const t = a + b;
   return { tipo: 'decimal-soma', enunciado: 'Faça a adição. Lembre: vírgula embaixo de vírgula.', sentenca: `${num(a, 0)} + ${num(b, 0)} = ?`, resposta: t / 100, decimal: true,
-    explicacao: `Armamos com as vírgulas alinhadas e completamos com zeros: ${virgula(a, casas)} + ${virgula(b, casas)}. Somamos da direita para a esquerda e pomos a vírgula no lugar: ${virgula(t, casas)}.` };
+    explicacao: `Escrevemos um número embaixo do outro, vírgula embaixo de vírgula, e completamos com zeros: ${virgula(a, casas)} + ${virgula(b, casas)}. Somamos da direita para a esquerda e pomos a vírgula no lugar: ${virgula(t, casas)}.` };
 }
 
 /** Subtração com vírgula: número inteiro vira 100,00 e troca quando precisa (p. 78 a 84). */
@@ -525,7 +525,7 @@ function decimalSubtracao(r: Rng): Conta {
   const casas = Math.max(casasDe(a), casasDe(b), 1);
   const t = a - b;
   return { tipo: 'decimal-subtracao', enunciado: 'Faça a subtração. Lembre: vírgula embaixo de vírgula.', sentenca: `${num(a, 0)} − ${num(b, 0)} = ?`, resposta: t / 100, decimal: true,
-    explicacao: `${casasDe(a) === 0 ? `Escrevemos ${num(a, 0)} como ${virgula(a, casas)}. ` : ''}Armamos ${virgula(a, casas)} − ${virgula(b, casas)} com as vírgulas alinhadas e subtraímos da direita para a esquerda, trocando quando precisa: ${virgula(t, casas)}. Prova real: ${virgula(t, casas)} + ${virgula(b, casas)} = ${virgula(a, casas)}.` };
+    explicacao: `${casasDe(a) === 0 ? `Escrevemos ${num(a, 0)} como ${virgula(a, casas)}. ` : ''}Escrevemos ${virgula(a, casas)} − ${virgula(b, casas)} um embaixo do outro, vírgula embaixo de vírgula, e subtraímos da direita para a esquerda, trocando quando precisa: ${virgula(t, casas)}. Prova real: ${virgula(t, casas)} + ${virgula(b, casas)} = ${virgula(a, casas)}.` };
 }
 
 /** Compra com dois ou três preços (sorvetes, blusas, comissões...). */
@@ -628,7 +628,7 @@ export const GERADORES: Record<string, (r: Rng) => Conta> = {
   'falta-um-real': faltaUmReal,
 };
 
-/** Contas em que vale a pena armar no papel (aparece a dica "arme a conta no papel"). */
+/** Contas em que vale a pena fazer no papel (aparece a dica "faça a conta no papel"). */
 export const TIPOS_PAPEL = new Set([
   'problema-soma', 'problema-subtracao', 'problema-vezes', 'problema-divisao', 'prova-real',
   'balanca-falta', 'balanca-diferenca', 'multiplos-receita',
