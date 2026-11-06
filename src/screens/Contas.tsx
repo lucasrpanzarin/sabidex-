@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Ara } from '../components/Ara';
 import type { Capitulo } from '../data/tipos';
-import { TIPOS_PAPEL, confere, ehFracao, gerarConta, gerarContas, textoCerto, textoResposta, type Conta, type Resposta, type Visual } from '../lib/contas';
+import { TIPOS_PAPEL, confere, ehFracao, gerarConta, gerarContas, textoCerto, tempoDeLeitura, textoResposta, type Conta, type Resposta, type Visual } from '../lib/contas';
 import { NOTA_MINIMA, notaDe, type Fase } from '../lib/jogo';
 import { idConta } from '../lib/revisao';
 import { AVISO_REVISAO, ContaErros, Fim, Topo, lembrar, useFinalizar } from './Fases';
@@ -290,6 +290,17 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
   const [acertos, setAcertos] = useState(0);
   const conta = useMemo(() => gerarConta(exemplos[ex].treino), [exemplos, ex, rodada]);
   const [comecou, setComecou] = useState(false);
+  // Tempo mínimo para ler cada passo antes de liberar o botão (Lucas, 06/11/2026): sem isso, dava para
+  // tocar sem ler até chegar no "Agora você!". No 1º passo conta também a ideia e o exemplo.
+  const [podeSeguir, setPodeSeguir] = useState(false);
+  useEffect(() => {
+    if (!comecou || tentando) return;
+    const e = exemplos[ex];
+    const passo = e.passos[vistos - 1] ?? '';
+    setPodeSeguir(false);
+    const t = setTimeout(() => setPodeSeguir(true), vistos === 1 ? tempoDeLeitura(e.ideia, e.situacao, passo) : tempoDeLeitura(passo));
+    return () => clearTimeout(t);
+  }, [comecou, tentando, exemplos, ex, vistos, rodada]);
   if (!comecou) return <AvisoPapel cap={cap} fase="ouvir" onComecar={() => setComecou(true)} />;
 
   if (res) return <Fim cap={cap} r={res} titulo="Você viu como se faz!" placar={{ acertos, total: exemplos.length, nome: 'contas certas' }}
@@ -328,8 +339,8 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
           </ol>
           <div style={{ marginTop: 'auto' }}>
             {vistos < e.passos.length
-              ? <button className="btn btn-ciano btn-bloco" onClick={() => setVistos(vistos + 1)}>Próximo passo</button>
-              : <button className="btn btn-amarelo btn-bloco" onClick={() => setTentando(true)}>Agora você!</button>}
+              ? <button className="btn btn-ciano btn-bloco" disabled={!podeSeguir} onClick={() => setVistos(vistos + 1)}>{podeSeguir ? 'Próximo passo' : 'Leia o passo…'}</button>
+              : <button className="btn btn-amarelo btn-bloco" disabled={!podeSeguir} onClick={() => setTentando(true)}>{podeSeguir ? 'Agora você!' : 'Leia o passo…'}</button>}
           </div>
         </>
       ) : conta && (
