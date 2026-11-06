@@ -1,6 +1,175 @@
 {
-  "quando": "2026-11-06T12:04:26.906Z",
-  "imagens": [],
+  "quando": "2026-11-06T12:17:12.712Z",
+  "imagens": [
+    {
+      "nome": "022-1",
+      "sabimon": "Sacizinho",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "023-1",
+      "sabimon": "Curupirinha",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "024-1",
+      "sabimon": "Faiscamula",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "025-1",
+      "sabimon": "Caiporita",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "026-1",
+      "sabimon": "Faiscatá",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "027-1",
+      "sabimon": "Iarinha",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "028-1",
+      "sabimon": "Uivinho",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "029-1",
+      "sabimon": "Bumbinho",
+      "modelo": "alibaba/qwen-image-3/text-to-image",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "022-2",
+      "sabimon": "Redemoinhaci",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "023-2",
+      "sabimon": "Pegadapira",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "024-2",
+      "sabimon": "Mulabrasa",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "025-2",
+      "sabimon": "Caipotrilha",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "026-2",
+      "sabimon": "Chamatá",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "027-2",
+      "sabimon": "Cantaiara",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "028-2",
+      "sabimon": "Uivolua",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "029-2",
+      "sabimon": "Bumbazão",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "022-3",
+      "sabimon": "Saciclone",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "023-3",
+      "sabimon": "Curupirão",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "024-3",
+      "sabimon": "Mulavulcão",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "025-3",
+      "sabimon": "Caiporainha",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "026-3",
+      "sabimon": "Boitatão",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "027-3",
+      "sabimon": "Rainhiara",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "028-3",
+      "sabimon": "Lobisolar",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "029-3",
+      "sabimon": "Bumbaréu",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    }
+  ],
   "pedido": {
     "acao": "gerar",
     "formas": [
@@ -19,6 +188,5 @@
       "029"
     ]
   },
-  "ok": false,
-  "erro": "Error: Higgsfield recusou (nsfw): {\"status\":\"nsfw\",\"error\":\"Generation failed\",\"request_id\":\"01a1b0be-f6fa-7d44-9e8d-3c6c59c39c8b\",\"status_url\":\"https://api.higgsfield.ai/requests/01a1b0be-f6fa-7d44-9e8d-3c6c59c39c8b/status\",\"cancel_url\":\"https://api.higgsfield.ai/requests/01a1b0be-f6fa-7d44-9e8d-3c6c59c39c8b/cancel\",\"expires_at\":\"2026-11-13T12:05:36.772655+00:00\"}"
+  "ok": true
 }
