@@ -60,10 +60,10 @@ export function conquistasDe(e: Dados): Conquista[] {
   return [
     c('primeira-fase', 'Primeiro passo', 'Termine sua primeira fase.', 'passo', 'green', n.fases, 1),
     c('dez-fases', 'Estudioso', 'Termine 10 fases.', 'livro', 'cyan', n.fases, 10),
-    c('mundo', 'Mundo completo', 'Termine as 5 fases de um mundo.', 'mundo', 'yellow', n.mundos, 1),
-    c('tres-mundos', 'Explorador', 'Complete 3 mundos.', 'mundo', 'coral', n.mundos, 3),
+    c('mundo', 'Unidade completa', 'Termine as 5 fases de uma unidade.', 'mundo', 'yellow', n.mundos, 1),
+    c('tres-mundos', 'Explorador', 'Complete 3 unidades.', 'mundo', 'coral', n.mundos, 3),
     c('nota-10', 'Nota 10', 'Tire 10 numa prova.', 'nota', 'pink', n.notas10, 1),
-    c('estrelas-30', 'Chuva de estrelas', 'Junte 30 estrelas nos mundos.', 'estrela', 'yellow', n.estrelas, 30),
+    c('estrelas-30', 'Chuva de estrelas', 'Junte 30 estrelas nas unidades.', 'estrela', 'yellow', n.estrelas, 30),
     c('bichos-5', 'Colecionador', 'Tenha 5 Sabimons diferentes.', 'carta', 'cyan', n.bichos, 5),
     c('bichos-20', 'Todos os bichos', 'Tenha os 20 Sabimons.', 'carta', 'pink', n.bichos, 20),
     c('evoluir', 'Evoluiu!', 'Tenha uma carta da forma 2.', 'evoluir', 'green', n.forma2 ? 1 : 0, 1),

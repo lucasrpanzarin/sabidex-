@@ -704,8 +704,8 @@ export function MinhaConta() {
         <Numero valor={saldo(e)} rotulo="Sabicoins" icone={<Moeda tamanho={22} />} />
         <Numero valor={dias} rotulo={n.maiorSequencia > dias ? `dias seguidos · recorde ${n.maiorSequencia}` : 'dias seguidos'} icone={<Chama tamanho={22} />} />
         <Numero valor={`${n.figurinhas}/${FIGURINHAS.length}`} rotulo="figurinhas no álbum" />
-        <Numero valor={n.estrelas} rotulo="estrelas nos mundos" />
-        <Numero valor={n.mundos} rotulo={n.mundos === 1 ? 'mundo completo' : 'mundos completos'} />
+        <Numero valor={n.estrelas} rotulo="estrelas nas unidades" />
+        <Numero valor={n.mundos} rotulo={n.mundos === 1 ? 'unidade completa' : 'unidades completas'} />
       </div>
 
       <section className="coluna" aria-label="Minhas conquistas">

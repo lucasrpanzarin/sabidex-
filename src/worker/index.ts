@@ -257,7 +257,7 @@ async function capitulosDasTurmas(db: D1Database, turmas: string[]): Promise<Set
 async function marcarData(c: C, turmaId: string, permitidos: Set<string>) {
   const b = await corpo(c);
   const capitulo = String(b.capitulo ?? '');
-  if (!CAPITULOS_VALIDOS.has(capitulo) || !permitidos.has(capitulo)) return erro(c, 400, 'Capítulo inválido.');
+  if (!CAPITULOS_VALIDOS.has(capitulo) || !permitidos.has(capitulo)) return erro(c, 400, 'Unidade inválida.');
   if (b.data === '' || b.data === null) {
     await c.env.DB.prepare('DELETE FROM datas_prova WHERE turma_id = ? AND capitulo = ?').bind(turmaId, capitulo).run();
   } else {
@@ -817,7 +817,7 @@ app.post('/crianca/duelos', async (c) => {
   // Só os mundos que a turma estuda (cada turma tem o livro dela).
   const daTurma = await db.prepare('SELECT conteudo FROM turmas WHERE id = ?').bind(k.turma_id).first<{ conteudo: string | null }>();
   const comum = mundosEmComum(capitulosDe(daTurma?.conteudo), meu.feitas, dele.feitas);
-  if (!comum.length) return erro(c, 409, 'Vocês ainda não estudaram um mesmo mundo. Para duelar, os dois precisam ter ouvido os temas do mesmo mundo.');
+  if (!comum.length) return erro(c, 409, 'Vocês ainda não estudaram uma mesma unidade. Para duelar, os dois precisam ter feito a 1ª fase da mesma unidade.');
   const id = aleatorio(8);
   const perguntas = montarDuelo(comum);
   await db.prepare(`INSERT INTO duelos (id, turma_id, de_id, para_id, perguntas, carta_de, status, criado) VALUES (?, ?, ?, ?, ?, ?, 'novo', ?)`)

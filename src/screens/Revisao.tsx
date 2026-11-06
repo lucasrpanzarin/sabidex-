@@ -99,7 +99,7 @@ export function Revisao() {
         </div>
       </div>
       <div className="barra barra-rosa"><div style={{ width: `${(i / itens.length) * 100}%` }} /></div>
-      <div className="eyebrow" style={{ color: 'var(--muted)' }}>Mundo {it.cap.numero} · {it.cap.titulo}</div>
+      <div className="eyebrow" style={{ color: 'var(--muted)' }}>Unidade {it.cap.numero} · {it.cap.titulo}</div>
 
       {it.tipo === 'conta' ? (
         // Matemática: uma conta nova do tipo que a criança errou (ou precisa revisar), digitando a resposta.

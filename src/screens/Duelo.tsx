@@ -233,7 +233,7 @@ function NovoDuelo({ aoVoltar, aoCriar }: { aoVoltar: () => void; aoCriar: (d: D
         <div className="eyebrow">Novo duelo · passo 1 de 2</div>
         <h1 className="display h2">Quem você quer desafiar?</h1>
       </div>
-      <p className="muted small" style={{ margin: 0 }}>As perguntas são dos mundos que vocês dois já estudaram.</p>
+      <p className="muted small" style={{ margin: 0 }}>As perguntas são das unidades que vocês dois já estudaram.</p>
       <Erro texto={erro} />
       {!colegas && !erro && <p className="muted">Carregando…</p>}
       {colegas?.length === 0 && <div className="balao">Ainda não tem colegas na turma. Chame seus amigos!</div>}

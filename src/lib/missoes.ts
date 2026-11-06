@@ -36,7 +36,7 @@ export const MISSOES: Record<MissaoId, Missao> = {
   memoria: { texto: 'Jogue o Jogo da memória', alvo: 1, pode: (e) => algumCap(e, 'ouvir'), vale: (ev) => ev.tipo === 'fase' && ev.fase === 'memoria' },
   linha: { texto: 'Jogue a Linha do tempo', alvo: 1, pode: (e) => algumCap(e, 'memoria'), vale: (ev) => ev.tipo === 'fase' && ev.fase === 'linha' },
   quiz: { texto: 'Jogue o Quiz relâmpago', alvo: 1, pode: (e) => algumCap(e, 'linha'), vale: (ev) => ev.tipo === 'fase' && ev.fase === 'quiz' },
-  fase: { texto: 'Termine uma fase de um mundo', alvo: 1, pode: () => true, vale: (ev) => ev.tipo === 'fase' },
+  fase: { texto: 'Termine uma fase de uma unidade', alvo: 1, pode: () => true, vale: (ev) => ev.tipo === 'fase' },
   duas: { texto: 'Faça 2 atividades de estudo', alvo: 2, pode: () => true, vale: () => true },
 };
 
