@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Ara } from '../components/Ara';
 import { Icone } from '../components/Icone';
-import { api, useConta } from '../lib/conta';
+import { api, marcarChatVisto, useConta } from '../lib/conta';
 import { ir } from '../lib/rota';
 import { conferirMensagem, MAX_TEXTO, MOTIVO } from '../shared/chat';
 
@@ -49,6 +49,9 @@ export function Chat() {
 
   // Desce para a última mensagem quando chega uma nova.
   const idUltima = dados?.mensagens.at(-1)?.id ?? '';
+  // Com a tela aberta, tudo o que aparece já conta como visto (o número do botão volta a zero).
+  const criadoUltima = dados?.mensagens.at(-1)?.criado ?? 0;
+  useEffect(() => { if (criadoUltima) marcarChatVisto(criadoUltima); }, [criadoUltima]);
   useEffect(() => {
     if (idUltima && idUltima !== ultimo.current) { ultimo.current = idUltima; fim.current?.scrollIntoView({ block: 'end' }); }
   }, [idUltima]);

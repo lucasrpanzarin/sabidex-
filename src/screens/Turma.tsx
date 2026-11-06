@@ -4,7 +4,7 @@ import { CartaView, ROTULO } from '../components/CartaView';
 import { Icone } from '../components/Icone';
 import { Pin } from '../components/Pin';
 import { FIGURINHAS, figurinhaPorId, type Figurinha } from '../lib/figurinhas';
-import { api, entrarNaConta, type SituacaoEstudo, entrarNoPerfil, ultimoCodigo, entrarNaTurmaComConta, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
+import { api, entrarNaConta, type SituacaoEstudo, entrarNoPerfil, ultimoCodigo, entrarNaTurmaComConta, sair, sincronizar, useConta, verPropostas, type ResumoChat } from '../lib/conta';
 import { EscolherPerfil } from '../components/Perfis';
 import { ir } from '../lib/rota';
 import { paraTrocar, protegido, saldo } from '../lib/loja';
@@ -417,8 +417,17 @@ function Mini({ id }: { id: string }) {
   return f ? <div style={{ width: 88 }}><CartaView carta={f.s} forma={f.forma} /></div> : null;
 }
 
+/** O que aparece embaixo de "Conversa da turma" (Lucas, 06/11/2026). */
+function situacaoChat(c: ResumoChat | null) {
+  if (!c || c.motivo === 'sem-turma') return null;
+  if (c.motivo === 'desligado' || c.motivo === 'sem-autorizacao' || c.motivo === 'sem-familia') return 'Desligada';
+  if (c.motivo === 'horario') return c.horario ? `Fechada agora · abre às ${c.horario.inicio}h` : 'Fechada agora';
+  if (c.motivo === 'silenciado') return 'Agora você só pode ler';
+  return c.horario ? `Aberta até as ${c.horario.fim}h` : 'Aberta agora';
+}
+
 export function Trocas() {
-  const { conta, desafiosNovos } = useConta();
+  const { conta, desafiosNovos, chat } = useConta();
   const e = useEstado();
   const [modo, setModo] = useState<'lista' | 'nova'>('lista');
   const [dados, setDados] = useState<{ eu: string; trocas: TrocaApi[] } | null>(null);
@@ -478,7 +487,11 @@ export function Trocas() {
         Duelo do Saber
         {desafiosNovos > 0 && <span className="badge" aria-label={`${desafiosNovos} ${desafiosNovos > 1 ? 'desafios' : 'desafio'} para você`}>{desafiosNovos}</span>}
       </button>
-      <button className="btn btn-escuro btn-bloco" onClick={() => ir('chat')}>Conversa da turma</button>
+      <button className="btn btn-escuro btn-bloco" onClick={() => ir('chat')} style={{ position: 'relative', flexDirection: 'column', gap: 0 }}>
+        Conversa da turma
+        {situacaoChat(chat) && <span className="chat-situacao">{situacaoChat(chat)}</span>}
+        {!!chat?.novas && <span className="badge" aria-label={`${chat.novas} ${chat.novas > 1 ? 'mensagens novas' : 'mensagem nova'}`}>{chat.novas > 99 ? '99+' : chat.novas}</span>}
+      </button>
       {aviso && <div className="aviso aviso-ok pop" role="status">{aviso}</div>}
       <Erro texto={erro} />
       {colegas && <EstudandoAgora colegas={colegas} />}
