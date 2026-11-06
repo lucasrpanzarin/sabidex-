@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Ara } from '../components/Ara';
 import { RasgarPacote } from '../components/RasgarPacote';
 import { CartaView, ROTULO, VersoCarta } from '../components/CartaView';
@@ -184,9 +184,13 @@ const FILTROS: [Raridade | 'todas', string][] = [['todas', 'Todos'], ['comum', '
 /** Carta que acabou de nascer de uma evolução (para a tela dela comemorar). */
 let acabouDeEvoluir = '';
 
+/** Última figurinha aberta: ao voltar para o álbum, a tela desce até ela (e não volta para o topo). */
+let ultimaVista = '';
+
 /** Detalhe de uma figurinha: carta grande, itens, quantas tem e evolução. */
 function Detalhe({ f }: { f: Figurinha }) {
   const e = useEstado();
+  ultimaVista = f.id;
   const { conta } = useConta();
   const [evoluiu] = useState(() => { const v = acabouDeEvoluir === f.id; acabouDeEvoluir = ''; return v; });
   const [ocupado, setOcupado] = useState(false);
@@ -282,6 +286,16 @@ export function Album({ id }: { id?: string }) {
   const e = useEstado();
   const [filtro, setFiltro] = useState<Raridade | 'todas'>('todas');
   const detalhe = id ? figurinhaPorId.get(id) : undefined;
+  // Voltando de uma figurinha: põe essa figurinha no meio da tela, onde a criança estava.
+  useLayoutEffect(() => {
+    if (detalhe || !ultimaVista) return;
+    const alvo = ultimaVista;
+    ultimaVista = '';
+    const descer = () => document.querySelector(`[data-figurinha="${alvo}"]`)?.scrollIntoView({ block: 'center' });
+    descer();
+    const r = requestAnimationFrame(descer); // o navegador às vezes rola sozinho depois do "voltar"
+    return () => cancelAnimationFrame(r);
+  }, [detalhe]);
   if (detalhe) return <Detalhe key={detalhe.id} f={detalhe} />;
 
   // O álbum tem 60 figurinhas: as 3 formas de cada Sabimon, cada uma com seu número.
@@ -314,7 +328,7 @@ export function Album({ id }: { id?: string }) {
       </div>
       <div className="grade-3">
         {lista.map((f) => (
-          <div key={f.id} style={{ position: 'relative' }}>
+          <div key={f.id} data-figurinha={f.id} style={{ position: 'relative' }}>
             <CartaView carta={f.s} forma={f.forma} visual={visualDe(e, f.id)} tem={e.cartas[f.id] > 0} quantidade={e.cartas[f.id]} onClick={() => ir('album', f.id)} />
             {podeEvoluir(e, f.id).ok && <span className="selo-novo" style={{ background: 'var(--green)' }}>EVOLUIR!</span>}
           </div>
