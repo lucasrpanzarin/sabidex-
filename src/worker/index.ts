@@ -16,7 +16,8 @@ import { dataValida, type DatasProva } from '../lib/provas';
 import { conferirMensagem, dentroDoHorario, GUARDAR_DIAS, JANELA_LIMITE, LIMITE_MENSAGENS, MOTIVO as MOTIVO_CHAT, ONLINE_MS } from '../shared/chat';
 import { APPLE, conferirCracha, GOOGLE } from './jwt';
 import {
-  corrigir, DUELOS_COM_XP_POR_DIA, diaBrasilia, MAX_DESAFIOS_ESPERANDO, montarDuelo, mundosEmComum, VALIDADE_DUELO_MS, vencedorDe,
+  corrigir, DUELOS_COM_XP_POR_DIA, diaBrasilia, filtrarUnidades, MAX_DESAFIOS_ESPERANDO, modoValido, montarDuelo, montarRelogio, mundosEmComum,
+  VALIDADE_DUELO_MS, vencedorDe,
 } from '../shared/duelo';
 import { diaBR, sortearPacote, type Contadores } from '../shared/pacotes';
 import { aleatorio, hashSegredo, iguais, pinAleatorio, sha256 } from './seguranca';
@@ -742,17 +743,19 @@ interface Duelo {
   id: string; turma_id: string; de_id: string; para_id: string; perguntas: string; carta_de: string; carta_para: string | null;
   resp_de: string | null; resp_para: string | null; acertos_de: number | null; acertos_para: number | null;
   jogou_de: number | null; jogou_para: number | null; status: string; vencedor: string | null; criado: number; resolvido: number | null;
+  modo: string | null; materia: string | null; mundo: string | null;
 }
 
 /** O que a criança pode ver do duelo: as respostas e os acertos do colega só aparecem depois que ela também jogou. */
 function dueloParaCrianca(d: Duelo & { de_apelido?: string; de_cor?: string; para_apelido?: string; para_cor?: string }, eu: string) {
   const fim = d.status === 'feito';
   const souDe = d.de_id === eu;
-  const ler = (s: string | null) => (s ? JSON.parse(s) as number[] : null);
+  const ler = (s: string | null) => (s ? JSON.parse(s) as unknown[] : null);
   return {
     id: d.id, status: d.status, criado: d.criado, resolvido: d.resolvido, vencedor: d.vencedor,
     de_id: d.de_id, para_id: d.para_id, de_apelido: d.de_apelido, de_cor: d.de_cor, para_apelido: d.para_apelido, para_cor: d.para_cor,
     perguntas: JSON.parse(d.perguntas) as string[], carta_de: d.carta_de, carta_para: d.carta_para,
+    modo: modoValido(d.modo), materia: d.materia ?? '', mundo: d.mundo ?? '',
     resp_de: souDe || fim ? ler(d.resp_de) : null, resp_para: !souDe || fim ? ler(d.resp_para) : null,
     acertos_de: souDe || fim ? d.acertos_de : null, acertos_para: !souDe || fim ? d.acertos_para : null,
   };
@@ -796,13 +799,40 @@ app.get('/crianca/duelos', async (c) => {
   return c.json({ eu: k.id, duelos: r.results.map((d) => dueloParaCrianca(d, k.id)), comXpHoje: Math.max(0, DUELOS_COM_XP_POR_DIA - await duelosDeHoje(db, k.id)) });
 });
 
-/** Cria um desafio. Quem desafia joga primeiro; o colega só vê o desafio depois disso. */
+/** Unidades que os dois já estudaram (fizeram a 1ª fase), entre as da turma. */
+async function unidadesEmComum(db: D1Database, k: { progresso: string; turma_id: string }, colega: { progresso: string }) {
+  const meu = sanitizar(JSON.parse(k.progresso), FASES_VALIDAS);
+  const dele = sanitizar(JSON.parse(colega.progresso), FASES_VALIDAS);
+  // Só os mundos que a turma estuda (cada turma tem o livro dela).
+  const daTurma = await db.prepare('SELECT conteudo FROM turmas WHERE id = ?').bind(k.turma_id).first<{ conteudo: string | null }>();
+  return mundosEmComum(capitulosDe(daTurma?.conteudo), meu.feitas, dele.feitas);
+}
+
+/** Para montar o desafio: as unidades que os dois já estudaram (a tela mostra as matérias e as unidades delas). */
+app.get('/crianca/duelos/opcoes', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
+  const db = c.env.DB;
+  const colega = await db.prepare('SELECT id, progresso FROM criancas WHERE id = ? AND turma_id = ?').bind(c.req.query('para') ?? '', k.turma_id).first<{ id: string; progresso: string }>();
+  if (!colega || colega.id === k.id) return erro(c, 404, 'Colega não encontrado.');
+  const comum = await unidadesEmComum(db, k, colega);
+  return c.json({ unidades: comum.map((u) => u.id) });
+});
+
+/**
+ * Cria um desafio. Quem desafia joga primeiro; o colega só vê o desafio depois disso.
+ * A criança escolhe a matéria, a unidade ('' = todas que os dois estudaram) e o jogo (Lucas, 06/11/2026).
+ * Sem matéria (app antigo), mistura tudo, como antes.
+ */
 app.post('/crianca/duelos', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
   if (!temTurma(k.turma_id)) return erro(c, 403, SEM_TURMA_MSG);
   const b = await corpo(c);
   const para = String(b.para ?? ''), carta = String(b.carta ?? '');
+  const materia = String(b.materia ?? '').slice(0, 40), mundo = String(b.mundo ?? '').slice(0, 60);
+  const modo = modoValido(b.modo);
   const db = c.env.DB;
   if (para === k.id) return erro(c, 400, 'Escolha um colega.');
   const colega = await db.prepare('SELECT id, progresso FROM criancas WHERE id = ? AND turma_id = ?').bind(para, k.turma_id).first<{ id: string; progresso: string }>();
@@ -812,16 +842,14 @@ app.post('/crianca/duelos', async (c) => {
   if ((pend?.n ?? 0) >= MAX_DESAFIOS_ESPERANDO) return erro(c, 429, `Você já tem ${MAX_DESAFIOS_ESPERANDO} desafios esperando. Espere seus colegas jogarem.`);
   const ja = await db.prepare(`SELECT 1 FROM duelos WHERE status IN ('novo', 'esperando') AND ((de_id = ?1 AND para_id = ?2) OR (de_id = ?2 AND para_id = ?1))`).bind(k.id, para).first();
   if (ja) return erro(c, 409, 'Vocês dois já têm um duelo esperando. Terminem esse primeiro!');
-  const meu = sanitizar(JSON.parse(k.progresso), FASES_VALIDAS);
-  const dele = sanitizar(JSON.parse(colega.progresso), FASES_VALIDAS);
-  // Só os mundos que a turma estuda (cada turma tem o livro dela).
-  const daTurma = await db.prepare('SELECT conteudo FROM turmas WHERE id = ?').bind(k.turma_id).first<{ conteudo: string | null }>();
-  const comum = mundosEmComum(capitulosDe(daTurma?.conteudo), meu.feitas, dele.feitas);
+  const comum = await unidadesEmComum(db, k, colega);
   if (!comum.length) return erro(c, 409, 'Vocês ainda não estudaram uma mesma unidade. Para duelar, os dois precisam ter feito a 1ª fase da mesma unidade.');
+  const escolhidas = filtrarUnidades(comum, materia, mundo);
+  if (!escolhidas.length) return erro(c, 409, 'Vocês dois ainda não estudaram essa unidade. Escolha outra.');
   const id = aleatorio(8);
-  const perguntas = montarDuelo(comum);
-  await db.prepare(`INSERT INTO duelos (id, turma_id, de_id, para_id, perguntas, carta_de, status, criado) VALUES (?, ?, ?, ?, ?, ?, 'novo', ?)`)
-    .bind(id, k.turma_id, k.id, para, JSON.stringify(perguntas), carta, Date.now()).run();
+  const perguntas = modo === 'relogio' ? montarRelogio(escolhidas) : montarDuelo(escolhidas);
+  await db.prepare(`INSERT INTO duelos (id, turma_id, de_id, para_id, perguntas, carta_de, status, criado, modo, materia, mundo) VALUES (?, ?, ?, ?, ?, ?, 'novo', ?, ?, ?, ?)`)
+    .bind(id, k.turma_id, k.id, para, JSON.stringify(perguntas), carta, Date.now(), modo, materia, mundo).run();
   const d = await buscarDuelo(db, id);
   return c.json({ duelo: dueloParaCrianca(d!, k.id) });
 });
@@ -835,7 +863,7 @@ app.post('/crianca/duelos/:id/responder', async (c) => {
   if (!d || d.turma_id !== k.turma_id || (d.de_id !== k.id && d.para_id !== k.id)) return erro(c, 404, 'Duelo não encontrado.');
   const b = await corpo(c);
   const perguntas = JSON.parse(d.perguntas) as string[];
-  const acertos = corrigir(perguntas, b.respostas, capitulos);
+  const acertos = corrigir(perguntas, b.respostas, capitulos, modoValido(d.modo));
   if (acertos === null) return erro(c, 400, 'Respostas inválidas.');
   const respostas = JSON.stringify(b.respostas);
   const agora = Date.now();

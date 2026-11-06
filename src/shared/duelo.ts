@@ -5,8 +5,9 @@
 // Funções puras (usadas pelo app e pelo servidor), para poder testar.
 
 import type { Capitulo } from '../data/tipos';
+import { confere, GERADORES, gerarConta, semente, type Conta, type Resposta } from '../lib/contas';
 import { chave } from '../lib/jogo';
-import { idProva, idQuiz, itemDe } from '../lib/revisao';
+import { idConta, idProva, idQuiz, itemDe } from '../lib/revisao';
 
 export const PERGUNTAS_DUELO = 10;
 /** Quantas são de escolher entre 4 (o resto é verdadeiro ou falso). */
@@ -21,6 +22,23 @@ export const MAX_DESAFIOS_ESPERANDO = 5;
 export const VALIDADE_DUELO_MS = 7 * 86_400_000;
 
 export type Vencedor = 'de' | 'para' | 'empate';
+
+/**
+ * Jeitos de duelar (Lucas, 06/11/2026). Os dois jogam sempre o mesmo jogo, com as mesmas perguntas.
+ * - perguntas: as 10 perguntas de sempre (escolher + verdadeiro ou falso).
+ * - relogio: "Contra o relógio": acertar o máximo no tempo. Em Matemática são contas digitadas,
+ *   com os mesmos números para os dois. O relógio para enquanto a criança lê a explicação.
+ */
+export type ModoDuelo = 'perguntas' | 'relogio';
+export const MODOS_DUELO: ModoDuelo[] = ['perguntas', 'relogio'];
+export const NOME_MODO: Record<ModoDuelo, string> = { perguntas: 'Perguntas', relogio: 'Contra o relógio' };
+export const modoValido = (m: unknown): ModoDuelo => (m === 'relogio' ? 'relogio' : 'perguntas');
+/** Quantas perguntas (ou contas) o "Contra o relógio" prepara, no máximo. Se acabarem antes do tempo, o jogo termina. */
+export const MAX_RELOGIO = 30;
+/** Segundos do "Contra o relógio": Matemática tem mais tempo, porque a resposta é digitada. */
+export const tempoRelogio = (caps: Capitulo[]) => (caps.some((c) => c.matematica) ? 90 : 60);
+/** No "Contra o relógio" pode acertar mais de 10, mas o XP para em 10 acertos (igual ao duelo normal). */
+export const ACERTOS_COM_XP = PERGUNTAS_DUELO;
 
 /** Mundos em que as duas crianças já ouviram os temas (só caem perguntas do que os dois estudaram). */
 export function mundosEmComum(caps: Capitulo[], feitasA: Record<string, true>, feitasB: Record<string, true>): Capitulo[] {
@@ -44,7 +62,40 @@ export function montarDuelo(caps: Capitulo[], rng: () => number = Math.random): 
   return embaralhar([...escolha, ...vf]);
 }
 
-/** Pergunta do duelo num formato só: opções e o índice da certa. Verdadeiro ou falso vira 2 opções. */
+/** Só as unidades que a criança escolheu: uma matéria (ou todas, nos duelos antigos) e uma unidade (ou todas). */
+export function filtrarUnidades(caps: Capitulo[], materia: string, mundo: string): Capitulo[] {
+  return caps.filter((c) => (!materia || c.materia === materia) && (!mundo || c.id === mundo));
+}
+
+/** Conta do duelo: o id leva o tipo e a semente ("matematica-9:c-falta-soma@12345"), então os dois recebem os mesmos números. */
+const ID_CONTA = /^(.+):c-([a-z0-9-]+)@(\d+)$/;
+export const idContaDuelo = (cap: string, tipo: string, s: number) => `${cap}:c-${tipo}@${s}`;
+/** O id que vai para a Revisão do Ará (a conta do duelo vira o tipo de conta, que volta com números novos). */
+export const idRevisaoDuelo = (id: string) => { const m = id.match(ID_CONTA); return m ? idConta(m[1], m[2]) : id; };
+
+/**
+ * Prepara o "Contra o relógio". Matemática: contas digitadas dos tipos do treino, alternando as unidades.
+ * As outras matérias: verdadeiro ou falso e perguntas de escolher, tudo misturado.
+ */
+export function montarRelogio(caps: Capitulo[], rng: () => number = Math.random): string[] {
+  const embaralhar = <T,>(l: T[]) => { const a = l.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const deMat = caps.filter((c) => c.matematica?.treino.some((t) => GERADORES[t]));
+  if (deMat.length) {
+    const filas = deMat.map((c) => embaralhar([...new Set(c.matematica!.treino.filter((t) => GERADORES[t]))]).map((t) => [c.id, t] as const));
+    const ids: string[] = [];
+    for (let volta = 0; ids.length < MAX_RELOGIO; volta++) {
+      for (const f of filas) if (ids.length < MAX_RELOGIO) { const [cap, t] = f[volta % f.length]; ids.push(idContaDuelo(cap, t, 1 + Math.floor(rng() * 2_000_000_000))); }
+    }
+    return ids;
+  }
+  const todas = caps.flatMap((c) => [...c.quiz.map((_, i) => idQuiz(c.id, i)), ...c.prova.map((_, i) => idProva(c.id, i))]);
+  return embaralhar(todas).slice(0, MAX_RELOGIO);
+}
+
+/**
+ * Pergunta do duelo num formato só: opções e o índice da certa. Verdadeiro ou falso vira 2 opções.
+ * Conta de Matemática (só no "Contra o relógio"): vem em `conta`, sem opções; a criança digita.
+ */
 export interface PerguntaDuelo {
   id: string;
   cap: Capitulo;
@@ -53,9 +104,17 @@ export interface PerguntaDuelo {
   certa: number;
   explicacao: string;
   vf: boolean;
+  conta?: Conta;
 }
 
 export function perguntaDuelo(id: string, caps: Capitulo[]): PerguntaDuelo | null {
+  const mc = id.match(ID_CONTA);
+  if (mc) {
+    const cap = caps.find((c) => c.id === mc[1]);
+    const conta = cap ? gerarConta(mc[2], semente(Number(mc[3]))) : null;
+    if (!cap || !conta) return null;
+    return { id, cap, pergunta: conta.enunciado, opcoes: [], certa: -1, explicacao: conta.explicacao, vf: false, conta };
+  }
   const it = itemDe(id, caps);
   if (!it || it.tipo === 'conta') return null;
   if (it.tipo === 'quiz') {
@@ -64,15 +123,31 @@ export function perguntaDuelo(id: string, caps: Capitulo[]): PerguntaDuelo | nul
   return { id, cap: it.cap, pergunta: it.q.pergunta, opcoes: [...it.q.opcoes], certa: it.q.certa, explicacao: it.q.explicacao, vf: false };
 }
 
-/** Confere as respostas (índice da opção escolhida, na ordem original). Devolve quantas acertou. */
-export function corrigir(ids: string[], respostas: unknown, caps: Capitulo[]): number | null {
-  if (!Array.isArray(respostas) || respostas.length !== ids.length) return null;
+/** A resposta tem o formato certo para essa pergunta? (índice de opção, ou número/fração digitado na conta) */
+function respostaValida(p: PerguntaDuelo, r: unknown): r is number | Resposta {
+  const num = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x) && Math.abs(x) < 1e9;
+  if (p.conta) return num(r) || (Array.isArray(r) && r.length === 2 && num(r[0]) && num(r[1]));
+  return typeof r === 'number' && Number.isInteger(r) && r >= 0 && r < p.opcoes.length;
+}
+
+/** A criança acertou essa pergunta? */
+export function acertou(p: PerguntaDuelo, r: unknown): boolean {
+  if (!respostaValida(p, r)) return false;
+  return p.conta ? confere(p.conta, r as Resposta) : r === p.certa;
+}
+
+/**
+ * Confere as respostas (índice da opção escolhida, na ordem original; nas contas, o número digitado). Devolve quantas acertou.
+ * No duelo normal tem que responder todas; no "Contra o relógio", só as que deu tempo (na ordem).
+ */
+export function corrigir(ids: string[], respostas: unknown, caps: Capitulo[], modo: ModoDuelo = 'perguntas'): number | null {
+  if (!Array.isArray(respostas)) return null;
+  if (modo === 'perguntas' ? respostas.length !== ids.length : respostas.length > ids.length) return null;
   let acertos = 0;
-  for (let i = 0; i < ids.length; i++) {
+  for (let i = 0; i < respostas.length; i++) {
     const p = perguntaDuelo(ids[i], caps);
-    const r = respostas[i];
-    if (!p || typeof r !== 'number' || !Number.isInteger(r) || r < 0 || r >= p.opcoes.length) return null;
-    if (r === p.certa) acertos++;
+    if (!p || !respostaValida(p, respostas[i])) return null;
+    if (acertou(p, respostas[i])) acertos++;
   }
   return acertos;
 }
@@ -80,7 +155,7 @@ export function corrigir(ids: string[], respostas: unknown, caps: Capitulo[]): n
 export const vencedorDe = (acertosDe: number, acertosPara: number): Vencedor =>
   acertosDe > acertosPara ? 'de' : acertosPara > acertosDe ? 'para' : 'empate';
 
-export const xpDoDuelo = (acertos: number) => Math.max(0, acertos) * XP_POR_ACERTO_DUELO;
+export const xpDoDuelo = (acertos: number) => Math.min(ACERTOS_COM_XP, Math.max(0, acertos)) * XP_POR_ACERTO_DUELO;
 
 /** Dia em Brasília (AAAA-MM-DD), para contar os duelos com XP do dia. */
 export const diaBrasilia = (ms: number) => new Date(ms - 3 * 3600_000).toISOString().slice(0, 10);
@@ -88,18 +163,21 @@ export const diaBrasilia = (ms: number) => new Date(ms - 3 * 3600_000).toISOStri
 /**
  * A batalha, rodada por rodada, para mostrar na tela: em cada pergunta, quem acertou dá um golpe.
  * Cada golpe tira 1/10 da Vida do outro Sabimon (a força da carta aparece no golpe, mas não muda o resultado).
+ * No "Contra o relógio" cada um pode ter respondido um tanto; se alguém acertou mais de 10, o golpe tira menos.
  */
 export function rodadas(acertouDe: boolean[], acertouPara: boolean[]) {
-  let vidaDe = PERGUNTAS_DUELO, vidaPara = PERGUNTAS_DUELO;
-  return acertouDe.map((a, i) => {
-    const b = !!acertouPara[i];
+  const n = Math.max(acertouDe.length, acertouPara.length);
+  const total = Math.max(PERGUNTAS_DUELO, acertouDe.filter(Boolean).length, acertouPara.filter(Boolean).length);
+  let vidaDe = total, vidaPara = total;
+  return Array.from({ length: n }, (_, i) => {
+    const a = !!acertouDe[i], b = !!acertouPara[i];
     if (a) vidaPara--;
     if (b) vidaDe--;
-    return { de: a, para: b, vidaDe: vidaDe / PERGUNTAS_DUELO, vidaPara: vidaPara / PERGUNTAS_DUELO };
+    return { de: a, para: b, vidaDe: vidaDe / total, vidaPara: vidaPara / total };
   });
 }
 
-/** Quais perguntas a criança acertou (para a batalha e a correção). */
-export function acertosPorPergunta(ids: string[], respostas: number[], caps: Capitulo[]): boolean[] {
-  return ids.map((id, i) => perguntaDuelo(id, caps)?.certa === respostas[i]);
+/** Quais perguntas a criança acertou (para a batalha e a correção). No "Contra o relógio", só as que ela respondeu. */
+export function acertosPorPergunta(ids: string[], respostas: unknown[], caps: Capitulo[]): boolean[] {
+  return respostas.slice(0, ids.length).map((r, i) => { const p = perguntaDuelo(ids[i], caps); return !!p && acertou(p, r); });
 }

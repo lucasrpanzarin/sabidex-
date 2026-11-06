@@ -193,7 +193,7 @@ function Teclado({ valor, setValor, onConferir, pronto, onTrocar, virgula = fals
  */
 export function Pergunta({ conta, corrigirNaHora = true, rotuloProxima, onResposta, onProxima }: {
   conta: Conta; corrigirNaHora?: boolean; rotuloProxima: string;
-  onResposta: (ok: boolean, digitado: string) => void; onProxima: () => void;
+  onResposta: (ok: boolean, digitado: string, valor: Resposta) => void; onProxima: () => void;
 }) {
   const fracao = ehFracao(conta.resposta);
   // Na fração, são duas caixas: numerador (0) em cima e denominador (1) embaixo.
@@ -207,7 +207,7 @@ export function Pergunta({ conta, corrigirNaHora = true, rotuloProxima, onRespos
     if (!pronto || respondida) return;
     const digitado: Resposta = fracao ? [Number(valores[0]), Number(valores[1])] : Number(valores[0].replace(',', '.'));
     const ok = confere(conta, digitado);
-    onResposta(ok, conta.decimal ? `${conta.reais ? 'R$ ' : ''}${valores[0]}` : textoResposta(digitado));
+    onResposta(ok, conta.decimal ? `${conta.reais ? 'R$ ' : ''}${valores[0]}` : textoResposta(digitado), digitado);
     if (corrigirNaHora) setRespondida({ ok });
     else onProxima();
   };
