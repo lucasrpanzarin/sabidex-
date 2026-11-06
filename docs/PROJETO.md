@@ -87,6 +87,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - Vida e força da carta: calculadas em `src/lib/sabimon.ts` (pela raridade e pela forma). Forma 1: comum Vida 50, força 10/20 · rara 60, 20/30 · épica 70, 30/40 · **lendária 90, 40/50**. Forma 2: +30 Vida, força ×1,7. Forma 3: +70 Vida, força ×2,6.
 - **Lendária tem brilho**: estrela-figurinha amarela no canto da moldura e reflexo dourado em cima do desenho.
 - Carta com itens da lojinha não sai em troca nem na evolução (só as cópias repetidas).
+- Ao sair de uma figurinha (botão "Álbum" ou voltar do celular), o álbum volta **na figurinha que a criança abriu**, não no topo (Lucas, 06/11/2026).
 
 ### Lojinha
 - Itens com raridade e um **fato real do Brasil**. Vitrine atual: Caju (100), Folha de vitória-régia +20 Vida (150), Fruto de guaraná +10 força (150), Ouriço de castanha +35 Vida (350), Flor de ipê-amarelo +20 força (350), Cristal de ametista (400), Escama de pirarucu +50 Vida (700), Moldura de ouro (700), Brilho holográfico (1500).
@@ -214,6 +215,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **06/11/2026** · Álbum: ao abrir uma figurinha lá embaixo (ex.: bugio) e voltar, a tela voltava para o topo. Agora volta na figurinha que a criança abriu, pelo botão "Álbum" ou pelo voltar do celular (Lucas).
 - **06/11/2026** · Unidades na ordem do livro: antes, unidade com prova marcada subia para o começo (aparecia 9, 8, 10) e o "Continuar" no fim de uma fase da unidade 8 pulava para a 9. Agora a lista segue 8, 9, 10 (as que já tiveram prova continuam no fim) e o "Continuar" termina a unidade que a criança está fazendo antes de ir para outra (Lucas).
 
 - **05/11/2026** · Pais veem a turma do filho: botões "Ver a turma" (placar da semana e quem está estudando agora) e "Ver o chat da turma" no cartão do filho. O Lucas não achava o chat nem o ranking na área dos pais. Política de privacidade ganhou uma frase (sem pedir aceite de novo: os pais já liam o chat com os apelidos) (Lucas).
