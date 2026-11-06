@@ -1,11 +1,14 @@
 // Fases de Matemática: a criança vê como se faz e resolve contas digitando a resposta.
 // Os números mudam a cada partida (src/lib/contas.ts). Uma chance por conta: errou, o app mostra o certo e segue.
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Ara } from '../components/Ara';
+import { Icone } from '../components/Icone';
 import type { Capitulo } from '../data/tipos';
 import { TIPOS_PAPEL, confere, ehFracao, gerarConta, gerarContas, textoCerto, tempoDeLeitura, textoResposta, type Conta, type Resposta, type Visual } from '../lib/contas';
 import { NOTA_MINIMA, notaDe, type Fase } from '../lib/jogo';
 import { idConta } from '../lib/revisao';
+import { audiosDoExemplo, vozDaMatematica } from '../lib/falaMat';
+import { audioDaVoz, useVoz } from '../lib/voz';
 import { AVISO_REVISAO, ContaErros, Fim, Topo, lembrar, useFinalizar } from './Fases';
 
 /* ---------- Texto com frações ---------- */
@@ -301,17 +304,49 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
     const t = setTimeout(() => setPodeSeguir(true), vistos === 1 ? tempoDeLeitura(e.ideia, e.situacao, passo) : tempoDeLeitura(passo));
     return () => clearTimeout(t);
   }, [comecou, tentando, exemplos, ex, vistos, rodada]);
-  if (!comecou) return <AvisoPapel cap={cap} fase="ouvir" onComecar={() => setComecou(true)} />;
+
+  // Narração de cada passo (Lucas, 06/11/2026; só Nina e Otto). O botão só libera quando o áudio termina.
+  // Se o áudio não existir ou não carregar, vale só o tempo mínimo de leitura.
+  // O play() é chamado direto no toque da criança (o iPhone não deixa tocar som fora de um toque).
+  const voz = vozDaMatematica(useVoz());
+  const audio = useRef<HTMLAudioElement | null>(null);
+  const espera = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [ouviu, setOuviu] = useState(true);
+  const [tocando, setTocando] = useState(false);
+  const parar = () => { clearTimeout(espera.current); audio.current?.pause(); setTocando(false); };
+  const tocar = (exI: number, passo: number) => {
+    const a = audiosDoExemplo(cap.id, exI, exemplos[exI])[passo];
+    parar();
+    if (!a) { setOuviu(true); return; }
+    const el = audio.current ??= new Audio();
+    const liberar = () => { if (audio.current === el) { clearTimeout(espera.current); setOuviu(true); setTocando(false); } };
+    el.onended = liberar;
+    el.onerror = liberar;
+    el.src = import.meta.env.BASE_URL + audioDaVoz(a.arquivo, voz);
+    setOuviu(false);
+    // Internet lenta: se não começar em 8 s, libera pelo tempo de leitura.
+    espera.current = setTimeout(liberar, 8000);
+    el.play().then(() => { clearTimeout(espera.current); setTocando(true); }).catch((err: unknown) => {
+      // Celular bloqueou o som: espera a criança tocar em "Ouvir". Outro erro: segue sem áudio.
+      clearTimeout(espera.current);
+      if (err instanceof DOMException && err.name === 'NotAllowedError') setTocando(false); else liberar();
+    });
+  };
+  useEffect(() => () => { clearTimeout(espera.current); audio.current?.pause(); }, []);
+
+  if (!comecou) return <AvisoPapel cap={cap} fase="ouvir" onComecar={() => { setComecou(true); tocar(0, 0); }} />;
 
   if (res) return <Fim cap={cap} r={res} titulo="Você viu como se faz!" placar={{ acertos, total: exemplos.length, nome: 'contas certas' }}
-    onDeNovo={() => { setEx(0); setVistos(1); setTentando(false); setAcertos(0); setRodada((r) => r + 1); limpar(); }} />;
+    onDeNovo={() => { setEx(0); setVistos(1); setTentando(false); setAcertos(0); setRodada((r) => r + 1); limpar(); tocar(0, 0); }} />;
 
   const e = exemplos[ex];
   const ultimo = ex + 1 === exemplos.length;
+  const pronto = podeSeguir && ouviu;
+  const rotulo = (r: string) => (pronto ? r : !ouviu ? 'Ouça o passo…' : 'Leia o passo…');
   const proximo = () => {
     // As contas do "Agora você" contam: cada erro tira 10% do XP, e o pacote do dia pede nota 7.
     if (ultimo) { finalizar(notaDe(acertos, exemplos.length), exemplos.length - acertos); return; }
-    setEx(ex + 1); setVistos(1); setTentando(false);
+    setEx(ex + 1); setVistos(1); setTentando(false); tocar(ex + 1, 0);
   };
   return (
     <main className="tela">
@@ -337,10 +372,14 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
               </li>
             ))}
           </ol>
-          <div style={{ marginTop: 'auto' }}>
+          <div className="linha" style={{ marginTop: 'auto', gap: 10 }}>
+            <button className={`btn ${tocando ? 'btn-amarelo' : 'btn-escuro'}`} style={{ width: 56, height: 56, padding: 0, borderRadius: '50%', flex: 'none' }}
+              aria-label={tocando ? 'Pausar' : 'Ouvir o passo'} onClick={() => (tocando ? parar() : tocar(ex, vistos - 1))}>
+              <Icone nome={tocando ? 'pause' : 'play'} cheio espessura={3} />
+            </button>
             {vistos < e.passos.length
-              ? <button className="btn btn-ciano btn-bloco" disabled={!podeSeguir} onClick={() => setVistos(vistos + 1)}>{podeSeguir ? 'Próximo passo' : 'Leia o passo…'}</button>
-              : <button className="btn btn-amarelo btn-bloco" disabled={!podeSeguir} onClick={() => setTentando(true)}>{podeSeguir ? 'Agora você!' : 'Leia o passo…'}</button>}
+              ? <button className="btn btn-ciano btn-bloco" disabled={!pronto} onClick={() => { setVistos(vistos + 1); tocar(ex, vistos); }}>{rotulo('Próximo passo')}</button>
+              : <button className="btn btn-amarelo btn-bloco" disabled={!pronto} onClick={() => { parar(); setTentando(true); }}>{rotulo('Agora você!')}</button>}
           </div>
         </>
       ) : conta && (

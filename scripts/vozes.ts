@@ -2,13 +2,15 @@
 //  - "listar":  salva em vozes/lista.json as vozes brasileiras disponíveis
 //  - "amostra": grava uma frase de teste com cada voz em vozes/amostras/
 //  - "gerar":   grava todos os temas com cada voz em public/audio/<voz>/
+//  - "matematica": grava os passos do "Ver como se faz" (só os capítulos com exemplos) em public/audio/<voz>/
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { capitulos } from '../src/data/index';
+import { audiosDoExemplo } from '../src/lib/falaMat';
 
 const KEY = process.env.ELEVENLABS_API_KEY;
 const API = 'https://api.elevenlabs.io';
 interface Voz { nome: string; id?: string; dono?: string; busca?: string; modelo?: string }
-interface Pedido { acao: 'listar' | 'minhas' | 'amostra' | 'gerar'; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[] }
+interface Pedido { acao: 'listar' | 'minhas' | 'amostra' | 'gerar' | 'matematica'; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[] }
 
 const resultado: Record<string, unknown> = { quando: new Date().toISOString() };
 const salvarResultado = () => writeFileSync('vozes/resultado.json', JSON.stringify(resultado, null, 2) + '\n');
@@ -83,7 +85,7 @@ async function main() {
     }
   }
 
-  if (p.acao === 'amostra' || p.acao === 'gerar') {
+  if (p.acao === 'amostra' || p.acao === 'gerar' || p.acao === 'matematica') {
     for (const v of p.vozes ?? []) { await resolver(v); await adicionarSeCompartilhada(v); }
   }
 
@@ -109,6 +111,23 @@ async function main() {
           const frase = texto(t);
           caracteres += frase.length;
           writeFileSync(`public/audio/${v.nome}/${arquivo}`, await falar(v, frase, v.modelo ?? modelo));
+        }
+      }
+    }
+    resultado.caracteres = caracteres;
+  }
+
+  if (p.acao === 'matematica') {
+    let caracteres = 0;
+    const caps = capitulos.filter((c) => c.matematica && (!p.capitulos || p.capitulos.includes(c.id)));
+    for (const v of p.vozes ?? []) {
+      mkdirSync(`public/audio/${v.nome}`, { recursive: true });
+      for (const cap of caps) {
+        for (const [i, e] of cap.matematica!.exemplos.entries()) {
+          for (const a of audiosDoExemplo(cap.id, i, e)) {
+            caracteres += a.texto.length;
+            writeFileSync(`public/${a.arquivo.replace(/^audio\//, `audio/${v.nome}/`)}`, await falar(v, a.texto, v.modelo ?? modelo));
+          }
         }
       }
     }
