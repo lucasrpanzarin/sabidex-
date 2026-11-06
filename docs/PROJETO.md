@@ -82,7 +82,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | **Nunca** | vender pacote (nem por moeda do jogo, nem por dinheiro), desconto ou pressão de tempo | |
 
 ### Cartas e álbum
-- **Álbum de 60 figurinhas**: 20 Sabimons × 3 formas. Número no álbum = (nº do Sabimon − 1) × 3 + forma. Ids: `s001`, `s001-2`, `s001-3`.
+- **Álbum de 63 figurinhas**: 21 Sabimons × 3 formas (era 60 até a orca, 06/11/2026). O código não tem mais o número fixo: cada Sabimon novo soma 3. Número no álbum = (nº do Sabimon − 1) × 3 + forma. Ids: `s001`, `s001-2`, `s001-3`.
 - **Evolução** (Lucas, 04/11/2026): **3 cartas da forma 1 → 1 da forma 2** (+100 Sabicoins); **2 da forma 2 → 1 da forma 3** (+300 Sabicoins). As cartas usadas somem. Na turma, a evolução é feita pelo servidor.
 - Vida e força da carta: calculadas em `src/lib/sabimon.ts` (pela raridade e pela forma). Forma 1: comum Vida 50, força 10/20 · rara 60, 20/30 · épica 70, 30/40 · **lendária 90, 40/50**. Forma 2: +30 Vida, força ×1,7. Forma 3: +70 Vida, força ×2,6.
 - **Lendária tem brilho**: estrela-figurinha amarela no canto da moldura e reflexo dourado em cima do desenho.
@@ -130,7 +130,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - **Da criança só guardamos**: apelido, cor, PIN embaralhado e o progresso do jogo.
 - **Aviso "Coloque o Sabidex na tela do celular"** (Lucas, 05/11/2026; `src/components/InstalarApp.tsx`): aparece na primeira tela e no Início quando o site está aberto no navegador do celular. "Como fazer?" mostra o passo a passo do **iPhone/iPad** (Safari → Compartilhar → Adicionar à Tela de Início) ou do **Android** (Chrome → ⋮ → Adicionar à tela inicial). No Android, quando o Chrome deixa, aparece o botão **Instalar agora**. Some quando o app já foi aberto pelo ícone e no computador; "Agora não" esconde por 7 dias.
 
-## 4. Os 20 Sabimons
+## 4. Os 21 Sabimons
 
 | Nº | Bicho real | Tipo | Raridade | Forma 1 → 2 → 3 |
 |---|---|---|---|---|
@@ -154,8 +154,9 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | 18 | pinguim-de-magalhães | Gelo | épica | Geladim → Pinguigelo → Glaciguim |
 | 19 | bugio | Som | épica | Bugiurro → Ecobugio → Bugitroante |
 | 20 | onça-pintada | Estrela | lendária | Oncelestre → Onçastral → Constelonça |
+| 21 | orca | Água | épica | Ondorca → Marorca → Tsunorca |
 
-Total: 8 comuns, 6 raras, 4 épicas, 2 lendárias. Os 60 desenhos estão prontos (`public/sabimons/`). Os fatos de cada bicho foram conferidos na revisão de 04/11/2026 e estão corretos.
+Total: 8 comuns, 6 raras, 5 épicas, 2 lendárias (Água tem 3 bichos; os outros tipos, 2). A orca entrou em 06/11/2026 (Lucas): ela não mora no Brasil o ano todo, mas visita o litoral. Desenhos em `public/sabimons/`. Os fatos de cada bicho foram conferidos na revisão de 04/11/2026 e estão corretos.
 Guia de arte: `docs/ARTE-SABIMONS.md`.
 
 ## 5. Ideias que já foram testadas e trocadas (não repetir sem motivo)
@@ -204,6 +205,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 - [ ] Conferir se o envio de e-mail está ligado no servidor (`RESEND_API_KEY` + `EMAIL_REMETENTE` na Cloudflare e domínio verificado no resend.com). Sem isso, a trava do e-mail confirmado não vale. Jeito fácil de ver: se "Esqueci minha senha" aparece na tela do adulto, está ligado.
 
 ### Ideias e pendências das conversas (anotadas em 05/11/2026)
+- **Sabimons de lendas do folclore** (ideia do Lucas, 06/11/2026, sem decisão): saci, curupira, mula sem cabeça, caipora e outros. Choca com a regra "inspirados na fauna brasileira, fatos verdadeiros": o fato da carta teria de ser "A lenda conta que...". Pensar se vira uma coleção à parte.
 - **Botão "Apagar criança" no Painel do dono**: o Claude ofereceu (para casos como o "Tony 2", conta repetida com 0 XP); o Lucas não respondeu. Hoje só o responsável apaga uma criança da família.
 - **Crianças para ajeitar** (não é regra, é tarefa): Gabriela (só da turma, sem responsável: não escreve no chat até o responsável ligar o perfil em "Já tem conta na turma"); GAH (do Gabriel, tem família mas está sem turma); Anthony (recuperar as cartas entrando na conta antiga e usando "Mudar de turma"); Tony 2 (apagar ou trocar o apelido; pela regra, conta antiga não ganha o pacote de boas-vindas).
 - **Mensagem para o grupo de pais do 4º B**: o texto feito antes dizia que "a conversa da turma começa desligada". Isso mudou (o chat vem ligado); corrigir antes de mandar e trocar o [CÓDIGO DA TURMA] pelo código de verdade.
@@ -212,6 +214,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 - **Ideias de segurança não escolhidas**: data de nascimento no cadastro do adulto (barrar menores de 18) e "PIN do adulto" no lugar da conta de multiplicar. O Lucas escolheu só o e-mail confirmado e a conta mais fácil.
 
 ## 7. Registro de mudanças
+
+- **06/11/2026** · **Orca, Sabimon nº 21** (Lucas): Água, épica, Ondorca → Marorca → Tsunorca; álbum vai para 63 figurinhas. A conquista "Todos os bichos" virou "Grande coleção" (20 Sabimons diferentes), para ninguém perder a conquista que já tinha. Ideia anotada: Sabimons de lendas do folclore (seção 6).
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 

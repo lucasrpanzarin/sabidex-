@@ -90,6 +90,7 @@ As descrições completas estão em `arte/sabimons/lista.json`.
 | 018 | Geladim → Pinguigelo → Glaciguim | pinguim-de-magalhães (preto e branco) | Gelo | ★★★ |
 | 019 | Bugiurro → Ecobugio → Bugitroante | bugio | Som | ★★★ |
 | 020 | Oncelestre → Onçastral → Constelonça | onça-pintada | Estrela | ★★★★ |
+| 021 | Ondorca → Marorca → Tsunorca | orca (contorno turquesa) | Água | ★★★ |
 
 ## Onde salvar
 
