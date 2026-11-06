@@ -66,9 +66,18 @@ export function BoasVindas() {
   );
 }
 
-/** Próxima fase a fazer: a primeira não concluída. Capítulo com prova chegando vem antes; os que já tiveram prova, por último. */
-export function proximaFase(feitas: Record<string, true>, provas: DatasProva | undefined = getConta()?.provas, caps: Capitulo[] = estudoDa().caps) {
-  for (const c of ordenarCapitulos(caps, provas, hoje())) for (const f of FASES) if (!feitas[chave(c.id, f)]) return { cap: c, fase: f };
+/** Unidade que a criança jogou por último: o "Continuar" termina ela antes de ir para outra. */
+let unidadeAtual: string | null = null;
+export const lembrarUnidade = (id: string) => { unidadeAtual = id; };
+
+/**
+ * Próxima fase a fazer: primeiro termina a unidade que a criança está jogando; depois, a primeira
+ * não concluída na ordem do livro (as que já tiveram prova, por último).
+ */
+export function proximaFase(feitas: Record<string, true>, provas: DatasProva | undefined = getConta()?.provas, caps: Capitulo[] = estudoDa().caps, atual: string | null = unidadeAtual) {
+  const ordem = ordenarCapitulos(caps, provas, hoje());
+  const daAtual = ordem.find((c) => c.id === atual);
+  for (const c of daAtual ? [daAtual, ...ordem] : ordem) for (const f of FASES) if (!feitas[chave(c.id, f)]) return { cap: c, fase: f };
   return null;
 }
 

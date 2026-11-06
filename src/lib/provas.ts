@@ -37,12 +37,13 @@ export function textoProva(s: Situacao): string | null {
   return s.dias === 0 ? 'Prova hoje!' : s.dias === 1 ? 'Prova amanhã!' : `Prova em ${s.dias} dias`;
 }
 
-/** Ordem dos capítulos: prova chegando primeiro (a mais perto antes), depois os sem data e por último os que já tiveram prova. */
+/**
+ * Ordem dos capítulos: a ordem do livro (8, 9, 10...), e os que já tiveram prova vão para o fim.
+ * A data da prova só aparece no selo, não muda a ordem (Lucas, 06/11/2026: a unidade 9 com prova
+ * marcada ia para antes da 8 e o "Continuar" pulava para ela).
+ */
 export function ordenarCapitulos<T extends { id: string }>(caps: T[], datas: DatasProva | undefined, hoje: string): T[] {
-  const peso = (c: T) => {
-    const s = situacao(datas, c.id, hoje);
-    return s.tipo === 'chegando' ? s.dias : s.tipo === 'sem' ? 100_000 : 200_000;
-  };
+  const peso = (c: T) => (situacao(datas, c.id, hoje).tipo === 'passou' ? 1 : 0);
   return caps.map((c, i) => ({ c, i, p: peso(c) })).sort((a, b) => a.p - b.p || a.i - b.i).map((x) => x.c);
 }
 
