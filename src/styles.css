@@ -618,6 +618,7 @@ img { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
 .resposta-fracao { gap: 3px; }
 
 .area-resposta { position: sticky; bottom: 0; z-index: 2; margin: auto -6px 0; padding: 10px 6px calc(6px + env(safe-area-inset-bottom, 0px)); background: var(--bg); display: flex; flex-direction: column; gap: 10px; border-top: 2px dashed var(--line); }
+.passo-rodape { position: sticky; bottom: 0; z-index: 2; gap: 10px; flex-wrap: nowrap; margin: auto -6px 0; padding: 10px 6px calc(6px + env(safe-area-inset-bottom, 0px)); background: var(--bg); border-top: 2px dashed var(--line); }
 .resposta-linha { justify-content: center; gap: 12px; flex-wrap: nowrap; }
 .resposta-linha .dica-fracao { flex: 1; max-width: 150px; line-height: 1.25; }
 .resposta-linha #rotulo-resposta { flex: none; max-width: 70px; line-height: 1.2; }
@@ -687,3 +688,4 @@ button.pilula::after, .area-toque::after { content: ''; position: absolute; inse
 /* Aviso "Coloque o Sabidex na tela do celular" (src/components/InstalarApp.tsx) */
 .instalar { gap: 12px; }
 .instalar-num { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--yellow); border: 2px solid var(--ink); display: grid; place-items: center; font: 400 15px var(--display); }
+.passos li { scroll-margin-bottom: 96px; }

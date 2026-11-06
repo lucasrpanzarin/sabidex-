@@ -8,7 +8,7 @@ import { TIPOS_PAPEL, confere, ehFracao, gerarConta, gerarContas, textoCerto, te
 import { NOTA_MINIMA, notaDe, type Fase } from '../lib/jogo';
 import { idConta } from '../lib/revisao';
 import { audiosDoExemplo, vozDaMatematica } from '../lib/falaMat';
-import { audioDaVoz, useVoz } from '../lib/voz';
+import { VOZES, audioDaVoz, setVoz, useVoz } from '../lib/voz';
 import { AVISO_REVISAO, ContaErros, Fim, Topo, lembrar, useFinalizar } from './Fases';
 
 /* ---------- Texto com frações ---------- */
@@ -314,7 +314,7 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
   const [ouviu, setOuviu] = useState(true);
   const [tocando, setTocando] = useState(false);
   const parar = () => { clearTimeout(espera.current); audio.current?.pause(); setTocando(false); };
-  const tocar = (exI: number, passo: number) => {
+  const tocar = (exI: number, passo: number, vozAgora: 'nina' | 'otto' = voz) => {
     const a = audiosDoExemplo(cap.id, exI, exemplos[exI])[passo];
     parar();
     if (!a) { setOuviu(true); return; }
@@ -322,7 +322,7 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
     const liberar = () => { if (audio.current === el) { clearTimeout(espera.current); setOuviu(true); setTocando(false); } };
     el.onended = liberar;
     el.onerror = liberar;
-    el.src = import.meta.env.BASE_URL + audioDaVoz(a.arquivo, voz);
+    el.src = import.meta.env.BASE_URL + audioDaVoz(a.arquivo, vozAgora);
     setOuviu(false);
     // Internet lenta: se não começar em 8 s, libera pelo tempo de leitura.
     espera.current = setTimeout(liberar, 8000);
@@ -333,6 +333,13 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
     });
   };
   useEffect(() => () => { clearTimeout(espera.current); audio.current?.pause(); }, []);
+  // O passo novo aparece embaixo: rola até ele (sem animação para quem pediu "reduzir movimento").
+  const ultimoPasso = useRef<HTMLLIElement | null>(null);
+  useEffect(() => {
+    if (vistos < 2) return;
+    const parado = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    ultimoPasso.current?.scrollIntoView({ block: 'nearest', behavior: parado ? 'auto' : 'smooth' });
+  }, [vistos]);
 
   if (!comecou) return <AvisoPapel cap={cap} fase="ouvir" onComecar={() => { setComecou(true); tocar(0, 0); }} />;
 
@@ -354,6 +361,19 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
       <div className="barra barra-verde"><div style={{ width: `${((ex + (tentando ? 0.5 : 0)) / exemplos.length) * 100}%` }} /></div>
       {!tentando ? (
         <>
+          {/* Escolher a voz (Lucas, 06/11/2026): só Nina e Otto gravaram Matemática. Vale também para História. */}
+          <div className="linha" role="group" aria-label="Quem vai ler para você?" style={{ gap: 8, alignItems: 'center' }}>
+            <span className="muted small">Quem lê:</span>
+            {VOZES.filter((v) => v.id === 'nina' || v.id === 'otto').map((v) => (
+              <button key={v.id} aria-pressed={voz === v.id}
+                onClick={() => { if (voz === v.id) return; setVoz(v.id); tocar(ex, vistos - 1, v.id as 'nina' | 'otto'); }}
+                style={{ minHeight: 44, borderRadius: 999, padding: '4px 14px 4px 6px', display: 'flex', alignItems: 'center', gap: 6,
+                  background: voz === v.id ? 'var(--surface-2)' : 'var(--surface)', border: `3px solid ${voz === v.id ? v.cor : 'var(--line)'}` }}>
+                <span aria-hidden="true" style={{ width: 28, height: 28, borderRadius: '50%', background: v.cor, color: 'var(--ink)', display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: 15 }}>{v.nome[0]}</span>
+                <span className="display" style={{ fontSize: 15 }}>{v.nome}</span>
+              </button>
+            ))}
+          </div>
           <div className="linha" style={{ alignItems: 'flex-end', gap: 8 }}>
             <Ara tamanho={70} humor="pensando" />
             <div className="balao" style={{ flex: 1 }}>
@@ -367,12 +387,12 @@ export function VerComoSeFaz({ cap }: { cap: Capitulo }) {
           </div>
           <ol className="coluna passos" style={{ gap: 8, margin: 0, padding: 0, listStyle: 'none' }}>
             {e.passos.slice(0, vistos).map((p, i) => (
-              <li key={i} className="painel linha" style={{ padding: '10px 12px', gap: 10, fontWeight: 700 }}>
+              <li key={i} ref={i === vistos - 1 ? ultimoPasso : undefined} className="painel linha" style={{ padding: '10px 12px', gap: 10, fontWeight: 700 }}>
                 <span className="passo-num" aria-hidden="true">{i + 1}</span><span><TextoMat t={p} /></span>
               </li>
             ))}
           </ol>
-          <div className="linha" style={{ marginTop: 'auto', gap: 10 }}>
+          <div className="linha passo-rodape">
             <button className={`btn ${tocando ? 'btn-amarelo' : 'btn-escuro'}`} style={{ width: 56, height: 56, padding: 0, borderRadius: '50%', flex: 'none' }}
               aria-label={tocando ? 'Pausar' : 'Ouvir o passo'} onClick={() => (tocando ? parar() : tocar(ex, vistos - 1))}>
               <Icone nome={tocando ? 'pause' : 'play'} cheio espessura={3} />
