@@ -1,40 +1,38 @@
 {
-  "quando": "2026-11-04T21:03:11.441Z",
+  "quando": "2026-11-06T11:56:16.780Z",
   "imagens": [
     {
-      "nome": "pacote-normal-a",
-      "tipo": "normal",
+      "nome": "021-1",
+      "sabimon": "Ondorca",
       "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1248,
-      "altura": 1872
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "pacote-normal-b",
-      "tipo": "normal",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1248,
-      "altura": 1872
+      "nome": "021-2",
+      "sabimon": "Marorca",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
     },
     {
-      "nome": "pacote-epico-a",
-      "tipo": "epico",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1248,
-      "altura": 1872
-    },
-    {
-      "nome": "pacote-epico-b",
-      "tipo": "epico",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1248,
-      "altura": 1872
+      "nome": "021-3",
+      "sabimon": "Tsunorca",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
     }
   ],
   "pedido": {
-    "acao": "cenarios",
-    "lista": "arte/pacote/lista.json",
-    "pasta": "arte/pacote/originais",
-    "formato": "2:3"
+    "acao": "gerar",
+    "formas": [
+      1,
+      2,
+      3
+    ],
+    "numeros": [
+      "021"
+    ]
   },
   "ok": true
 }
