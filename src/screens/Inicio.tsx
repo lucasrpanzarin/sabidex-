@@ -109,9 +109,17 @@ export function Chama({ tamanho = 22 }: { tamanho?: number }) {
   );
 }
 
+/** "Anthony", "Anthony e Bia", "Anthony, Bia e mais 2" (Lucas, 06/11/2026: o Ará diz quem chamou). */
+function quemChamou(nomes: string[]) {
+  if (!nomes.length) return <>Um colega</>;
+  if (nomes.length === 1) return <strong>{nomes[0]}</strong>;
+  if (nomes.length === 2) return <><strong>{nomes[0]}</strong> e <strong>{nomes[1]}</strong></>;
+  return <><strong>{nomes[0]}</strong>, <strong>{nomes[1]}</strong> e mais {nomes.length - 2}</>;
+}
+
 export function Inicio() {
   const e = useEstado();
-  const { conta, propostasNovas, desafiosNovos } = useConta();
+  const { conta, propostasNovas, desafiosNovos, desafiantes } = useConta();
   const nv = nivel(e.xp);
   const dias = sequencia(e.dias);
   // Só os capítulos da turma. Sem turma (ou turma sem matérias), o Início mostra o aviso no lugar dos jogos.
@@ -133,12 +141,14 @@ export function Inicio() {
   const brilhoContinuar = !brilhoMissoes && mis.lista.length === 0;
 
   const evolui = FIGURINHAS.find((f) => podeEvoluir(e, f.id).ok);
+  // O Ará fala do duelo (e mostra o botão) quando não tem um aviso mais importante antes.
+  const temDesafio = !(semJogo && !e.pacotes.length) && desafiosNovos > 0;
   const fala = semJogo && !e.pacotes.length
     ? (estudo === 'sem-turma'
       ? <>Oi! Para jogar, falta só entrar na sua <strong>turma da escola</strong>. Assim você estuda as matérias do <strong>seu</strong> livro!</>
       : <>As matérias da sua turma ainda estão chegando. Quando ficarem prontas, os jogos aparecem aqui!</>)
     : desafiosNovos > 0
-    ? <>Um colega te chamou para um <strong>Duelo do Saber</strong>! Veja em Turma.</>
+    ? <>{quemChamou(desafiantes)} {desafiantes.length > 1 ? 'chamaram' : 'chamou'} você para um <strong>Duelo do Saber</strong>!</>
     : propostasNovas > 0
     ? <>Você tem <strong>{propostasNovas} {propostasNovas > 1 ? 'propostas' : 'proposta'} de troca</strong>! Veja em Turma.</>
     : e.pacotes.some((p) => p.id === PACOTE_BOAS_VINDAS)
@@ -186,7 +196,15 @@ export function Inicio() {
 
       <div className="linha" style={{ alignItems: 'flex-end' }}>
         <div style={{ flex: 'none' }}><Ara tamanho={76} /></div>
-        <div className="balao" style={{ flex: 1, marginBottom: 14 }}>{fala}</div>
+        <div className="balao" style={{ flex: 1, marginBottom: 14 }}>
+          {fala}
+          {/* Desafio de duelo: botão direto para a página de duelos (Lucas, 06/11/2026). */}
+          {temDesafio && (
+            <button className="btn btn-rosa btn-bloco" style={{ marginTop: 10, minHeight: 44, fontSize: 17 }} onClick={() => ir('duelos')}>
+              {desafiosNovos > 1 ? 'Ver os desafios' : 'Ver o desafio'}
+            </button>
+          )}
+        </div>
       </div>
 
       <InstalarApp />

@@ -1838,6 +1838,26 @@ app.get('/crianca/chat', async (c) => {
   return c.json({ liberado: !b, motivo: b?.motivo ?? null, aviso: b?.texto ?? null, horario: t ? { inicio: t.chat_inicio, fim: t.chat_fim } : null, mensagens, online });
 });
 
+/**
+ * Resumo do chat para o botão "Conversa da turma" (Lucas, 06/11/2026): se está aberto agora
+ * e quantas mensagens dos colegas chegaram depois de `depois` (a última que a criança viu).
+ * Sem poder ler (chat desligado, sem família, sem autorização), não conta nada.
+ */
+app.get('/crianca/chat/resumo', async (c) => {
+  const k = await crianca(c);
+  if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
+  if (!temTurma(k.turma_id)) return c.json({ liberado: false, motivo: 'sem-turma', horario: null, novas: 0 });
+  const t = await turmaChat(c.env.DB, k.turma_id);
+  const b = bloqueioChat(t, k);
+  const horario = t ? { inicio: t.chat_inicio, fim: t.chat_fim } : null;
+  if (b && ['desligado', 'sem-familia', 'sem-autorizacao'].includes(b.motivo)) return c.json({ liberado: false, motivo: b.motivo, horario, novas: 0 });
+  const depois = Number(c.req.query('depois') ?? 0) || 0;
+  // Conta no máximo 100 (a tela mostra "99+").
+  const n = await c.env.DB.prepare(`SELECT COUNT(*) n FROM (SELECT 1 FROM mensagens WHERE turma_id = ? AND crianca_id != ? AND apagada = 0 AND criado > ? LIMIT 100)`)
+    .bind(k.turma_id, k.id, depois).first<{ n: number }>();
+  return c.json({ liberado: !b, motivo: b?.motivo ?? null, horario, novas: n?.n ?? 0 });
+});
+
 app.post('/crianca/chat', async (c) => {
   const k = await crianca(c);
   if (!k) return erro(c, 401, 'Entre de novo na sua conta.');
