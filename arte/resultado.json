@@ -1,28 +1,6 @@
 {
-  "quando": "2026-11-06T11:56:16.780Z",
-  "imagens": [
-    {
-      "nome": "021-1",
-      "sabimon": "Ondorca",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "021-2",
-      "sabimon": "Marorca",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "021-3",
-      "sabimon": "Tsunorca",
-      "modelo": "alibaba/qwen-image-3/edit",
-      "largura": 1536,
-      "altura": 1536
-    }
-  ],
+  "quando": "2026-11-06T12:04:26.906Z",
+  "imagens": [],
   "pedido": {
     "acao": "gerar",
     "formas": [
@@ -31,8 +9,16 @@
       3
     ],
     "numeros": [
-      "021"
+      "022",
+      "023",
+      "024",
+      "025",
+      "026",
+      "027",
+      "028",
+      "029"
     ]
   },
-  "ok": true
+  "ok": false,
+  "erro": "Error: Higgsfield recusou (nsfw): {\"status\":\"nsfw\",\"error\":\"Generation failed\",\"request_id\":\"01a1b0be-f6fa-7d44-9e8d-3c6c59c39c8b\",\"status_url\":\"https://api.higgsfield.ai/requests/01a1b0be-f6fa-7d44-9e8d-3c6c59c39c8b/status\",\"cancel_url\":\"https://api.higgsfield.ai/requests/01a1b0be-f6fa-7d44-9e8d-3c6c59c39c8b/cancel\",\"expires_at\":\"2026-11-13T12:05:36.772655+00:00\"}"
 }
