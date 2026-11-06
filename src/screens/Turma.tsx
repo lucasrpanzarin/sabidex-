@@ -342,7 +342,13 @@ export function Ranking() {
     // Mostra o placar logo; depois de mandar o progresso novo para o servidor, atualiza de novo.
     void buscar();
     void sincronizar().then(() => buscar());
-    return () => { vivo = false; };
+    // Enquanto a tela está aberta, busca o placar de novo a cada 30 s (e ao voltar para o app),
+    // para ver o XP dos colegas subindo sem precisar sair e entrar.
+    const visivel = () => document.visibilityState === 'visible';
+    const relogio = setInterval(() => { if (visivel()) void buscar(); }, 30_000);
+    const aoVoltar = () => { if (visivel()) void buscar(); };
+    document.addEventListener('visibilitychange', aoVoltar);
+    return () => { vivo = false; clearInterval(relogio); document.removeEventListener('visibilitychange', aoVoltar); };
   }, [codigo, e.xp]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!conta?.codigo) return <SemTurma titulo="Quem estudou mais?" texto={<>Entre na sua <strong>turma</strong> para ver o placar da semana com os colegas!</>} />;
