@@ -30,7 +30,7 @@ describe('datas das provas', () => {
   it('põe a prova mais perto primeiro e as que já passaram no fim', () => {
     const caps = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }];
     const datas = { a: '2026-10-01', c: '2026-11-20', d: '2026-11-06' };
-    expect(ordenarCapitulos(caps, datas, '2026-11-04').map((c) => c.id)).toEqual(['d', 'c', 'b', 'a']);
+    expect(ordenarCapitulos(caps, datas, '2026-11-04').map((c) => c.id)).toEqual(['b', 'c', 'd', 'a']);
     expect(ordenarCapitulos(caps, undefined, '2026-11-04').map((c) => c.id)).toEqual(['a', 'b', 'c', 'd']);
   });
 });

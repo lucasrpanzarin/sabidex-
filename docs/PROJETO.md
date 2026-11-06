@@ -62,6 +62,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
   - **Missões do dia**: 3 missões curtas de estudo, escolhidas pelo dia (iguais o dia todo, trocam no outro dia), só entre as que a criança já consegue fazer. A Revisão do Ará entra sempre que tiver. Cada jogo vale para **uma** missão e só conta com **nota 7 ou mais**. Fazer as 3 dá **1 pacote**. Depois, o Ará diz para descansar e voltar amanhã. Ficam só no aparelho.
   - **Marcos de sequência**: 3, 7, 14 e 30 dias seguidos dão **1 pacote** cada (uma vez por sequência), na primeira atividade do dia com nota 7. Duelos não contam para missões nem marcos.
 - **Data da prova da escola**: o professor (turma) ou o adulto (família) marca. Depois da data o capítulo vai para "Já teve prova na escola" (continua valendo tudo).
+- **Ordem das unidades** (Lucas, 06/11/2026; `ordenarCapitulos` em `src/lib/provas.ts`): sempre a ordem do livro (8, 9, 10); a data da prova só aparece no selo. O "Próxima fase"/"Continuar" termina primeiro a unidade que a criança está jogando e só depois vai para a próxima (`proximaFase` em `src/screens/Inicio.tsx`).
 - Capítulo novo: o Lucas manda fotos do livro na conversa e o Claude segue a skill **capitulo-do-livro**. Regras pedagógicas em `docs/ESTUDOS.md`. Conferência automática: `npm run conferir -- historia-9`.
 
 ### Prêmios e números do jogo
@@ -212,6 +213,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
+
+- **06/11/2026** · Unidades na ordem do livro: antes, unidade com prova marcada subia para o começo (aparecia 9, 8, 10) e o "Continuar" no fim de uma fase da unidade 8 pulava para a 9. Agora a lista segue 8, 9, 10 (as que já tiveram prova continuam no fim) e o "Continuar" termina a unidade que a criança está fazendo antes de ir para outra (Lucas).
 
 - **05/11/2026** · Pais veem a turma do filho: botões "Ver a turma" (placar da semana e quem está estudando agora) e "Ver o chat da turma" no cartão do filho. O Lucas não achava o chat nem o ranking na área dos pais. Política de privacidade ganhou uma frase (sem pedir aceite de novo: os pais já liam o chat com os apelidos) (Lucas).
 

@@ -8,7 +8,7 @@ import { NOTA_MINIMA, infoFase, PERDA_POR_ERRO, XP_MINIMO, concluirFase, embaral
 import { idProva, idQuiz, registrarResposta } from '../lib/revisao';
 import { aplicarMissoes } from '../lib/missoes';
 import { ir } from '../lib/rota';
-import { jogar, proximaFase } from './Inicio';
+import { jogar, lembrarUnidade, proximaFase } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import { VOZES, audioDaVoz, setVoz, useVoz } from '../lib/voz';
 import { FaseContas, TextoMat, VerComoSeFaz } from './Contas';
@@ -144,6 +144,7 @@ export const AVISO_REVISAO = <div className="balao small" style={{ marginTop: 4 
 export function useFinalizar(cap: Capitulo, fase: Fase) {
   const [res, setRes] = useState<Resultado | null>(null);
   const finalizar = (nota?: number, erros = 0) => {
+    lembrarUnidade(cap.id);
     const antes = getEstado();
     const r = aplicarMissoes(antes, concluirFase(antes, cap.id, fase, nota, new Date(), erros), { tipo: 'fase', fase, nota });
     setEstado(r.estado);
