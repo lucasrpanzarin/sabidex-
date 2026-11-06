@@ -3,14 +3,14 @@
 //  - "amostra": grava uma frase de teste com cada voz em vozes/amostras/
 //  - "gerar":   grava todos os temas com cada voz em public/audio/<voz>/
 //  - "matematica": grava os passos do "Ver como se faz" (só os capítulos com exemplos) em public/audio/<voz>/
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { capitulos } from '../src/data/index';
 import { audiosDoExemplo } from '../src/lib/falaMat';
 
 const KEY = process.env.ELEVENLABS_API_KEY;
 const API = 'https://api.elevenlabs.io';
 interface Voz { nome: string; id?: string; dono?: string; busca?: string; modelo?: string }
-interface Pedido { acao: 'listar' | 'minhas' | 'amostra' | 'gerar' | 'matematica'; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[] }
+interface Pedido { acao: 'listar' | 'minhas' | 'amostra' | 'gerar' | 'matematica'; refazer?: boolean; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[] }
 
 const resultado: Record<string, unknown> = { quando: new Date().toISOString() };
 const salvarResultado = () => writeFileSync('vozes/resultado.json', JSON.stringify(resultado, null, 2) + '\n');
@@ -125,8 +125,11 @@ async function main() {
       for (const cap of caps) {
         for (const [i, e] of cap.matematica!.exemplos.entries()) {
           for (const a of audiosDoExemplo(cap.id, i, e)) {
+            const destino = `public/${a.arquivo.replace(/^audio\//, `audio/${v.nome}/`)}`;
+            // Áudio já gravado não é gravado de novo (gastaria créditos), a não ser com "refazer": true.
+            if (!p.refazer && existsSync(destino)) continue;
             caracteres += a.texto.length;
-            writeFileSync(`public/${a.arquivo.replace(/^audio\//, `audio/${v.nome}/`)}`, await falar(v, a.texto, v.modelo ?? modelo));
+            writeFileSync(destino, await falar(v, a.texto, v.modelo ?? modelo));
           }
         }
       }
