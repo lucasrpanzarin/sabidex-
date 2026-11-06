@@ -54,6 +54,33 @@ describe('missões do dia', () => {
     expect(depois.pacotesGanhos.some((p) => p.motivo === 'missoes')).toBe(false);
   });
 
+  it('revisão com nota baixa e nada mais para revisar: a missão troca por outra', () => {
+    // Caso do Anthony: 2 perguntas na revisão, 1 certa (nota 5). As duas saem de hoje e a missão ficava impossível.
+    const rev = { [`${cap.id}:q0`]: { caixa: 0, proxima: dia }, [`${cap.id}:q1`]: { caixa: 0, proxima: dia } };
+    const e0: Estado = { ...adiantada(), revisao: rev, missoes: { dia, lista: ['revisao', 'memoria', 'fase'], progresso: { fase: 1 } } };
+    const depoisDeResponder: Estado = { ...e0, revisao: {
+      [`${cap.id}:q0`]: { caixa: 1, proxima: '2026-11-08' }, [`${cap.id}:q1`]: { caixa: 0, proxima: '2026-11-06' } } };
+    const r = aplicarMissoes(depoisDeResponder, concluirRevisao(depoisDeResponder, 1, 2, [cap.id], agora), { tipo: 'revisao', nota: 5 }, agora);
+    const m = r.estado.missoes!;
+    expect(m.lista).not.toContain('revisao');
+    expect(m.lista).toHaveLength(3);
+    expect(m.lista).toContain('memoria');
+    expect(m.lista).toContain('fase');
+    expect(new Set(m.lista).size).toBe(3);
+    expect(m.lista.includes('duas')).toBe(false);
+    expect(quantasFeitas(m)).toBe(1);
+    // Missões que já estavam guardadas no aparelho (de antes da correção) também trocam ao abrir.
+    expect(missoesDeHoje({ ...depoisDeResponder }, agora).lista).not.toContain('revisao');
+  });
+
+  it('revisão com nota boa vale para a missão, mesmo sem sobrar nada para revisar', () => {
+    const e0: Estado = { ...adiantada(), revisao: { [`${cap.id}:q0`]: { caixa: 1, proxima: '2026-11-08' } },
+      missoes: { dia, lista: ['revisao', 'memoria', 'fase'], progresso: {} } };
+    const r = aplicarMissoes(e0, concluirRevisao(e0, 1, 1, [cap.id], agora), { tipo: 'revisao', nota: 10 }, agora);
+    expect(r.estado.missoes!.lista).toContain('revisao');
+    expect(r.estado.missoes!.progresso).toEqual({ revisao: 1 });
+  });
+
   it('no outro dia as missões começam de novo', () => {
     const e = { ...adiantada(), missoes: { dia: '2026-11-04', lista: ['fase'], progresso: { fase: 1 } } };
     expect(missoesDeHoje(e, agora).progresso).toEqual({});

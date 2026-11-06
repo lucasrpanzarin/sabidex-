@@ -65,11 +65,33 @@ export function escolherMissoes(e: Estado, dia: string): MissaoId[] {
   return lista;
 }
 
-/** As missões de hoje (já guardadas ou escolhidas agora). */
-export function missoesDeHoje(e: Estado, agora = new Date()): NonNullable<Estado['missoes']> {
-  const dia = hoje(agora);
+type Missoes = NonNullable<Estado['missoes']>;
+
+/** As missões guardadas de hoje (ou escolhidas agora), sem trocar nada. */
+function guardadasDeHoje(e: Estado, dia: string): Missoes {
   if (e.missoes?.dia === dia) return e.missoes;
   return { dia, lista: escolherMissoes(e, dia), progresso: {} };
+}
+
+/**
+ * A revisão de hoje pode acabar sem a missão ficar feita (ex.: 2 perguntas, 1 certa = nota 5).
+ * Aí não sobra nada para revisar e a missão ficaria impossível: troca por outra que a criança consegue fazer.
+ */
+function trocarRevisaoSemNada(e: Estado, m: Missoes): Missoes {
+  if (!m.lista.includes('revisao') || missaoFeita(m, 'revisao') || MISSOES.revisao.pode(e, m.dia)) return m;
+  const outras = m.lista.filter((id) => id !== 'revisao');
+  const temPar = outras.includes('fase') || outras.includes('duas');
+  const podem = (Object.keys(MISSOES) as MissaoId[])
+    .filter((id) => id !== 'revisao' && !outras.includes(id) && MISSOES[id].pode(e, m.dia));
+  // "Termine uma fase" e "2 atividades" são parecidas: só uma das duas, se der.
+  const opcoes = embaralhar(podem, sorteDoDia(`${m.dia}-troca`));
+  const nova = opcoes.find((id) => !(temPar && (id === 'fase' || id === 'duas'))) ?? opcoes[0];
+  return { ...m, lista: m.lista.map((id) => (id === 'revisao' ? nova : id)).filter((id): id is string => !!id) };
+}
+
+/** As missões de hoje (já guardadas ou escolhidas agora). */
+export function missoesDeHoje(e: Estado, agora = new Date()): Missoes {
+  return trocarRevisaoSemNada(e, guardadasDeHoje(e, hoje(agora)));
 }
 
 export const missaoFeita = (m: NonNullable<Estado['missoes']>, id: string) => (m.progresso[id] ?? 0) >= (MISSOES[id as MissaoId]?.alvo ?? 1);
@@ -86,7 +108,9 @@ export const proximoMarco = (dias: number) => MARCOS.find((n) => n > dias) ?? nu
 export function aplicarMissoes(antes: Estado, r: Resultado, ev: Evento, agora = new Date()): Resultado {
   const dia = hoje(agora);
   const passou = ev.nota === undefined || ev.nota >= NOTA_MINIMA;
-  const m = missoesDeHoje(antes, agora);
+  // Na revisão, `antes` já tem as respostas registradas: não troca a missão da revisão antes de dar o crédito.
+  const guardadas = guardadasDeHoje(antes, dia);
+  const m = ev.tipo === 'revisao' ? guardadas : trocarRevisaoSemNada(antes, guardadas);
   const progresso = { ...m.progresso };
   const pacotesGanhos = [...r.pacotesGanhos];
   const pacotes = [...r.estado.pacotes];
@@ -124,7 +148,7 @@ export function aplicarMissoes(antes: Estado, r: Resultado, ev: Evento, agora = 
 
   return {
     ...r, pacotesGanhos, missao,
-    estado: { ...r.estado, pacotes, marcos: marcos.slice(-50), missoes: { ...m, progresso } },
+    estado: { ...r.estado, pacotes, marcos: marcos.slice(-50), missoes: trocarRevisaoSemNada(r.estado, { ...m, progresso }) },
   };
 }
 
