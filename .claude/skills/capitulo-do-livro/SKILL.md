@@ -86,4 +86,4 @@ Veja `src/data/matematica9.ts` como modelo:
 3. Coloque o capítulo em `src/data/index.ts`, **dentro do conteúdo da turma que usa esse livro** (`conteudos`; hoje só `educativa-4b`). Cada turma só vê os capítulos do conteúdo dela. Livro de outra turma/escola = conteúdo novo, e o Lucas liga na turma pelo Painel do dono (aba Turmas).
 4. `npm test` e `npm run build` precisam passar.
 5. Commit e push. Explique ao Lucas, em português simples, o que entrou e o que ele deve conferir no livro
-   (as datas e nomes principais). Lembre que as narrações são pedidas à parte (`vozes/pedido.json`).
+   (as datas e nomes principais). Lembre que as narrações são pedidas à parte (`vozes/pedido.json`). Em Matemática, os passos do "Ver como se faz" são narrados só com Nina e Otto: pedido `{"acao": "matematica", "capitulos": ["<id>"], "vozes": [nina, otto]}`; confira a fala com `falaDaConta` (`src/lib/falaMat.ts`).

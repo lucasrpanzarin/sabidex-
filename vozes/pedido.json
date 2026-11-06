@@ -1,5 +1,5 @@
 {
- "acao": "gerar",
+ "acao": "matematica",
  "vozes": [
   {
    "nome": "nina",
@@ -10,11 +10,6 @@
    "nome": "otto",
    "id": "ycxdm1PRMs962FxyyuJ0",
    "modelo": "eleven_v3"
-  },
-  {
-   "nome": "graziella",
-   "id": "iTvRNZPNPS0EiSgOCQG0",
-   "modelo": "eleven_multilingual_v2"
   }
  ]
 }

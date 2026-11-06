@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { GERADORES, confere, ehFracao, extenso, gerarContas, reaisPorExtenso, semente, textoCerto, textoResposta, virgula, type Conta } from './contas';
+import { GERADORES, confere, ehFracao, extenso, gerarContas, reaisPorExtenso, semente, textoCerto, tempoDeLeitura, textoResposta, virgula, type Conta } from './contas';
 import { capitulos } from '../data';
 import { itemDe, idConta } from './revisao';
 
@@ -98,5 +98,14 @@ describe('contas de Matemática', () => {
         expect(itemDe(idConta(cap.id, t), capitulos)?.tipo).toBe('conta');
       }
     }
+  });
+});
+
+describe('tempoDeLeitura', () => {
+  it('espera mais em texto longo, com mínimo de 2 s e máximo de 7 s', () => {
+    expect(tempoDeLeitura('Escrevemos **0,3**.')).toBe(2000);
+    expect(tempoDeLeitura('A parede tem **3** partes iguais: o denominador é 3.')).toBe(4000);
+    expect(tempoDeLeitura('palavra '.repeat(40))).toBe(7000);
+    expect(tempoDeLeitura('um dois três', 'quatro cinco', 'seis')).toBe(2400);
   });
 });

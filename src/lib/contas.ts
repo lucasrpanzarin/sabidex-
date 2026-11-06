@@ -666,3 +666,13 @@ export function gerarConta(tipo: string, r: Rng = Math.random): Conta | null {
 export function gerarContas(tipos: string[], r: Rng = Math.random): Conta[] {
   return tipos.map((t) => gerarConta(t, r)).filter((c): c is Conta => !!c);
 }
+
+/**
+ * Quanto tempo (em milissegundos) o botão "Próximo passo" espera antes de liberar,
+ * para a criança ler o passo em vez de só tocar (Lucas, 06/11/2026).
+ * Conta ~0,4 s por palavra, com no mínimo 2 s e no máximo 7 s.
+ */
+export function tempoDeLeitura(...textos: string[]): number {
+  const palavras = textos.join(' ').replace(/\*\*/g, '').split(/\s+/).filter(Boolean).length;
+  return Math.min(7000, Math.max(2000, palavras * 400));
+}
