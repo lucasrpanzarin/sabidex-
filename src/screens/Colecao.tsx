@@ -298,7 +298,7 @@ export function Album({ id }: { id?: string }) {
   }, [detalhe]);
   if (detalhe) return <Detalhe key={detalhe.id} f={detalhe} />;
 
-  // O álbum tem as 3 formas de cada Sabimon, cada uma com seu número.
+  // O álbum tem as 3 formas de cada Sabimon, cada uma com seu número. As lendas ficam numa página à parte, no fim.
   const tem = FIGURINHAS.filter((f) => e.cartas[f.id] > 0).length;
   const total = FIGURINHAS.length;
   const lista = FIGURINHAS.filter((f) => filtro === 'todas' || f.s.raridade === filtro);
@@ -326,14 +326,24 @@ export function Album({ id }: { id?: string }) {
             className={`filtro ${k}`}>{r}</button>
         ))}
       </div>
-      <div className="grade-3">
-        {lista.map((f) => (
-          <div key={f.id} data-figurinha={f.id} style={{ position: 'relative' }}>
-            <CartaView carta={f.s} forma={f.forma} visual={visualDe(e, f.id)} tem={e.cartas[f.id] > 0} quantidade={e.cartas[f.id]} onClick={() => ir('album', f.id)} />
-            {podeEvoluir(e, f.id).ok && <span className="selo-novo" style={{ background: 'var(--green)' }}>EVOLUIR!</span>}
+      {[lista.filter((f) => !f.s.lenda), lista.filter((f) => f.s.lenda)].map((parte, i) => parte.length > 0 && (
+        <section key={i} className="coluna" style={{ gap: 10 }}>
+          {i === 1 && (
+            <div>
+              <h2 className="display" style={{ fontSize: 22, margin: 0 }}>Lendas do Brasil</h2>
+              <p className="muted small" style={{ margin: 0 }}>Personagens das histórias do nosso folclore.</p>
+            </div>
+          )}
+          <div className="grade-3">
+            {parte.map((f) => (
+              <div key={f.id} data-figurinha={f.id} style={{ position: 'relative' }}>
+                <CartaView carta={f.s} forma={f.forma} visual={visualDe(e, f.id)} tem={e.cartas[f.id] > 0} quantidade={e.cartas[f.id]} onClick={() => ir('album', f.id)} />
+                {podeEvoluir(e, f.id).ok && <span className="selo-novo" style={{ background: 'var(--green)' }}>EVOLUIR!</span>}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </section>
+      ))}
       {(e.semNovo ?? 0) > 0 && sabimons.some((s) => !(e.cartas[s.id] > 0)) && (
         <p className="muted small" style={{ margin: 0, textAlign: 'center' }}>
           Garantia: no máximo mais {GARANTIA - e.semNovo} {GARANTIA - e.semNovo > 1 ? 'pacotes' : 'pacote'} até um Sabimon novo.

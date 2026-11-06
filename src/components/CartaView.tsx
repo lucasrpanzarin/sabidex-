@@ -59,7 +59,7 @@ export function CartaView({ carta, forma = 1, itens = [], visual, tem = true, qu
           {tem && f.poderes.map((p, i) => (
             <div key={p} className="poder"><span className="ic" aria-hidden="true">✦</span><b>{p}</b><span>{forca(carta, forma, i as 0 | 1) + extra.forca}</span></div>
           ))}
-          {tem && <p className="fato"><strong>Fato real:</strong> {carta.fato}</p>}
+          {tem && <p className="fato"><strong>{carta.lenda ? 'Folclore:' : 'Fato real:'}</strong> {carta.fato}</p>}
           <div className="rodape-carta"><span>Nº {num(carta, forma)}</span><span className={`rar ${carta.raridade}`}>{ROTULO[carta.raridade]}</span></div>
         </div>
       </article>
