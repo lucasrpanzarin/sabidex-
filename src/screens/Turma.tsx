@@ -201,7 +201,16 @@ export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; 
       {passo === 'quem' && (
         <div className="coluna">
           <div className="aviso aviso-ok">{familia ? 'Achei a sua família!' : <>Turma: <strong>{turma}</strong></>}</div>
-          {!!alunos.length && <h2 className="display h3" style={{ margin: 0 }}>Toque no seu nome.</h2>}
+          {!familia && (
+            <div className="painel coluna" style={{ gap: 10 }}>
+              <div className="linha" style={{ alignItems: 'flex-end' }}>
+                <Ara tamanho={70} humor="pensando" />
+                <div className="balao" style={{ flex: 1, marginBottom: 10 }}>Para entrar, use o <strong>código da família</strong>. Peça para um adulto da sua casa.</div>
+              </div>
+              <button type="button" className="btn btn-amarelo btn-bloco" onClick={() => { setCodigo(''); setErro(null); setPasso('codigo'); }}>Digitar o código da família</button>
+            </div>
+          )}
+          {!!alunos.length && <h2 className="display h3" style={{ margin: 0 }}>{familia ? 'Toque no seu nome.' : 'Sua conta é só da turma? Toque no seu nome.'}</h2>}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
             {alunos.map((a) => (
               <button key={a.id ?? a.apelido} className="painel linha" onClick={() => { setEu(a); setPin(''); setErro(null); setPasso('pin'); }}
@@ -211,7 +220,7 @@ export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; 
               </button>
             ))}
           </div>
-          {!!alunos.length && <p className="muted small" style={{ margin: 0 }}>Seu nome não está aqui? Peça para um adulto da sua casa criar o seu perfil.</p>}
+          {!!alunos.length && familia && <p className="muted small" style={{ margin: 0 }}>Seu nome não está aqui? Peça para um adulto da sua casa criar o seu perfil.</p>}
           {!familia && (semCodigo ? <PecaParaAdulto codigo={codigo} turma={turma} /> : (
             <button type="button" className="btn btn-escuro btn-bloco" onClick={() => setSemCodigo(true)}>Ainda não tenho perfil</button>
           ))}

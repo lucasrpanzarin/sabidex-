@@ -325,8 +325,9 @@ app.post('/turma/info', async (c) => {
 });
 
 /**
- * Quem tem o código da turma vê os apelidos e cores dos colegas (os mesmos do ranking),
- * para tocar no próprio nome em vez de decorar o apelido. A conta continua protegida pelo PIN.
+ * Quem tem o código da turma vê só as crianças da turma que ainda não têm família no app
+ * (as antigas, criadas só com o código). Criança com família entra só pelo código da família,
+ * que um adulto da casa passa (Lucas, 07/11/2026). A conta continua protegida pelo PIN.
  */
 app.post('/turma/alunos', async (c) => {
   if (await muitosErros(c)) return erro(c, 429, MSG_MUITOS_ERROS);
@@ -334,7 +335,7 @@ app.post('/turma/alunos', async (c) => {
   const codigo = normalizarCodigo(String(b.codigo ?? ''));
   const t = await c.env.DB.prepare('SELECT id, nome FROM turmas WHERE codigo = ?').bind(codigo).first<{ id: string; nome: string }>();
   if (t) {
-    const r = await c.env.DB.prepare('SELECT apelido, cor FROM criancas WHERE turma_id = ? ORDER BY apelido_chave').bind(t.id).all<{ apelido: string; cor: string }>();
+    const r = await c.env.DB.prepare('SELECT apelido, cor FROM criancas WHERE turma_id = ? AND familia_id IS NULL ORDER BY apelido_chave').bind(t.id).all<{ apelido: string; cor: string }>();
     return c.json({ nome: t.nome, codigo, familia: false, alunos: r.results });
   }
   // Código da família: mostra os filhos (apelido e cor). Entrar continua pedindo o PIN de cada um.
@@ -347,14 +348,14 @@ app.post('/turma/alunos', async (c) => {
 /** Criança entra numa turma pela primeira vez e cria o PIN. O progresso do aparelho vai junto. */
 app.post('/crianca/entrar-turma', (c) => erro(c, 403, MSG_SO_ADULTO_CRIA));
 
-/** Criança entra na conta dela (em outro aparelho, por exemplo). */
+/** Criança só da turma (sem família) entra com código da turma + apelido + PIN. Quem tem família entra pelo código da família. */
 app.post('/crianca/entrar', async (c) => {
   if (await muitosErros(c)) return erro(c, 429, MSG_MUITOS_ERROS);
   const b = await corpo(c);
   const codigo = normalizarCodigo(String(b.codigo ?? ''));
   const apelido = normalizarApelido(String(b.apelido ?? ''));
   if (!pinValido(b.pin)) return erro(c, 400, 'O PIN precisa ter 4 números.');
-  const k = await c.env.DB.prepare(`SELECT k.* FROM criancas k JOIN turmas t ON t.id = k.turma_id WHERE t.codigo = ? AND k.apelido_chave = ?`)
+  const k = await c.env.DB.prepare(`SELECT k.* FROM criancas k JOIN turmas t ON t.id = k.turma_id WHERE t.codigo = ? AND k.apelido_chave = ? AND k.familia_id IS NULL`)
     .bind(codigo, chaveApelido(apelido)).first<Crianca>();
   const generico = 'Código, apelido ou PIN não conferem. Tente de novo.';
   if (!k) { await contarErro(c); return erro(c, 401, generico); }
