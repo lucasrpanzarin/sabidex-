@@ -28,7 +28,7 @@ Não guarde as fotos no repositório (o livro tem direitos autorais, e foto pesa
 ## Etapa 2 — Criar (só com o que está em paginas.md)
 
 Não use nenhum fato, data, nome ou número que não esteja na transcrição, mesmo que você tenha certeza.
-Siga o guia da idade (`guiaDaIdade(ano)`). Priorize o que o livro destaca: **negrito**, boxes, o que se repete,
+Siga o guia da idade (`guiaDaIdade(ano)`). **Use as palavras do livro** (é assim que cai na prova da escola) e explique as difíceis ao lado, em palavras simples; nunca troque o termo do livro por um sinônimo. As perguntas seguem o estilo das atividades do livro, sem copiar. Priorize o que o livro destaca: **negrito**, boxes, o que se repete,
 atividades e resumo. Cubra todos os subtítulos, não só o começo.
 
 Crie `src/data/<materia><numero>.ts` no formato de `src/data/tipos.ts` (veja `historia9.ts` como modelo):
@@ -38,6 +38,7 @@ Crie `src/data/<materia><numero>.ts` no formato de `src/data/tipos.ts` (veja `hi
 2. **pares** (8 a 10): palavra-chave + significado de até 10 palavras.
 3. **linha** (6 a 10): fatos com data. `ordem` numérica (a.C. negativo; século 16 → 1550). Sem datas no capítulo:
    etapas de um processo (`ano`: "1º", "2º"...; `ordem`: 1, 2, 3...).
+   Com etapas, dê também `nomeLinha` (nome da fase e explicação, ex.: ["Do campo ao mercado", "Coloque as etapas do leite na ordem"]; veja `geografia9.ts`).
 4. **quiz** (10 a 12): metade verdadeira. As falsas são erros que a criança realmente comete (trocar dois povos,
    inverter causa e efeito), nunca absurdos. `explicacao` corrige em uma frase.
 5. **prova** (exatamente 10): 4 opções, uma certa. 3 de lembrar, 4 de entender, 2 de aplicar, 1 de analisar.

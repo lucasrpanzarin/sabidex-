@@ -26,3 +26,12 @@ export function useVoz() {
 
 /** "audio/c9-0.mp3" → "audio/nina/c9-0.mp3" */
 export const audioDaVoz = (caminho: string, voz: IdVoz) => caminho.replace(/^audio\//, `audio/${voz}/`);
+
+/**
+ * Vozes gravadas para os temas de cada matéria. História tem as três; Geografia (Lucas, 08/11/2026),
+ * como Matemática, só Nina e Otto, para gastar menos créditos. Quem escolheu outra voz ouve a Nina.
+ */
+export const vozesDaMateria = (materia: string) =>
+  materia === 'História' ? VOZES : VOZES.filter((v) => v.id === 'nina' || v.id === 'otto');
+export const vozParaMateria = (v: IdVoz, materia: string): IdVoz =>
+  vozesDaMateria(materia).some((x) => x.id === v) ? v : 'nina';

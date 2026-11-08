@@ -1,5 +1,9 @@
 {
- "acao": "matematica",
+ "acao": "gerar",
+ "capitulos": [
+  "geografia-9",
+  "geografia-10"
+ ],
  "vozes": [
   {
    "nome": "nina",
