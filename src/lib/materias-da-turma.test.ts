@@ -20,7 +20,7 @@ describe('matérias de cada turma', () => {
     const e = estudoDa(conta({ conteudo: 'educativa-4b' }));
     expect(e.situacao).toBe('ok');
     expect(e.caps.map((c) => c.id)).toEqual(capitulosDe('educativa-4b').map((c) => c.id));
-    expect(e.materias).toEqual(['História', 'Matemática']);
+    expect(e.materias).toEqual(['História', 'Matemática', 'Geografia']);
   });
 
   it('todo capítulo está no livro de alguma turma, sem repetir id', () => {

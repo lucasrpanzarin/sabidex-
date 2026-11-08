@@ -373,11 +373,11 @@ function Linha({ cap }: { cap: Capitulo }) {
           <button key={ev.fato} onClick={() => tocar(ev)} className={errado === ev.fato ? 'treme' : ''}
             style={{ minHeight: 56, borderRadius: 16, padding: '10px 14px', textAlign: 'left', fontWeight: 800, background: errado === ev.fato ? '#FFE4E6' : 'var(--surface)', border: `3px solid ${errado === ev.fato ? 'var(--red)' : 'var(--line-2)'}` }}>
             {ev.fato}
-            {errado === ev.fato && <span style={{ display: 'block', fontSize: 13, color: 'var(--t-red)' }}>Não! Tinha um fato mais antigo.</span>}
+            {errado === ev.fato && <span style={{ display: 'block', fontSize: 13, color: 'var(--t-red)' }}>{cap.nomeLinha ? 'Não! Tinha uma etapa antes.' : 'Não! Tinha um fato mais antigo.'}</span>}
           </button>
         ))}
       </div>
-      <p className="muted small" style={{ margin: 0 }}>Dica: os anos aparecem quando você acerta.</p>
+      <p className="muted small" style={{ margin: 0 }}>{cap.nomeLinha ? 'Dica: o número da etapa aparece quando você acerta.' : 'Dica: os anos aparecem quando você acerta.'}</p>
       <ContaErros erros={erros} />
     </main>
   );
