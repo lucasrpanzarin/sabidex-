@@ -22,7 +22,7 @@ async function api(caminho: string, init: RequestInit = {}) {
 }
 
 function texto(t: { titulo: string; pontos: string[] }) {
-  return (t.titulo + '. ' + t.pontos.join(' '))
+  return ((/[?!.]$/.test(t.titulo) ? t.titulo : t.titulo + '.') + ' ' + t.pontos.join(' '))
     .replace(/\*\*/g, '').replace(/a\.C\./g, 'antes de Cristo').replace(/\bséculo 19\b/g, 'século dezenove')
     // Contas de Matemática: o sinal vira palavra para a voz ler certo.
     .replace(/\s*×\s*/g, ' vezes ').replace(/\s*÷\s*/g, ' dividido por ').replace(/\s+−\s+/g, ' menos ')

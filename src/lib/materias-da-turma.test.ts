@@ -30,3 +30,14 @@ describe('matérias de cada turma', () => {
     for (const c of conteudos) expect(c.capitulos.length).toBeGreaterThan(0);
   });
 });
+
+describe('vozes de cada matéria', () => {
+  it('Geografia só tem Nina e Otto; quem escolheu a Graziella ouve a Nina', async () => {
+    const { vozesDaMateria, vozParaMateria } = await import('./voz');
+    expect(vozesDaMateria('Geografia').map((v) => v.id)).toEqual(['nina', 'otto']);
+    expect(vozesDaMateria('História')).toHaveLength(3);
+    expect(vozParaMateria('graziella', 'Geografia')).toBe('nina');
+    expect(vozParaMateria('otto', 'Geografia')).toBe('otto');
+    expect(vozParaMateria('graziella', 'História')).toBe('graziella');
+  });
+});

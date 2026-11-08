@@ -10,7 +10,7 @@ import { aplicarMissoes } from '../lib/missoes';
 import { ir } from '../lib/rota';
 import { jogar, lembrarUnidade, proximaFase } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
-import { VOZES, audioDaVoz, setVoz, useVoz } from '../lib/voz';
+import { audioDaVoz, setVoz, useVoz, vozesDaMateria, vozParaMateria } from '../lib/voz';
 import { FaseContas, TextoMat, VerComoSeFaz } from './Contas';
 
 /** Transforma **negrito** em <strong>. */
@@ -171,7 +171,8 @@ function Ouvir({ cap }: { cap: Capitulo }) {
   // Abre o primeiro tema que ainda falta ouvir.
   const [aberto, setAberto] = useState<number | null>(() => { const i = cap.temas.findIndex((_, j) => !ouvidos.has(j)); return i < 0 ? null : i; });
   const audio = useRef<HTMLAudioElement | null>(null);
-  const voz = useVoz();
+  const voz = vozParaMateria(useVoz(), cap.materia);
+  const vozes = vozesDaMateria(cap.materia);
 
   useEffect(() => () => audio.current?.pause(), []);
   useEffect(() => { audio.current?.pause(); audio.current = null; setTocando(null); setCarregando(null); }, [voz]);
@@ -210,8 +211,8 @@ function Ouvir({ cap }: { cap: Capitulo }) {
       <div className="barra barra-verde"><div style={{ width: `${(ouvidos.size / total) * 100}%` }} /></div>
       <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
         <legend className="muted small" style={{ marginBottom: 6 }}>Quem vai ler para você?</legend>
-        <div className="grade-3">
-          {VOZES.map((v) => (
+        <div className={vozes.length === 3 ? 'grade-3' : 'grade-2'}>
+          {vozes.map((v) => (
             <button key={v.id} onClick={() => setVoz(v.id)} aria-pressed={voz === v.id}
               style={{ borderRadius: 16, padding: '8px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
                 background: voz === v.id ? 'var(--surface-2)' : 'var(--surface)', border: `3px solid ${voz === v.id ? v.cor : 'var(--line)'}` }}>
