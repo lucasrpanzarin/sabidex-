@@ -1,7 +1,7 @@
 // Lê vozes/pedido.json e fala com o ElevenLabs. Ações:
 //  - "listar":  salva em vozes/lista.json as vozes brasileiras disponíveis
 //  - "amostra": grava uma frase de teste com cada voz em vozes/amostras/
-//  - "gerar":   grava todos os temas com cada voz em public/audio/<voz>/
+//  - "gerar":   grava os temas com cada voz em public/audio/<voz>/ (pula os que já existem, a não ser com "refazer": true)
 //  - "matematica": grava os passos do "Ver como se faz" (só os capítulos com exemplos) em public/audio/<voz>/
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { capitulos } from '../src/data/index';
@@ -108,9 +108,12 @@ async function main() {
       for (const cap of caps) {
         for (const [i, t] of cap.temas.entries()) {
           const arquivo = (t.audio ?? `audio/${cap.id}-${i}.mp3`).replace(/^audio\//, '');
+          const destino = `public/audio/${v.nome}/${arquivo}`;
+          // Áudio já gravado não é gravado de novo (gastaria créditos), a não ser com "refazer": true.
+          if (!p.refazer && existsSync(destino)) continue;
           const frase = texto(t);
           caracteres += frase.length;
-          writeFileSync(`public/audio/${v.nome}/${arquivo}`, await falar(v, frase, v.modelo ?? modelo));
+          writeFileSync(destino, await falar(v, frase, v.modelo ?? modelo));
         }
       }
     }
