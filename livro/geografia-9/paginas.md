@@ -1,6 +1,6 @@
 # Geografia · Unidade 9 · As relações entre o campo e a cidade
 
-Transcrição fiel das páginas do livro (4º ano). Fotos mandadas pelo Lucas em 08/11/2026 (p. 40 a 51).
+Transcrição fiel das páginas do livro (4º ano). Fotos mandadas pelo Lucas em 08/11/2026 (p. 40 a 59).
 
 ## Página 40
 
@@ -227,3 +227,114 @@ Legenda: Estudante assiste a uma aula on-line em casa durante pandemia de covid-
 > O espaço rural e o espaço urbano estão interligados de várias maneiras, formando uma relação de interdependência importante para o funcionamento da sociedade.
 > O intercâmbio constante de pessoas, mercadorias e informações entre o campo e a cidade fortalece essa conexão.
 > - Converse com os colegas e respondam: Como o aumento do acesso à internet no campo favorece a integração entre o campo e a cidade?
+
+## Página 52
+
+## COMUNICAÇÃO, TRANSPORTE E CIRCULAÇÃO DE MERCADORIAS E INFORMAÇÕES
+
+A evolução dos meios de comunicação transformou a **circulação de mercadorias** e **informações**. A internet, por exemplo, permite que fornecedores, empresas e clientes se conectem mais rapidamente.
+
+Na atualidade, é muito comum que compras dos mais diversos produtos sejam feitas pela internet. Esse tipo de compra não se restringe apenas aos espaços urbanos, pois nos espaços rurais também existem redes de transporte e de comunicação que favorecem esse tipo de consumo.
+
+[IMAGEM: vista do alto de grandes galpões ao lado de uma rodovia, com morros e céu ao fundo.]
+Legenda: Vista de drone de galpões de empresas logísticas na rodovia Coronel PM Nelson Tranchesi, em Itapevi (SP), 2020. Esses locais servem como grandes centros de distribuição onde os produtos adquiridos on-line são separados, embalados e despachados para os clientes. Normalmente, são localizados próximo a rodovias importantes, para facilitar o transporte entre diferentes localidades.
+
+Além de favorecer a circulação de mercadorias, os meios de comunicação permitem maior fluxo de informações entre o campo e a cidade. Além do acesso a notícias produzidas por veículos como jornais, revistas e *blogs*, os produtores rurais se beneficiam de pesquisas, informações sobre o tempo atmosférico e outros tipos de orientação técnica geralmente produzidos nas cidades.
+
+Grande parte das universidades, dos centros de pesquisa e de outras organizações ligadas ao desenvolvimento agropecuário localiza-se no espaço urbano. Apesar disso, tanto as propriedades rurais quanto os centros técnicos e de pesquisa podem trocar diversos dados e informações por meio de diferentes dispositivos conectados à internet.
+
+## Página 53
+
+> **AMPLIANDO** (selo: Educação socioemocional)
+> Durante a infância, as crianças podem ter experiências muito diferentes dependendo do lugar onde vivem.
+> - Leia a história em quadrinhos a seguir e faça o que se pede.
+>
+> [IMAGEM: história em quadrinhos com dois meninos. No campo, eles brincam com animais, num rio e numa árvore; na cidade, num parque e numa praça. Falas que dá para ler: "OLÁ, JOÃO. AQUI NO CAMPO TEM LUGAR PARA SE DIVERTIR?" · "SIM! VOU MOSTRAR COMO NOS DIVERTIMOS POR AQUI. DEPOIS VOCÊ ME MOSTRA COMO SE DIVERTIR NA CIDADE!" · "ALEXANDRE, VOCÊ PODE ME MOSTRAR COMO SE DIVERTIR NA CIDADE?"]
+> Fonte: Arionauro. *Campo e cidade*. Disponível em: http://p.p4ed.com/NTQZA. Acesso em: 17 jan. 2025.
+>
+> a) De acordo com a história em quadrinhos, as brincadeiras de João, que vive no campo, são diferentes das brincadeiras de Alexandre, que vive na cidade? Por quê?
+> b) Com base no que você estudou nesta unidade, converse com os colegas: Como os meios de comunicação favorecem a integração das crianças que vivem no campo e na cidade?
+
+## Página 54
+
+> **VOCÊ É O GEÓGRAFO**
+> O campo e a cidade são muito diferentes entre si, principalmente quando analisamos as paisagens e as principais atividades econômicas de cada um desses espaços.
+> Observe atentamente as imagens de satélite a seguir.
+>
+> [IMAGEM A: vista de cima de grandes áreas retangulares de plantação, em tons de verde e marrom.]
+> Legenda: Imagem de satélite de trecho do espaço rural de Sorriso (MT), 2023.
+>
+> [IMAGEM B: vista de cima de muitas casas, prédios e ruas, com poucas manchas verdes.]
+> Legenda: Imagem de satélite de um trecho de Guarulhos (SP), 2024.
+
+## Página 55
+
+### Atividades do livro
+1. Descreva a paisagem das imagens de satélite **A** e **B**. Inclua o máximo de detalhes que identificar.
+2. Com base na observação da imagem de satélite **B**, selecione a afirmativa correta.
+a) A imagem refere-se a uma área urbana, onde predomina a atividade de produção agrícola.
+b) A paisagem apresenta uma grande concentração de áreas verdes e poucas construções.
+c) A imagem mostra uma área rural, em que ocorre a produção de gêneros agrícolas.
+d) A imagem mostra uma área urbana, com muitas construções e vias pavimentadas.
+3. Considerando as imagens de satélite **A** e **B**, identifique a frase falsa. Depois, reescreva-a nas linhas a seguir, corrigindo-a.
+a) Na imagem **A**, além de áreas verdes, podem ser observadas algumas vias de circulação.
+b) Na imagem **B**, é possível visualizar o contorno das vias e o topo de prédios e moradias.
+c) As imagens **A** e **B** são representações que mostram visões verticais do espaço.
+d) As plantações e as moradias representadas nas imagens são observadas na visão frontal.
+
+## Página 56
+
+> **A BRINCADEIRA É...**
+> ## RELAÇÃO ENTRE CAMPO E CIDADE: VERDADEIRO OU FALSO
+> Que tal brincar e ao mesmo tempo rever o que você estudou? Siga as orientações.
+> 1. A turma deve se dividir em duas equipes. Em pequenos pedaços de papel, cada equipe vai criar afirmações sobre o conteúdo da unidade. Por exemplo:
+> - Há atividades que são desenvolvidas apenas no campo. Verdadeiro ou falso?
+> - O campo e a cidade se conectam por meio do trabalho: o campo fornece produtos para a cidade, e a cidade oferece produtos industrializados ao campo. Verdadeiro ou falso?
+> - Os meios de transporte e os meios de comunicação não promovem a conexão entre o campo e a cidade. Verdadeiro ou falso?
+> 2. Se necessário, conversem com o professor para elaborar as afirmações. Tirem par ou ímpar para ver quem começa a brincadeira.
+> 3. Ganha a equipe que fizer mais acertos. Boa diversão!
+>
+> [IMAGEM: plaquinhas "VERDADEIRO" (com um V verde) e "FALSO" (com um X vermelho).]
+
+> **SAIBA MAIS** · LIVRO
+> ***Uma viagem pelos meios de transporte***, de John Haslam e Chris Oxlade. Queen Books, 2018.
+> O livro convida a uma viagem pelo mundo dos transportes que nos conduzem pela terra, pelo ar e pelo mar.
+> [IMAGEM: capa do livro.]
+
+## Página 57
+
+# MÃOS À OBRA!
+
+1. O Brasil é um grande exportador de produtos agrícolas, e a soja é o mais importante deles. O transporte da soja até os portos, onde ela é embarcada em navios que a levam para outros países, é feito por diferentes meios e vias de transporte. Analise o mapa a seguir.
+
+[IMAGEM: mapa "BRASIL: TRANSPORTE DE SOJA (2021)". Legenda: Portos, Hidrovias, Ferrovias, Rodovias, Capitais. Muitas rodovias cruzam o país, sobretudo no meio e no sul do mapa; há menos ferrovias e hidrovias; os portos ficam no litoral e em alguns rios do Norte.]
+Fonte: elaborado com base em William L. S. Costa e outros. *Viabilidade de sistemas ferroviários para exportação agrícola*. Centro de Sensoriamento Remoto, jan. 2022. Disponível em: http://p.p4ed.com/NTMZT. Acesso em: 11 dez. 2024.
+
+a) Segundo o mapa, qual é a principal via de transporte utilizada para transportar a soja brasileira?
+b) Quais são as grandes regiões brasileiras nas quais essas vias de transporte se concentram?
+
+## Página 58
+
+2. Os meios de transporte conectam o campo e a cidade. Justifique essa afirmação.
+3. Os meios de comunicação favorecem maior integração entre campo e cidade? Por quê?
+4. Numere as frases abaixo na sequência correta, indicando as etapas que um alimento fresco percorre desde sua produção no campo até sua chegada ao consumidor no espaço urbano.
+a) ( ) Por fim, os alimentos chegam ao comércio, onde podem ser adquiridos pelos consumidores.
+b) ( ) Nos centros de processamento, os alimentos são embalados e preparados para transporte.
+c) ( ) Os alimentos são plantados.
+d) ( ) Depois de colhidos, os alimentos seguem para centros de triagem e processamento.
+e) ( ) Na sequência, os alimentos precisam ser cultivados e colhidos.
+5. Preencha as lacunas com as palavras **rural** e **distâncias** para completar corretamente as frases sobre os meios de comunicação.
+a) Os meios de comunicação ajudam a reduzir as ______ entre as pessoas.
+b) As transformações nos meios de comunicação também têm impacto no espaço ______.
+
+## Página 59
+
+# O QUE EU APRENDI
+
+[IMAGEM: paisagem com campo à esquerda e cidade à direita; frases em nuvens.]
+- O campo e a cidade são interdependentes.
+- O abastecimento de alimentos da cidade depende da produção agrícola no campo.
+- A circulação de mercadorias e pessoas entre campo e cidade ocorre por meio de redes de transporte.
+- As pessoas se deslocam do campo para a cidade e da cidade para o campo por diferentes motivos.
+- Os meios de transporte conectam os espaços e exercem função importante na integração entre o campo e a cidade.
+- O turismo rural é uma atividade que atrai pessoas da cidade para o campo.

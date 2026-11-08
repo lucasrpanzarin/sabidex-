@@ -1,6 +1,6 @@
 import type { Capitulo } from "./tipos";
 
-// Conteúdo conferido com o livro de Geografia do 4º ano (Unidade 9, p. 40 a 51).
+// Conteúdo conferido com o livro de Geografia do 4º ano (Unidade 9, p. 40 a 59).
 // Transcrição em livro/geografia-9/paginas.md; de onde veio cada item em livro/geografia-9/fontes.md.
 export const geografia9: Capitulo = {
   "id": "geografia-9",
@@ -71,11 +71,11 @@ export const geografia9: Capitulo = {
     {
       "titulo": "As redes de transporte",
       "pontos": [
-        "Pessoas e mercadorias circulam tanto porque existem **redes de transporte** ligando o campo e a cidade.",
-        "Os meios de transporte são: **rodoviário**, **ferroviário**, **hidroviário** e **aéreo**.",
+        "Pessoas e mercadorias circulam tanto porque existem **redes de transporte**: **rodoviário**, **ferroviário**, **hidroviário** e **aéreo**.",
         "As **rodovias** fazem a **maior parte** dos transportes no Brasil. Ônibus, carros e motos levam pessoas; os **caminhões** levam cargas.",
         "As **ferrovias** levam principalmente **mercadorias e matérias-primas**. Em São Paulo e no Rio de Janeiro, os trens também levam passageiros.",
-        "Nas **hidrovias**, **navios e barcos** levam mercadorias e pessoas pelos **rios** e pelo **mar**."
+        "Nas **hidrovias**, **navios e barcos** levam mercadorias e pessoas pelos **rios** e pelo **mar**.",
+        "O Brasil vende muita **soja** para outros países. Ela vai por diferentes vias até os **portos** e segue de **navio**."
       ],
       "audio": "audio/geografia-9-5.mp3"
     },
@@ -89,6 +89,27 @@ export const geografia9: Capitulo = {
         "Com ela, **músicos do campo** mostram seu trabalho ao mundo. E quem mora no campo ouve mais músicas da cidade."
       ],
       "audio": "audio/geografia-9-6.mp3"
+    },
+    {
+      "titulo": "Compras e informações pela internet",
+      "pontos": [
+        "A internet mudou a **circulação de mercadorias e informações**: fornecedores, empresas e clientes se conectam mais rápido.",
+        "Hoje é comum **comprar pela internet**. Não só na cidade: o campo também tem **redes de transporte e de comunicação**.",
+        "O que se compra on-line fica em **galpões**, grandes **centros de distribuição** perto de **rodovias**. Lá é separado, embalado e enviado.",
+        "Os **produtores rurais** recebem **pesquisas**, informações sobre o **tempo** e orientações técnicas, geralmente feitas nas cidades.",
+        "Muitas **universidades** e **centros de pesquisa** ficam na cidade, mas trocam informações com o campo pela **internet**."
+      ],
+      "audio": "audio/geografia-9-7.mp3"
+    },
+    {
+      "titulo": "Campo e cidade vistos de cima",
+      "pontos": [
+        "As **imagens de satélite** mostram os lugares **de cima**. Isso é a **visão vertical**.",
+        "No campo de **Sorriso**, em Mato Grosso, a imagem mostra grandes **plantações**, áreas verdes e algumas vias.",
+        "Em **Guarulhos**, em São Paulo, a imagem mostra **muitas construções**, o topo de prédios e casas e **vias pavimentadas**.",
+        "Assim dá para ver que as **paisagens** e as **atividades** do campo e da cidade são **muito diferentes**."
+      ],
+      "audio": "audio/geografia-9-8.mp3"
     }
   ],
   "pares": [
@@ -235,6 +256,16 @@ export const geografia9: Capitulo = {
       "frase": "O computador é o aparelho mais usado para acessar a internet no Brasil.",
       "verdadeira": false,
       "explicacao": "O mais usado é o celular (98,8%). Depois vêm a televisão e o computador."
+    },
+    {
+      "frase": "Imagens de satélite mostram o campo e a cidade de frente, na visão frontal.",
+      "verdadeira": false,
+      "explicacao": "Elas mostram os lugares de cima: é a visão vertical."
+    },
+    {
+      "frase": "Pela internet, os produtores rurais recebem pesquisas e informações sobre o tempo.",
+      "verdadeira": true,
+      "explicacao": "Certo! Essas informações geralmente são feitas nas cidades e chegam ao campo pela internet."
     }
   ],
   "prova": [
@@ -421,6 +452,24 @@ export const geografia9: Capitulo = {
         "tablet",
         "rádio"
       ]
+    },
+    {
+      "frase": "Os meios de comunicação ajudam a reduzir as ___ entre as pessoas.",
+      "resposta": "distâncias",
+      "distratores": [
+        "compras",
+        "estradas",
+        "plantações"
+      ]
+    },
+    {
+      "frase": "Imagens de satélite mostram os lugares de cima, na visão ___.",
+      "resposta": "vertical",
+      "distratores": [
+        "frontal",
+        "lateral",
+        "noturna"
+      ]
     }
   ],
   "quemSou": [
@@ -532,6 +581,27 @@ export const geografia9: Capitulo = {
           ]
         }
       ]
+    },
+    {
+      "pergunta": "Imagem do campo ou da cidade?",
+      "grupos": [
+        {
+          "nome": "Campo (Sorriso)",
+          "itens": [
+            "Grandes plantações",
+            "Muitas áreas verdes",
+            "Poucas construções"
+          ]
+        },
+        {
+          "nome": "Cidade (Guarulhos)",
+          "itens": [
+            "Topo de prédios",
+            "Muitas construções",
+            "Vias pavimentadas"
+          ]
+        }
+      ]
     }
   ],
   "causas": [
@@ -554,6 +624,10 @@ export const geografia9: Capitulo = {
     {
       "causa": "Os meios de comunicação evoluíram",
       "consequencia": "O campo e a cidade ficaram mais integrados"
+    },
+    {
+      "causa": "O campo também tem redes de transporte e de comunicação",
+      "consequencia": "Quem mora no campo também compra pela internet"
     }
   ]
 };
