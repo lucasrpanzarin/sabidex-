@@ -266,6 +266,16 @@ export const geografia9: Capitulo = {
       "frase": "Pela internet, os produtores rurais recebem pesquisas e informações sobre o tempo.",
       "verdadeira": true,
       "explicacao": "Certo! Essas informações geralmente são feitas nas cidades e chegam ao campo pela internet."
+    },
+    {
+      "frase": "Na cadeia do leite, a qualidade do leite é testada antes de ele ir para as garrafas.",
+      "verdadeira": true,
+      "explicacao": "Certo! Primeiro testam a qualidade, depois pasteurizam e só então engarrafam."
+    },
+    {
+      "frase": "Um rio sujo e poluído atrai mais turistas para o campo.",
+      "verdadeira": false,
+      "explicacao": "Os turistas procuram rios bons para banho e cachoeiras. Por isso, cuidar do ambiente é importante para o turismo."
     }
   ],
   "prova": [
@@ -325,15 +335,15 @@ export const geografia9: Capitulo = {
       "explicacao": "Os grandes hospitais e os médicos especializados geralmente ficam nas cidades."
     },
     {
-      "pergunta": "O que acontece com os alimentos nos centros de distribuição?",
+      "pergunta": "Uma imagem de satélite mostra muitas casas, prédios e ruas asfaltadas. Que lugar é esse?",
       "opcoes": [
-        "São plantados e colhidos",
-        "São transformados em doces",
-        "São escolhidos e embalados",
-        "São servidos às famílias"
+        "Uma área do campo, com plantações",
+        "Um parque com cavernas",
+        "Uma área da cidade",
+        "Um centro de distribuição"
       ],
       "certa": 2,
-      "explicacao": "Lá os alimentos são escolhidos e embalados. Depois, vão para as lojas."
+      "explicacao": "Muitas construções e ruas asfaltadas mostram uma área urbana, como Guarulhos."
     },
     {
       "pergunta": "Como a internet ajudou a aproximar o campo e a cidade?",

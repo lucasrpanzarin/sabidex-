@@ -233,6 +233,16 @@ export const geografia10: Capitulo = {
       "frase": "O perfil topográfico mostra o relevo visto de cima.",
       "verdadeira": false,
       "explicacao": "O perfil mostra o relevo de lado. O mapa é que mostra de cima."
+    },
+    {
+      "frase": "No mapa da Paraíba, as terras mais baixas ficam perto do oceano.",
+      "verdadeira": true,
+      "explicacao": "Certo! As terras mais altas ficam no interior do estado."
+    },
+    {
+      "frase": "Em rios, lagos e cachoeiras, dá para nadar sem nenhum cuidado.",
+      "verdadeira": false,
+      "explicacao": "Eles são ótimos para o lazer, mas é sempre preciso cuidado ao tomar banho neles."
     }
   ],
   "prova": [
@@ -248,15 +258,15 @@ export const geografia10: Capitulo = {
       "explicacao": "A bacia do rio Amazonas é a maior e fica na região Norte."
     },
     {
-      "pergunta": "Onde nasce o rio Amazonas?",
+      "pergunta": "Em qual lugar é mais difícil andar de bicicleta ou de patins?",
       "opcoes": [
-        "Na Chapada Diamantina, na Bahia",
-        "Na Serra do Mar, em São Paulo",
-        "Na cordilheira dos Andes, no Peru",
-        "No Pantanal, em Mato Grosso"
+        "Numa quadra plana da escola",
+        "Numa rua plana e asfaltada",
+        "Numa ladeira bem íngreme",
+        "Num pátio plano e liso"
       ],
       "certa": 2,
-      "explicacao": "O Amazonas nasce nos Andes, no Peru, e deságua no oceano Atlântico."
+      "explicacao": "Ladeira íngreme é bem inclinada: subir cansa e descer pode ser perigoso. Isso é o relevo!"
     },
     {
       "pergunta": "Como se chama o lugar onde o rio deságua?",
