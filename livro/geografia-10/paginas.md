@@ -1,6 +1,6 @@
 # Geografia · Unidade 10 · A natureza brasileira: relevo e hidrografia
 
-Transcrição fiel das páginas do livro (4º ano). Fotos mandadas pelo Lucas em 08/11/2026, em lotes. As respostas escritas a lápis pela criança no livro não foram copiadas.
+Transcrição fiel das páginas do livro (4º ano). Fotos mandadas pelo Lucas em 08/11/2026 (p. 60 a 79), em lotes. As respostas escritas a lápis pela criança no livro não foram copiadas.
 
 ## Página 60
 
@@ -155,3 +155,137 @@ Fonte: elaborado com base em Instituto Brasileiro de Geografia e Estatística. *
 > 2. Em que faixa de altitude se localiza o município de Campina Grande?
 > 3. Em quais faixas de altitude se situam os municípios de Patos e Princesa Isabel?
 > 4. Dentre os municípios indicados no mapa, qual apresenta relevo mais elevado?
+
+## Página 70
+
+## RELAÇÃO ENTRE RELEVO E HIDROGRAFIA
+
+Como você já sabe, os elementos da natureza se inter-relacionam. Também existe uma **relação entre relevo e hidrografia**: o relevo interfere diretamente na hidrografia de um local, e a hidrografia também influencia as formas do relevo.
+
+É o relevo que faz os rios serem mais rápidos ou mais lentos, mais profundos ou mais rasos, retilíneos ou sinuosos etc. devido a características como altitude, inclinação e aos tipos de rocha presentes no local.
+
+Essas características do relevo determinam, por exemplo, o padrão de escoamento das águas superficiais (rios, lagos e oceanos) e subterrâneas (lençol freático).
+
+O relevo acidentado pode criar quedas-d'água, corredeiras e vales profundos, enquanto áreas mais planas favorecem a formação de lagos e pântanos. Assim, percebe-se que o relevo molda a rede hidrográfica de uma região e influencia a disponibilidade e a distribuição dos recursos hídricos.
+
+Já a hidrografia modela o relevo ao longo do tempo por meio dos processos de erosão e de deposição de sedimentos: nas partes mais altas do rio, ocorre a retirada de sedimentos; nas partes mais baixas, acontece a deposição desse material. Por isso, os rios têm um papel importante na modelagem do relevo.
+
+[IMAGEM: vista do alto de dois rios que se encontram, um de água escura e outro de água barrenta, lado a lado sem se misturar; um barco no rio escuro.]
+Legenda: Encontro das águas do rio Solimões (à direita) e do rio Negro (à esquerda). Por cerca de seis quilômetros essas águas não se misturam, por causa de suas características físicas diferentes. Uma delas é o fato de o rio Solimões carregar muitos sedimentos provenientes da erosão, enquanto no rio Negro há menor quantidade de sedimentos, o que justifica a diferença de cor entre eles.
+
+## Página 71
+
+(selo: Educação socioemocional)
+
+A seguir, você vai estudar as partes de um rio. Leia as descrições e observe a ilustração.
+
+- **Bacia hidrográfica**: área que abrange o rio principal e seus afluentes. É delimitada por áreas no relevo mais elevadas que o entorno.
+- **Rio principal**: maior rio de uma bacia hidrográfica e recebe as águas de seus afluentes.
+- **Nascente**: local onde o rio nasce. São locais altos, como os planaltos.
+- **Leito**: canal por onde passam as águas do rio.
+- **Afluente**: rio que deságua em outro rio.
+- **Margem**: área imediatamente ao lado do leito do rio.
+- **Foz**: local onde o rio deságua, podendo ser no mar, em outro rio ou em um lago. São locais mais baixos que as nascentes.
+
+[IMAGEM: desenho de um terreno verde com um rio que desce das partes altas até o mar, recebendo rios menores. Marcações: Bacia hidrográfica (linha tracejada em volta), Rio principal, Nascente, Leito, Rio afluente, Margem, Foz (onde o rio chega ao mar). Selos: "Cores não reais" e "Fora de proporção".]
+Fonte: elaborado com base em CHBB – Comitê Babitonga. Conhecendo: bacia hidrográfica. Disponível em: https://www.comite-babitonga.org.br/noticias/conhecendo-bacia-hidrografica-236. Acesso em: 16 dez. 2024.
+
+## Página 72
+
+## CARACTERÍSTICAS DO RELEVO BRASILEIRO
+
+Há grande variedade de altitudes no Brasil, e as maiores são encontradas principalmente próximo ao litoral leste e em algumas áreas no extremo norte do país. Já o interior e o litoral norte apresentam altitudes menores. Faça a leitura detalhada do mapa e observe que as cores indicam as diferentes altitudes.
+
+[IMAGEM: mapa "BRASIL: ALTITUDES". Legenda: Acima de 2 000 metros; De 1 000 a 2 000 metros; De 600 a 1 000 metros; De 200 a 600 metros; De 0 a 200 metros; Picos; Limite regional; Divisa estadual. As áreas de 0 a 200 metros são verdes (boa parte do Norte); as mais altas, em tons de amarelo e marrom. Picos marcados: Monte Roraima, Monte Caburaí, Pico da Neblina, Pico 31 de Março, Pico do Jabre, Serra do Barbado, Monte Pascoal, Pico da Bandeira, Pedra da Mina, Pico das Agulhas Negras, Pico do Paraná.]
+Fonte: elaborado com base em Instituto Brasileiro de Geografia e Estatística. *Meu 1º atlas*. 4. ed. Rio de Janeiro: IBGE, 2012. p. 113.
+
+### Atividades do livro
+5. Que cor é usada para representar as áreas mais baixas do relevo? E para as mais elevadas?
+6. De acordo com o mapa, em quais regiões do Brasil são observadas as maiores altitudes?
+7. Em que região brasileira predominam baixas altitudes?
+
+## Página 73
+
+8. Quais são as altitudes mínimas e máximas encontradas na unidade federativa onde você vive?
+
+Ao conhecer as altitudes do Brasil, é possível identificar algumas das formas de relevo. Como você estudou, no país, há três principais formas de relevo: planalto, planície e depressão. Observe no mapa a seguir a localização dessas formas de relevo.
+
+[IMAGEM: mapa "BRASIL: RELEVO". Legenda: Planalto (laranja); Planície (verde); Depressão (amarelo-claro); Limite regional; Divisa estadual. Planícies em faixas ao longo dos grandes rios do Norte, no litoral e no Mato Grosso do Sul; planaltos e depressões ocupam quase todo o resto.]
+Fonte: elaborado com base em Graça Maria Lemos Ferreira. *Atlas geográfico*: espaço mundial. 5. ed. São Paulo: Moderna, 2019. p. 120.
+
+9. Qual é a forma de relevo predominante na unidade federativa onde você vive?
+
+## Página 74
+
+## CARACTERÍSTICAS DA HIDROGRAFIA BRASILEIRA
+
+O Brasil é um dos poucos países no mundo que apresentam grande quantidade de água doce em seu território. Essa água pode ser encontrada em rios, lagos e no subsolo. Observe os principais rios do Brasil no mapa a seguir.
+
+[IMAGEM: mapa "BRASIL: HIDROGRAFIA", com os principais rios em azul e as divisas estaduais.]
+Fonte: elaborado com base em Instituto Brasileiro de Geografia e Estatística. *Meu 1º atlas*. 4. ed. Rio de Janeiro: IBGE, 2012. p. 123.
+
+Quase todos os principais rios brasileiros nascem em território nacional. No entanto, há também aqueles que nascem em outros países e percorrem longas distâncias para chegar até aqui.
+
+Um exemplo de rio que nasce fora do território brasileiro é o rio Amazonas. Ele se origina na cordilheira dos Andes, no Peru, e atravessa o território brasileiro passando pela região Norte até desaguar no oceano Atlântico. O Amazonas é o rio com o maior volume de água do mundo e, para muitos geógrafos, também é o mais extenso de todos.
+
+Como o território brasileiro é muito extenso e abriga um volume grande de água doce, há várias bacias hidrográficas no país. Observe a localização dessas bacias no mapa a seguir.
+
+## Página 75
+
+[IMAGEM: mapa "BRASIL: BACIAS HIDROGRÁFICAS". Legenda: Bacia hidrográfica do rio Amazonas; Bacia hidrográfica do rio Tocantins; Bacia hidrográfica do rio Parnaíba; Bacia hidrográfica do rio São Francisco; Bacia hidrográfica do rio da Prata; Bacias litorâneas do Sul; Bacias litorâneas do Sudeste; Bacias litorâneas do Leste; Bacias litorâneas do Nordeste Ocidental; Bacias litorâneas do Nordeste Oriental; Divisa estadual; Hidrografia. A bacia do Amazonas ocupa a maior área, no Norte e em parte do Centro-Oeste.]
+Fonte: elaborado com base em Instituto Brasileiro de Geografia e Estatística. *Meu 1º atlas*. 4. ed. Rio de Janeiro: IBGE, 2012. p. 123.
+
+10. Qual é a maior bacia hidrográfica apresentada no mapa?
+11. Que bacias abrangem a área da unidade federativa onde você vive?
+
+(selo: Educação socioemocional)
+O maior volume de água doce no Brasil é encontrado na região Norte, principalmente na bacia do rio Amazonas. Já a região Sudeste, que tem um número elevado de habitantes e alta concentração de indústrias, possui um volume muito menor de água nos rios. Por essa razão, o governo brasileiro deve planejar com responsabilidade a gestão da água, para evitar problemas como a falta de abastecimento desse recurso. No entanto, ainda assim, hoje muitos locais no Brasil sofrem com escassez de água e racionamento.
+
+## Página 76
+
+> **CONHEÇA O GEÓGRAFO**
+> **Aziz Ab'Sáber** (1924-2012) nasceu em São Luiz do Paraitinga (SP). Estudou Geografia na Universidade de São Paulo (USP), onde se tornou professor. Algumas das classificações do relevo que você conheceu foram elaboradas por esse geógrafo. Ab'Sáber foi também um dos primeiros pesquisadores a alertar sobre a importância da preservação ambiental.
+> [IMAGEM: retrato de um senhor sentado.] Legenda: Aziz Ab'Sáber em fotografia de 1994.
+
+> **FAMÍLIA E ESCOLA**
+> Rios, lagos e cachoeiras são ótimos para o lazer, mas é sempre necessário tomar cuidado ao se banhar em suas águas.
+> Você e seus familiares já tomaram banho de rio, lago ou cachoeira? Converse com eles sobre o assunto e depois conte aos colegas o que você descobriu.
+
+> **+ AÇÃO**
+> Que tal investigar uma bacia hidrográfica que banha a região onde você mora?
+> 1. Forme um grupo com quatro colegas. Revejam o mapa da página 75 e, no caderno, anotem o nome de alguns rios dessa bacia hidrográfica.
+> 2. Na internet, pesquisem fotografias desses rios. Imprimam o material, colem-no em uma folha de papel sulfite e escrevam o nome da bacia hidrográfica e o dos rios.
+> 3. No dia marcado, apresentem o trabalho, conversem sobre ele e organizem um mural com os trabalhos da turma.
+
+## Página 77
+
+# MÃOS À OBRA!
+
+1. Encontre os principais tipos de relevo brasileiro no diagrama.
+[IMAGEM: caça-palavras com 12 linhas de letras. As letras não foram copiadas.]
+
+2. Encontre no **Material Complementar** o quebra-cabeça com as partes de um rio. Recorte-o e monte-o para ver a paisagem formada. Depois, indique o nome de cada uma das partes de um rio, de acordo com a numeração das peças.
+1. ______ 2. ______ 3. ______ 4. ______ 5. ______ 6. ______
+
+## Página 78
+
+3. A maior bacia hidrográfica do Brasil, localizada na região Norte, é a do rio
+a) Tocantins.
+b) Parnaíba.
+c) São Francisco.
+d) Amazonas.
+4. Com suas palavras, defina o que é altitude.
+5. Na ilustração a seguir, quais são as altitudes dos pontos **A** e **B**?
+[IMAGEM: desenho de um morro ao lado do oceano. O ponto A, no topo mais alto, tem a marca "400 m"; o ponto B, num topo mais baixo, tem a marca "200 m". Selos: "Cores não reais" e "Fora de proporção".]
+A: ______ B: ______
+
+## Página 79
+
+# O QUE EU APRENDI
+
+- As diferentes formas da superfície terrestre, como os planaltos, as planícies e as depressões, recebem o nome de relevo.
+- O relevo pode ser representado por meio de mapas e perfis topográficos elaborados com base em curvas de nível.
+- Para saber qual é a altitude do relevo, devemos medir a distância vertical entre um ponto e o nível do mar.
+- A hidrografia estuda as águas superficiais e subterrâneas do planeta.
+- As principais partes de um rio são: nascente, afluente, leito, margens e foz.
+- Bacia hidrográfica é a área que abrange o rio principal e seus afluentes.
