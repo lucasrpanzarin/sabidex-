@@ -28,7 +28,7 @@ Não guarde as fotos no repositório (o livro tem direitos autorais, e foto pesa
 ## Etapa 2 — Criar (só com o que está em paginas.md)
 
 Não use nenhum fato, data, nome ou número que não esteja na transcrição, mesmo que você tenha certeza.
-Siga o guia da idade (`guiaDaIdade(ano)`). Priorize o que o livro destaca: **negrito**, boxes, o que se repete,
+Siga o guia da idade (`guiaDaIdade(ano)`). **Use as palavras do livro** (é assim que cai na prova da escola) e explique as difíceis ao lado, em palavras simples; nunca troque o termo do livro por um sinônimo. As perguntas seguem o estilo das atividades do livro, sem copiar. Priorize o que o livro destaca: **negrito**, boxes, o que se repete,
 atividades e resumo. Cubra todos os subtítulos, não só o começo.
 
 Crie `src/data/<materia><numero>.ts` no formato de `src/data/tipos.ts` (veja `historia9.ts` como modelo):

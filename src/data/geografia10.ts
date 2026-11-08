@@ -14,77 +14,77 @@ export const geografia10: Capitulo = {
   ],
   "temas": [
     {
-      "titulo": "Ladeira ou plano?",
+      "titulo": "Relevo e hidrografia",
       "pontos": [
-        "Já subiu uma ladeira bem inclinada? Ela faz parte do **relevo**: as formas da superfície da Terra.",
-        "O relevo está em **toda parte**: em lugares baixos, planos ou altos, arredondados ou pontudos.",
-        "Umas ruas têm **ladeiras íngremes**, bem inclinadas, e outras são **planas**. **Ouro Preto**, em Minas Gerais, é famosa pelas ladeiras.",
-        "Construir numa ladeira pede **outras técnicas**. E lugares cheios de montanhas servem só para **alguns cultivos**.",
-        "**Hidrografia** é o estudo das **águas**: rios, lagos, lagoas, mares, oceanos e a água **debaixo da terra**."
+        "Já subiu uma ladeira bem inclinada? Ela faz parte do **relevo**: o conjunto das formas da **superfície terrestre**.",
+        "O relevo está em **toda parte**: em **áreas baixas, planas ou elevadas**. Tem formatos **arredondados** e até **pontiagudos**, que são pontudos.",
+        "Por causa do relevo, umas ruas têm **ladeiras íngremes**, bem inclinadas, e outras são **planas**. **Ouro Preto**, em Minas Gerais, é famosa pelas ladeiras.",
+        "Construções em **áreas de ladeira** precisam de **técnicas diferentes**. E **locais montanhosos** favorecem alguns cultivos e impedem outros.",
+        "**Hidrografia** é o estudo das **águas superficiais e subterrâneas**. São as águas de cima da terra, como rios e mares, e as de baixo dela."
       ],
       "audio": "audio/geografia-10-0.mp3"
     },
     {
       "titulo": "Planalto, planície e depressão",
       "pontos": [
-        "**Planaltos** ficam **acima de 300 metros**. No Centro-Oeste e no Nordeste, há **chapadas**: o topo é reto, como uma **mesa**.",
-        "No Sudeste e no Sul, os planaltos têm **morros arredondados**, como os da **Serra do Mar**.",
-        "**Planícies** são terrenos planos e **baixos**, feitos de **sedimentos**, pedacinhos de terra e rocha que vêm de lugares altos. O **Pantanal** é uma planície.",
-        "**Depressões** são áreas planas, **mais baixas que o relevo em volta**. Nelas, a **erosão** leva os sedimentos embora.",
-        "**Erosão** é o desgaste do solo e das rochas pelo **vento**, pela **chuva** e pelas pessoas. Ela acontece nas partes **altas**."
+        "Os **planaltos** têm **altitudes superiores a 300 metros**. No Centro-Oeste e no Nordeste, há **chapadas**, com formato de **mesa**.",
+        "No topo, a chapada é mais plana, mas suas **encostas**, os lados, são bem **íngremes**, **quase verticais**. Em parte do Sudeste e do Sul, os planaltos têm **morros arredondados**.",
+        "As **planícies** são terrenos **planos** e de **baixas altitudes**, formados pela **deposição de sedimentos**. O **Pantanal** é uma planície.",
+        "As **depressões** são áreas planas, com **menor altitude do que o relevo ao redor**. Nelas, **predomina a retirada de sedimentos** pela erosão.",
+        "**Erosão** é o **desgaste do solo e das rochas** pela ação do **vento**, da **chuva** e das **atividades humanas**."
       ],
       "audio": "audio/geografia-10-1.mp3"
     },
     {
-      "titulo": "Altura ou altitude?",
+      "titulo": "Altura e altitude",
       "pontos": [
-        "Parecem iguais, mas não são! **Altura** é medida a partir do **chão**. Usamos para pessoas, objetos e prédios.",
-        "**Altitude** é medida a partir do **nível do mar**. Usamos para morros, montanhas e outras **formas de relevo**.",
+        "Parecem iguais, mas não são! **Altura** é a distância até a **superfície da Terra**. Usamos para pessoas, objetos e prédios.",
+        "**Altitude** é a **distância vertical** até o **nível do mar**. Usamos para as **formas de relevo**.",
         "No Rio de Janeiro, o **Cristo Redentor** tem **38 metros de altura**. O morro ao lado tem **395 metros de altitude**.",
-        "O **rio Tietê** nasce a **840 metros de altitude**, na Serra do Mar, em São Paulo."
+        "O **rio Tietê** nasce a **840 metros de altitude**, em Salesópolis, na **Serra do Mar**."
       ],
       "audio": "audio/geografia-10-2.mp3"
     },
     {
-      "titulo": "O relevo no papel",
+      "titulo": "Representações do relevo",
       "pontos": [
-        "Como mostrar um morro no papel? O **perfil topográfico** mostra o relevo **de lado**. O **mapa** mostra **de cima**.",
-        "**Curvas de nível** são linhas imaginárias que ligam os pontos com a **mesma altitude**.",
-        "Nos **mapas altimétricos**, as cores mostram a altitude: **cores escuras** para lugares **altos** e **claras** para lugares **baixos**.",
-        "No mapa da **Paraíba**, as terras mais **baixas** ficam perto do **mar**, e as mais **altas**, no **interior**."
+        "Como mostrar um morro no papel? O **perfil topográfico** mostra uma **visão lateral**, de lado. O **mapa** mostra uma **visão vertical**, de cima.",
+        "**Curvas de nível** são **linhas imaginárias** que representam os pontos do relevo com a **mesma altitude**.",
+        "Nos **mapas altimétricos**, as **maiores altitudes** têm **cores mais escuras**, e as **menores**, **cores mais claras**.",
+        "No mapa da **Paraíba**, as altitudes mais **baixas** ficam perto do **oceano**, e as mais **altas**, no **interior**."
       ],
       "audio": "audio/geografia-10-3.mp3"
     },
     {
-      "titulo": "Rios e relevo: um muda o outro",
+      "titulo": "Relação entre relevo e hidrografia",
       "pontos": [
-        "O relevo deixa o rio **rápido ou lento**, **fundo ou raso**, **reto ou cheio de curvas**.",
-        "Onde o relevo tem muitas **subidas e descidas**, surgem **cachoeiras** e **corredeiras**. Onde é **plano**, formam-se **lagos** e **pântanos**.",
-        "Os rios também mudam o relevo: nas partes **altas**, levam os **sedimentos** embora. Nas **baixas**, deixam os sedimentos: é a **deposição**.",
-        "Sabia? No **encontro das águas**, os rios **Negro** e **Solimões** correm juntos **sem se misturar** por uns **6 quilômetros**!",
-        "O Solimões carrega muito mais **sedimentos**. Por isso, a **cor** dele é diferente da do rio Negro."
+        "O relevo faz os rios serem **mais rápidos ou mais lentos** e **mais profundos ou mais rasos**. Também podem ser **retilíneos**, retos, ou **sinuosos**, cheios de curvas.",
+        "O **relevo acidentado**, cheio de subidas e descidas, cria **quedas-d'água**, **corredeiras** e **vales profundos**. Áreas **planas** favorecem **lagos** e **pântanos**.",
+        "A hidrografia também modela o relevo: nas partes **mais altas** do rio, há **retirada de sedimentos**. Nas **mais baixas**, há **deposição**.",
+        "Sabia? No **encontro das águas**, os rios **Negro** e **Solimões** correm juntos **sem se misturar** por cerca de **seis quilômetros**!",
+        "O **Solimões** carrega **muitos sedimentos** da erosão, e o **Negro**, menos. Isso explica a **diferença de cor** entre eles."
       ],
       "audio": "audio/geografia-10-4.mp3"
     },
     {
       "titulo": "As partes de um rio",
       "pontos": [
-        "Todo rio começa na **nascente**, num lugar **alto**, como um planalto.",
-        "A água corre pelo **leito**, que é o caminho do rio. A **margem** é a beirada, bem ao lado do leito.",
-        "**Afluente** é um rio que joga sua água em outro rio. O **rio principal** é o maior e recebe os afluentes.",
-        "O rio termina na **foz**: ali ele deságua no **mar**, em outro **rio** ou num **lago**. A foz é mais **baixa** que a nascente.",
-        "**Bacia hidrográfica** é toda a área do rio principal e de seus afluentes, cercada por terras **mais altas**."
+        "**Nascente**: local onde o rio nasce. São **locais altos**, como os **planaltos**.",
+        "**Leito**: o **canal** por onde passam as águas do rio. **Margem**: a área bem ao lado do leito.",
+        "**Afluente**: rio que **deságua** em outro rio. O **rio principal** é o **maior** da bacia e recebe as águas dos afluentes.",
+        "**Foz**: local onde o rio **deságua**, no **mar**, em **outro rio** ou num **lago**. Fica **mais baixa** que a nascente.",
+        "**Bacia hidrográfica**: área que abrange o **rio principal** e seus **afluentes**, cercada por partes **mais elevadas** do relevo."
       ],
       "audio": "audio/geografia-10-5.mp3"
     },
     {
-      "titulo": "A água do Brasil",
+      "titulo": "Relevo e água do Brasil",
       "pontos": [
-        "Os lugares **mais altos** do Brasil ficam perto do **litoral leste** e no **extremo norte**. O **interior** e o **litoral norte** são mais **baixos**.",
-        "O Brasil é um dos poucos países com **tanta água doce**: em rios, lagos e debaixo da terra.",
-        "O **rio Amazonas** nasce na **cordilheira dos Andes**, no **Peru**, e deságua no **oceano Atlântico**. É o rio com **mais água do mundo**!",
-        "A maior bacia é a do **rio Amazonas**, no **Norte**. Lá está a maior parte da água doce do Brasil.",
-        "O **Sudeste** tem muita gente e muitas fábricas, mas **menos água** nos rios. Por isso, é preciso **cuidar da água** para ela não faltar."
+        "As **maiores altitudes** do Brasil ficam perto do **litoral leste** e no **extremo norte**. O **interior** e o **litoral norte** têm altitudes **menores**.",
+        "O Brasil é um dos **poucos países** com tanta **água doce**: em rios, lagos e no **subsolo**, debaixo da terra.",
+        "O **rio Amazonas** nasce na **cordilheira dos Andes**, no **Peru**, e deságua no **oceano Atlântico**. É o rio com o **maior volume de água do mundo**!",
+        "A maior **bacia hidrográfica** é a do **rio Amazonas**, na região **Norte**. Lá está o **maior volume de água doce** do Brasil.",
+        "O **Sudeste** tem muita gente e muitas **indústrias**, mas **menos água** nos rios. Por isso, é preciso **planejar** o uso da água para evitar a **escassez**, a falta dela."
       ],
       "audio": "audio/geografia-10-6.mp3"
     }
@@ -100,7 +100,7 @@ export const geografia10: Capitulo = {
     },
     {
       "palavra": "Sedimento",
-      "significado": "Pedacinhos levados pela água, pelo gelo ou pelo vento"
+      "significado": "Material sólido levado pela água, pelo gelo ou pelo vento"
     },
     {
       "palavra": "Erosão",
@@ -116,7 +116,7 @@ export const geografia10: Capitulo = {
     },
     {
       "palavra": "Depressão",
-      "significado": "Área mais baixa que o relevo em volta"
+      "significado": "Área com menor altitude que o relevo ao redor"
     },
     {
       "palavra": "Altitude",
@@ -192,7 +192,7 @@ export const geografia10: Capitulo = {
     {
       "frase": "Nas depressões, o que mais acontece é a deposição de sedimentos.",
       "verdadeira": false,
-      "explicacao": "Nas depressões, a erosão leva os sedimentos embora."
+      "explicacao": "Nas depressões, predomina a retirada de sedimentos pela erosão."
     },
     {
       "frase": "A altitude é medida a partir do nível do mar.",
@@ -475,7 +475,7 @@ export const geografia10: Capitulo = {
       "resposta": "Chapada",
       "pistas": [
         "Fico num planalto.",
-        "Meus lados são quase retos, como uma parede.",
+        "Minhas encostas são quase verticais.",
         "Tenho o topo plano, em forma de mesa."
       ],
       "distratores": [
@@ -569,7 +569,7 @@ export const geografia10: Capitulo = {
       "consequencia": "Os sedimentos descem e se depositam na parte baixa"
     },
     {
-      "causa": "O relevo tem muitas subidas e descidas",
+      "causa": "O relevo é acidentado",
       "consequencia": "Formam-se quedas-d'água e corredeiras"
     },
     {
@@ -578,7 +578,7 @@ export const geografia10: Capitulo = {
     },
     {
       "causa": "Os rios levam sedimentos das partes altas para as baixas",
-      "consequencia": "Os rios ajudam a mudar a forma do relevo"
+      "consequencia": "Os rios têm papel importante na modelagem do relevo"
     },
     {
       "causa": "O Sudeste tem muita gente e pouca água nos rios",

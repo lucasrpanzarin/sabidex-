@@ -16,98 +16,98 @@ export const geografia9: Capitulo = {
     {
       "titulo": "A viagem do chocolate",
       "pontos": [
-        "Sabe o chocolate que você come? A viagem dele começa no **campo**, onde o **cacau** é colhido.",
-        "Depois, o cacau vai para a **cidade**. Lá, a fábrica transforma o cacau em **chocolate**.",
-        "Por isso, o campo e a cidade são **interdependentes**: um precisa do outro, e os dois se completam.",
-        "O campo manda **alimentos** para todo mundo e **matérias-primas** para as fábricas.",
-        "A cidade faz **máquinas**, **fertilizantes**, ração para os animais e produtos que protegem as plantações. E tem **lojas e serviços**."
+        "Sabe o chocolate que você come? A viagem dele começa no **espaço rural**, o campo, onde o **cacau**, a **matéria-prima**, é colhido.",
+        "No **espaço urbano**, a cidade, acontecem o **processamento** e a **fabricação** do chocolate.",
+        "Por isso, **o campo e a cidade são interdependentes**: um depende do outro, e os dois se completam.",
+        "O campo **abastece** toda a população com **alimentos** e fornece **matérias-primas** para as **indústrias**.",
+        "A cidade produz **máquinas**, **fertilizantes**, **defensivos agrícolas**, que protegem as plantações, e **ração animal**. E tem **comércios e serviços**."
       ],
       "audio": "audio/geografia-9-0.mp3"
     },
     {
-      "titulo": "Vai e vem de gente",
+      "titulo": "A circulação de pessoas",
       "pontos": [
-        "Pessoas, mercadorias e notícias **circulam** entre o campo e a cidade. Para isso, usam **estradas** e **meios de comunicação**.",
-        "Todo dia, muita gente sai do campo para **trabalhar**, **estudar**, **passear**, **fazer compras** ou visitar alguém na cidade.",
-        "Muitas crianças do campo pegam o **ônibus escolar** para estudar na cidade. Já imaginou ir assim para a escola?",
-        "Os **grandes hospitais** ficam nas cidades. Quem mora no campo vai até lá para ver **médicos especialistas** e fazer exames.",
-        "E tem o caminho contrário: **trabalhadores agrícolas** que moram na cidade e vão todo dia trabalhar no campo."
+        "Pessoas, mercadorias e informações estão em **circulação entre o campo e a cidade**. Elas usam as **vias de transporte** e os **meios de comunicação**.",
+        "Todo dia, muita gente vai do campo à cidade por **trabalho**, **estudo**, **lazer**, **compras** e visitas a familiares e amigos.",
+        "Muitas crianças da **zona rural** pegam o **ônibus escolar** para estudar na cidade. Já imaginou ir assim para a escola?",
+        "Os **grandes hospitais** ficam nos espaços urbanos. Quem mora no campo vai até lá para ver **médicos especializados** e fazer **exames mais complexos**.",
+        "E tem o **sentido inverso**: **trabalhadores agrícolas** que moram na cidade e vão todo dia trabalhar nas **áreas rurais**."
       ],
       "audio": "audio/geografia-9-1.mp3"
     },
     {
-      "titulo": "Passeio no campo",
+      "titulo": "Turismo no campo",
       "pontos": [
-        "Muita gente da cidade visita o campo para passear. Isso se chama **turismo rural**.",
-        "O campo tem **rios para tomar banho**, **cachoeiras**, lugares para **descansar** e atividades de **aventura**.",
-        "O turismo rural cria **muitos empregos**: guia turístico, dono de pousada, cozinheiro e recepcionista.",
+        "Muita gente da cidade visita o campo para passear. Isso é o **turismo rural**.",
+        "O campo tem **rios próprios para banho**, **cachoeiras**, **locais para descanso** e **atividades de aventura**.",
+        "O turismo rural gera **muitos empregos**: **guias turísticos**, **proprietários de pousadas**, **cozinheiros** e **recepcionistas**.",
         "No **Petar**, um parque em Iporanga, São Paulo, os turistas visitam **cavernas**!",
-        "O turismo pode ajudar a **replantar** uma mata. Mas, sem cuidado, traz **poluição** e diminui as plantas e os animais."
+        "O turismo pode **revitalizar** um lugar, com **reflorestamento**. Mas também pode causar **poluição** e **redução de espécies** de plantas e animais."
       ],
       "audio": "audio/geografia-9-2.mp3"
     },
     {
-      "titulo": "O caminho das mercadorias",
+      "titulo": "A circulação de mercadorias",
       "pontos": [
-        "Quem mora no campo compra coisas feitas na cidade: **roupas**, **eletrônicos**, **máquinas** e **insumos**. Compra nas lojas ou pela **internet**.",
-        "**Insumo** é tudo o que se usa para produzir: matéria-prima, energia, equipamentos e o trabalho das pessoas.",
-        "Frutas e legumes frescos saem do **campo**, passam pelo **centro de distribuição** e chegam às **lojas** da cidade.",
-        "No centro de distribuição, eles são **escolhidos e embalados** e viajam de **caminhão**. O mais importante do Brasil é a **Ceagesp**, em São Paulo.",
-        "Esse caminho se chama **cadeia produtiva**. Já a **matéria-prima** vai do campo direto para a **fábrica**, que a transforma."
+        "**Da cidade para o campo**: quem vive no campo usa **produtos industrializados**, como roupas, eletrônicos, **maquinários** e **insumos agropecuários**.",
+        "**Insumo** é tudo o que entra na produção: **matéria-prima**, **energia**, **equipamentos** e **mão de obra**. Mão de obra é o trabalho das pessoas.",
+        "**Do campo para a cidade**: os alimentos frescos saem do campo e passam pelos **centros de distribuição**. Depois, terminam nos **comércios** das cidades.",
+        "Nos centros de distribuição, os alimentos são **selecionados** e **embalados** e viajam de **caminhão**. O mais importante do Brasil é a **Ceagesp**, em São Paulo.",
+        "Esse caminho é a **cadeia produtiva**. Já a **matéria-prima** vai do campo **direto para a indústria**, que a transforma."
       ],
       "audio": "audio/geografia-9-3.mp3"
     },
     {
-      "titulo": "Que tipo de alimento é?",
+      "titulo": "Os tipos de alimento",
       "pontos": [
-        "O jeito como o alimento é **processado**, ou seja, preparado na fábrica, muda o **sabor** e a **qualidade** dele.",
-        "**In natura**: veio da planta ou do animal e **não foi processado**.",
-        "**Minimamente processado**: mudou **só um pouquinho** na fábrica, como **leite**, **ovos**, **farinhas** e **cereais**.",
-        "**Processado**: ganhou **sal, açúcar, óleo ou vinagre**, como **enlatados**, **queijos** e **pães**. É bom **comer pouco**.",
-        "**Ultraprocessado**: tem pouco nutriente e muito açúcar, gordura e sal. **Biscoitos**, **refrigerantes** e **salgadinhos de pacote**? Melhor **evitar**!"
+        "O tipo de **processamento** muda o **sabor** e a **qualidade nutricional** do alimento. Processamento é o que ele sofreu na indústria.",
+        "**Alimentos in natura**: vêm de plantas ou animais e são comprados **sem processamento**.",
+        "**Minimamente processados**: sofreram **alterações mínimas** na indústria, como **leite**, **ovos**, **farinhas** e **cereais**.",
+        "**Processados**: levam **sal, açúcar, óleo ou vinagre**, como **enlatados**, **queijos** e **pães**. Devemos **limitar o consumo**: comer pouco.",
+        "**Ultraprocessados**: são **pobres em nutrientes** e ricos em açúcar, gordura e sal, como **biscoitos**, **refrigerantes** e **salgadinhos de pacote**. Devemos **evitar o consumo**."
       ],
       "audio": "audio/geografia-9-4.mp3"
     },
     {
-      "titulo": "Estradas, trilhos e rios",
+      "titulo": "As redes de transporte",
       "pontos": [
-        "Pessoas e mercadorias só circulam tanto porque existem **redes de transporte** ligando o campo e a cidade.",
-        "O transporte pode ser **rodoviário** (estradas), **ferroviário** (trens), **hidroviário** (barcos) ou **aéreo** (aviões).",
-        "As **rodovias** levam a **maior parte** das pessoas e das cargas do Brasil. Os **caminhões** carregam as mercadorias.",
-        "As **ferrovias** levam mais **mercadorias e matérias-primas**. Em São Paulo e no Rio de Janeiro, os trens também levam passageiros.",
-        "Nas **hidrovias**, **navios e barcos** andam pelos **rios** e pelo **mar**. A **soja** sai de navio dos **portos** para outros países."
+        "Pessoas e mercadorias circulam tanto por causa das **redes de transporte**, que ligam o campo e a cidade.",
+        "Os meios de transporte são **rodoviário** (estradas), **ferroviário** (trens), **hidroviário** (barcos) e **aéreo** (aviões).",
+        "As **rodovias** fazem a **maior parte dos deslocamentos** de pessoas e mercadorias no Brasil. Os **caminhões** levam as **cargas**.",
+        "As **ferrovias** levam principalmente **mercadorias e matérias-primas**. Em São Paulo e no Rio de Janeiro, os **trens urbanos** também levam passageiros.",
+        "Nas **hidrovias**, **navios e barcos** levam mercadorias e pessoas pelos **rios** e pelo **mar**. A **soja** sai de navio dos **portos** para outros países."
       ],
       "audio": "audio/geografia-9-5.mp3"
     },
     {
-      "titulo": "Conectados pela internet",
+      "titulo": "Os meios de comunicação",
       "pontos": [
-        "Os **meios de comunicação** mudaram muito e **aproximaram** o campo e a cidade.",
-        "Hoje tem celular, computador e TV com **internet** no campo e na cidade, no Brasil todo.",
+        "Os **meios de comunicação** evoluíram muito e trouxeram **maior integração** entre o campo e a cidade: eles ficaram mais ligados.",
+        "Smartphones, computadores e televisões com **internet** estão nos **espaços rurais e urbanos** de todo o Brasil.",
         "Em 2023, **89,6%** das pessoas da **cidade** usaram a internet. No **campo**, foram **76,6%**.",
-        "O aparelho mais usado para entrar na internet foi o **celular**. Com ele dá para ver **aulas**, **filmes**, **livros** e **músicas**.",
-        "Com a internet, **músicos do campo** mostram seu trabalho ao mundo. E quem mora no campo ouve mais músicas da cidade."
+        "O aparelho mais usado para **acessar** a internet foi o **celular**. Com ele dá para ver **aulas**, **filmes**, **livros** e **músicas**.",
+        "Com a internet, **músicos do campo** mostram seu trabalho ao mundo. E quem mora no campo tem **maior acesso** às músicas da cidade."
       ],
       "audio": "audio/geografia-9-6.mp3"
     },
     {
-      "titulo": "Comprar e aprender pela internet",
+      "titulo": "Comprar e se informar pela internet",
       "pontos": [
-        "A internet ajuda **empresas** e **clientes** a se encontrarem mais rápido.",
-        "Hoje é comum **comprar pela internet**. E não só na cidade: o campo também tem **transporte e internet**.",
-        "O que se compra on-line fica em **galpões** enormes perto das **rodovias**. Lá é separado, embalado e enviado.",
-        "Pela internet, os **agricultores** recebem **pesquisas**, a **previsão do tempo** e dicas de especialistas, quase sempre feitas na cidade.",
-        "Muitas **universidades** e **centros de pesquisa** ficam na cidade, mas trocam informações com o campo pela **internet**."
+        "A internet mudou a **circulação de mercadorias e informações**: **fornecedores**, **empresas** e **clientes** se conectam mais rápido.",
+        "Hoje é muito comum **comprar pela internet**. E não só na cidade: o campo também tem **redes de transporte e de comunicação**.",
+        "O que se compra on-line fica em **galpões**, grandes **centros de distribuição** perto de **rodovias**. Lá é separado, embalado e enviado.",
+        "Os **produtores rurais** recebem **pesquisas**, informações sobre o **tempo atmosférico** e **orientação técnica**, geralmente feitas nas cidades.",
+        "Muitas **universidades** e **centros de pesquisa** ficam no espaço urbano, mas trocam informações com o campo pela **internet**."
       ],
       "audio": "audio/geografia-9-7.mp3"
     },
     {
       "titulo": "Campo e cidade vistos lá de cima",
       "pontos": [
-        "Imagine ver tudo lá do alto, como um passarinho! As **imagens de satélite** mostram os lugares **de cima**: é a **visão vertical**.",
-        "Na imagem do campo, em **Sorriso**, Mato Grosso, aparecem grandes **plantações**, áreas verdes e algumas estradas.",
-        "Na imagem da cidade, em **Guarulhos**, São Paulo, aparecem **muitas casas e prédios** e **ruas asfaltadas**.",
-        "Assim dá para ver como o campo e a cidade são **diferentes**: na paisagem e no trabalho das pessoas."
+        "Imagine ver tudo lá do alto, como um passarinho! As **imagens de satélite** mostram os lugares de cima: é a **visão vertical**.",
+        "No **espaço rural** de **Sorriso**, Mato Grosso, aparecem grandes **plantações**, **áreas verdes** e algumas **vias de circulação**.",
+        "Em **Guarulhos**, São Paulo, a **área urbana** tem **muitas construções** e **vias pavimentadas**, isto é, ruas com asfalto ou calçamento.",
+        "O campo e a cidade são **muito diferentes** nas **paisagens** e nas **atividades econômicas**, os trabalhos de cada lugar."
       ],
       "audio": "audio/geografia-9-8.mp3"
     }
@@ -123,15 +123,15 @@ export const geografia9: Capitulo = {
     },
     {
       "palavra": "Insumo",
-      "significado": "Tudo o que se usa para produzir"
+      "significado": "Tudo o que entra na produção: energia, máquinas, mão de obra"
     },
     {
       "palavra": "Centro de distribuição",
-      "significado": "Onde os alimentos são escolhidos e embalados"
+      "significado": "Onde os alimentos são selecionados e embalados"
     },
     {
       "palavra": "Cadeia produtiva",
-      "significado": "O caminho do alimento, do campo até a loja"
+      "significado": "O caminho do alimento, do campo até o comércio"
     },
     {
       "palavra": "Turismo rural",
@@ -147,11 +147,11 @@ export const geografia9: Capitulo = {
     },
     {
       "palavra": "Hidrovias",
-      "significado": "Caminhos de barcos e navios em rios e mar"
+      "significado": "Navios e barcos levam cargas em rios e mar"
     },
     {
       "palavra": "Ultraprocessados",
-      "significado": "Pouco nutritivos: melhor evitar"
+      "significado": "Pobres em nutrientes: evitar o consumo"
     }
   ],
   "linha": [
@@ -173,17 +173,17 @@ export const geografia9: Capitulo = {
     {
       "ano": "4º",
       "ordem": 4,
-      "fato": "Testam a qualidade do leite"
+      "fato": "Análise da qualidade"
     },
     {
       "ano": "5º",
       "ordem": 5,
-      "fato": "O leite é pasteurizado"
+      "fato": "Pasteurização"
     },
     {
       "ano": "6º",
       "ordem": 6,
-      "fato": "O leite vai para as garrafas"
+      "fato": "Engarrafamento"
     },
     {
       "ano": "7º",
@@ -210,7 +210,7 @@ export const geografia9: Capitulo = {
     {
       "frase": "Máquinas, fertilizantes e ração animal são feitos nas cidades e usados no campo.",
       "verdadeira": true,
-      "explicacao": "Certo! Eles são feitos nas fábricas da cidade e ajudam a plantar e a criar animais."
+      "explicacao": "Certo! As cidades concentram a produção desses itens, usados na agropecuária (plantações e criação de animais)."
     },
     {
       "frase": "Os grandes hospitais geralmente ficam no campo.",
@@ -220,7 +220,7 @@ export const geografia9: Capitulo = {
     {
       "frase": "Alguns trabalhadores agrícolas moram na cidade e vão todo dia trabalhar no campo.",
       "verdadeira": true,
-      "explicacao": "Certo! As pessoas também vão da cidade para o campo."
+      "explicacao": "Certo! As pessoas também se deslocam da cidade para o campo."
     },
     {
       "frase": "O turismo rural gera poucos empregos, só de guia turístico.",
@@ -228,19 +228,19 @@ export const geografia9: Capitulo = {
       "explicacao": "Gera muitos empregos: guias, donos de pousadas, cozinheiros e recepcionistas."
     },
     {
-      "frase": "Nos centros de distribuição, os alimentos são escolhidos e embalados.",
+      "frase": "Nos centros de distribuição, os alimentos são selecionados e embalados.",
       "verdadeira": true,
-      "explicacao": "Certo! Depois, eles vão de caminhão para as lojas de todo o Brasil."
+      "explicacao": "Certo! Depois, eles vão de caminhão para o comércio de todo o Brasil."
     },
     {
       "frase": "As frutas frescas vão do campo direto para a indústria, que as transforma.",
       "verdadeira": false,
-      "explicacao": "Alimentos frescos passam pelo centro de distribuição e vão para as lojas. Quem vai para a fábrica é a matéria-prima."
+      "explicacao": "Alimentos frescos passam pelos centros de distribuição e vão para o comércio. A matéria-prima vai direto para a indústria."
     },
     {
       "frase": "Biscoitos, refrigerantes e salgadinhos de pacote são ultraprocessados e devemos evitá-los.",
       "verdadeira": true,
-      "explicacao": "Certo! Eles têm pouco nutriente e muito açúcar, gordura e sal."
+      "explicacao": "Certo! Eles são pobres em nutrientes e ricos em açúcar, gordura e sal."
     },
     {
       "frase": "No Brasil, as ferrovias fazem a maior parte do transporte de pessoas e mercadorias.",
@@ -299,7 +299,7 @@ export const geografia9: Capitulo = {
         "As vias aéreas"
       ],
       "certa": 2,
-      "explicacao": "No Brasil, a maior parte das pessoas e das cargas viaja pelas rodovias."
+      "explicacao": "As rodovias são responsáveis pela maior parte dos deslocamentos de pessoas e mercadorias no Brasil."
     },
     {
       "pergunta": "Em 2023, qual aparelho foi o mais usado para acessar a internet?",
@@ -321,7 +321,7 @@ export const geografia9: Capitulo = {
         "Porque um precisa do outro e eles se completam"
       ],
       "certa": 3,
-      "explicacao": "O campo dá alimentos e matérias-primas; a cidade dá máquinas, insumos, lojas e serviços."
+      "explicacao": "O campo dá alimentos e matérias-primas; a cidade dá máquinas, insumos, comércios e serviços."
     },
     {
       "pergunta": "Por que muitos moradores do campo vão à cidade para fazer exames complexos?",
@@ -335,7 +335,7 @@ export const geografia9: Capitulo = {
       "explicacao": "Os grandes hospitais e os médicos especializados geralmente ficam nas cidades."
     },
     {
-      "pergunta": "Uma imagem de satélite mostra muitas casas, prédios e ruas asfaltadas. Que lugar é esse?",
+      "pergunta": "Uma imagem de satélite mostra muitas construções e vias pavimentadas. Que lugar é esse?",
       "opcoes": [
         "Uma área do campo, com plantações",
         "Um parque com cavernas",
@@ -343,7 +343,7 @@ export const geografia9: Capitulo = {
         "Um centro de distribuição"
       ],
       "certa": 2,
-      "explicacao": "Muitas construções e ruas asfaltadas mostram uma área urbana, como Guarulhos."
+      "explicacao": "Muitas construções e vias pavimentadas mostram uma área urbana, como Guarulhos."
     },
     {
       "pergunta": "Como a internet ajudou a aproximar o campo e a cidade?",
@@ -365,7 +365,7 @@ export const geografia9: Capitulo = {
         "Nas pousadas do campo"
       ],
       "certa": 0,
-      "explicacao": "Máquinas, fertilizantes e ração animal são feitos, quase sempre, nas fábricas das cidades."
+      "explicacao": "As cidades concentram a produção de máquinas, fertilizantes, defensivos agrícolas e ração animal."
     },
     {
       "pergunta": "Uma família comprou biscoito, refrigerante e salgadinho de pacote. Que tipo de alimento é esse?",
@@ -376,7 +376,7 @@ export const geografia9: Capitulo = {
         "Minimamente processado"
       ],
       "certa": 1,
-      "explicacao": "São ultraprocessados: têm pouco nutriente. O Guia alimentar diz para evitar."
+      "explicacao": "São ultraprocessados: pobres em nutrientes. O Guia alimentar diz para evitar o consumo."
     },
     {
       "pergunta": "Em 2023, 89,6% das pessoas da cidade e 76,6% das do campo usaram a internet. O que isso mostra?",
@@ -410,7 +410,7 @@ export const geografia9: Capitulo = {
       ]
     },
     {
-      "frase": "Nos centros de ___, os alimentos são escolhidos e embalados.",
+      "frase": "Nos centros de ___, os alimentos são selecionados e embalados.",
       "resposta": "distribuição",
       "distratores": [
         "saúde",
@@ -419,7 +419,7 @@ export const geografia9: Capitulo = {
       ]
     },
     {
-      "frase": "Matéria-prima, energia, equipamentos e o trabalho das pessoas são ___.",
+      "frase": "Matéria-prima, energia, equipamentos e mão de obra são ___.",
       "resposta": "insumos",
       "distratores": [
         "serviços",
@@ -608,7 +608,7 @@ export const geografia9: Capitulo = {
           "itens": [
             "Topo de prédios",
             "Muitas construções",
-            "Ruas asfaltadas"
+            "Vias pavimentadas"
           ]
         }
       ]
@@ -629,11 +629,11 @@ export const geografia9: Capitulo = {
     },
     {
       "causa": "O alimento recebe sal, açúcar, óleo ou vinagre",
-      "consequencia": "Ele fica menos saudável"
+      "consequencia": "Ele fica desequilibrado nutricionalmente"
     },
     {
       "causa": "Os meios de comunicação evoluíram",
-      "consequencia": "O campo e a cidade ficaram mais próximos"
+      "consequencia": "O campo e a cidade tiveram maior integração"
     },
     {
       "causa": "O campo também tem redes de transporte e de comunicação",
