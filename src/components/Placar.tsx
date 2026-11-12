@@ -19,15 +19,15 @@ export function legendaDoPlacar(aba: Aba, periodo: Periodo) {
   return { xp: 'XP ganho nesta semana.', vitorias: 'Vitórias no Duelo do Saber nesta semana.' }[aba] + ' Zera toda segunda-feira.';
 }
 
-/** "Esta semana" ou "Desde o começo". */
+/** "Ranking semanal" ou "Ranking geral". */
 export function EscolhaPeriodo({ periodo, mudar }: { periodo: Periodo; mudar: (p: Periodo) => void }) {
   return (
     <div className="linha" role="tablist" aria-label="Qual placar" style={{ gap: 6, padding: 4, borderRadius: 999, border: '2px solid var(--ink)', background: 'var(--surface)' }}>
       {(['semana', 'geral'] as const).map((k) => (
         <button key={k} role="tab" aria-selected={periodo === k} onClick={() => mudar(k)}
-          style={{ flex: 1, minHeight: 40, borderRadius: 999, border: 0, cursor: 'pointer', fontFamily: 'Lilita One, sans-serif', fontSize: 16,
+          style={{ flex: 1, minHeight: 40, borderRadius: 999, border: 0, cursor: 'pointer', fontFamily: 'Lilita One, sans-serif', fontSize: 'clamp(13px, 4.2vw, 16px)', padding: '0 6px', minWidth: 0, whiteSpace: 'nowrap',
             background: periodo === k ? 'var(--yellow)' : 'transparent', color: 'var(--ink)', boxShadow: periodo === k ? 'inset 0 0 0 2px var(--ink)' : 'none' }}>
-          {k === 'semana' ? 'Esta semana' : 'Desde o começo'}
+          {k === 'semana' ? 'Ranking semanal' : 'Ranking geral'}
         </button>
       ))}
     </div>

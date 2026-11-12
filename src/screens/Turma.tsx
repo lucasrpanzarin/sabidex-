@@ -368,7 +368,7 @@ export function Ranking() {
     <main className="tela">
       <div>
         <div className="eyebrow">{conta.turma}</div>
-        <h1 className="display h1">{aba === 'cartas' ? 'Ranking' : periodo === 'semana' ? 'Ranking da semana' : 'Ranking geral'}</h1>
+        <h1 className="display h1">Ranking</h1>
       </div>
       <EscolhaPeriodo periodo={periodo} mudar={setPeriodo} />
       <div className="linha" role="tablist" aria-label="O que contar" style={{ gap: 8 }}>
