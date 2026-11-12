@@ -394,7 +394,7 @@ export const ciencias10: Capitulo = {
       ]
     },
     {
-      "frase": "O sistema imunitário reconhece o invasor como um ___, algo estranho ao corpo.",
+      "frase": "Quando um invasor entra no corpo, o sistema imunitário o reconhece como um ___.",
       "resposta": "antígeno",
       "distratores": [
         "anticorpo",
