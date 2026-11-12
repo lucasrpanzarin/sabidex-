@@ -35,7 +35,7 @@ export function MeuDia() {
   return (
     <main className="tela">
       <div className="coluna" style={{ gap: 2 }}>
-        <button className="voltar" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Início</button>
+        <button className="voltar voltar-topo" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Início</button>
         <h1 className="display h1">Meu dia</h1>
       </div>
 

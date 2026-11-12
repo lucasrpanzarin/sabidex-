@@ -84,7 +84,7 @@ export function Mundo({ id }: { id: string }) {
   return (
     <main className="tela">
       <div className="coluna" style={{ gap: 2 }}>
-        <button className="voltar" onClick={() => ir('mundos', cap.materia)}><Icone nome="voltar" tamanho={18} espessura={3} />{cap.materia}</button>
+        <button className="voltar voltar-topo" onClick={() => ir('mundos', cap.materia)}><Icone nome="voltar" tamanho={18} espessura={3} />{cap.materia}</button>
         <div className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
           <div className="eyebrow">Unidade {cap.numero}</div>
           <SeloProva s={situacao(conta?.provas, cap.id, hoje())} />

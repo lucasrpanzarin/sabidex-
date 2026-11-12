@@ -23,7 +23,7 @@ export function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: 
   return (
     <div className="coluna" style={{ gap: 2 }}>
       <div className="linha" style={{ justifyContent: 'space-between' }}>
-        <button className="voltar" onClick={() => ir('mundo', cap.id)}><Icone nome="voltar" tamanho={18} espessura={3} />Unidade {cap.numero}</button>
+        <button className="voltar voltar-topo" onClick={() => ir('mundo', cap.id)}><Icone nome="voltar" tamanho={18} espessura={3} />Unidade {cap.numero}</button>
         {extra}
       </div>
       <h1 className="display h2">{infoFase(fase, cap).titulo}</h1>

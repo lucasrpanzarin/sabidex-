@@ -178,7 +178,7 @@ export function EntrarConta({ aoTerminar, aoVoltar }: { aoTerminar: () => void; 
 
   return (
     <main className="tela">
-      <button className="voltar" onClick={voltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
+      <button className="voltar voltar-topo" onClick={voltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
       {titulo && <h1 className="display h1">{titulo}</h1>}
       <Erro texto={erro} />
       {passo === 'codigo' && (
@@ -609,7 +609,7 @@ function NovaTroca({ aoTerminar }: { aoTerminar: (msg: string | null) => void })
 
   return (
     <main className="tela">
-      <button className="voltar" onClick={voltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
+      <button className="voltar voltar-topo" onClick={voltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
       <div>
         <div className="eyebrow">Nova troca · passo {passo} de 4</div>
         <h1 className="display h2">{['Com quem você quer trocar?', `O que você quer de ${colega?.apelido}?`, 'O que você vai dar?', 'Confira a troca'][passo - 1]}</h1>
@@ -708,7 +708,7 @@ export function MinhaConta() {
   };
   return (
     <main className="tela">
-      <button className="voltar" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Início</button>
+      <button className="voltar voltar-topo" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Início</button>
 
       <div className="painel-destaque coluna" style={{ alignItems: 'center', textAlign: 'center', gap: 8 }}>
         <Avatar nome={e.perfil?.nome ?? '?'} cor={e.perfil?.cor ?? CORES[0]} tamanho={84} />

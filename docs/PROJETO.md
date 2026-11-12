@@ -7,7 +7,7 @@ O Claude lê este arquivo no começo de cada conversa (está pedido no `CLAUDE.m
 - Quando o Lucas der uma ideia nova, o Claude confere aqui antes e avisa: "isso já existe", "isso já foi testado e trocado por X" ou "isso vai contra a regra Y".
 - Ao terminar qualquer mudança, o Claude atualiza este caderno (o que mudou, a data e quem decidiu).
 
-Última revisão geral: **04/11/2026**. Última mudança: **12/11/2026** (Desafio do dia, um por matéria).
+Última revisão geral: **04/11/2026**. Última mudança: **12/11/2026** (botão de voltar maior no topo).
 
 ---
 
@@ -88,6 +88,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - Vida e força da carta: calculadas em `src/lib/sabimon.ts` (pela raridade e pela forma). Forma 1: comum Vida 50, força 10/20 · rara 60, 20/30 · épica 70, 30/40 · **lendária 90, 40/50**. Forma 2: +30 Vida, força ×1,7. Forma 3: +70 Vida, força ×2,6.
 - **Lendária tem brilho**: estrela-figurinha amarela no canto da moldura e reflexo dourado em cima do desenho.
 - Carta com itens da lojinha não sai em troca nem na evolução (só as cópias repetidas).
+- **Botão de voltar do topo** (sugestão de uma mãe, 12/11/2026; classe `.voltar-topo` em `src/styles.css`): nas telas sem o menu de baixo (desafio, fases, mapa da unidade, revisão, lojinha, duelo...), o "‹ Início" / "‹ Voltar" é um botão grande de figurinha (branco, contorno escuro, sombra), não mais um textinho cinza. Os "voltar" só de texto ("Agora não", "Sou outra pessoa") continuam como link.
 - Ao sair de uma figurinha (botão "Álbum" ou voltar do celular), o álbum volta **na figurinha que a criança abriu**, não no topo (Lucas, 06/11/2026).
 
 ### Lojinha
@@ -220,6 +221,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências (unidad
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
+
+- **12/11/2026** · **Voltar maior no topo** (sugestão da Ana Eliza, mãe do Marco Antônio: no Desafio era difícil achar como voltar, só um "Início" pequeno e cinza). Testado no jogo: o voltar era um texto de 60 × 44 px que não parecia botão. Virou um botão de figurinha de 105 × 50 px, em todas as telas que têm o voltar com setinha, para ficar igual no app todo (Lucas pediu para avaliar; Claude testou e fez).
 
 - **12/11/2026** · **Desafio do dia, um por matéria** (Lucas: as crianças reclamaram que tinha poucos jogos e queriam ganhar mais bichos). 10 perguntas misturadas das unidades já começadas; nota 7 dá 1 pacote por matéria por dia. Usa só as perguntas que já existem no app (sem inteligência artificial, sem custo). Conta feita para o Lucas: quem faz os 4 todo dia junta uns 120 pacotes a mais por mês, e ele achou bom. Ideia anotada para depois: jogos novos com as mesmas palavras (forca, palavra embaralhada, caça-palavras, maratona de 3 vidas).
 - **12/11/2026** · **Conferência da experiência da criança em Ciências** (robô jogou as 5 fases e os 4 jogos extras das unidades 9 e 10 no tamanho de celular, sem erros). Ajustes: nas unidades com etapas (fase 3 com `nomeLinha`, também na Geografia) o aviso dizia "do mais antigo para o mais novo" e agora diz "na ordem, da primeira para a última"; e a fase pega **5 etapas seguidas** (antes podia faltar uma no meio, ficando "4º, 6º"). A fase 3 da Ciências 9 passou a se chamar "Níveis de organização" (o termo do livro, p. 58), para não repetir o nome da unidade (Lucas pediu a conferência).

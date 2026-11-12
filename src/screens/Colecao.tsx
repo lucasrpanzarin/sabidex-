@@ -96,7 +96,7 @@ export function AbrirPacote() {
   return (
     <main className="tela tela-pacote" style={{ alignItems: 'center', textAlign: 'center', ['--luz' as string]: luz }}>
       <div className="linha" style={{ alignSelf: 'stretch', justifyContent: 'space-between', visibility: fase === 'fechado' ? 'visible' : 'hidden' }}>
-        <button className="voltar" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
+        <button className="voltar voltar-topo" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         <span className="eyebrow">{e.pacotes.length > 1 ? `${e.pacotes.length} pacotes` : 'Pacote'}</span>
       </div>
 
@@ -201,7 +201,7 @@ function Detalhe({ f }: { f: Figurinha }) {
   const p = podeEvoluir(e, f.id);
   const alvo = proxima(f);
   const anterior = f.forma > 1 ? figurinhaPorId.get(idCarta(s.id, (f.forma - 1) as Forma)) : undefined;
-  const voltar = <button className="voltar" onClick={() => ir('album')}><Icone nome="voltar" tamanho={18} espessura={3} />Álbum</button>;
+  const voltar = <button className="voltar voltar-topo" onClick={() => ir('album')}><Icone nome="voltar" tamanho={18} espessura={3} />Álbum</button>;
 
   const evoluirAgora = async () => {
     if (!alvo) return;
