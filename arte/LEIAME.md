@@ -6,3 +6,4 @@ Os desenhos dos Sabimons são gerados pelo Higgsfield através do GitHub (arquiv
 - A lista dos Sabimons e das descrições está em `arte/sabimons/lista.json`. O estilo vem de `docs/ARTE-SABIMONS.md`.
 - Para pedir imagens, edite `arte/pedido.json` (ex.: `{"acao": "gerar", "formas": [1]}`). O resultado aparece em `arte/resultado.json` e as imagens em `arte/sabimons/originais/`.
 - A forma 1 é feita só com o texto. As formas 2 e 3 usam a forma 1 como imagem de referência.
+- Para **corrigir um detalhe** de um desenho pronto: `{"acao": "gerar", "formas": [], "corrigir": {"023-1": "o que mudar"}}`. Se o modelo padrão não acertar, tente `"modeloRef": "marketing-studio/image/sunburst"` (foi o que conseguiu virar os pés do Curupira).
