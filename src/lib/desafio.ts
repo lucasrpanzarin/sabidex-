@@ -42,6 +42,16 @@ export function materiasDoDesafio(e: Estado, caps: Capitulo[]) {
   return materias.map((m) => ({ materia: m, pode: unidadesDoDesafio(e, caps, m).length > 0 }));
 }
 
+/** No máximo tantas perguntas do mesmo tipo em um desafio. */
+export const MAX_POR_TIPO = 3;
+
+/** Tipo da pergunta: verdadeiro ou falso, prova, complete a frase, "o que quer dizer", quem sou eu, conta. */
+export function tipoDaPergunta(x: ItemDesafio): string {
+  if (x.tipo !== 'escolha') return x.tipo;
+  if (x.id) return 'prova';
+  return x.pergunta.startsWith('Complete') ? 'lacuna' : x.pergunta.startsWith('Quem sou eu') ? 'quemsou' : 'palavra';
+}
+
 /** Todas as perguntas que um capítulo (não de Matemática) pode dar ao desafio. */
 function perguntasDo(cap: Capitulo, rng: () => number): ItemDesafio[] {
   const lista: ItemDesafio[] = [];
@@ -98,12 +108,22 @@ export function montarDesafio(e: Estado, caps: Capitulo[], materia: string, dia:
   if (!unidades.length) return [];
   const rng = semente(hash(`${dia}:${materia}:${tentativa}`));
   if (unidades.some((c) => c.matematica)) return contasDe(unidades, rng, PERGUNTAS_DESAFIO);
-  // Mistura as unidades: uma pergunta de cada, em rodízio.
+  // Mistura as unidades (uma pergunta de cada, em rodízio) e os tipos de pergunta:
+  // no máximo 3 do mesmo tipo, para não vir só "O que quer dizer…?" (Lucas, 12/11/2026).
   const filas = unidades.map((c) => embaralhar(perguntasDo(c, rng), rng));
+  const misturadas: ItemDesafio[] = [];
+  while (filas.some((f) => f.length)) for (const f of filas) if (f.length) misturadas.push(f.shift()!);
+  const usados = new Map<string, number>();
   const saida: ItemDesafio[] = [];
-  while (saida.length < PERGUNTAS_DESAFIO && filas.some((f) => f.length)) {
-    for (const f of filas) if (f.length && saida.length < PERGUNTAS_DESAFIO) saida.push(f.shift()!);
+  for (const x of misturadas) {
+    if (saida.length >= PERGUNTAS_DESAFIO) break;
+    const k = tipoDaPergunta(x);
+    if ((usados.get(k) ?? 0) >= MAX_POR_TIPO) continue;
+    usados.set(k, (usados.get(k) ?? 0) + 1);
+    saida.push(x);
   }
+  // Unidade com pouca variedade: completa com o que sobrou.
+  for (const x of misturadas) if (saida.length < PERGUNTAS_DESAFIO && !saida.includes(x)) saida.push(x);
   return embaralhar(saida, rng);
 }
 
