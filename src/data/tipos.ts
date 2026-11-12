@@ -125,6 +125,11 @@ export interface Capitulo {
   subtitulo: string;
   /** Só em Matemática: as fases viram exemplo resolvido, treino de contas digitadas e prova de contas (veja `Matematica`). */
   matematica?: Matematica;
+  /**
+   * Quando a "linha" não tem datas, e sim as etapas de um processo (Geografia: do campo ao mercado),
+   * o nome da fase 3 e a explicação embaixo dele. O campo `ano` dos itens vira "1º", "2º"...
+   */
+  nomeLinha?: [string, string];
   temas: Tema[];
   pares: Par[];
   linha: Evento[];

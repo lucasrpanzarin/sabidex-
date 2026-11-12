@@ -4,13 +4,14 @@ import { CartaView, ROTULO } from '../components/CartaView';
 import { Icone } from '../components/Icone';
 import { Pin } from '../components/Pin';
 import { FIGURINHAS, figurinhaPorId, type Figurinha } from '../lib/figurinhas';
-import { api, entrarNaConta, type SituacaoEstudo, entrarNoPerfil, ultimoCodigo, entrarNaTurmaComConta, sair, sincronizar, useConta, verPropostas } from '../lib/conta';
+import { api, entrarNaConta, type SituacaoEstudo, entrarNoPerfil, ultimoCodigo, entrarNaTurmaComConta, sair, sincronizar, useConta, verPropostas, type ResumoChat } from '../lib/conta';
 import { EscolherPerfil } from '../components/Perfis';
 import { ir } from '../lib/rota';
 import { paraTrocar, protegido, saldo } from '../lib/loja';
 import { useEstado } from '../lib/store';
 import { Chama, CORES } from './Inicio';
 import { Medalha } from '../components/Medalha';
+import { EscolhaPeriodo, legendaDoPlacar, numeroDoPlacar, type Aba, type Periodo } from '../components/Placar';
 import { Moeda } from '../components/Loja';
 import { conquistasDe, numerosDoPerfil } from '../lib/conquistas';
 import { nivel, sequencia } from '../lib/jogo';
@@ -312,7 +313,7 @@ function SemTurma({ titulo, texto }: { titulo: string; texto: ReactNode }) {
 }
 
 /* ---------------- Ranking ---------------- */
-interface Participante { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias?: number; online?: number }
+interface Participante { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias?: number; xp_total?: number; vitorias_total?: number; online?: number }
 
 /** Guarda o último placar e a lista de colegas: ao voltar para a tela, aparecem na hora e atualizam sozinhos. */
 let rankingGuardado: { codigo: string; dados: { eu: string; participantes: Participante[] } } | null = null;
@@ -326,7 +327,8 @@ function AvatarOnline({ nome, cor, tamanho, online }: { nome: string; cor: strin
 export function Ranking() {
   const { conta } = useConta();
   const e = useEstado();
-  const [aba, setAba] = useState<'xp' | 'cartas' | 'vitorias'>('xp');
+  const [aba, setAba] = useState<Aba>('xp');
+  const [periodo, setPeriodo] = useState<Periodo>('semana');
   const codigo = conta?.codigo ?? '';
   const [dados, setDados] = useState<{ eu: string; participantes: Participante[] } | null>(rankingGuardado?.codigo === codigo ? rankingGuardado.dados : null);
   const [erro, setErro] = useState<string | null>(null);
@@ -342,12 +344,18 @@ export function Ranking() {
     // Mostra o placar logo; depois de mandar o progresso novo para o servidor, atualiza de novo.
     void buscar();
     void sincronizar().then(() => buscar());
-    return () => { vivo = false; };
+    // Enquanto a tela está aberta, busca o placar de novo a cada 30 s (e ao voltar para o app),
+    // para ver o XP dos colegas subindo sem precisar sair e entrar.
+    const visivel = () => document.visibilityState === 'visible';
+    const relogio = setInterval(() => { if (visivel()) void buscar(); }, 30_000);
+    const aoVoltar = () => { if (visivel()) void buscar(); };
+    document.addEventListener('visibilitychange', aoVoltar);
+    return () => { vivo = false; clearInterval(relogio); document.removeEventListener('visibilitychange', aoVoltar); };
   }, [codigo, e.xp]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!conta?.codigo) return <SemTurma titulo="Quem estudou mais?" texto={<>Entre na sua <strong>turma</strong> para ver o placar da semana com os colegas!</>} />;
 
-  const num = (p: Participante) => (aba === 'xp' ? p.xp : aba === 'cartas' ? p.cartas : p.vitorias ?? 0);
+  const num = (p: Participante) => numeroDoPlacar(p, aba, periodo);
   const lista = (dados?.participantes ?? []).slice().sort((a, b) => num(b) - num(a) || a.apelido.localeCompare(b.apelido));
   const unidade = (n: number) => (aba === 'xp' ? `${n} XP` : aba === 'cartas' ? `${n} ${n === 1 ? 'carta' : 'cartas'}` : `${n} ${n === 1 ? 'vitória' : 'vitórias'}`);
   const valor = (p: Participante) => unidade(num(p));
@@ -360,9 +368,10 @@ export function Ranking() {
     <main className="tela">
       <div>
         <div className="eyebrow">{conta.turma}</div>
-        <h1 className="display h1">Ranking da semana</h1>
+        <h1 className="display h1">Ranking</h1>
       </div>
-      <div className="linha" role="tablist" style={{ gap: 8 }}>
+      <EscolhaPeriodo periodo={periodo} mudar={setPeriodo} />
+      <div className="linha" role="tablist" aria-label="O que contar" style={{ gap: 8 }}>
         {(['xp', 'cartas', 'vitorias'] as const).map((k) => (
           <button key={k} role="tab" aria-selected={aba === k} onClick={() => setAba(k)} className={`btn ${aba === k ? 'btn-rosa' : 'btn-escuro'}`} style={{ flex: 1, fontSize: 16, minHeight: 46, padding: '6px 8px' }}>{{ xp: 'Mais XP', cartas: 'Mais cartas', vitorias: 'Duelos' }[k]}</button>
         ))}
@@ -403,7 +412,7 @@ export function Ranking() {
       {frente && falta > 1 && <div className="painel" style={{ borderColor: 'var(--pink)', padding: 12, fontWeight: 700 }}>Faltam <strong>{unidade(falta)}</strong> para você passar {frente.apelido}!</div>}
       {frente && falta === 1 && <div className="painel" style={{ borderColor: 'var(--pink)', padding: 12, fontWeight: 700 }}>Você está <strong>empatado</strong> com {frente.apelido}. {aba === 'xp' ? 'Jogue uma fase' : aba === 'cartas' ? 'Ganhe mais uma carta' : 'Vença mais um duelo'} e passe na frente!</div>}
       {meuIdx === 0 && lista.length > 1 && <div className="painel" style={{ borderColor: 'var(--yellow)', padding: 12, fontWeight: 700 }}>Você está em <strong>1º lugar</strong>! Continue estudando para não perder.</div>}
-      <p className="muted small" style={{ textAlign: 'center', margin: 0 }}>{aba === 'vitorias' ? 'Vitórias no Duelo do Saber nesta semana. ' : ''}O placar da semana zera toda segunda-feira.{lista.some((p) => p.online) ? ' A bolinha verde mostra quem está estudando agora.' : ''}</p>
+      <p className="muted small" style={{ textAlign: 'center', margin: 0 }}>{legendaDoPlacar(aba, periodo)}{lista.some((p) => p.online) ? ' A bolinha verde mostra quem está estudando agora.' : ''}</p>
     </main>
   );
 }
@@ -417,8 +426,17 @@ function Mini({ id }: { id: string }) {
   return f ? <div style={{ width: 88 }}><CartaView carta={f.s} forma={f.forma} /></div> : null;
 }
 
+/** O que aparece embaixo de "Conversa da turma" (Lucas, 06/11/2026). */
+function situacaoChat(c: ResumoChat | null) {
+  if (!c || c.motivo === 'sem-turma') return null;
+  if (c.motivo === 'desligado' || c.motivo === 'sem-autorizacao' || c.motivo === 'sem-familia') return 'Desligada';
+  if (c.motivo === 'horario') return c.horario ? `Fechada agora · abre às ${c.horario.inicio}h` : 'Fechada agora';
+  if (c.motivo === 'silenciado') return 'Agora você só pode ler';
+  return c.horario ? `Aberta até as ${c.horario.fim}h` : 'Aberta agora';
+}
+
 export function Trocas() {
-  const { conta, desafiosNovos } = useConta();
+  const { conta, desafiosNovos, chat } = useConta();
   const e = useEstado();
   const [modo, setModo] = useState<'lista' | 'nova'>('lista');
   const [dados, setDados] = useState<{ eu: string; trocas: TrocaApi[] } | null>(null);
@@ -478,7 +496,11 @@ export function Trocas() {
         Duelo do Saber
         {desafiosNovos > 0 && <span className="badge" aria-label={`${desafiosNovos} ${desafiosNovos > 1 ? 'desafios' : 'desafio'} para você`}>{desafiosNovos}</span>}
       </button>
-      <button className="btn btn-escuro btn-bloco" onClick={() => ir('chat')}>Conversa da turma</button>
+      <button className="btn btn-escuro btn-bloco" onClick={() => ir('chat')} style={{ position: 'relative', flexDirection: 'column', gap: 0 }}>
+        Conversa da turma
+        {situacaoChat(chat) && <span className="chat-situacao">{situacaoChat(chat)}</span>}
+        {!!chat?.novas && <span className="badge" aria-label={`${chat.novas} ${chat.novas > 1 ? 'mensagens novas' : 'mensagem nova'}`}>{chat.novas > 99 ? '99+' : chat.novas}</span>}
+      </button>
       {aviso && <div className="aviso aviso-ok pop" role="status">{aviso}</div>}
       <Erro texto={erro} />
       {colegas && <EstudandoAgora colegas={colegas} />}

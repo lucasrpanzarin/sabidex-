@@ -10,7 +10,7 @@ import { aplicarMissoes } from '../lib/missoes';
 import { ir } from '../lib/rota';
 import { jogar, lembrarUnidade, proximaFase } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
-import { VOZES, audioDaVoz, setVoz, useVoz } from '../lib/voz';
+import { audioDaVoz, setVoz, useVoz, vozesDaMateria, vozParaMateria } from '../lib/voz';
 import { FaseContas, TextoMat, VerComoSeFaz } from './Contas';
 
 /** Transforma **negrito** em <strong>. */
@@ -40,6 +40,7 @@ export const MOTIVO: Record<MotivoPacote, string> = {
   extras: 'Pacote por terminar todos os jogos extras da unidade com nota 7',
   missoes: 'Pacote por fazer as missões do dia',
   marco: 'Pacote por estudar vários dias seguidos',
+  desafio: 'Pacote do Desafio do dia desta matéria',
 };
 
 /** Aviso de missão do dia feita (aparece no fim dos jogos e da revisão). */
@@ -171,7 +172,8 @@ function Ouvir({ cap }: { cap: Capitulo }) {
   // Abre o primeiro tema que ainda falta ouvir.
   const [aberto, setAberto] = useState<number | null>(() => { const i = cap.temas.findIndex((_, j) => !ouvidos.has(j)); return i < 0 ? null : i; });
   const audio = useRef<HTMLAudioElement | null>(null);
-  const voz = useVoz();
+  const voz = vozParaMateria(useVoz(), cap.materia);
+  const vozes = vozesDaMateria(cap.materia);
 
   useEffect(() => () => audio.current?.pause(), []);
   useEffect(() => { audio.current?.pause(); audio.current = null; setTocando(null); setCarregando(null); }, [voz]);
@@ -210,8 +212,8 @@ function Ouvir({ cap }: { cap: Capitulo }) {
       <div className="barra barra-verde"><div style={{ width: `${(ouvidos.size / total) * 100}%` }} /></div>
       <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
         <legend className="muted small" style={{ marginBottom: 6 }}>Quem vai ler para você?</legend>
-        <div className="grade-3">
-          {VOZES.map((v) => (
+        <div className={vozes.length === 3 ? 'grade-3' : 'grade-2'}>
+          {vozes.map((v) => (
             <button key={v.id} onClick={() => setVoz(v.id)} aria-pressed={voz === v.id}
               style={{ borderRadius: 16, padding: '8px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
                 background: voz === v.id ? 'var(--surface-2)' : 'var(--surface)', border: `3px solid ${voz === v.id ? v.cor : 'var(--line)'}` }}>
@@ -327,7 +329,13 @@ function Memoria({ cap }: { cap: Capitulo }) {
 function Linha({ cap }: { cap: Capitulo }) {
   const { res, finalizar, limpar } = useFinalizar(cap, 'linha');
   const [rodada, setRodada] = useState(0);
-  const eventos = useMemo(() => embaralhar(cap.linha).slice(0, 5), [cap, rodada]);
+  // Etapas de um processo (nomeLinha): pega 5 seguidas, para não faltar uma no meio ("1º, 2º, 4º...").
+  const eventos = useMemo(() => {
+    if (!cap.nomeLinha) return embaralhar(cap.linha).slice(0, 5);
+    const ord = [...cap.linha].sort((x, y) => x.ordem - y.ordem);
+    const ini = Math.floor(Math.random() * Math.max(1, ord.length - 4));
+    return embaralhar(ord.slice(ini, ini + 5));
+  }, [cap, rodada]);
   const certa = useMemo(() => [...eventos].sort((a, b) => a.ordem - b.ordem), [eventos]);
   const [postos, setPostos] = useState<typeof eventos>([]);
   // Cada lugar da linha tem uma chance só: errou, o fato certo entra sozinho, marcado como erro.
@@ -354,7 +362,9 @@ function Linha({ cap }: { cap: Capitulo }) {
     <main className="tela">
       <Topo cap={cap} fase="linha" />
       <div className="aviso" style={{ background: 'var(--surface)', border: '3px solid var(--ink)' }}>
-        Toque nos fatos do <strong>mais antigo</strong> para o <strong>mais novo</strong>. Cada lugar tem uma chance só!
+        {cap.nomeLinha
+          ? <>Toque nas etapas <strong>na ordem</strong>, da <strong>primeira</strong> para a <strong>última</strong>. Cada lugar tem uma chance só!</>
+          : <>Toque nos fatos do <strong>mais antigo</strong> para o <strong>mais novo</strong>. Cada lugar tem uma chance só!</>}
       </div>
       <ol style={{ listStyle: 'none', margin: 0, padding: '0 0 0 22px', borderLeft: '4px solid var(--line)', display: 'grid', gap: 8 }}>
         {certa.map((_, i) => {
@@ -373,11 +383,11 @@ function Linha({ cap }: { cap: Capitulo }) {
           <button key={ev.fato} onClick={() => tocar(ev)} className={errado === ev.fato ? 'treme' : ''}
             style={{ minHeight: 56, borderRadius: 16, padding: '10px 14px', textAlign: 'left', fontWeight: 800, background: errado === ev.fato ? '#FFE4E6' : 'var(--surface)', border: `3px solid ${errado === ev.fato ? 'var(--red)' : 'var(--line-2)'}` }}>
             {ev.fato}
-            {errado === ev.fato && <span style={{ display: 'block', fontSize: 13, color: 'var(--t-red)' }}>Não! Tinha um fato mais antigo.</span>}
+            {errado === ev.fato && <span style={{ display: 'block', fontSize: 13, color: 'var(--t-red)' }}>{cap.nomeLinha ? 'Não! Tinha uma etapa antes.' : 'Não! Tinha um fato mais antigo.'}</span>}
           </button>
         ))}
       </div>
-      <p className="muted small" style={{ margin: 0 }}>Dica: os anos aparecem quando você acerta.</p>
+      <p className="muted small" style={{ margin: 0 }}>{cap.nomeLinha ? 'Dica: o número da etapa aparece quando você acerta.' : 'Dica: os anos aparecem quando você acerta.'}</p>
       <ContaErros erros={erros} />
     </main>
   );

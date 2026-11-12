@@ -245,7 +245,11 @@ export const MIGRACOES = [
   )`,
   `CREATE INDEX IF NOT EXISTS uso_dias_dia ON uso_dias (dia)`,
   // Ajustes que mudam dados e só podem rodar UMA vez (cada um fica anotado aqui depois de rodar).
-  `CREATE TABLE IF NOT EXISTS ajustes_feitos (nome TEXT PRIMARY KEY, feito INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS ajustes_feitos (nome TEXT PRIMARY KEY, feito INTEGER NOT NULL)`,  // Duelo: escolher matéria, unidade e jogo (Lucas, 06/11/2026). materia/mundo '' = todas (duelos antigos).
+  // modo: 'perguntas' (as 10 de sempre) ou 'relogio' ("Contra o relógio").
+  `ALTER TABLE duelos ADD COLUMN modo TEXT NOT NULL DEFAULT 'perguntas'`,
+  `ALTER TABLE duelos ADD COLUMN materia TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE duelos ADD COLUMN mundo TEXT NOT NULL DEFAULT ''`,
 ];
 
 /**

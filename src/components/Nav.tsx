@@ -54,7 +54,7 @@ const itens: { id: string; rotulo: string; aba: Aba | 'jogar' }[] = [
 
 export function Nav({ ativo }: { ativo: string }) {
   const e = useEstado();
-  const { propostasNovas, desafiosNovos } = useConta();
+  const { propostasNovas, desafiosNovos, chat } = useConta();
   const avisosTurma = propostasNovas + desafiosNovos;
   return (
     <nav className="nav" aria-label="Menu principal">
@@ -69,6 +69,8 @@ export function Nav({ ativo }: { ativo: string }) {
           <span className="nav-rotulo">{i.rotulo}</span>
           {i.id === 'album' && e.pacotes.length > 0 && <span className="badge" aria-label={`${e.pacotes.length} pacotes`}>{e.pacotes.length}</span>}
           {i.id === 'trocas' && avisosTurma > 0 && <span className="badge" aria-label={`${avisosTurma} ${avisosTurma > 1 ? 'avisos' : 'aviso'} de trocas e duelos`}>{avisosTurma}</span>}
+          {/* Só mensagem nova no chat: uma bolinha sem número (trocas e duelos vêm antes). */}
+          {i.id === 'trocas' && avisosTurma === 0 && !!chat?.novas && <span className="badge badge-ponto" aria-label="Mensagens novas na conversa da turma" />}
         </button>
       ))}
     </nav>

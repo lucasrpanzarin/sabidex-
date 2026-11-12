@@ -31,6 +31,14 @@ let perfis: PerfilAparelho[] = (() => { try { const p = JSON.parse(ler(K_PERFIS)
 let propostasNovas = 0;
 /** Desafios do Duelo do Saber esperando a criança jogar. */
 let desafiosNovos = 0;
+/** Apelidos de quem chamou a criança para duelar (o Ará fala o nome no Início). */
+let desafiantes: string[] = [];
+/**
+ * Resumo do chat da turma para o botão "Conversa da turma" (Lucas, 06/11/2026):
+ * se está aberto agora e quantas mensagens dos colegas a criança ainda não viu.
+ */
+export interface ResumoChat { liberado: boolean; motivo: string | null; horario: { inicio: number; fim: number } | null; novas: number }
+let chat: ResumoChat | null = null;
 /** Dados mostrados uma vez logo depois de criar a conta (para anotar o PIN). */
 setRegistrarCartas(!!token);
 
@@ -41,7 +49,7 @@ const mudou = () => { versao++; avisar(); };
 
 export function useConta() {
   useSyncExternalStore((f) => { ouvintes.add(f); return () => ouvintes.delete(f); }, () => versao);
-  return { conta, propostasNovas, desafiosNovos, perfis };
+  return { conta, propostasNovas, desafiosNovos, desafiantes, chat, perfis };
 }
 export const getConta = () => conta;
 
@@ -81,12 +89,15 @@ export async function api<T = Record<string, unknown>>(caminho: string, opcoes: 
 export const ultimoCodigo = () => ler(K_ULTIMO_CODIGO) ?? '';
 
 function guardar(t: string, r: RespostaConta) {
+  // Outro perfil (irmão): os avisos do anterior não valem para este.
+  if (conta?.id !== r.conta.id) { propostasNovas = 0; desafiosNovos = 0; desafiantes = []; chat = null; }
   token = t; conta = r.conta;
   lembrarPerfil(r.conta);
   try { localStorage.setItem(K_TOKEN, t); localStorage.setItem(K_CONTA, JSON.stringify(r.conta)); } catch { /* ignora */ }
   if (r.conta.codigo) try { localStorage.setItem(K_ULTIMO_CODIGO, r.conta.codigo); } catch { /* ignora */ }
   setRegistrarCartas(true);
   mudou();
+  void verPropostas();
 }
 
 function lembrarPerfil(c: Conta) {
@@ -102,7 +113,7 @@ export function esquecerPerfil(id: string) {
 }
 
 function desconectar() {
-  token = null; conta = null; propostasNovas = 0;
+  token = null; conta = null; propostasNovas = 0; desafiosNovos = 0; desafiantes = []; chat = null;
   try { localStorage.removeItem(K_TOKEN); localStorage.removeItem(K_CONTA); } catch { /* ignora */ }
   setRegistrarCartas(false);
   limparPendente();
@@ -234,9 +245,25 @@ export async function verPropostas() {
   const r = await api<{ eu: string; trocas: { para_id: string; status: string }[] }>('/crianca/trocas');
   if (r.erro) return;
   const n = r.trocas.filter((t) => t.para_id === r.eu && t.status === 'pendente').length;
-  const d = await api<{ eu: string; duelos: { para_id: string; status: string }[] }>('/crianca/duelos');
-  const nd = d.erro ? desafiosNovos : d.duelos.filter((x) => x.para_id === d.eu && x.status === 'esperando').length;
-  if (n !== propostasNovas || nd !== desafiosNovos) { propostasNovas = n; desafiosNovos = nd; mudou(); }
+  const d = await api<{ eu: string; duelos: { para_id: string; status: string; de_apelido: string }[] }>('/crianca/duelos');
+  const meus = d.erro ? null : d.duelos.filter((x) => x.para_id === d.eu && x.status === 'esperando');
+  const nd = meus ? meus.length : desafiosNovos;
+  const nomes = meus ? [...new Set(meus.map((x) => x.de_apelido))] : desafiantes;
+  const ch = await api<ResumoChat>(`/crianca/chat/resumo?depois=${chatVisto()}`);
+  const novoChat = ch.erro ? chat : { liberado: ch.liberado, motivo: ch.motivo, horario: ch.horario, novas: ch.novas };
+  if (n !== propostasNovas || nd !== desafiosNovos || nomes.join('|') !== desafiantes.join('|') || JSON.stringify(novoChat) !== JSON.stringify(chat)) {
+    propostasNovas = n; desafiosNovos = nd; desafiantes = nomes; chat = novoChat; mudou();
+  }
+}
+
+// A última mensagem do chat que a criança viu, guardada no aparelho (uma por perfil, para irmãos).
+const kChatVisto = () => `sabidex:chat-visto:${conta?.id ?? ''}`;
+const chatVisto = () => Number(ler(kChatVisto()) ?? 0) || 0;
+/** A tela do chat avisa até qual mensagem a criança já viu (horário da mensagem, no relógio do servidor). */
+export function marcarChatVisto(criado: number) {
+  if (!conta || criado <= chatVisto()) return;
+  try { localStorage.setItem(kChatVisto(), String(criado)); } catch { /* ignora */ }
+  if (chat && chat.novas) { chat = { ...chat, novas: 0 }; mudou(); }
 }
 
 /** Liga a sincronização automática: ao mudar algo, ao voltar a internet e a cada minuto. */

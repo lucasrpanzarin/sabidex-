@@ -9,6 +9,7 @@ const COR_MATERIA = ['var(--pink)', 'var(--cyan)', 'var(--green)', 'var(--yellow
 import { FASES, chave, hoje, infoFase, nivel, sequencia } from '../lib/jogo';
 import { quantasHoje, MAX_POR_REVISAO } from '../lib/revisao';
 import { missoesDeHoje, quantasFeitas } from '../lib/missoes';
+import { materiasDoDesafio, situacaoDesafio } from '../lib/desafio';
 import { ir } from '../lib/rota';
 import { getEstado, useEstado } from '../lib/store';
 import { estudoDa, getConta, useConta } from '../lib/conta';
@@ -109,9 +110,17 @@ export function Chama({ tamanho = 22 }: { tamanho?: number }) {
   );
 }
 
+/** "Anthony", "Anthony e Bia", "Anthony, Bia e mais 2" (Lucas, 06/11/2026: o Ará diz quem chamou). */
+function quemChamou(nomes: string[]) {
+  if (!nomes.length) return <>Um colega</>;
+  if (nomes.length === 1) return <strong>{nomes[0]}</strong>;
+  if (nomes.length === 2) return <><strong>{nomes[0]}</strong> e <strong>{nomes[1]}</strong></>;
+  return <><strong>{nomes[0]}</strong>, <strong>{nomes[1]}</strong> e mais {nomes.length - 2}</>;
+}
+
 export function Inicio() {
   const e = useEstado();
-  const { conta, propostasNovas, desafiosNovos } = useConta();
+  const { conta, propostasNovas, desafiosNovos, desafiantes } = useConta();
   const nv = nivel(e.xp);
   const dias = sequencia(e.dias);
   // Só os capítulos da turma. Sem turma (ou turma sem matérias), o Início mostra o aviso no lugar dos jogos.
@@ -130,15 +139,21 @@ export function Inicio() {
   const estudouHoje = e.dias.includes(hoje());
   // O próximo passo de estudo ganha o brilho (só um por tela): as missões do dia; se não há missão, continuar o mundo.
   const brilhoMissoes = misFaltam > 0;
-  const brilhoContinuar = !brilhoMissoes && mis.lista.length === 0;
+  // Desafio do dia: um por matéria (Lucas, 12/11/2026). Só as matérias com unidade começada dá para jogar.
+  const desafios = semJogo ? [] : materiasDoDesafio(e, capitulos).map((d) => ({ ...d, ...situacaoDesafio(e, d.materia) }));
+  const desafiosFaltam = desafios.filter((d) => d.pode && !d.feito).length;
+  const brilhoDesafio = !brilhoMissoes && desafiosFaltam > 0;
+  const brilhoContinuar = !brilhoMissoes && !brilhoDesafio && mis.lista.length === 0;
 
   const evolui = FIGURINHAS.find((f) => podeEvoluir(e, f.id).ok);
+  // O Ará fala do duelo (e mostra o botão) quando não tem um aviso mais importante antes.
+  const temDesafio = !(semJogo && !e.pacotes.length) && desafiosNovos > 0;
   const fala = semJogo && !e.pacotes.length
     ? (estudo === 'sem-turma'
       ? <>Oi! Para jogar, falta só entrar na sua <strong>turma da escola</strong>. Assim você estuda as matérias do <strong>seu</strong> livro!</>
       : <>As matérias da sua turma ainda estão chegando. Quando ficarem prontas, os jogos aparecem aqui!</>)
     : desafiosNovos > 0
-    ? <>Um colega te chamou para um <strong>Duelo do Saber</strong>! Veja em Turma.</>
+    ? <>{quemChamou(desafiantes)} {desafiantes.length > 1 ? 'chamaram' : 'chamou'} você para um <strong>Duelo do Saber</strong>!</>
     : propostasNovas > 0
     ? <>Você tem <strong>{propostasNovas} {propostasNovas > 1 ? 'propostas' : 'proposta'} de troca</strong>! Veja em Turma.</>
     : e.pacotes.some((p) => p.id === PACOTE_BOAS_VINDAS)
@@ -186,7 +201,15 @@ export function Inicio() {
 
       <div className="linha" style={{ alignItems: 'flex-end' }}>
         <div style={{ flex: 'none' }}><Ara tamanho={76} /></div>
-        <div className="balao" style={{ flex: 1, marginBottom: 14 }}>{fala}</div>
+        <div className="balao" style={{ flex: 1, marginBottom: 14 }}>
+          {fala}
+          {/* Desafio de duelo: botão direto para a página de duelos (Lucas, 06/11/2026). */}
+          {temDesafio && (
+            <button className="btn btn-rosa btn-bloco" style={{ marginTop: 10, minHeight: 44, fontSize: 17 }} onClick={() => ir('duelos')}>
+              {desafiosNovos > 1 ? 'Ver os desafios' : 'Ver o desafio'}
+            </button>
+          )}
+        </div>
       </div>
 
       <InstalarApp />
@@ -234,6 +257,37 @@ export function Inicio() {
             <span className="small" style={{ fontWeight: 800 }}>1 pacote</span>
           </span>
         </button>
+      )}
+
+      {desafios.some((d) => d.pode) && (
+        <section className="painel coluna" aria-label="Desafios do dia" style={{ gap: 10, borderColor: desafiosFaltam ? 'var(--cyan)' : 'var(--green)' }}>
+          <span className="linha" style={{ gap: 10 }}>
+            <Pacote tamanho="mini" />
+            <span style={{ flex: 1 }}>
+              <span className="display" style={{ fontSize: 20, display: 'block' }}>Desafios do dia</span>
+              <span className="small" style={{ fontWeight: 800, color: desafiosFaltam ? 'var(--t-cyan)' : 'var(--t-green)' }}>
+                {desafiosFaltam === 0 ? (desafios.some((d) => !d.pode) ? 'Feito! Comece outra matéria e ganhe mais pacotes.' : 'Todos feitos! Amanhã tem mais.') : `1 pacote por matéria · ${desafiosFaltam === 1 ? 'falta 1' : `faltam ${desafiosFaltam}`}`}
+              </span>
+            </span>
+            {brilhoDesafio && <span className="selo-agora">Faça agora</span>}
+          </span>
+          <div className="grade-2">
+            {desafios.map((d, i) => {
+              const primeiro = brilhoDesafio && desafios.findIndex((x) => x.pode && !x.feito) === i;
+              return (
+                <button key={d.materia} className="painel" disabled={!d.pode} onClick={() => ir('desafio', d.materia)}
+                  style={{ textAlign: 'center', padding: 10, color: d.pode ? 'inherit' : 'var(--muted)', borderColor: COR_MATERIA[i % COR_MATERIA.length], opacity: d.pode ? 1 : 0.7 }}>
+                  <span className="display" style={{ fontSize: 17, display: 'block' }}>{d.materia}</span>
+                  {d.feito
+                    ? <span className="small linha" style={{ fontWeight: 800, color: 'var(--t-green)', justifyContent: 'center', gap: 4 }}><Icone nome="check" tamanho={14} espessura={3.5} />Feito</span>
+                    : d.pode
+                      ? <span className={`btn btn-amarelo${primeiro ? ' chamar' : ''}`} style={{ minHeight: 36, padding: '4px 14px', fontSize: 15, marginTop: 6 }}>Jogar</span>
+                      : <span className="small" style={{ fontWeight: 700 }}>Comece uma unidade</span>}
+                </button>
+              );
+            })}
+          </div>
+        </section>
       )}
 
       {evolui && (

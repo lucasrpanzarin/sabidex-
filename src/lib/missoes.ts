@@ -11,7 +11,8 @@ import { FASES, NOTA_MINIMA, chave, embaralhar, hoje, sequenciaInfo, type Estado
 export type Evento =
   | { tipo: 'fase'; fase: Fase; nota?: number }
   | { tipo: 'extra'; nota: number }
-  | { tipo: 'revisao'; nota: number };
+  | { tipo: 'revisao'; nota: number }
+  | { tipo: 'desafio'; nota: number };
 
 export type MissaoId = 'revisao' | 'estrelas' | 'extra' | 'memoria' | 'linha' | 'quiz' | 'fase' | 'duas';
 
