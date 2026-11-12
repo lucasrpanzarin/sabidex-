@@ -187,9 +187,6 @@ let acabouDeEvoluir = '';
 /** Última figurinha aberta: ao voltar para o álbum, a tela desce até ela (e não volta para o topo). */
 let ultimaVista = '';
 
-/** Aba do álbum que estava aberta: Sabimons (bichos) ou Lendas do Brasil. */
-let abaLendas = false;
-
 /** Detalhe de uma figurinha: carta grande, itens, quantas tem e evolução. */
 function Detalhe({ f }: { f: Figurinha }) {
   const e = useEstado();
@@ -288,9 +285,6 @@ function Detalhe({ f }: { f: Figurinha }) {
 export function Album({ id }: { id?: string }) {
   const e = useEstado();
   const [filtro, setFiltro] = useState<Raridade | 'todas'>('todas');
-  // Volta na aba da última figurinha vista (se era uma lenda, abre "Lendas do Brasil").
-  const [lendas, setLendas] = useState(() => (ultimaVista ? !!figurinhaPorId.get(ultimaVista)?.s.lenda : abaLendas));
-  const trocarAba = (l: boolean) => { abaLendas = l; setLendas(l); };
   const detalhe = id ? figurinhaPorId.get(id) : undefined;
   // Voltando de uma figurinha: põe essa figurinha no meio da tela, onde a criança estava.
   useLayoutEffect(() => {
@@ -305,29 +299,27 @@ export function Album({ id }: { id?: string }) {
   if (detalhe) return <Detalhe key={detalhe.id} f={detalhe} />;
 
   // O álbum tem as 3 formas de cada Sabimon, cada uma com seu número.
-  // Duas abas separadas: os bichos de verdade e as Lendas do Brasil, cada uma com a sua contagem.
-  const daAba = FIGURINHAS.filter((f) => !!f.s.lenda === lendas);
-  const tem = daAba.filter((f) => e.cartas[f.id] > 0).length;
-  const total = daAba.length;
-  const lista = daAba.filter((f) => filtro === 'todas' || f.s.raridade === filtro);
+  const tem = FIGURINHAS.filter((f) => e.cartas[f.id] > 0).length;
+  const total = FIGURINHAS.length;
+  const lista = FIGURINHAS.filter((f) => filtro === 'todas' || f.s.raridade === filtro);
+  // Um álbum só, em duas seções: os bichos do Brasil e os Sabimons das Lendas do Brasil.
+  const secoes = [
+    { titulo: 'Bichos do Brasil', texto: 'Inspirados em bichos de verdade.', cartas: lista.filter((f) => !f.s.lenda), todas: FIGURINHAS.filter((f) => !f.s.lenda) },
+    { titulo: 'Lendas do Brasil', texto: 'Inspirados nas histórias do nosso folclore.', cartas: lista.filter((f) => f.s.lenda), todas: FIGURINHAS.filter((f) => f.s.lenda) },
+  ];
   return (
     <main className="tela">
       <div className="linha" style={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
           <div className="eyebrow">Álbum</div>
-          <h1 className="display h2" style={{ fontSize: 27 }}>{lendas ? 'Lendas do Brasil' : 'Sabimons'}</h1>
+          <h1 className="display h2" style={{ fontSize: 27 }}>Sabimons</h1>
         </div>
         <div className="display" style={{ fontSize: 28, color: 'var(--t-green)', fontVariantNumeric: 'tabular-nums', textAlign: 'right', lineHeight: 1 }}>
           {tem}<span style={{ fontSize: 16, color: 'var(--muted)' }}>/{total}</span>
           <div className="small" style={{ fontFamily: 'var(--body)', fontWeight: 800, color: 'var(--muted)' }}>figurinhas</div>
         </div>
       </div>
-      <div className="abas" role="tablist" aria-label="Página do álbum">
-        <button role="tab" aria-selected={!lendas} onClick={() => trocarAba(false)}>Sabimons</button>
-        <button role="tab" aria-selected={lendas} onClick={() => trocarAba(true)}>Lendas do Brasil</button>
-      </div>
-      {lendas && <p className="muted small" style={{ margin: 0 }}>Personagens das histórias do nosso folclore. Vêm nos mesmos pacotes.</p>}
-      <div className="barra barra-verde" role="progressbar" aria-valuenow={tem} aria-valuemax={total} aria-label={lendas ? "Figurinhas de lendas" : "Figurinhas de Sabimons"}><div style={{ width: `${(tem / total) * 100}%` }} /></div>
+      <div className="barra barra-verde" role="progressbar" aria-valuenow={tem} aria-valuemax={total} aria-label="Figurinhas no álbum"><div style={{ width: `${(tem / total) * 100}%` }} /></div>
       <p className="muted small" style={{ margin: 0 }}>3 cartas iguais viram a forma 2. 2 cartas da forma 2 viram a forma 3.</p>
 
       {e.pacotes.length > 0 && <button className="btn btn-rosa btn-bloco" onClick={() => ir('pacote')}>Abrir {e.pacotes.length} {e.pacotes.length > 1 ? 'pacotes' : 'pacote'}</button>}
@@ -339,14 +331,27 @@ export function Album({ id }: { id?: string }) {
             className={`filtro ${k}`}>{r}</button>
         ))}
       </div>
-      <div className="grade-3">
-        {lista.map((f) => (
-          <div key={f.id} data-figurinha={f.id} style={{ position: 'relative' }}>
-            <CartaView carta={f.s} forma={f.forma} visual={visualDe(e, f.id)} tem={e.cartas[f.id] > 0} quantidade={e.cartas[f.id]} onClick={() => ir('album', f.id)} />
-            {podeEvoluir(e, f.id).ok && <span className="selo-novo" style={{ background: 'var(--green)' }}>EVOLUIR!</span>}
+      {secoes.map((sec) => sec.cartas.length > 0 && (
+        <section key={sec.titulo} className="coluna" style={{ gap: 10 }} aria-label={sec.titulo}>
+          <div className="linha" style={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <div>
+              <h2 className="display" style={{ fontSize: 22, margin: 0 }}>{sec.titulo}</h2>
+              <p className="muted small" style={{ margin: 0 }}>{sec.texto}</p>
+            </div>
+            <div className="small" style={{ fontWeight: 800, color: 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}>
+              {sec.todas.filter((f) => e.cartas[f.id] > 0).length}/{sec.todas.length}
+            </div>
           </div>
-        ))}
-      </div>
+          <div className="grade-3">
+            {sec.cartas.map((f) => (
+              <div key={f.id} data-figurinha={f.id} style={{ position: 'relative' }}>
+                <CartaView carta={f.s} forma={f.forma} visual={visualDe(e, f.id)} tem={e.cartas[f.id] > 0} quantidade={e.cartas[f.id]} onClick={() => ir('album', f.id)} />
+                {podeEvoluir(e, f.id).ok && <span className="selo-novo" style={{ background: 'var(--green)' }}>EVOLUIR!</span>}
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
       {(e.semNovo ?? 0) > 0 && sabimons.some((s) => !(e.cartas[s.id] > 0)) && (
         <p className="muted small" style={{ margin: 0, textAlign: 'center' }}>
           Garantia: no máximo mais {GARANTIA - e.semNovo} {GARANTIA - e.semNovo > 1 ? 'pacotes' : 'pacote'} até um Sabimon novo.

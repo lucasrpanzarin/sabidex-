@@ -164,13 +164,14 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | 28 | Lobisomem (lenda) | Estrela | épica | Uivinho → Uivolua → Lobisolar |
 | 29 | Boi-bumbá (festa) | Som | épica | Bumbinho → Bumbazão → Bumbaréu |
 
-Total: 8 comuns, 6 raras, 10 épicas, 5 lendárias. **Lendas do Brasil** (Lucas, 06/11/2026): os nº 22 a 29 são personagens do folclore (`lenda: true` em `src/data/sabimons.ts`). Vêm nos pacotes normais como os bichos, mas no álbum ficam numa **aba separada "Lendas do Brasil"** (o álbum tem duas abas, "Sabimons" e "Lendas do Brasil", cada uma com a sua contagem: 63 e 24; Lucas, 12/11/2026), e a carta mostra "Folclore:" no lugar de "Fato real:" (o texto diz "A lenda conta que..."). Ficaram de fora, por decisão do Lucas: Mapinguari, Boiúna, boto encantado, Matinta Pereira e Cuca; e, por sugestão do Claude, Negrinho do Pastoreio (história de maus-tratos), Pisadeira e Corpo-seco (dão medo). Cuidado nos desenhos: Saci respeitoso, sem caricatura; Mula sem cabeça com fogo de olhinhos no lugar da cabeça, sem dar medo. A orca entrou em 06/11/2026 (Lucas): ela não mora no Brasil o ano todo, mas visita o litoral. Desenhos em `public/sabimons/`. Os fatos de cada bicho foram conferidos na revisão de 04/11/2026 e estão corretos.
+Total: 8 comuns, 6 raras, 10 épicas, 5 lendárias. **Lendas do Brasil** (Lucas, 06/11/2026): os nº 22 a 29 são personagens do folclore (`lenda: true` em `src/data/sabimons.ts`). Vêm nos pacotes normais como os bichos, e continuam sendo Sabimons: o álbum é um só, em **duas seções**, "Bichos do Brasil" e "Lendas do Brasil", cada uma com a sua contagem (63 e 24). O Lucas testou abas separadas e preferiu seções (12/11/2026); e a carta mostra "Folclore:" no lugar de "Fato real:" (o texto diz "A lenda conta que..."). Ficaram de fora, por decisão do Lucas: Mapinguari, Boiúna, boto encantado, Matinta Pereira e Cuca; e, por sugestão do Claude, Negrinho do Pastoreio (história de maus-tratos), Pisadeira e Corpo-seco (dão medo). Cuidado nos desenhos: Saci respeitoso, sem caricatura; Mula sem cabeça com fogo de olhinhos no lugar da cabeça, sem dar medo. A orca entrou em 06/11/2026 (Lucas): ela não mora no Brasil o ano todo, mas visita o litoral. Desenhos em `public/sabimons/`. Os fatos de cada bicho foram conferidos na revisão de 04/11/2026 e estão corretos.
 Guia de arte: `docs/ARTE-SABIMONS.md`.
 
 ## 5. Ideias que já foram testadas e trocadas (não repetir sem motivo)
 
 | O que era | Virou | Quando |
 |---|---|---|
+| Lendas numa aba separada do álbum | **Seção** "Lendas do Brasil" no mesmo álbum (continuam Sabimons) | 12/11/2026 |
 | Cartas de cada capítulo (ids `h-...`) | Sabimons (quem tinha ganhou pacotes no lugar) | 04/11/2026 |
 | Pacote com 3 cartas | Pacote com **1 Sabimon** | 04/11/2026 |
 | Álbum contando 30 formas; evolução que mudava a mesma carta | **Álbum de 60**, cada forma é uma carta; 3→1 e 2→1 | 04/11/2026 |
@@ -223,7 +224,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências e Geogr
 
 ## 7. Registro de mudanças
 
-- **12/11/2026** · Álbum com duas abas, **Sabimons** e **Lendas do Brasil**, cada uma com a sua contagem (Lucas). Desenhos das lendas corrigidos: Saci com uma perna só, Mula sem cabeça também na forma 1, Iara com formas 2 e 3 bem diferentes, Curupira de costas com as pegadas ao contrário (o gerador não consegue desenhar pés virados). O gerador de arte ganhou o modo `corrigir` em `arte/pedido.json` (o desenho pronto vira referência e o pedido diz só o que mudar).
+- **12/11/2026** · Álbum em duas seções, **Bichos do Brasil** e **Lendas do Brasil**, cada uma com a sua contagem; as lendas continuam sendo Sabimons (Lucas; antes testamos abas separadas e ele preferiu seções). Desenhos das lendas corrigidos: Saci com uma perna só, Mula sem cabeça também na forma 1, Iara com formas 2 e 3 bem diferentes, Curupira de costas com as pegadas ao contrário (o gerador não consegue desenhar pés virados). O gerador de arte ganhou o modo `corrigir` em `arte/pedido.json` (o desenho pronto vira referência e o pedido diz só o que mudar).
 
 - **06/11/2026** · **Orca, Sabimon nº 21** (Lucas): Água, épica, Ondorca → Marorca → Tsunorca; álbum vai para 63 figurinhas. A conquista "Todos os bichos" virou "Grande coleção" (20 Sabimons diferentes), para ninguém perder a conquista que já tinha. Depois, no mesmo dia: **Lendas do Brasil**, Sabimons 22 a 29 (Saci, Curupira, Mula sem cabeça, Caipora, Boitatá, Iara, Lobisomem, Boi-bumbá), com página própria no álbum (Lucas). Álbum foi para 87. Ficou para depois: um jeito de as crianças tirarem mais cartas.
 
