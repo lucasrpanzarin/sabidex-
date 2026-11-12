@@ -22,7 +22,7 @@ interface Props {
   onClick?: () => void;
 }
 
-// Número da figurinha no álbum (1 a 60): cada forma tem o seu.
+// Número da figurinha no álbum: cada forma tem o seu.
 const num = (carta: Sabimon, forma: Forma) => String((carta.numero - 1) * 3 + forma).padStart(2, '0');
 
 function Desenho({ carta, forma, tem }: { carta: Sabimon; forma: Forma; tem: boolean }) {
@@ -59,7 +59,7 @@ export function CartaView({ carta, forma = 1, itens = [], visual, tem = true, qu
           {tem && f.poderes.map((p, i) => (
             <div key={p} className="poder"><span className="ic" aria-hidden="true">✦</span><b>{p}</b><span>{forca(carta, forma, i as 0 | 1) + extra.forca}</span></div>
           ))}
-          {tem && <p className="fato"><strong>Fato real:</strong> {carta.fato}</p>}
+          {tem && <p className="fato"><strong>{carta.lenda ? 'Folclore:' : 'Fato real:'}</strong> {carta.fato}</p>}
           <div className="rodape-carta"><span>Nº {num(carta, forma)}</span><span className={`rar ${carta.raridade}`}>{ROTULO[carta.raridade]}</span></div>
         </div>
       </article>

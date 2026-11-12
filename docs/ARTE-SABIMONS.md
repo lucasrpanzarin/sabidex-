@@ -90,6 +90,15 @@ As descrições completas estão em `arte/sabimons/lista.json`.
 | 018 | Geladim → Pinguigelo → Glaciguim | pinguim-de-magalhães (preto e branco) | Gelo | ★★★ |
 | 019 | Bugiurro → Ecobugio → Bugitroante | bugio | Som | ★★★ |
 | 020 | Oncelestre → Onçastral → Constelonça | onça-pintada | Estrela | ★★★★ |
+| 021 | Ondorca → Marorca → Tsunorca | orca (contorno turquesa) | Água | ★★★ |
+| 022 | Sacizinho → Redemoinhaci → Saciclone | Saci (lenda; respeitoso, sem caricatura) | Vento | ★★★★ |
+| 023 | Curupirinha → Pegadapira → Curupirão | Curupira (lenda; pés virados para trás) | Planta | ★★★ |
+| 024 | Faiscamula → Mulabrasa → Mulavulcão | Mula sem cabeça (lenda; fogo com olhinhos, sem medo) | Fogo | ★★★ |
+| 025 | Caiporita → Caipotrilha → Caiporainha | Caipora (lenda; montada num queixada) | Pedra | ★★★ |
+| 026 | Faiscatá → Chamatá → Boitatão | Boitatá (lenda; cobra de fogo) | Fogo | ★★★★ |
+| 027 | Iarinha → Cantaiara → Rainhiara | Iara (lenda; sereia dos rios) | Água | ★★★★ |
+| 028 | Uivinho → Uivolua → Lobisolar | Lobisomem (lenda; sem dar medo) | Estrela | ★★★ |
+| 029 | Bumbinho → Bumbazão → Bumbaréu | Boi-bumbá (festa) | Som | ★★★ |
 
 ## Onde salvar
 

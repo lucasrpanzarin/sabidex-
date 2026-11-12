@@ -65,7 +65,7 @@ export function conquistasDe(e: Dados): Conquista[] {
     c('nota-10', 'Nota 10', 'Tire 10 numa prova.', 'nota', 'pink', n.notas10, 1),
     c('estrelas-30', 'Chuva de estrelas', 'Junte 30 estrelas nas unidades.', 'estrela', 'yellow', n.estrelas, 30),
     c('bichos-5', 'Colecionador', 'Tenha 5 Sabimons diferentes.', 'carta', 'cyan', n.bichos, 5),
-    c('bichos-20', 'Todos os bichos', 'Tenha os 20 Sabimons.', 'carta', 'pink', n.bichos, 20),
+    c('bichos-20', 'Grande coleção', 'Tenha 20 Sabimons diferentes.', 'carta', 'pink', n.bichos, 20),
     c('evoluir', 'Evoluiu!', 'Tenha uma carta da forma 2.', 'evoluir', 'green', n.forma2 ? 1 : 0, 1),
     c('forma-final', 'Forma final', 'Tenha uma carta da forma 3.', 'evoluir', 'coral', n.forma3 ? 1 : 0, 1),
     c('lendaria', 'Lendária', 'Tenha uma carta lendária.', 'lendaria', 'yellow', n.lendaria ? 1 : 0, 1),

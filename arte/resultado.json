@@ -1,40 +1,37 @@
 {
-  "quando": "2026-11-04T21:03:11.441Z",
+  "quando": "2026-11-12T20:52:22.206Z",
   "imagens": [
     {
-      "nome": "pacote-normal-a",
-      "tipo": "normal",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1248,
-      "altura": 1872
+      "nome": "023-1",
+      "corrigido": "Change ONLY his two feet. Rotate both feet 180 degrees so they point BACKWARDS: ",
+      "modelo": "marketing-studio/image/sunburst",
+      "largura": 2048,
+      "altura": 2048
     },
     {
-      "nome": "pacote-normal-b",
-      "tipo": "normal",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1248,
-      "altura": 1872
+      "nome": "023-2",
+      "corrigido": "Change ONLY his two feet. Rotate both feet 180 degrees so they point BACKWARDS: ",
+      "modelo": "marketing-studio/image/sunburst",
+      "largura": 2048,
+      "altura": 2048
     },
     {
-      "nome": "pacote-epico-a",
-      "tipo": "epico",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1248,
-      "altura": 1872
-    },
-    {
-      "nome": "pacote-epico-b",
-      "tipo": "epico",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1248,
-      "altura": 1872
+      "nome": "023-3",
+      "corrigido": "Change ONLY his two feet. Rotate both feet 180 degrees so they point BACKWARDS: ",
+      "modelo": "marketing-studio/image/sunburst",
+      "largura": 2048,
+      "altura": 2048
     }
   ],
   "pedido": {
-    "acao": "cenarios",
-    "lista": "arte/pacote/lista.json",
-    "pasta": "arte/pacote/originais",
-    "formato": "2:3"
+    "acao": "gerar",
+    "formas": [],
+    "modeloRef": "marketing-studio/image/sunburst",
+    "corrigir": {
+      "023-1": "Change ONLY his two feet. Rotate both feet 180 degrees so they point BACKWARDS: we must see his heels in front, facing the viewer, and his toes must point behind him, away from the viewer. This is the famous trait of the Curupira from Brazilian folklore: his feet are turned backwards. Do not change anything else.",
+      "023-2": "Change ONLY his two feet. Rotate both feet 180 degrees so they point BACKWARDS: we must see his heels in front, facing the viewer, and his toes must point behind him, away from the viewer. This is the famous trait of the Curupira from Brazilian folklore: his feet are turned backwards. Do not change anything else.",
+      "023-3": "Change ONLY his two feet. Rotate both feet 180 degrees so they point BACKWARDS: we must see his heels in front, facing the viewer, and his toes must point behind him, away from the viewer. This is the famous trait of the Curupira from Brazilian folklore: his feet are turned backwards. Do not change anything else."
+    }
   },
   "ok": true
 }

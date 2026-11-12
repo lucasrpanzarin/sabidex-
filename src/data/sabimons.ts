@@ -188,6 +188,88 @@ export const sabimons: Sabimon[] = [
       { nome: 'Constelonça', poderes: ['Galáxia Pintada', 'Chuva de Cometas'], imagem: img('020', 3) },
     ],
   },
+  {
+    id: 's021', numero: 21, tipo: 'Água', raridade: 'epica',
+    fato: 'A orca é o maior golfinho do mundo. Ela vive no mar e às vezes visita o litoral do Brasil.',
+    formas: [
+      { nome: 'Ondorca', poderes: ['Salto Espirrado', 'Bolha Turquesa'], imagem: img('021', 1) },
+      { nome: 'Marorca', poderes: ['Barbatana Lâmina', 'Surfe na Onda'], imagem: img('021', 2) },
+      { nome: 'Tsunorca', poderes: ['Coroa das Ondas', 'Tsunami'], imagem: img('021', 3) },
+    ],
+  },
+  // Lendas do Brasil (Lucas, 06/11/2026): personagens do folclore. O "fato" conta o que diz a lenda.
+  {
+    id: 's022', numero: 22, tipo: 'Vento', raridade: 'lendaria', lenda: true,
+    fato: 'A lenda conta que o Saci tem uma perna só, usa um gorro vermelho e se esconde nos redemoinhos de vento.',
+    formas: [
+      { nome: 'Sacizinho', poderes: ['Pulo de Uma Perna', 'Gorro Ventania'], imagem: img('022', 1) },
+      { nome: 'Redemoinhaci', poderes: ['Redemoinho', 'Sumiço no Vento'], imagem: img('022', 2) },
+      { nome: 'Saciclone', poderes: ['Ciclone Vermelho', 'Furacão Travesso'], imagem: img('022', 3) },
+    ],
+  },
+  {
+    id: 's023', numero: 23, tipo: 'Planta', raridade: 'epica', lenda: true,
+    fato: 'A lenda conta que o Curupira tem cabelo de fogo e pés virados para trás, para confundir quem caça na mata.',
+    formas: [
+      { nome: 'Curupirinha', poderes: ['Pegada ao Contrário', 'Assobio da Mata'], imagem: img('023', 1) },
+      { nome: 'Pegadapira', poderes: ['Cipó Laçador', 'Trilha Falsa'], imagem: img('023', 2) },
+      { nome: 'Curupirão', poderes: ['Floresta Guardiã', 'Raízes Gigantes'], imagem: img('023', 3) },
+    ],
+  },
+  {
+    id: 's024', numero: 24, tipo: 'Fogo', raridade: 'epica', lenda: true,
+    fato: 'A lenda conta que a Mula sem cabeça solta fogo pelo pescoço e galopa pelos campos nas noites escuras.',
+    formas: [
+      { nome: 'Faiscamula', poderes: ['Galope Faísca', 'Coice Quente'], imagem: img('024', 1) },
+      { nome: 'Mulabrasa', poderes: ['Chama Galopante', 'Ferradura de Brasa'], imagem: img('024', 2) },
+      { nome: 'Mulavulcão', poderes: ['Estouro de Lava', 'Trilha de Fogo'], imagem: img('024', 3) },
+    ],
+  },
+  {
+    id: 's025', numero: 25, tipo: 'Pedra', raridade: 'epica', lenda: true,
+    fato: 'A lenda conta que a Caipora protege os bichos da mata e anda montada num porco-do-mato.',
+    formas: [
+      { nome: 'Caiporita', poderes: ['Pedrada da Mata', 'Galope do Queixada'], imagem: img('025', 1) },
+      { nome: 'Caipotrilha', poderes: ['Trilha de Pedra', 'Escudo de Rocha'], imagem: img('025', 2) },
+      { nome: 'Caiporainha', poderes: ['Muralha da Floresta', 'Terremoto'], imagem: img('025', 3) },
+    ],
+  },
+  {
+    id: 's026', numero: 26, tipo: 'Fogo', raridade: 'lendaria', lenda: true,
+    fato: 'A lenda conta que o Boitatá é uma cobra de fogo de olhos enormes que protege as matas de quem põe fogo nelas.',
+    formas: [
+      { nome: 'Faiscatá', poderes: ['Olhar Brilhante', 'Faísca Rasteira'], imagem: img('026', 1) },
+      { nome: 'Chamatá', poderes: ['Anel de Chamas', 'Bote Flamejante'], imagem: img('026', 2) },
+      { nome: 'Boitatão', poderes: ['Serpente Solar', 'Rio de Fogo'], imagem: img('026', 3) },
+    ],
+  },
+  {
+    id: 's027', numero: 27, tipo: 'Água', raridade: 'lendaria', lenda: true,
+    fato: 'A lenda conta que a Iara é metade moça e metade peixe e encanta as pessoas com o seu canto nos rios.',
+    formas: [
+      { nome: 'Iarinha', poderes: ['Canto do Rio', 'Bolha Encantada'], imagem: img('027', 1) },
+      { nome: 'Cantaiara', poderes: ['Onda Melodiosa', 'Cauda Turquesa'], imagem: img('027', 2) },
+      { nome: 'Rainhiara', poderes: ['Coroa do Rio', 'Canto das Águas'], imagem: img('027', 3) },
+    ],
+  },
+  {
+    id: 's028', numero: 28, tipo: 'Estrela', raridade: 'epica', lenda: true,
+    fato: 'A lenda conta que o Lobisomem é um homem que vira lobo nas noites de lua cheia.',
+    formas: [
+      { nome: 'Uivinho', poderes: ['Uivo da Lua', 'Garra Prateada'], imagem: img('028', 1) },
+      { nome: 'Uivolua', poderes: ['Salto Lunar', 'Lua Cheia'], imagem: img('028', 2) },
+      { nome: 'Lobisolar', poderes: ['Eclipse Uivante', 'Chuva de Estrelas'], imagem: img('028', 3) },
+    ],
+  },
+  {
+    id: 's029', numero: 29, tipo: 'Som', raridade: 'epica', lenda: true,
+    fato: 'O Boi-bumbá é uma festa com um boi que dança. A festa de Parintins, no Amazonas, é uma das maiores do Brasil.',
+    formas: [
+      { nome: 'Bumbinho', poderes: ['Batida do Tambor', 'Dança do Boi'], imagem: img('029', 1) },
+      { nome: 'Bumbazão', poderes: ['Toada Forte', 'Fitas Coloridas'], imagem: img('029', 2) },
+      { nome: 'Bumbaréu', poderes: ['Grande Festa', 'Arena do Som'], imagem: img('029', 3) },
+    ],
+  },
 ];
 
 export const sabimonPorId = new Map(sabimons.map((s) => [s.id, s]));

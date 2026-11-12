@@ -77,13 +77,13 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | **Sabicoins** | cada fase dá o mesmo número de XP e de Sabicoins. Saldo = XP total − compras | `src/lib/loja.ts` |
 | Pacotes (só do estudo) | memória e quiz (1ª vez com nota 7), prova aprovada (pacote **épico**), terminar os 4 extras com nota 7 em cada, 1ª atividade do dia com nota 7, as 3 missões do dia, marcos de 3/7/14/30 dias seguidos, cada nível novo, **Desafio do dia** com nota 7 (1 por matéria por dia) | `src/lib/jogo.ts`, `src/lib/desafio.ts` |
 | **Pacote de boas-vindas** (única exceção à regra acima; Lucas, 05/11/2026) | toda conta nova de criança (família ou turma) já nasce com 1 pacote normal; a carta sai na sorte. O Ará apresenta na tela inicial e, depois de abrir, explica que os próximos vêm do estudo. Quem já tinha conta não ganha | `src/shared/sync.ts` (`comBoasVindas`) |
-| Pacote | **1 Sabimon** (sempre a forma 1). Chances: comum 62%, rara 26%, épica 9%, lendária 3%. Épico: 80% épica, 20% lendária | |
+| Pacote | **1 Sabimon** (sempre a forma 1). Chances: comum 55%, rara 26%, épica 14%, lendária 5% (até 12/11/2026 eram 62/26/9/3; subiram porque entraram 6 épicas e 3 lendárias, Lucas). Épico: 80% épica, 20% lendária | |
 | Garantia | depois de 9 pacotes sem bicho novo, o 10º traz um que a criança não tem | |
 | **Quem sorteia** (05/11/2026) | Criança com conta: **o servidor** sorteia a carta e guarda tudo de uma vez. Precisa de internet (sem internet o pacote volta inteiro, com aviso). Se a internet cair no meio, a criança recebe a mesma carta de novo. Limites: 60 pacotes por dia; pacote épico só com a prova do capítulo feita e no máximo 1 por capítulo (senão abre como normal). Quem joga sem conta (antigos) ainda abre no aparelho | `src/shared/pacotes.ts`, `/api/crianca/abrir-pacote` |
 | **Nunca** | vender pacote (nem por moeda do jogo, nem por dinheiro), desconto ou pressão de tempo | |
 
 ### Cartas e álbum
-- **Álbum de 60 figurinhas**: 20 Sabimons × 3 formas. Número no álbum = (nº do Sabimon − 1) × 3 + forma. Ids: `s001`, `s001-2`, `s001-3`.
+- **Álbum de 87 figurinhas**: 29 Sabimons × 3 formas (era 60 até 06/11/2026, quando entraram a orca e as 8 lendas). O código não tem mais o número fixo: cada Sabimon novo soma 3. Número no álbum = (nº do Sabimon − 1) × 3 + forma. Ids: `s001`, `s001-2`, `s001-3`.
 - **Evolução** (Lucas, 04/11/2026): **3 cartas da forma 1 → 1 da forma 2** (+100 Sabicoins); **2 da forma 2 → 1 da forma 3** (+300 Sabicoins). As cartas usadas somem. Na turma, a evolução é feita pelo servidor.
 - Vida e força da carta: calculadas em `src/lib/sabimon.ts` (pela raridade e pela forma). Forma 1: comum Vida 50, força 10/20 · rara 60, 20/30 · épica 70, 30/40 · **lendária 90, 40/50**. Forma 2: +30 Vida, força ×1,7. Forma 3: +70 Vida, força ×2,6.
 - **Lendária tem brilho**: estrela-figurinha amarela no canto da moldura e reflexo dourado em cima do desenho.
@@ -137,7 +137,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - **Da criança só guardamos**: apelido, cor, PIN embaralhado e o progresso do jogo.
 - **Aviso "Coloque o Sabidex na tela do celular"** (Lucas, 05/11/2026; `src/components/InstalarApp.tsx`): aparece na primeira tela e no Início quando o site está aberto no navegador do celular. "Como fazer?" mostra o passo a passo do **iPhone/iPad** (Safari → Compartilhar → Adicionar à Tela de Início) ou do **Android** (Chrome → ⋮ → Adicionar à tela inicial). No Android, quando o Chrome deixa, aparece o botão **Instalar agora**. Some quando o app já foi aberto pelo ícone e no computador; "Agora não" esconde por 7 dias.
 
-## 4. Os 20 Sabimons
+## 4. Os 29 Sabimons (21 bichos + 8 lendas)
 
 | Nº | Bicho real | Tipo | Raridade | Forma 1 → 2 → 3 |
 |---|---|---|---|---|
@@ -161,14 +161,24 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | 18 | pinguim-de-magalhães | Gelo | épica | Geladim → Pinguigelo → Glaciguim |
 | 19 | bugio | Som | épica | Bugiurro → Ecobugio → Bugitroante |
 | 20 | onça-pintada | Estrela | lendária | Oncelestre → Onçastral → Constelonça |
+| 21 | orca | Água | épica | Ondorca → Marorca → Tsunorca |
+| 22 | Saci-Pererê (lenda) | Vento | lendária | Sacizinho → Redemoinhaci → Saciclone |
+| 23 | Curupira (lenda) | Planta | épica | Curupirinha → Pegadapira → Curupirão |
+| 24 | Mula sem cabeça (lenda) | Fogo | épica | Faiscamula → Mulabrasa → Mulavulcão |
+| 25 | Caipora (lenda) | Pedra | épica | Caiporita → Caipotrilha → Caiporainha |
+| 26 | Boitatá (lenda) | Fogo | lendária | Faiscatá → Chamatá → Boitatão |
+| 27 | Iara (lenda) | Água | lendária | Iarinha → Cantaiara → Rainhiara |
+| 28 | Lobisomem (lenda) | Estrela | épica | Uivinho → Uivolua → Lobisolar |
+| 29 | Boi-bumbá (festa) | Som | épica | Bumbinho → Bumbazão → Bumbaréu |
 
-Total: 8 comuns, 6 raras, 4 épicas, 2 lendárias. Os 60 desenhos estão prontos (`public/sabimons/`). Os fatos de cada bicho foram conferidos na revisão de 04/11/2026 e estão corretos.
+Total: 8 comuns, 6 raras, 10 épicas, 5 lendárias. **Lendas do Brasil** (Lucas, 06/11/2026): os nº 22 a 29 são personagens do folclore (`lenda: true` em `src/data/sabimons.ts`). Vêm nos pacotes normais como os bichos, e continuam sendo Sabimons: o álbum é um só, em **duas seções**, "Bichos do Brasil" e "Lendas do Brasil", cada uma com a sua contagem (63 e 24). O Lucas testou abas separadas e preferiu seções (12/11/2026); e a carta mostra "Folclore:" no lugar de "Fato real:" (o texto diz "A lenda conta que..."). Ficaram de fora, por decisão do Lucas: Mapinguari, Boiúna, boto encantado, Matinta Pereira e Cuca; e, por sugestão do Claude, Negrinho do Pastoreio (história de maus-tratos), Pisadeira e Corpo-seco (dão medo). Cuidado nos desenhos: Saci respeitoso, sem caricatura; Mula sem cabeça com fogo de olhinhos no lugar da cabeça, sem dar medo. A orca entrou em 06/11/2026 (Lucas): ela não mora no Brasil o ano todo, mas visita o litoral. Desenhos em `public/sabimons/`. Os fatos de cada bicho foram conferidos na revisão de 04/11/2026 e estão corretos.
 Guia de arte: `docs/ARTE-SABIMONS.md`.
 
 ## 5. Ideias que já foram testadas e trocadas (não repetir sem motivo)
 
 | O que era | Virou | Quando |
 |---|---|---|
+| Lendas numa aba separada do álbum | **Seção** "Lendas do Brasil" no mesmo álbum (continuam Sabimons) | 12/11/2026 |
 | Cartas de cada capítulo (ids `h-...`) | Sabimons (quem tinha ganhou pacotes no lugar) | 04/11/2026 |
 | Pacote com 3 cartas | Pacote com **1 Sabimon** | 04/11/2026 |
 | Álbum contando 30 formas; evolução que mudava a mesma carta | **Álbum de 60**, cada forma é uma carta; 3→1 e 2→1 | 04/11/2026 |
@@ -211,6 +221,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências (unidad
 - [ ] Conferir se o envio de e-mail está ligado no servidor (`RESEND_API_KEY` + `EMAIL_REMETENTE` na Cloudflare e domínio verificado no resend.com). Sem isso, a trava do e-mail confirmado não vale. Jeito fácil de ver: se "Esqueci minha senha" aparece na tela do adulto, está ligado.
 
 ### Ideias e pendências das conversas (anotadas em 05/11/2026)
+- **Mais chances de tirar cartas** (Lucas, 06/11/2026: "depois vemos"): com 87 figurinhas o álbum ficou bem mais longo. Em 12/11/2026 subiram só as chances de épica e lendária; o álbum continua longo. Opções já simuladas na seção 6, item 1 (garantia de progresso, épica/lendária com 2 cartas para evoluir).
 - **Botão "Apagar criança" no Painel do dono**: o Claude ofereceu (para casos como o "Tony 2", conta repetida com 0 XP); o Lucas não respondeu. Hoje só o responsável apaga uma criança da família.
 - **Crianças para ajeitar** (não é regra, é tarefa): Gabriela (só da turma, sem responsável: não escreve no chat até o responsável ligar o perfil em "Já tem conta na turma"); GAH (do Gabriel, tem família mas está sem turma); Anthony (recuperar as cartas entrando na conta antiga e usando "Mudar de turma"); Tony 2 (apagar ou trocar o apelido; pela regra, conta antiga não ganha o pacote de boas-vindas).
 - **Mensagem para o grupo de pais do 4º B**: o texto feito antes dizia que "a conversa da turma começa desligada". Isso mudou (o chat vem ligado); corrigir antes de mandar e trocar o [CÓDIGO DA TURMA] pelo código de verdade.
@@ -219,6 +230,12 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências (unidad
 - **Ideias de segurança não escolhidas**: data de nascimento no cadastro do adulto (barrar menores de 18) e "PIN do adulto" no lugar da conta de multiplicar. O Lucas escolheu só o e-mail confirmado e a conta mais fácil.
 
 ## 7. Registro de mudanças
+
+- **12/11/2026** · Chances do pacote: comum 55%, rara 26%, **épica 14%** (era 9%), **lendária 5%** (era 3%), para as épicas e lendárias antigas não ficarem 2,5 vezes mais difíceis com as cartas novas (Lucas). Orca e Lendas do Brasil publicadas.
+
+- **12/11/2026** · Álbum em duas seções, **Bichos do Brasil** e **Lendas do Brasil**, cada uma com a sua contagem; as lendas continuam sendo Sabimons (Lucas; antes testamos abas separadas e ele preferiu seções). Desenhos das lendas corrigidos: Saci com uma perna só, Mula sem cabeça também na forma 1, Iara com formas 2 e 3 bem diferentes, Curupira de frente com os pés virados para trás (feito com o modelo Sunburst no modo `corrigir`; o Qwen não conseguia). O gerador de arte ganhou o modo `corrigir` em `arte/pedido.json` (o desenho pronto vira referência e o pedido diz só o que mudar).
+
+- **06/11/2026** · **Orca, Sabimon nº 21** (Lucas): Água, épica, Ondorca → Marorca → Tsunorca; álbum vai para 63 figurinhas. A conquista "Todos os bichos" virou "Grande coleção" (20 Sabimons diferentes), para ninguém perder a conquista que já tinha. Depois, no mesmo dia: **Lendas do Brasil**, Sabimons 22 a 29 (Saci, Curupira, Mula sem cabeça, Caipora, Boitatá, Iara, Lobisomem, Boi-bumbá), com página própria no álbum (Lucas). Álbum foi para 87. Ficou para depois: um jeito de as crianças tirarem mais cartas.
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 

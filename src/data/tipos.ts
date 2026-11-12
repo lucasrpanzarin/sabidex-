@@ -81,8 +81,10 @@ export interface Sabimon {
   numero: number;
   tipo: TipoSabimon;
   raridade: Raridade;
-  /** fato verdadeiro sobre o bicho brasileiro que inspirou o Sabimon */
+  /** fato verdadeiro sobre o bicho brasileiro que inspirou o Sabimon (numa lenda: o que a lenda conta) */
   fato: string;
+  /** personagem do folclore (página "Lendas do Brasil" do álbum), não um bicho de verdade */
+  lenda?: boolean;
   formas: [FormaSabimon, FormaSabimon, FormaSabimon];
 }
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { estadoInicial, type Estado } from './jogo';
 import { bonus, comprarItem, destaqueDoDia, evoluir, itensDe, migrarFormas, migrarFormasLocal, mundosCompletos, paraTrocar, podeEvoluir, premiosLivres, saldo, visualDe, VITRINE } from './loja';
 import { FIGURINHAS, figurinhaPorId } from './figurinhas';
+import { sabimons } from '../data/sabimons';
 import { mesclar, progressoVazio, sanitizar } from '../shared/sync';
 
 
@@ -82,9 +83,9 @@ describe('lojinha nova', () => {
 });
 
 describe('álbum', () => {
-  it('tem 60 figurinhas numeradas de 1 a 60, com as 3 formas de cada Sabimon', () => {
-    expect(FIGURINHAS).toHaveLength(60);
-    expect(FIGURINHAS.map((f) => f.numero)).toEqual(Array.from({ length: 60 }, (_, i) => i + 1));
+  it('tem 3 figurinhas por Sabimon, numeradas sem buracos', () => {
+    expect(FIGURINHAS).toHaveLength(sabimons.length * 3);
+    expect(FIGURINHAS.map((f) => f.numero)).toEqual(Array.from({ length: sabimons.length * 3 }, (_, i) => i + 1));
     expect(figurinhaPorId.get('s001')).toMatchObject({ numero: 1, forma: 1 });
     expect(figurinhaPorId.get('s001-3')).toMatchObject({ numero: 3, forma: 3 });
     expect(figurinhaPorId.get('s002')).toMatchObject({ numero: 4, forma: 1 });
