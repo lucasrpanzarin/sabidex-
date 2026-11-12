@@ -6,7 +6,7 @@ import { capituloPorId } from '../data';
 import type { Capitulo } from '../data/tipos';
 import { EXTRA_INFO, notaDe, concluirExtra, embaralhar, extrasDo, extrasLiberados, type Extra, type Resultado } from '../lib/jogo';
 import { aplicarMissoes } from '../lib/missoes';
-import { ir } from '../lib/rota';
+import { ir, voltarTela } from '../lib/rota';
 import { getEstado, setEstado } from '../lib/store';
 import { ContaErros, Fim } from './Fases';
 
@@ -16,7 +16,7 @@ function Topo({ cap, x, extra }: { cap: Capitulo; x: Extra; extra?: ReactNode })
   return (
     <div className="coluna" style={{ gap: 2 }}>
       <div className="linha" style={{ justifyContent: 'space-between' }}>
-        <button className="voltar" onClick={() => ir('mundo', cap.id)}><Icone nome="voltar" tamanho={18} espessura={3} />Unidade {cap.numero}</button>
+        <button className="voltar voltar-topo" onClick={() => voltarTela('mundo', cap.id)}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         {extra}
       </div>
       <h1 className="display h2">{EXTRA_INFO[x].titulo}</h1>

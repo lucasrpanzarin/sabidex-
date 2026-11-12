@@ -160,3 +160,22 @@ export function concluirDesafio(e: Estado, materia: string, acertos: number, tot
     estado: { ...r.estado, desafios, pacotes: ganha ? [...r.estado.pacotes, { id, tipo: 'normal', capitulo: 'desafio' }] : r.estado.pacotes },
   };
 }
+
+/**
+ * Desafio pela metade (Lucas, 12/11/2026): se a criança sai no meio (botão "Início" ou fecha o app),
+ * ao voltar ela continua de onde parou, com as mesmas perguntas e os acertos que já tinha.
+ * Fica só no aparelho, um por perfil. `marca` confere que as perguntas são as mesmas
+ * (se ela começou outra unidade nesse meio tempo, as perguntas mudam e o desafio começa do zero).
+ */
+export interface AndamentoDesafio { dia: string; materia: string; marca: string; i: number; acertos: number }
+
+/** Impressão digital das perguntas de um desafio (mesmas perguntas = mesma marca). */
+export const marcaDoDesafio = (itens: ItemDesafio[]) =>
+  String(hash(JSON.stringify(itens.map(({ cap, ...resto }) => [cap.id, resto]))));
+
+/** De onde continuar: só vale no mesmo dia, na mesma matéria e com as mesmas perguntas. */
+export function continuarDe(salvo: AndamentoDesafio | null | undefined, itens: ItemDesafio[], materia: string, dia: string) {
+  if (!salvo || salvo.dia !== dia || salvo.materia !== materia || salvo.marca !== marcaDoDesafio(itens)) return { i: 0, acertos: 0, voltou: false };
+  const i = Math.max(0, Math.min(salvo.i, itens.length));
+  return { i, acertos: Math.max(0, Math.min(salvo.acertos, i)), voltou: i > 0 };
+}
