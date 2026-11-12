@@ -11,6 +11,7 @@ import { paraTrocar, protegido, saldo } from '../lib/loja';
 import { useEstado } from '../lib/store';
 import { Chama, CORES } from './Inicio';
 import { Medalha } from '../components/Medalha';
+import { EscolhaPeriodo, legendaDoPlacar, numeroDoPlacar, type Aba, type Periodo } from '../components/Placar';
 import { Moeda } from '../components/Loja';
 import { conquistasDe, numerosDoPerfil } from '../lib/conquistas';
 import { nivel, sequencia } from '../lib/jogo';
@@ -312,7 +313,7 @@ function SemTurma({ titulo, texto }: { titulo: string; texto: ReactNode }) {
 }
 
 /* ---------------- Ranking ---------------- */
-interface Participante { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias?: number; online?: number }
+interface Participante { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias?: number; xp_total?: number; cartas_total?: number; vitorias_total?: number; online?: number }
 
 /** Guarda o último placar e a lista de colegas: ao voltar para a tela, aparecem na hora e atualizam sozinhos. */
 let rankingGuardado: { codigo: string; dados: { eu: string; participantes: Participante[] } } | null = null;
@@ -326,7 +327,8 @@ function AvatarOnline({ nome, cor, tamanho, online }: { nome: string; cor: strin
 export function Ranking() {
   const { conta } = useConta();
   const e = useEstado();
-  const [aba, setAba] = useState<'xp' | 'cartas' | 'vitorias'>('xp');
+  const [aba, setAba] = useState<Aba>('xp');
+  const [periodo, setPeriodo] = useState<Periodo>('semana');
   const codigo = conta?.codigo ?? '';
   const [dados, setDados] = useState<{ eu: string; participantes: Participante[] } | null>(rankingGuardado?.codigo === codigo ? rankingGuardado.dados : null);
   const [erro, setErro] = useState<string | null>(null);
@@ -353,7 +355,7 @@ export function Ranking() {
 
   if (!conta?.codigo) return <SemTurma titulo="Quem estudou mais?" texto={<>Entre na sua <strong>turma</strong> para ver o placar da semana com os colegas!</>} />;
 
-  const num = (p: Participante) => (aba === 'xp' ? p.xp : aba === 'cartas' ? p.cartas : p.vitorias ?? 0);
+  const num = (p: Participante) => numeroDoPlacar(p, aba, periodo);
   const lista = (dados?.participantes ?? []).slice().sort((a, b) => num(b) - num(a) || a.apelido.localeCompare(b.apelido));
   const unidade = (n: number) => (aba === 'xp' ? `${n} XP` : aba === 'cartas' ? `${n} ${n === 1 ? 'carta' : 'cartas'}` : `${n} ${n === 1 ? 'vitória' : 'vitórias'}`);
   const valor = (p: Participante) => unidade(num(p));
@@ -366,9 +368,10 @@ export function Ranking() {
     <main className="tela">
       <div>
         <div className="eyebrow">{conta.turma}</div>
-        <h1 className="display h1">Ranking da semana</h1>
+        <h1 className="display h1">{periodo === 'semana' ? 'Ranking da semana' : 'Ranking geral'}</h1>
       </div>
-      <div className="linha" role="tablist" style={{ gap: 8 }}>
+      <EscolhaPeriodo periodo={periodo} mudar={setPeriodo} />
+      <div className="linha" role="tablist" aria-label="O que contar" style={{ gap: 8 }}>
         {(['xp', 'cartas', 'vitorias'] as const).map((k) => (
           <button key={k} role="tab" aria-selected={aba === k} onClick={() => setAba(k)} className={`btn ${aba === k ? 'btn-rosa' : 'btn-escuro'}`} style={{ flex: 1, fontSize: 16, minHeight: 46, padding: '6px 8px' }}>{{ xp: 'Mais XP', cartas: 'Mais cartas', vitorias: 'Duelos' }[k]}</button>
         ))}
@@ -409,7 +412,7 @@ export function Ranking() {
       {frente && falta > 1 && <div className="painel" style={{ borderColor: 'var(--pink)', padding: 12, fontWeight: 700 }}>Faltam <strong>{unidade(falta)}</strong> para você passar {frente.apelido}!</div>}
       {frente && falta === 1 && <div className="painel" style={{ borderColor: 'var(--pink)', padding: 12, fontWeight: 700 }}>Você está <strong>empatado</strong> com {frente.apelido}. {aba === 'xp' ? 'Jogue uma fase' : aba === 'cartas' ? 'Ganhe mais uma carta' : 'Vença mais um duelo'} e passe na frente!</div>}
       {meuIdx === 0 && lista.length > 1 && <div className="painel" style={{ borderColor: 'var(--yellow)', padding: 12, fontWeight: 700 }}>Você está em <strong>1º lugar</strong>! Continue estudando para não perder.</div>}
-      <p className="muted small" style={{ textAlign: 'center', margin: 0 }}>{aba === 'vitorias' ? 'Vitórias no Duelo do Saber nesta semana. ' : ''}O placar da semana zera toda segunda-feira.{lista.some((p) => p.online) ? ' A bolinha verde mostra quem está estudando agora.' : ''}</p>
+      <p className="muted small" style={{ textAlign: 'center', margin: 0 }}>{legendaDoPlacar(aba, periodo)}{lista.some((p) => p.online) ? ' A bolinha verde mostra quem está estudando agora.' : ''}</p>
     </main>
   );
 }

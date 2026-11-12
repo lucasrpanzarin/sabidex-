@@ -3,6 +3,7 @@ import type { Uso } from '../shared/uso';
 import { useEffect, useRef, useState } from 'react';
 import { Icone } from '../components/Icone';
 import { Bolinha } from '../components/Perfis';
+import { EscolhaPeriodo, legendaDoPlacar, numeroDoPlacar } from '../components/Placar';
 import { api, esquecerContas, getConta, usarPerfilDoAdulto } from '../lib/conta';
 import { ir } from '../lib/rota';
 import { botaoGoogle, entrarApple, lerConfig, type ConfigServidor } from '../lib/social';
@@ -618,12 +619,13 @@ function Conversa({ mensagens, avisadas, acoes }: { mensagens: MsgAdulto[]; avis
   );
 }
 
-interface NaTurma { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias: number; online: number }
+interface NaTurma { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias: number; xp_total?: number; cartas_total?: number; vitorias_total?: number; online: number }
 
-/** Placar da semana da turma do filho, igual ao que a criança vê (só leitura). */
+/** Placar da turma do filho (da semana e desde o começo), igual ao que a criança vê (só leitura). */
 function PlacarDaTurma({ lista, eu, apelido }: { lista: NaTurma[]; eu: string; apelido: string }) {
   const [aba, setAba] = useState<'xp' | 'cartas' | 'vitorias'>('xp');
-  const num = (p: NaTurma) => (aba === 'xp' ? p.xp : aba === 'cartas' ? p.cartas : p.vitorias);
+  const [periodo, setPeriodo] = useState<'semana' | 'geral'>('semana');
+  const num = (p: NaTurma) => numeroDoPlacar(p, aba, periodo);
   const unidade = (n: number) => (aba === 'xp' ? `${n} XP` : aba === 'cartas' ? `${n} ${n === 1 ? 'carta' : 'cartas'}` : `${n} ${n === 1 ? 'vitória' : 'vitórias'}`);
   const ordem = lista.slice().sort((a, b) => num(b) - num(a) || a.apelido.localeCompare(b.apelido));
   const agora = lista.filter((p) => p.online);
@@ -632,7 +634,8 @@ function PlacarDaTurma({ lista, eu, apelido }: { lista: NaTurma[]; eu: string; a
       <span className="small" style={{ fontWeight: 700 }}>
         {agora.length ? `Estudando agora: ${agora.map((p) => p.apelido).join(', ')}.` : 'Ninguém da turma está estudando agora.'}
       </span>
-      <div className="linha" role="tablist" aria-label="Placar da semana" style={{ gap: 6 }}>
+      <EscolhaPeriodo periodo={periodo} mudar={setPeriodo} />
+      <div className="linha" role="tablist" aria-label="O que contar" style={{ gap: 6 }}>
         {(['xp', 'cartas', 'vitorias'] as const).map((k) => (
           <button key={k} role="tab" aria-selected={aba === k} onClick={() => setAba(k)} className={`btn ${aba === k ? 'btn-rosa' : 'btn-escuro'}`}
             style={{ flex: 1, minHeight: 40, fontSize: 14, padding: '4px 6px' }}>{{ xp: 'Mais XP', cartas: 'Mais cartas', vitorias: 'Duelos' }[k]}</button>
@@ -654,7 +657,7 @@ function PlacarDaTurma({ lista, eu, apelido }: { lista: NaTurma[]; eu: string; a
           );
         })}
       </ol>
-      <span className="muted small">É o mesmo placar que {apelido} vê no app. {aba === 'vitorias' ? 'Vitórias no Duelo do Saber nesta semana. ' : ''}Zera toda segunda-feira.</span>
+      <span className="muted small">É o mesmo placar que {apelido} vê no app. {legendaDoPlacar(aba, periodo)}</span>
     </div>
   );
 }

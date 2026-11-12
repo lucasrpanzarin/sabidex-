@@ -250,6 +250,9 @@ export const MIGRACOES = [
   `ALTER TABLE duelos ADD COLUMN modo TEXT NOT NULL DEFAULT 'perguntas'`,
   `ALTER TABLE duelos ADD COLUMN materia TEXT NOT NULL DEFAULT ''`,
   `ALTER TABLE duelos ADD COLUMN mundo TEXT NOT NULL DEFAULT ''`,
+  // Ranking (Lucas, 12/11/2026): quantas cartas diferentes a criança tinha no começo da semana ("Mais cartas" da semana
+  // = as de agora menos essas). NULL = ainda não anotado; anota na primeira sincronização da semana.
+  `ALTER TABLE criancas ADD COLUMN cartas_base INTEGER`,
 ];
 
 /**
