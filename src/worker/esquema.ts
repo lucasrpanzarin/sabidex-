@@ -250,6 +250,9 @@ export const MIGRACOES = [
   `ALTER TABLE duelos ADD COLUMN modo TEXT NOT NULL DEFAULT 'perguntas'`,
   `ALTER TABLE duelos ADD COLUMN materia TEXT NOT NULL DEFAULT ''`,
   `ALTER TABLE duelos ADD COLUMN mundo TEXT NOT NULL DEFAULT ''`,
+  // Chat: até que horário (relógio do servidor) a criança já viu as mensagens, em qualquer aparelho (Lucas, 12/11/2026).
+  // 0 = ainda não contou; o servidor marca "agora" na primeira vez, para o número mostrar só as mensagens novas.
+  `ALTER TABLE criancas ADD COLUMN chat_visto INTEGER NOT NULL DEFAULT 0`,
 ];
 
 /**

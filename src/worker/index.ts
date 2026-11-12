@@ -127,6 +127,7 @@ interface Crianca {
   falhas: number; bloqueado_ate: number; progresso: string; xp_semana: number; semana: string;
   familia_id: string | null; chat_ok: number; mostrar_online: number; mudo_ate: number; ativo: number;
   sem_novo: number; pacotes_dia: string; pacotes_hoje: number; epicos: number; ultimo_pacote: string;
+  chat_visto: number;
 }
 
 const contadoresDe = (k: Crianca): Contadores => ({ semNovo: k.sem_novo ?? 0, dia: k.pacotes_dia ?? '', hoje: k.pacotes_hoje ?? 0, epicos: k.epicos ?? 0 });
@@ -1870,6 +1871,11 @@ app.get('/crianca/chat', async (c) => {
     ? (await c.env.DB.prepare('SELECT apelido, cor FROM criancas WHERE turma_id = ? AND id != ? AND mostrar_online = 1 AND ativo > ? ORDER BY apelido_chave')
       .bind(k.turma_id, k.id, Date.now() - ONLINE_MS).all<{ apelido: string; cor: string }>()).results
     : [];
+  // Leu o chat: tudo o que veio conta como visto (em qualquer aparelho), e o número do botão volta a zero.
+  const ultima = mensagens.at(-1)?.criado ?? 0;
+  if (ultima > (k.chat_visto ?? 0)) {
+    await c.env.DB.prepare('UPDATE criancas SET chat_visto = MAX(chat_visto, ?) WHERE id = ?').bind(ultima, k.id).run();
+  }
   return c.json({ liberado: !b, motivo: b?.motivo ?? null, aviso: b?.texto ?? null, horario: t ? { inicio: t.chat_inicio, fim: t.chat_fim } : null, mensagens, online });
 });
 
@@ -1886,7 +1892,14 @@ app.get('/crianca/chat/resumo', async (c) => {
   const b = bloqueioChat(t, k);
   const horario = t ? { inicio: t.chat_inicio, fim: t.chat_fim } : null;
   if (b && ['desligado', 'sem-familia', 'sem-autorizacao'].includes(b.motivo)) return c.json({ liberado: false, motivo: b.motivo, horario, novas: 0 });
-  const depois = Number(c.req.query('depois') ?? 0) || 0;
+  // Só as mensagens depois da última que a criança viu (no servidor ou neste aparelho, a mais nova das duas).
+  // Se ela nunca viu (conta nova, ou antes desta mudança), começa a contar de agora: antes contava a conversa toda.
+  let visto = Math.max(k.chat_visto ?? 0, Number(c.req.query('depois') ?? 0) || 0);
+  if (!visto) {
+    visto = Date.now();
+    await c.env.DB.prepare('UPDATE criancas SET chat_visto = ? WHERE id = ? AND chat_visto = 0').bind(visto, k.id).run();
+  }
+  const depois = visto;
   // Conta no máximo 100 (a tela mostra "99+").
   const n = await c.env.DB.prepare(`SELECT COUNT(*) n FROM (SELECT 1 FROM mensagens WHERE turma_id = ? AND crianca_id != ? AND apagada = 0 AND criado > ? LIMIT 100)`)
     .bind(k.turma_id, k.id, depois).first<{ n: number }>();
