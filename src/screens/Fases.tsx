@@ -328,7 +328,13 @@ function Memoria({ cap }: { cap: Capitulo }) {
 function Linha({ cap }: { cap: Capitulo }) {
   const { res, finalizar, limpar } = useFinalizar(cap, 'linha');
   const [rodada, setRodada] = useState(0);
-  const eventos = useMemo(() => embaralhar(cap.linha).slice(0, 5), [cap, rodada]);
+  // Etapas de um processo (nomeLinha): pega 5 seguidas, para não faltar uma no meio ("1º, 2º, 4º...").
+  const eventos = useMemo(() => {
+    if (!cap.nomeLinha) return embaralhar(cap.linha).slice(0, 5);
+    const ord = [...cap.linha].sort((x, y) => x.ordem - y.ordem);
+    const ini = Math.floor(Math.random() * Math.max(1, ord.length - 4));
+    return embaralhar(ord.slice(ini, ini + 5));
+  }, [cap, rodada]);
   const certa = useMemo(() => [...eventos].sort((a, b) => a.ordem - b.ordem), [eventos]);
   const [postos, setPostos] = useState<typeof eventos>([]);
   // Cada lugar da linha tem uma chance só: errou, o fato certo entra sozinho, marcado como erro.
@@ -355,7 +361,9 @@ function Linha({ cap }: { cap: Capitulo }) {
     <main className="tela">
       <Topo cap={cap} fase="linha" />
       <div className="aviso" style={{ background: 'var(--surface)', border: '3px solid var(--ink)' }}>
-        Toque nos fatos do <strong>mais antigo</strong> para o <strong>mais novo</strong>. Cada lugar tem uma chance só!
+        {cap.nomeLinha
+          ? <>Toque nas etapas <strong>na ordem</strong>, da <strong>primeira</strong> para a <strong>última</strong>. Cada lugar tem uma chance só!</>
+          : <>Toque nos fatos do <strong>mais antigo</strong> para o <strong>mais novo</strong>. Cada lugar tem uma chance só!</>}
       </div>
       <ol style={{ listStyle: 'none', margin: 0, padding: '0 0 0 22px', borderLeft: '4px solid var(--line)', display: 'grid', gap: 8 }}>
         {certa.map((_, i) => {

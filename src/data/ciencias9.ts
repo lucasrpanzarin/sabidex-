@@ -9,8 +9,8 @@ export const ciencias9: Capitulo = {
   "subtitulo": "Microscópios, células, tecidos, órgãos e sistemas",
   "materia": "Ciências",
   "nomeLinha": [
-    "Da célula ao organismo",
-    "Coloque na ordem, do menor para o maior"
+    "Níveis de organização",
+    "Da célula ao organismo, do menor para o maior"
   ],
   "temas": [
     {
