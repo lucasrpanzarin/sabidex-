@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { concluirDesafio, idPacoteDesafio, materiasDoDesafio, montarDesafio, PERGUNTAS_DESAFIO, situacaoDesafio } from './desafio';
+import { concluirDesafio, continuarDe, idPacoteDesafio, marcaDoDesafio, materiasDoDesafio, montarDesafio, PERGUNTAS_DESAFIO, situacaoDesafio } from './desafio';
 import { estadoInicial, type Estado } from './jogo';
 import { historia9 } from '../data/historia9';
 import { historia10 } from '../data/historia10';
@@ -87,5 +87,25 @@ describe('desafio com todas as unidades do app', () => {
         }
       }
     }
+  });
+});
+
+describe('desafio pela metade', () => {
+  const e = comecou('historia-9', 'historia-10');
+  const itens = montarDesafio(e, caps, historia9.materia, D);
+  const marca = marcaDoDesafio(itens);
+  it('continua de onde parou, com os mesmos acertos', () => {
+    expect(continuarDe({ dia: D, materia: historia9.materia, marca, i: 4, acertos: 3 }, itens, historia9.materia, D)).toEqual({ i: 4, acertos: 3, voltou: true });
+  });
+  it('começa do zero em outro dia, outra matéria ou com outras perguntas', () => {
+    const zero = { i: 0, acertos: 0, voltou: false };
+    expect(continuarDe({ dia: '2026-11-11', materia: historia9.materia, marca, i: 4, acertos: 3 }, itens, historia9.materia, D)).toEqual(zero);
+    expect(continuarDe({ dia: D, materia: 'Geografia', marca, i: 4, acertos: 3 }, itens, historia9.materia, D)).toEqual(zero);
+    const outras = montarDesafio(e, caps, historia9.materia, D, 1);
+    expect(continuarDe({ dia: D, materia: historia9.materia, marca, i: 4, acertos: 3 }, outras, historia9.materia, D)).toEqual(zero);
+    expect(continuarDe(null, itens, historia9.materia, D)).toEqual(zero);
+  });
+  it('as mesmas perguntas dão a mesma marca', () => {
+    expect(marcaDoDesafio(montarDesafio(e, caps, historia9.materia, D))).toBe(marca);
   });
 });
