@@ -157,10 +157,12 @@ export interface Estado {
   missoes: { dia: string; lista: string[]; progresso: Record<string, number> } | null;
   /** ids dos pacotes de marco de sequência já ganhos (para não ganhar duas vezes). Fica só no aparelho. */
   marcos: string[];
+  /** Desafio do dia (src/lib/desafio.ts): matéria → tentativas e melhor nota de hoje. Fica só no aparelho. */
+  desafios?: { dia: string; feitos: Record<string, { tentativas: number; nota: number }> } | null;
 }
 
 export const estadoInicial = (): Estado => ({
-  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [], semNovo: 0, pacoteDia: '', compras: [], desejo: null, revisao: {}, ouvidos: {}, missoes: null, marcos: [],
+  perfil: null, xp: 0, feitas: {}, notas: {}, pacotes: [], cartas: {}, dias: [], abertos: [], semNovo: 0, pacoteDia: '', compras: [], desejo: null, revisao: {}, ouvidos: {}, missoes: null, marcos: [], desafios: null,
 });
 
 export function nivel(xp: number) {
@@ -214,7 +216,7 @@ export function sequenciaInfo(dias: string[], agora = new Date()): { dias: numbe
 export const sequencia = (dias: string[], agora = new Date()) => sequenciaInfo(dias, agora).dias;
 
 /** Por que a criança ganhou o pacote. */
-export type MotivoPacote = 'fase' | 'prova' | 'dia' | 'nivel' | 'extras' | 'missoes' | 'marco';
+export type MotivoPacote = 'fase' | 'prova' | 'dia' | 'nivel' | 'extras' | 'missoes' | 'marco' | 'desafio';
 
 export interface Resultado {
   estado: Estado;

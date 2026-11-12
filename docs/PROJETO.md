@@ -7,7 +7,7 @@ O Claude lê este arquivo no começo de cada conversa (está pedido no `CLAUDE.m
 - Quando o Lucas der uma ideia nova, o Claude confere aqui antes e avisa: "isso já existe", "isso já foi testado e trocado por X" ou "isso vai contra a regra Y".
 - Ao terminar qualquer mudança, o Claude atualiza este caderno (o que mudou, a data e quem decidiu).
 
-Última revisão geral: **04/11/2026**. Última mudança: **06/11/2026** (duelo: escolher matéria, unidade e jogo; "Contra o relógio"; revanche).
+Última revisão geral: **04/11/2026**. Última mudança: **12/11/2026** (Desafio do dia, um por matéria).
 
 ---
 
@@ -61,6 +61,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
   - **Sequência de dias**: pode faltar **1 dia por semana** sem perder (regra de `docs/ESTUDOS.md`; a folga não conta como dia estudado). Antes, faltar 1 dia zerava.
   - **Missões do dia**: 3 missões curtas de estudo, escolhidas pelo dia (iguais o dia todo, trocam no outro dia), só entre as que a criança já consegue fazer. A Revisão do Ará entra sempre que tiver; se a criança fizer a revisão com nota abaixo de 7 e não sobrar mais nada para revisar no dia, essa missão troca sozinha por outra que ela consegue fazer (as outras missões e o que já foi feito continuam). Cada jogo vale para **uma** missão e só conta com **nota 7 ou mais**. Fazer as 3 dá **1 pacote**. Depois, o Ará diz para descansar e voltar amanhã. Ficam só no aparelho.
   - **Marcos de sequência**: 3, 7, 14 e 30 dias seguidos dão **1 pacote** cada (uma vez por sequência), na primeira atividade do dia com nota 7. Duelos não contam para missões nem marcos.
+- **Desafio do dia** (Lucas, 12/11/2026; `src/lib/desafio.ts`, `src/screens/Desafio.tsx`): as crianças pediram mais jeitos de ganhar bichos. Todo dia tem **um desafio por matéria**, com 10 perguntas misturadas das unidades que a criança **já começou** (ouviu os temas). Matéria sem unidade começada aparece apagada ("Comece uma unidade"). As perguntas são as que já existem (verdadeiro ou falso, prova, complete a frase, "o que quer dizer", quem sou eu); em Matemática são contas digitadas com números novos. Nada é inventado. O sorteio depende do dia e da matéria: a turma toda tem o mesmo desafio no dia, e no outro dia muda. **Nota 7 ou mais dá 1 pacote por matéria por dia** (id fixo `desafio-<matéria>-<dia>`, nunca vem em dobro nem em dois aparelhos). XP: 8 por acerto + 10 (vale também em Sabicoins); abaixo de 7 pode tentar de novo no mesmo dia, com perguntas novas e metade do XP. Também vale o pacote do dia, as missões e o nível novo. As perguntas erradas de quiz, prova e contas entram na Revisão do Ará. No Início fica o cartão "Desafios do dia" (o pulinho vai para ele quando as missões já foram feitas).
 - **Data da prova da escola**: o professor (turma) ou o adulto (família) marca. Depois da data o capítulo vai para "Já teve prova na escola" (continua valendo tudo).
 - **Ordem das unidades** (Lucas, 06/11/2026; `ordenarCapitulos` em `src/lib/provas.ts`): sempre a ordem do livro (8, 9, 10); a data da prova só aparece no selo. O "Próxima fase"/"Continuar" termina primeiro a unidade que a criança está jogando e só depois vai para a próxima (`proximaFase` em `src/screens/Inicio.tsx`).
 - Capítulo novo: o Lucas manda fotos do livro na conversa e o Claude segue a skill **capitulo-do-livro**. Regras pedagógicas em `docs/ESTUDOS.md`. Conferência automática: `npm run conferir -- historia-9`.
@@ -74,7 +75,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | Cada erro | tira 10% do XP da fase (mínimo 20%) | |
 | Nível | a cada 300 XP | |
 | **Sabicoins** | cada fase dá o mesmo número de XP e de Sabicoins. Saldo = XP total − compras | `src/lib/loja.ts` |
-| Pacotes (só do estudo) | memória e quiz (1ª vez com nota 7), prova aprovada (pacote **épico**), terminar os 4 extras com nota 7 em cada, 1ª atividade do dia com nota 7, as 3 missões do dia, marcos de 3/7/14/30 dias seguidos, cada nível novo | `src/lib/jogo.ts` |
+| Pacotes (só do estudo) | memória e quiz (1ª vez com nota 7), prova aprovada (pacote **épico**), terminar os 4 extras com nota 7 em cada, 1ª atividade do dia com nota 7, as 3 missões do dia, marcos de 3/7/14/30 dias seguidos, cada nível novo, **Desafio do dia** com nota 7 (1 por matéria por dia) | `src/lib/jogo.ts`, `src/lib/desafio.ts` |
 | **Pacote de boas-vindas** (única exceção à regra acima; Lucas, 05/11/2026) | toda conta nova de criança (família ou turma) já nasce com 1 pacote normal; a carta sai na sorte. O Ará apresenta na tela inicial e, depois de abrir, explica que os próximos vêm do estudo. Quem já tinha conta não ganha | `src/shared/sync.ts` (`comBoasVindas`) |
 | Pacote | **1 Sabimon** (sempre a forma 1). Chances: comum 62%, rara 26%, épica 9%, lendária 3%. Épico: 80% épica, 20% lendária | |
 | Garantia | depois de 9 pacotes sem bicho novo, o 10º traz um que a criança não tem | |
@@ -220,6 +221,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências (unidad
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
 
+- **12/11/2026** · **Desafio do dia, um por matéria** (Lucas: as crianças reclamaram que tinha poucos jogos e queriam ganhar mais bichos). 10 perguntas misturadas das unidades já começadas; nota 7 dá 1 pacote por matéria por dia. Usa só as perguntas que já existem no app (sem inteligência artificial, sem custo). Conta feita para o Lucas: quem faz os 4 todo dia junta uns 120 pacotes a mais por mês, e ele achou bom. Ideia anotada para depois: jogos novos com as mesmas palavras (forca, palavra embaralhada, caça-palavras, maratona de 3 vidas).
 - **12/11/2026** · **Conferência da experiência da criança em Ciências** (robô jogou as 5 fases e os 4 jogos extras das unidades 9 e 10 no tamanho de celular, sem erros). Ajustes: nas unidades com etapas (fase 3 com `nomeLinha`, também na Geografia) o aviso dizia "do mais antigo para o mais novo" e agora diz "na ordem, da primeira para a última"; e a fase pega **5 etapas seguidas** (antes podia faltar uma no meio, ficando "4º, 6º"). A fase 3 da Ciências 9 passou a se chamar "Níveis de organização" (o termo do livro, p. 58), para não repetir o nome da unidade (Lucas pediu a conferência).
 - **12/11/2026** · **Áudios de Ciências prontos**: 28 narrações (14 temas das unidades 9 e 10 × Nina e Otto, 17.774 letras). Quem escolheu a Graziella ouve a Nina (Lucas).
 - **12/11/2026** · **Ciências unidade 10**, "O corpo humano e o ambiente" (livro p. 66 a 83): 7 temas (seres vivos e ambiente, seres humanos mudam o ambiente, sol/ar/água, seres vivos que pedem cuidado, higiene, vida saudável, sistema imunitário), fase 3 "Defesa do corpo", quiz, prova e jogos extras. Narrada depois com Nina e Otto (Lucas).

@@ -18,6 +18,7 @@ import { useEffect } from 'react';
 import { api, estudoDa, useConta } from './lib/conta';
 import { Chat } from './screens/Chat';
 import { Duelos } from './screens/Duelo';
+import { Desafio } from './screens/Desafio';
 
 export function App() {
   const e = useEstado();
@@ -47,7 +48,7 @@ export function App() {
   let comNav = true;
   // Jogos só com turma, e só os capítulos da turma (cada turma estuda o livro dela; Lucas, 05/11/2026).
   const estudo = estudoDa(conta);
-  const deEstudo = ['mundos', 'mundo', 'fase', 'extra', 'revisao', 'dia'].includes(pagina);
+  const deEstudo = ['mundos', 'mundo', 'fase', 'extra', 'revisao', 'dia', 'desafio'].includes(pagina);
   const capDaTurma = !['mundo', 'fase', 'extra'].includes(pagina) || estudo.caps.some((c) => c.id === a);
   if (deEstudo && estudo.situacao !== 'ok') return <div className="app"><PrecisaTurma situacao={estudo.situacao} tela /><Nav ativo="mundos" /></div>;
   if (deEstudo && !capDaTurma) return <div className="app"><Mundos /><Nav ativo="mundos" /></div>;
@@ -62,6 +63,8 @@ export function App() {
       tela = EXTRAS.includes(b as Extra) ? <TelaExtra capId={a} x={b as Extra} /> : <Mundos />;
       comNav = false; break;
     case 'revisao': tela = <Revisao />; comNav = false; break;
+    // `b` muda a cada nova tentativa: a tela começa do zero, com perguntas novas.
+    case 'desafio': tela = estudo.materias.includes(a ?? '') ? <Desafio key={`${a}-${b ?? ''}`} materia={a!} /> : <Mundos />; comNav = false; break;
     case 'album': tela = <Album id={a} />; break;
     case 'loja': tela = <Loja key={a ?? ''} sabimonId={a} />; aba = 'album'; break;
     case 'trocas': tela = <Trocas />; break;
