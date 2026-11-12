@@ -15,7 +15,7 @@ import { FIGURINHAS, figurinhaPorId, type Figurinha } from '../lib/figurinhas';
 import { embaralhar, hoje, nivel, premiar } from '../lib/jogo';
 import { registrarResposta } from '../lib/revisao';
 import type { Resposta } from '../lib/contas';
-import { ir } from '../lib/rota';
+import { ir, voltarTela } from '../lib/rota';
 import { forca } from '../lib/sabimon';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import {
@@ -83,7 +83,7 @@ export function Duelos() {
   if (!conta?.codigo) {
     return (
       <main className="tela">
-        <button className="voltar" onClick={() => ir('trocas')}><Icone nome="voltar" tamanho={18} espessura={3} />Turma</button>
+        <button className="voltar voltar-topo" onClick={() => voltarTela('trocas')}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         <h1 className="display h1">Duelo do Saber</h1>
         <div className="linha" style={{ alignItems: 'flex-end' }}>
           <Ara tamanho={90} />
@@ -121,7 +121,7 @@ export function Duelos() {
 
   return (
     <main className="tela">
-      <button className="voltar" onClick={() => ir('trocas')}><Icone nome="voltar" tamanho={18} espessura={3} />Turma</button>
+      <button className="voltar voltar-topo" onClick={() => voltarTela('trocas')}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
       <div>
         <div className="eyebrow">{conta.turma}</div>
         <h1 className="display h1">Duelo do Saber</h1>
@@ -259,7 +259,7 @@ function NovoDuelo({ aoVoltar, aoCriar }: { aoVoltar: () => void; aoCriar: (d: D
 
   return (
     <main className="tela">
-      <button className="voltar" onClick={aoVoltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
+      <button className="voltar voltar-topo" onClick={aoVoltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
       <div>
         <div className="eyebrow">Novo duelo · passo 1 de 3</div>
         <h1 className="display h2">Quem você quer desafiar?</h1>
@@ -321,7 +321,7 @@ function EscolherJogo({ colega, aoVoltar, aoEscolher }: { colega: Colega; aoVolt
 
   return (
     <main className="tela">
-      <button className="voltar" onClick={aoVoltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
+      <button className="voltar voltar-topo" onClick={aoVoltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
       <div>
         <div className="eyebrow">Desafiar {colega.apelido} · passo 2 de 3</div>
         <h1 className="display h2">O que vai cair?</h1>
@@ -390,7 +390,7 @@ function EscolherCarta({ titulo, aoVoltar, aoEscolher, ocupado = false, erro = n
     .sort((a, b) => forca(b.s, b.forma, 0) - forca(a.s, a.forma, 0) || b.numero - a.numero), [e.cartas]);
   return (
     <main className="tela">
-      <button className="voltar" onClick={aoVoltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
+      <button className="voltar voltar-topo" onClick={aoVoltar}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
       <div>
         <div className="eyebrow">{titulo}</div>
         <h1 className="display h2">Escolha seu Sabimon parceiro</h1>
@@ -548,7 +548,7 @@ function JogoPerguntas({ perguntas, topo, aoSair, aoTerminar }: { perguntas: Per
   return (
     <main className="tela">
       <div className="linha" style={{ justifyContent: 'space-between' }}>
-        <button className="voltar" onClick={aoSair}><Icone nome="voltar" tamanho={18} espessura={3} />Sair</button>
+        <button className="voltar voltar-topo" onClick={aoSair}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         <span className="pilula">{i + 1}/{perguntas.length}</span>
       </div>
       <div>
@@ -596,7 +596,7 @@ function JogoRelogio({ perguntas, topo, aoSair, aoTerminar }: { perguntas: Pergu
   if (!comecou) {
     return (
       <main className="tela">
-        <button className="voltar" onClick={aoSair}><Icone nome="voltar" tamanho={18} espessura={3} />Sair</button>
+        <button className="voltar voltar-topo" onClick={aoSair}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         <div>
           <div className="eyebrow">{topo}</div>
           <h1 className="display h1">Contra o relógio</h1>
@@ -634,7 +634,7 @@ function JogoRelogio({ perguntas, topo, aoSair, aoTerminar }: { perguntas: Pergu
   return (
     <main className="tela">
       <div className="linha" style={{ justifyContent: 'space-between' }}>
-        <button className="voltar" onClick={aoSair}><Icone nome="voltar" tamanho={18} espessura={3} />Sair</button>
+        <button className="voltar voltar-topo" onClick={aoSair}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         <span className="pilula" style={{ fontWeight: 800, color: pouco ? 'var(--t-coral)' : 'var(--ink)', borderColor: pouco ? 'var(--coral)' : undefined }}
           aria-label={`Faltam ${resta} segundos${lendo ? ', relógio parado' : ''}`}>
           ⏱ {resta} s{lendo ? ' · parado' : ''}
@@ -743,7 +743,7 @@ function ResultadoDuelo({ d, eu, aoSair, aoRevanche, embutido = false }: { d: Du
   if (embutido) return conteudo;
   return (
     <main className="tela" style={{ alignItems: 'center', textAlign: 'center' }}>
-      <div style={{ alignSelf: 'flex-start' }}><button className="voltar" onClick={aoSair}><Icone nome="voltar" tamanho={18} espessura={3} />Duelos</button></div>
+      <div style={{ alignSelf: 'flex-start' }}><button className="voltar voltar-topo" onClick={aoSair}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button></div>
       <h1 className="display h1">Batalha</h1>
       {conteudo}
     </main>

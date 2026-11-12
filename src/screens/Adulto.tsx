@@ -123,7 +123,7 @@ export function Adulto({ turmaId }: { turmaId?: string }) {
   return (
     <main className="tela" style={{ maxWidth: 640, margin: '0 auto', width: '100%' }}>
       <div className="linha" style={{ justifyContent: 'space-between' }}>
-        <button className="voltar" onClick={() => (turmaId ? ir('adulto') : ir())}><Icone nome="voltar" tamanho={18} espessura={3} />{turmaId ? 'Voltar' : 'Voltar ao app'}</button>
+        <button className="voltar voltar-topo" onClick={() => (turmaId ? ir('adulto') : ir())}><Icone nome="voltar" tamanho={18} espessura={3} />{turmaId ? 'Voltar' : 'Voltar ao app'}</button>
         {eu && <button className="voltar" onClick={() => void sair()}>Sair</button>}
       </div>
       {!passou ? <Portao aoPassar={() => setPassou(true)} />

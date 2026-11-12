@@ -23,7 +23,7 @@ export function Privacidade() {
   const contato = EMAIL_CONTATO ? <a href={`mailto:${EMAIL_CONTATO}`} style={{ color: 'var(--t-cyan)' }}>{EMAIL_CONTATO}</a> : <strong>(e-mail de contato a definir)</strong>;
   return (
     <main className="tela" style={{ maxWidth: 680, margin: '0 auto', width: '100%' }}>
-      <button className="voltar" onClick={() => voltar('adulto')}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
+      <button className="voltar voltar-topo" onClick={() => voltar('adulto')}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
       <div>
         <div className="eyebrow">Para pais, mães e professores</div>
         <h1 className="display h1">Política de privacidade</h1>

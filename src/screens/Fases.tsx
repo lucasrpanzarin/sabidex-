@@ -7,7 +7,7 @@ import type { Capitulo } from '../data/tipos';
 import { NOTA_MINIMA, infoFase, PERDA_POR_ERRO, XP_MINIMO, concluirFase, embaralhar, estrelasDaNota, hoje, liberada, nivel, notaDe, type Fase, type MotivoPacote, type Resultado } from '../lib/jogo';
 import { idProva, idQuiz, registrarResposta } from '../lib/revisao';
 import { aplicarMissoes } from '../lib/missoes';
-import { ir } from '../lib/rota';
+import { ir, voltarTela } from '../lib/rota';
 import { jogar, lembrarUnidade, proximaFase } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import { audioDaVoz, setVoz, useVoz, vozesDaMateria, vozParaMateria } from '../lib/voz';
@@ -23,7 +23,7 @@ export function Topo({ cap, fase, extra }: { cap: Capitulo; fase: Fase; extra?: 
   return (
     <div className="coluna" style={{ gap: 2 }}>
       <div className="linha" style={{ justifyContent: 'space-between' }}>
-        <button className="voltar" onClick={() => ir('mundo', cap.id)}><Icone nome="voltar" tamanho={18} espessura={3} />Unidade {cap.numero}</button>
+        <button className="voltar voltar-topo" onClick={() => voltarTela('mundo', cap.id)}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         {extra}
       </div>
       <h1 className="display h2">{infoFase(fase, cap).titulo}</h1>
