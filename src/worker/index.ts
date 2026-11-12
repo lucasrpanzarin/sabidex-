@@ -9,7 +9,7 @@ import { idEvolucao, itemPorId, migrarFormas, podeEvoluir, premiosLivres, PRECO_
 import { figurinhaPorId, idCarta, IDS_CARTAS } from '../lib/figurinhas';
 import {
   comBoasVindas, gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
-  sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
+  sanitizar, sanitizarDelta, semanaDe, xpDaSemana, type ProgressoSync,
 } from '../shared/sync';
 import { AJUSTES_UMA_VEZ, ESQUEMA, MIGRACOES, SEM_TURMA, temTurma, turmaDaFamilia, VERSAO_ESQUEMA } from './esquema';
 import { dataValida, type DatasProva } from '../lib/provas';
@@ -487,6 +487,7 @@ app.post('/crianca/sync', async (c) => {
     // Só ganha carta o pacote que o servidor já conhecia; os outros só fecham.
     const delta: Record<string, number> = {};
     const tem = await cartasDe(db, atual.id);
+    const semana = semanaDe();
     let cont = contadoresDe(atual);
     for (const id of m.abertos.filter((x) => !antes.abertos.includes(x))) {
       const p = antes.pacotes.find((x) => x.id === id);
@@ -496,9 +497,8 @@ app.post('/crianca/sync', async (c) => {
       for (const carta of s.cartas) { delta[carta] = (delta[carta] ?? 0) + 1; tem[carta] = (tem[carta] ?? 0) + 1; }
       cont = s.contadores;
     }
-    const semana = semanaDe();
     const ganho = Math.max(0, m.xp - antes.xp);
-    const xpSemana = (atual.semana === semana ? atual.xp_semana : 0) + Math.min(ganho, 2000);
+    const xpSemana = xpDaSemana(atual, ganho, semana);
     const novo = JSON.stringify(m);
     const trava = `EXISTS (SELECT 1 FROM criancas WHERE id = ? AND progresso = ?)`;
     const res = await db.batch([
@@ -623,16 +623,23 @@ app.get('/crianca/colega/:id', async (c) => {
   return c.json({ colega: o, cartas });
 });
 
-/** Placar da semana da turma (XP, cartas, vitórias nos duelos e quem está estudando agora). */
+/**
+ * Placar da turma: XP e vitórias da semana (desde segunda) e desde o começo (`*_total`), cartas diferentes
+ * no álbum (essas não zeram) e quem está estudando agora.
+ */
 async function rankingDa(db: D1Database, turmaId: string, euId: string) {
-  const inicioSemana = Date.parse(`${semanaDe()}T03:00:00Z`);
-  const r = await db.prepare(`SELECT id, apelido, cor, CASE WHEN semana = ? THEN xp_semana ELSE 0 END AS xp,
-    (SELECT COUNT(*) FROM cartas WHERE crianca_id = criancas.id AND qtd > 0) AS cartas,
-    (SELECT COUNT(*) FROM duelos d WHERE d.turma_id = criancas.turma_id AND d.status = 'feito' AND d.resolvido >= ?
-      AND ((d.vencedor = 'de' AND d.de_id = criancas.id) OR (d.vencedor = 'para' AND d.para_id = criancas.id))) AS vitorias,
-    ((SELECT mostrar_online FROM turmas WHERE id = criancas.turma_id) = 1 AND mostrar_online = 1 AND ativo > ? AND id != ?) AS online
-    FROM criancas WHERE turma_id = ?`).bind(semanaDe(), inicioSemana, Date.now() - ONLINE_MS, euId, turmaId).all();
-  return { eu: euId, semana: semanaDe(), participantes: r.results };
+  const semana = semanaDe();
+  const inicioSemana = Date.parse(`${semana}T03:00:00Z`);
+  const venceu = `((d.vencedor = 'de' AND d.de_id = k.id) OR (d.vencedor = 'para' AND d.para_id = k.id))`;
+  const r = await db.prepare(`SELECT k.id, k.apelido, k.cor,
+    CASE WHEN k.semana = ?1 THEN k.xp_semana ELSE 0 END AS xp,
+    COALESCE(json_extract(k.progresso, '$.xp'), 0) AS xp_total,
+    (SELECT COUNT(*) FROM cartas WHERE crianca_id = k.id AND qtd > 0) AS cartas,
+    (SELECT COUNT(*) FROM duelos d WHERE d.turma_id = k.turma_id AND d.status = 'feito' AND d.resolvido >= ?2 AND ${venceu}) AS vitorias,
+    (SELECT COUNT(*) FROM duelos d WHERE d.turma_id = k.turma_id AND d.status = 'feito' AND ${venceu}) AS vitorias_total,
+    ((SELECT mostrar_online FROM turmas WHERE id = k.turma_id) = 1 AND k.mostrar_online = 1 AND k.ativo > ?3 AND k.id != ?4) AS online
+    FROM criancas k WHERE k.turma_id = ?5`).bind(semana, inicioSemana, Date.now() - ONLINE_MS, euId, turmaId).all();
+  return { eu: euId, semana, participantes: r.results };
 }
 
 app.get('/crianca/ranking', async (c) => {
