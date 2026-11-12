@@ -35,6 +35,8 @@ interface Pedido {
   formato?: string;
   /** só estas imagens, ex.: ["013-3", "014-2"] */
   so?: string[];
+  /** corrigir um desenho pronto: o próprio desenho vira a referência, ex.: { "022-1": "remove the second leg" } */
+  corrigir?: Record<string, string>;
   /** modelo para a forma 1 (só texto) */
   modelo?: string;
   /** modelo para as formas 2 e 3 (texto + imagem de referência) */
@@ -45,6 +47,7 @@ interface Pedido {
 
 const ESTILO = 'Original creature for a creature-collecting adventure game, stylized 3D game character render, dynamic action pose ready for battle, brave determined expression, big expressive eyes, strong readable silhouette, its elemental power clearly visible as glowing effects, vibrant saturated colors, dramatic rim lighting, full body, centered, plain pure white background, no text, no logo, no frame, no scenery. Exciting but friendly for kids aged 9 to 11, not scary, no blood. Original design, not based on any existing franchise or character.';
 const MESMO_BICHO = 'This is a big evolution of the creature in the reference image. Follow the CHANGE list: new pose, bigger body, new parts, and the new colors if any. Follow the KEEP list so it is clearly recognizable as the same creature line. Do not copy the reference pose. Isolated character on a plain pure white background: absolutely no environment, no scenery, no dark background.';
+const CORRIGE = 'Edit the reference image. Change ONLY what the instruction asks. Keep everything else exactly the same: the same character, face, eyes, pose, colors, clothes and effects. Isolated character on a plain pure white background, no scenery.';
 const HERDA = 'Keep the special features the reference already has (emblems, cape, claws, armor, markings) and make them bigger and more powerful.';
 
 const resultado: Record<string, unknown> = { quando: new Date().toISOString(), imagens: [] as unknown[] };
@@ -159,7 +162,7 @@ async function referencia(numero: string, forma: number, refs: Record<string, st
   }
   const repo = process.env.GITHUB_REPOSITORY;
   if (repo) {
-    const raw = `https://raw.githubusercontent.com/${repo}/main/${PASTA}/${numero}-${forma}.png`;
+    const raw = `https://raw.githubusercontent.com/${repo}/${process.env.GITHUB_REF_NAME || 'main'}/${PASTA}/${numero}-${forma}.png`;
     const r = await fetch(raw, { method: 'HEAD' }).catch(() => undefined);
     if (r?.ok) return raw;
   }
@@ -245,6 +248,24 @@ async function main() {
   mkdirSync(PASTA, { recursive: true });
 
   const feitos = resultado.imagens as unknown[];
+  // Correções: o próprio desenho vai como referência e o pedido diz só o que mudar.
+  for (const [nome, instrucao] of Object.entries(p.corrigir ?? {})) {
+    const [numero, forma] = nome.split('-');
+    const corpo: Record<string, unknown> = { prompt: `${ESTILO} ${instrucao} ${CORRIGE}`, aspect_ratio: '1:1', resolution: '2k', ...(p.extra ?? {}) };
+    corpo.image_urls = [await referencia(numero, Number(forma), refs)];
+    let gerado: { url: string; modelo: string } | undefined;
+    for (let tentativa = 1; !gerado; tentativa++) {
+      try { gerado = await gerarComCandidatos('ref', comRef, corpo); } catch (e) {
+        if (tentativa >= 3 || !String(e).includes('(failed)')) throw e;
+        await espera(5000);
+      }
+    }
+    const tamanho = await baixarPng(gerado.url, `${PASTA}/${nome}.png`);
+    refs[nome] = gerado.url;
+    writeFileSync(REFS, JSON.stringify(refs, null, 2) + '\n');
+    feitos.push({ nome, corrigido: instrucao.slice(0, 80), modelo: gerado.modelo, ...tamanho });
+    salvar();
+  }
   for (const forma of [...p.formas].sort()) {
     for (const s of lista.filter((x) => !p.numeros || p.numeros.includes(x.numero))) {
       const nome = `${s.numero}-${forma}`;

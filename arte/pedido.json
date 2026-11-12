@@ -1,1 +1,24 @@
-{"acao": "gerar", "formas": [1, 2, 3], "numeros": ["022", "023", "024"], "so": ["022-1", "022-2", "022-3", "023-1", "023-2", "023-3", "024-1"], "refazer": true}
+{
+ "acao": "gerar",
+ "formas": [
+  2,
+  3
+ ],
+ "numeros": [
+  "027"
+ ],
+ "so": [
+  "027-2",
+  "027-3"
+ ],
+ "refazer": true,
+ "corrigir": {
+  "022-1": "Remove the bent raised leg completely. He must have ONLY ONE LEG: a single straight leg coming down from the middle of his body, standing on one foot. Below the red tunic there is only that one leg, nothing else.",
+  "022-2": "Remove the bent raised leg completely. He must have ONLY ONE LEG: a single straight leg coming down from the middle of his body, standing on one foot. Below the red tunic there is only that one leg, nothing else.",
+  "022-3": "Remove the bent raised leg completely. He must have ONLY ONE LEG: a single straight leg coming down from the middle of his body, standing on one foot. Below the red tunic there is only that one leg, nothing else.",
+  "023-1": "Turn both of his feet around so they point BACKWARDS: the heels are at the front and the toes point behind him, the opposite way of his face. This is the famous detail of the Curupira legend, make it clearly visible.",
+  "023-2": "Turn both of his feet around so they point BACKWARDS: the heels are at the front and the toes point behind him, the opposite way of his face. This is the famous detail of the Curupira legend, make it clearly visible.",
+  "023-3": "Turn both of his feet around so they point BACKWARDS: the heels are at the front and the toes point behind him, the opposite way of his face. This is the famous detail of the Curupira legend, make it clearly visible.",
+  "024-1": "Remove the mule's head completely: no ears, no muzzle, no nose, no mouth, no horse face. The neck simply ends, and from the top of the neck rises a big friendly orange flame that has two cute big glowing blue eyes, exactly like a flame with eyes. Keep the brown mule body, the flaming tail, the silver horseshoes and the galloping pose."
+ }
+}
