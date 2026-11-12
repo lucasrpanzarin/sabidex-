@@ -123,9 +123,9 @@ strong { color: var(--t-coral); font-weight: 900; }
 
 .voltar { background: none; border: 0; color: var(--muted); font-weight: 800; font-size: 15px; display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0; align-self: flex-start; }
 /* Voltar do topo das telas (sugestão de uma mãe, 12/11/2026): botão de verdade, grande e fácil de achar,
-   no estilo figurinha (papel branco, contorno escuro e sombra de adesivo). Os "voltar" só de texto continuam links. */
-.voltar.voltar-topo { background: var(--surface); border: var(--borda); border-radius: 999px; box-shadow: 3px 3px 0 var(--ink);
-  color: var(--ink); font-family: var(--display); font-weight: 400; font-size: 19px; min-height: 50px; padding: 0 18px 2px 10px; gap: 6px; margin-bottom: 6px; cursor: pointer; }
+   coral como .btn-coral (Lucas escolheu), com contorno escuro e sombra de adesivo. Os "voltar" só de texto continuam links. */
+.voltar.voltar-topo { background: linear-gradient(180deg, #FF8A6B, var(--coral)); border: var(--borda); border-radius: 999px; box-shadow: 3px 3px 0 var(--ink);
+  color: #fff; -webkit-text-stroke: .8px var(--ink); paint-order: stroke fill; font-family: var(--display); font-weight: 400; font-size: 19px; min-height: 50px; padding: 0 18px 2px 10px; gap: 6px; margin-bottom: 6px; cursor: pointer; }
 .voltar.voltar-topo:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
 
 /* Painéis: papel branco com contorno grosso e sombra de adesivo (como as cartas) */
