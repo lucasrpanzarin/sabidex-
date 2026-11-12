@@ -266,7 +266,7 @@ export function Inicio() {
             <span style={{ flex: 1 }}>
               <span className="display" style={{ fontSize: 20, display: 'block' }}>Desafios do dia</span>
               <span className="small" style={{ fontWeight: 800, color: desafiosFaltam ? 'var(--t-cyan)' : 'var(--t-green)' }}>
-                {desafiosFaltam === 0 ? 'Todos feitos! Amanhã tem mais.' : `1 pacote por matéria · ${desafiosFaltam === 1 ? 'falta 1' : `faltam ${desafiosFaltam}`}`}
+                {desafiosFaltam === 0 ? (desafios.some((d) => !d.pode) ? 'Feito! Comece outra matéria e ganhe mais pacotes.' : 'Todos feitos! Amanhã tem mais.') : `1 pacote por matéria · ${desafiosFaltam === 1 ? 'falta 1' : `faltam ${desafiosFaltam}`}`}
               </span>
             </span>
             {brilhoDesafio && <span className="selo-agora">Faça agora</span>}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { concluirDesafio, continuarDe, idPacoteDesafio, marcaDoDesafio, materiasDoDesafio, montarDesafio, PERGUNTAS_DESAFIO, situacaoDesafio } from './desafio';
+import { MAX_POR_TIPO, tipoDaPergunta, concluirDesafio, continuarDe, idPacoteDesafio, marcaDoDesafio, materiasDoDesafio, montarDesafio, PERGUNTAS_DESAFIO, situacaoDesafio } from './desafio';
 import { estadoInicial, type Estado } from './jogo';
 import { historia9 } from '../data/historia9';
 import { historia10 } from '../data/historia10';
@@ -76,8 +76,10 @@ describe('desafio com todas as unidades do app', () => {
     const { capitulos } = await import('../data');
     const e = comecou(...capitulos.map((c) => c.id));
     for (const m of new Set(capitulos.map((c) => c.materia))) {
-      for (let d = 1; d <= 30; d++) {
-        const itens = montarDesafio(e, capitulos, m, `2026-12-${String(d).padStart(2, '0')}`);
+      for (let d = 1; d <= 30; d++) for (const so of [false, true]) {
+        // `so`: a criança começou só a primeira unidade da matéria (menos variedade).
+        const primeira = capitulos.find((c) => c.materia === m)!;
+        const itens = montarDesafio(so ? comecou(primeira.id) : e, capitulos, m, `2026-12-${String(d).padStart(2, '0')}`);
         expect(itens).toHaveLength(PERGUNTAS_DESAFIO);
         for (const x of itens) {
           if (x.tipo !== 'escolha') continue;
@@ -85,6 +87,10 @@ describe('desafio com todas as unidades do app', () => {
           expect(x.opcoes[x.certa]).toBeTruthy();
           if (x.pergunta.startsWith('Complete')) expect(x.pergunta).toContain('___');
         }
+        // Nenhum tipo de pergunta domina o desafio.
+        const conta = new Map<string, number>();
+        for (const x of itens) conta.set(tipoDaPergunta(x), (conta.get(tipoDaPergunta(x)) ?? 0) + 1);
+        if (!itens.some((x) => x.tipo === 'conta')) expect(Math.max(...conta.values())).toBeLessThanOrEqual(MAX_POR_TIPO);
       }
     }
   });

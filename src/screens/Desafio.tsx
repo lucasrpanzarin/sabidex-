@@ -79,7 +79,7 @@ export function Desafio({ materia }: { materia: string }) {
     const passou = notaDe(acertos, itens.length) >= 7;
     return (
       <main className="tela" style={{ alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-        <div className="pop"><Ara tamanho={120} /></div>
+        <div className="pop"><Ara tamanho={120} humor={passou ? 'comemorando' : 'triste'} /></div>
         <h1 className="display h1" style={{ color: 'var(--t-yellow)' }}>{passou ? 'Desafio vencido!' : 'Quase lá!'}</h1>
         <Placar acertos={acertos} total={itens.length} />
         <div className="painel coluna sobe" style={{ width: '100%', gap: 8 }}>
