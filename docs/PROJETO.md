@@ -77,7 +77,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 | **Sabicoins** | cada fase dá o mesmo número de XP e de Sabicoins. Saldo = XP total − compras | `src/lib/loja.ts` |
 | Pacotes (só do estudo) | memória e quiz (1ª vez com nota 7), prova aprovada (pacote **épico**), terminar os 4 extras com nota 7 em cada, 1ª atividade do dia com nota 7, as 3 missões do dia, marcos de 3/7/14/30 dias seguidos, cada nível novo, **Desafio do dia** com nota 7 (1 por matéria por dia) | `src/lib/jogo.ts`, `src/lib/desafio.ts` |
 | **Pacote de boas-vindas** (única exceção à regra acima; Lucas, 05/11/2026) | toda conta nova de criança (família ou turma) já nasce com 1 pacote normal; a carta sai na sorte. O Ará apresenta na tela inicial e, depois de abrir, explica que os próximos vêm do estudo. Quem já tinha conta não ganha | `src/shared/sync.ts` (`comBoasVindas`) |
-| Pacote | **1 Sabimon** (sempre a forma 1). Chances: comum 62%, rara 26%, épica 9%, lendária 3%. Épico: 80% épica, 20% lendária | |
+| Pacote | **1 Sabimon** (sempre a forma 1). Chances: comum 55%, rara 26%, épica 14%, lendária 5% (até 12/11/2026 eram 62/26/9/3; subiram porque entraram 6 épicas e 3 lendárias, Lucas). Épico: 80% épica, 20% lendária | |
 | Garantia | depois de 9 pacotes sem bicho novo, o 10º traz um que a criança não tem | |
 | **Quem sorteia** (05/11/2026) | Criança com conta: **o servidor** sorteia a carta e guarda tudo de uma vez. Precisa de internet (sem internet o pacote volta inteiro, com aviso). Se a internet cair no meio, a criança recebe a mesma carta de novo. Limites: 60 pacotes por dia; pacote épico só com a prova do capítulo feita e no máximo 1 por capítulo (senão abre como normal). Quem joga sem conta (antigos) ainda abre no aparelho | `src/shared/pacotes.ts`, `/api/crianca/abrir-pacote` |
 | **Nunca** | vender pacote (nem por moeda do jogo, nem por dinheiro), desconto ou pressão de tempo | |
@@ -220,7 +220,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências (unidad
 - [ ] Conferir se o envio de e-mail está ligado no servidor (`RESEND_API_KEY` + `EMAIL_REMETENTE` na Cloudflare e domínio verificado no resend.com). Sem isso, a trava do e-mail confirmado não vale. Jeito fácil de ver: se "Esqueci minha senha" aparece na tela do adulto, está ligado.
 
 ### Ideias e pendências das conversas (anotadas em 05/11/2026)
-- **Mais chances de tirar cartas** (Lucas, 06/11/2026: "depois vemos"): com 87 figurinhas o álbum ficou bem mais longo. Opções já simuladas na seção 6, item 1 (garantia de progresso, épica/lendária com 2 cartas para evoluir).
+- **Mais chances de tirar cartas** (Lucas, 06/11/2026: "depois vemos"): com 87 figurinhas o álbum ficou bem mais longo. Em 12/11/2026 subiram só as chances de épica e lendária; o álbum continua longo. Opções já simuladas na seção 6, item 1 (garantia de progresso, épica/lendária com 2 cartas para evoluir).
 - **Botão "Apagar criança" no Painel do dono**: o Claude ofereceu (para casos como o "Tony 2", conta repetida com 0 XP); o Lucas não respondeu. Hoje só o responsável apaga uma criança da família.
 - **Crianças para ajeitar** (não é regra, é tarefa): Gabriela (só da turma, sem responsável: não escreve no chat até o responsável ligar o perfil em "Já tem conta na turma"); GAH (do Gabriel, tem família mas está sem turma); Anthony (recuperar as cartas entrando na conta antiga e usando "Mudar de turma"); Tony 2 (apagar ou trocar o apelido; pela regra, conta antiga não ganha o pacote de boas-vindas).
 - **Mensagem para o grupo de pais do 4º B**: o texto feito antes dizia que "a conversa da turma começa desligada". Isso mudou (o chat vem ligado); corrigir antes de mandar e trocar o [CÓDIGO DA TURMA] pelo código de verdade.
@@ -229,6 +229,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências (unidad
 - **Ideias de segurança não escolhidas**: data de nascimento no cadastro do adulto (barrar menores de 18) e "PIN do adulto" no lugar da conta de multiplicar. O Lucas escolheu só o e-mail confirmado e a conta mais fácil.
 
 ## 7. Registro de mudanças
+
+- **12/11/2026** · Chances do pacote: comum 55%, rara 26%, **épica 14%** (era 9%), **lendária 5%** (era 3%), para as épicas e lendárias antigas não ficarem 2,5 vezes mais difíceis com as cartas novas (Lucas). Orca e Lendas do Brasil publicadas.
 
 - **12/11/2026** · Álbum em duas seções, **Bichos do Brasil** e **Lendas do Brasil**, cada uma com a sua contagem; as lendas continuam sendo Sabimons (Lucas; antes testamos abas separadas e ele preferiu seções). Desenhos das lendas corrigidos: Saci com uma perna só, Mula sem cabeça também na forma 1, Iara com formas 2 e 3 bem diferentes, Curupira de frente com os pés virados para trás (feito com o modelo Sunburst no modo `corrigir`; o Qwen não conseguia). O gerador de arte ganhou o modo `corrigir` em `arte/pedido.json` (o desenho pronto vira referência e o pedido diz só o que mudar).
 

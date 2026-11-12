@@ -284,7 +284,9 @@ export function concluirFase(e: Estado, cap: string, f: Fase, nota?: number, ago
     faltouPacote: temPacote && pacoteEsperando && !passou };
 }
 
-export const PESOS: Record<Raridade, number> = { comum: 62, rara: 26, epica: 9, lendaria: 3 };
+// Épica e lendária subiram em 12/11/2026 (Lucas): com a orca e as lendas, ficaram 10 épicas e 5 lendárias,
+// e cada carta especial continua quase tão fácil de tirar quanto antes.
+export const PESOS: Record<Raridade, number> = { comum: 55, rara: 26, epica: 14, lendaria: 5 };
 
 function sortearRaridade(rng: () => number, pesos: Partial<Record<Raridade, number>>): Raridade {
   const lista = Object.entries(pesos) as [Raridade, number][];
