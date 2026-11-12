@@ -1,51 +1,65 @@
 {
-  "quando": "2026-11-06T12:48:43.369Z",
+  "quando": "2026-11-12T20:19:50.900Z",
   "imagens": [
     {
       "nome": "022-1",
-      "sabimon": "Sacizinho",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "023-1",
-      "sabimon": "Curupirinha",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "024-1",
-      "sabimon": "Faiscamula",
-      "modelo": "alibaba/qwen-image-3/text-to-image",
-      "largura": 1536,
-      "altura": 1536
-    },
-    {
-      "nome": "022-2",
-      "sabimon": "Redemoinhaci",
+      "corrigido": "Remove the bent raised leg completely. He must have ONLY ONE LEG: a single strai",
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
     },
     {
-      "nome": "023-2",
-      "sabimon": "Pegadapira",
+      "nome": "022-2",
+      "corrigido": "Remove the bent raised leg completely. He must have ONLY ONE LEG: a single strai",
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
     },
     {
       "nome": "022-3",
-      "sabimon": "Saciclone",
+      "corrigido": "Remove the bent raised leg completely. He must have ONLY ONE LEG: a single strai",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "023-1",
+      "corrigido": "Turn both of his feet around so they point BACKWARDS: the heels are at the front",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "023-2",
+      "corrigido": "Turn both of his feet around so they point BACKWARDS: the heels are at the front",
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
     },
     {
       "nome": "023-3",
-      "sabimon": "Curupirão",
+      "corrigido": "Turn both of his feet around so they point BACKWARDS: the heels are at the front",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "024-1",
+      "corrigido": "Remove the mule's head completely: no ears, no muzzle, no nose, no mouth, no hor",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "027-2",
+      "sabimon": "Cantaiara",
+      "modelo": "alibaba/qwen-image-3/edit",
+      "largura": 1536,
+      "altura": 1536
+    },
+    {
+      "nome": "027-3",
+      "sabimon": "Rainhiara",
       "modelo": "alibaba/qwen-image-3/edit",
       "largura": 1536,
       "altura": 1536
@@ -54,25 +68,26 @@
   "pedido": {
     "acao": "gerar",
     "formas": [
-      1,
       2,
       3
     ],
     "numeros": [
-      "022",
-      "023",
-      "024"
+      "027"
     ],
     "so": [
-      "022-1",
-      "022-2",
-      "022-3",
-      "023-1",
-      "023-2",
-      "023-3",
-      "024-1"
+      "027-2",
+      "027-3"
     ],
-    "refazer": true
+    "refazer": true,
+    "corrigir": {
+      "022-1": "Remove the bent raised leg completely. He must have ONLY ONE LEG: a single straight leg coming down from the middle of his body, standing on one foot. Below the red tunic there is only that one leg, nothing else.",
+      "022-2": "Remove the bent raised leg completely. He must have ONLY ONE LEG: a single straight leg coming down from the middle of his body, standing on one foot. Below the red tunic there is only that one leg, nothing else.",
+      "022-3": "Remove the bent raised leg completely. He must have ONLY ONE LEG: a single straight leg coming down from the middle of his body, standing on one foot. Below the red tunic there is only that one leg, nothing else.",
+      "023-1": "Turn both of his feet around so they point BACKWARDS: the heels are at the front and the toes point behind him, the opposite way of his face. This is the famous detail of the Curupira legend, make it clearly visible.",
+      "023-2": "Turn both of his feet around so they point BACKWARDS: the heels are at the front and the toes point behind him, the opposite way of his face. This is the famous detail of the Curupira legend, make it clearly visible.",
+      "023-3": "Turn both of his feet around so they point BACKWARDS: the heels are at the front and the toes point behind him, the opposite way of his face. This is the famous detail of the Curupira legend, make it clearly visible.",
+      "024-1": "Remove the mule's head completely: no ears, no muzzle, no nose, no mouth, no horse face. The neck simply ends, and from the top of the neck rises a big friendly orange flame that has two cute big glowing blue eyes, exactly like a flame with eyes. Keep the brown mule body, the flaming tail, the silver horseshoes and the galloping pose."
+    }
   },
   "ok": true
 }
