@@ -1,16 +1,37 @@
 {
-  "quando": "2026-11-12T20:44:07.998Z",
-  "imagens": [],
+  "quando": "2026-11-12T20:52:22.206Z",
+  "imagens": [
+    {
+      "nome": "023-1",
+      "corrigido": "Change ONLY his two feet. Rotate both feet 180 degrees so they point BACKWARDS: ",
+      "modelo": "marketing-studio/image/sunburst",
+      "largura": 2048,
+      "altura": 2048
+    },
+    {
+      "nome": "023-2",
+      "corrigido": "Change ONLY his two feet. Rotate both feet 180 degrees so they point BACKWARDS: ",
+      "modelo": "marketing-studio/image/sunburst",
+      "largura": 2048,
+      "altura": 2048
+    },
+    {
+      "nome": "023-3",
+      "corrigido": "Change ONLY his two feet. Rotate both feet 180 degrees so they point BACKWARDS: ",
+      "modelo": "marketing-studio/image/sunburst",
+      "largura": 2048,
+      "altura": 2048
+    }
+  ],
   "pedido": {
     "acao": "gerar",
     "formas": [],
-    "modeloRef": "google/nano-banana-pro/edit",
+    "modeloRef": "marketing-studio/image/sunburst",
     "corrigir": {
       "023-1": "Change ONLY his two feet. Rotate both feet 180 degrees so they point BACKWARDS: we must see his heels in front, facing the viewer, and his toes must point behind him, away from the viewer. This is the famous trait of the Curupira from Brazilian folklore: his feet are turned backwards. Do not change anything else.",
       "023-2": "Change ONLY his two feet. Rotate both feet 180 degrees so they point BACKWARDS: we must see his heels in front, facing the viewer, and his toes must point behind him, away from the viewer. This is the famous trait of the Curupira from Brazilian folklore: his feet are turned backwards. Do not change anything else.",
       "023-3": "Change ONLY his two feet. Rotate both feet 180 degrees so they point BACKWARDS: we must see his heels in front, facing the viewer, and his toes must point behind him, away from the viewer. This is the famous trait of the Curupira from Brazilian folklore: his feet are turned backwards. Do not change anything else."
     }
   },
-  "ok": false,
-  "erro": "Error: Nenhum nome de modelo existe: google/nano-banana-pro/edit"
+  "ok": true
 }
