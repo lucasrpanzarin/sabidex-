@@ -40,6 +40,7 @@ export const MOTIVO: Record<MotivoPacote, string> = {
   extras: 'Pacote por terminar todos os jogos extras da unidade com nota 7',
   missoes: 'Pacote por fazer as missões do dia',
   marco: 'Pacote por estudar vários dias seguidos',
+  desafio: 'Pacote do Desafio do dia desta matéria',
 };
 
 /** Aviso de missão do dia feita (aparece no fim dos jogos e da revisão). */
