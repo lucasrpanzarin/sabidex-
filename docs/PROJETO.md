@@ -88,7 +88,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - Vida e força da carta: calculadas em `src/lib/sabimon.ts` (pela raridade e pela forma). Forma 1: comum Vida 50, força 10/20 · rara 60, 20/30 · épica 70, 30/40 · **lendária 90, 40/50**. Forma 2: +30 Vida, força ×1,7. Forma 3: +70 Vida, força ×2,6.
 - **Lendária tem brilho**: estrela-figurinha amarela no canto da moldura e reflexo dourado em cima do desenho.
 - Carta com itens da lojinha não sai em troca nem na evolução (só as cópias repetidas).
-- **Botão de voltar do topo** (sugestão de uma mãe, 12/11/2026; classe `.voltar-topo` em `src/styles.css`): nas telas sem o menu de baixo (desafio, fases, mapa da unidade, revisão, lojinha, duelo...), o "‹ Início" / "‹ Voltar" é um botão grande de figurinha (branco, contorno escuro, sombra), não mais um textinho cinza. Os "voltar" só de texto ("Agora não", "Sou outra pessoa") continuam como link.
+- **Botão de voltar do topo** (sugestão de uma mãe, 12/11/2026; classe `.voltar-topo` em `src/styles.css`): nas telas sem o menu de baixo (desafio, fases, mapa da unidade, revisão, lojinha, duelo...), o "‹ Início" / "‹ Voltar" é um botão grande de figurinha (branco, contorno escuro, sombra), não mais um textinho cinza. Os "voltar" só de texto ("Agora não", "Sou outra pessoa") continuam como link. A tela "Escolha a unidade" de uma matéria (aberta pelo Início) não tinha voltar nenhum, só o "Início" do menu de baixo; agora tem "‹ Início" em cima. A aba "Jogar" (todas as matérias) continua sem, por ser aba do menu.
 - Ao sair de uma figurinha (botão "Álbum" ou voltar do celular), o álbum volta **na figurinha que a criança abriu**, não no topo (Lucas, 06/11/2026).
 
 ### Lojinha
@@ -221,6 +221,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências (unidad
 ## 7. Registro de mudanças
 
 Escreva aqui cada mudança nova (data, o que mudou, quem decidiu).
+
+- **12/11/2026** · **Voltar na lista de unidades.** O Lucas lembrou que a mãe não falava do Desafio do dia (feito hoje) nem do Duelo (quase não jogam), e sim das matérias. Jogando o caminho da criança: Início → matéria → "Escolha a unidade" não tinha botão de voltar, só o "Início" do menu de baixo, que é o que ela disse ("tem que apertar Início"). Agora tem o botão grande "‹ Início" em cima. Ainda em aberto: escrever "Voltar" e deixar o botão colorido (coral ou amarelo), como ela pediu (Lucas).
 
 - **12/11/2026** · **Desafio do dia continua de onde parou.** Com o botão de voltar maior, ficava fácil sair sem querer e perder as respostas. Duas ideias: perguntar "Quer mesmo sair?" ou guardar e continuar; o Lucas aceitou as duas e ficou a de continuar (não perde nada e não dá para sair e entrar de novo só para trocar as perguntas). Testado no jogo: respondeu 3, saiu, voltou na 4ª pergunta, a mesma; respondeu e saiu antes de "Próxima", voltou na 5ª (Lucas).
 

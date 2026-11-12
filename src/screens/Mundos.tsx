@@ -42,6 +42,8 @@ export function Mundos({ materia }: { materia?: string }) {
   };
   return (
     <main className="tela">
+      {/* Aberta por uma matéria do Início: botão grande para voltar (sugestão de uma mãe, 12/11/2026). */}
+      {materia && <button className="voltar voltar-topo" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Início</button>}
       <div>
         <div className="eyebrow">{titulo}</div>
         <h1 className="display h1">Escolha a unidade</h1>
