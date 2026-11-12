@@ -9,7 +9,7 @@ import { idEvolucao, itemPorId, migrarFormas, podeEvoluir, premiosLivres, PRECO_
 import { figurinhaPorId, idCarta, IDS_CARTAS } from '../lib/figurinhas';
 import {
   comBoasVindas, gerarCodigo, mesclar, normalizarApelido, normalizarCodigo, pinValido, progressoVazio,
-  sanitizar, sanitizarDelta, semanaDe, type ProgressoSync,
+  sanitizar, sanitizarDelta, semanaDe, xpDaSemana, type ProgressoSync,
 } from '../shared/sync';
 import { AJUSTES_UMA_VEZ, ESQUEMA, MIGRACOES, SEM_TURMA, temTurma, turmaDaFamilia, VERSAO_ESQUEMA } from './esquema';
 import { dataValida, type DatasProva } from '../lib/provas';
@@ -500,7 +500,7 @@ app.post('/crianca/sync', async (c) => {
       cont = s.contadores;
     }
     const ganho = Math.max(0, m.xp - antes.xp);
-    const xpSemana = (atual.semana === semana ? atual.xp_semana : 0) + Math.min(ganho, 2000);
+    const xpSemana = xpDaSemana(atual, ganho, semana);
     const novo = JSON.stringify(m);
     const trava = `EXISTS (SELECT 1 FROM criancas WHERE id = ? AND progresso = ?)`;
     const res = await db.batch([

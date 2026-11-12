@@ -110,6 +110,11 @@ export function semanaDe(agora = new Date()) {
   return br.toISOString().slice(0, 10);
 }
 
+/** XP da semana depois de ganhar `ganho`: se a semana guardada já passou, começa do zero (máx. 2000 de uma vez). */
+export function xpDaSemana(guardado: { semana: string; xp_semana: number }, ganho: number, semana = semanaDe()) {
+  return (guardado.semana === semana ? guardado.xp_semana : 0) + Math.min(Math.max(0, ganho), 2000);
+}
+
 const PALAVRAS = ['SOL', 'LUA', 'MAR', 'RIO', 'ARARA', 'BOLA', 'PIPA', 'TATU', 'ONCA', 'BOTO', 'IPE', 'CAJU', 'MANGA', 'COCO', 'TUCANO', 'PEIXE', 'NUVEM', 'ESTRELA', 'FOGO', 'VENTO', 'PEDRA', 'FLOR', 'BAOBA', 'CARAVELA', 'MAPA', 'TREM', 'ROBO', 'FOGUETE'];
 
 /** Código de turma fácil de ditar, ex.: ARARA-4821. */

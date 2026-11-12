@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { comBoasVindas, gerarCodigo, PACOTE_BOAS_VINDAS, mesclar, normalizarCodigo, progressoVazio, sanitizar, sanitizarDelta, semanaDe } from './sync';
+import { comBoasVindas, gerarCodigo, PACOTE_BOAS_VINDAS, mesclar, normalizarCodigo, progressoVazio, sanitizar, sanitizarDelta, semanaDe, xpDaSemana } from './sync';
 
 describe('mesclar', () => {
   it('guarda o maior XP, junta fases, dias e notas', () => {
@@ -36,6 +36,11 @@ describe('semana do ranking', () => {
     expect(semanaDe(new Date('2026-11-04T15:00:00Z'))).toBe('2026-11-02'); // quarta
     expect(semanaDe(new Date('2026-11-09T02:00:00Z'))).toBe('2026-11-02'); // domingo 23h em Brasília
     expect(semanaDe(new Date('2026-11-09T04:00:00Z'))).toBe('2026-11-09'); // segunda 1h
+  });
+  it('XP da semana zera quando a semana muda', () => {
+    expect(xpDaSemana({ semana: '2026-11-02', xp_semana: 500 }, 30, '2026-11-09')).toBe(30);
+    expect(xpDaSemana({ semana: '2026-11-09', xp_semana: 500 }, 30, '2026-11-09')).toBe(530);
+    expect(xpDaSemana({ semana: '2026-11-09', xp_semana: 10 }, 9999, '2026-11-09')).toBe(2010);
   });
 });
 
