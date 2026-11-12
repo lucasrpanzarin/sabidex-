@@ -163,3 +163,82 @@ Quando nosso organismo entra em contato com algum microrganismo nocivo, o sistem
    Quadros: anticorpos · microrganismos · leucócitos · antígenos · sistema imunitário
    a) Os ______ são células que compõem o ______ e atuam reconhecendo e eliminando substâncias e ______ estranhos ao nosso corpo.
    b) Alguns glóbulos brancos produzem ______ que agem contra os ______.
+
+## Página 78
+
+> **+ AÇÃO**
+> Veja o folheto informativo a seguir.
+>
+> [FOLHETO do Ministério da Saúde, com desenhos:]
+> **SAIBA COMO SE PREVENIR DA GRIPE**
+> A GRIPE É UMA DOENÇA RESPIRATÓRIA AGUDA E SUA TRANSMISSÃO OCORRE DE PESSOA A PESSOA, PRINCIPALMENTE POR MEIO DE TOSSE, ESPIRRO OU CONTATO COM SECREÇÕES RESPIRATÓRIAS DE PESSOAS INFECTADAS. SAIBA COMO SE PREVENIR DA GRIPE ADOTANDO MEDIDAS SIMPLES:
+> - Lavar as mãos frequentemente com água e sabão ou usar álcool gel, especialmente depois de tossir ou espirrar.
+> - Ao tossir ou espirrar, cobrir o nariz e a boca com um lenço descartável.
+> - Não compartilhar alimentos, copos, toalhas e objetos de uso pessoal.
+> - Pessoas com gripe devem evitar ambientes fechados e com aglomeração de pessoas.
+> - Não usar medicamentos sem orientação médica. A automedicação pode ser prejudicial à saúde.
+> - Em caso de gripe, procure o seu médico ou a unidade mais próxima para diagnóstico e tratamento adequados.
+>
+> **Atenção:** Procure o seu médico ou a unidade de saúde mais próxima se você estiver com febre acompanhada de tosse ou dor de garganta e pelo menos um dos seguintes sintomas: dor de cabeça ou dor no corpo.
+>
+> Alguns cuidados que ajudam a prevenir a gripe, como a higienização das mãos, também podem ajudar na prevenção de outras doenças, como a covid-19.
+
+## Página 79
+
+### Atividades do livro
+1. Após a leitura do folheto anterior, com o auxílio do professor, acesse o site do Ministério da Saúde, disponível em: https://www.gov.br/saude/pt-br/assuntos/covid-19-old/como-se-proteger (acesso em: 21 fev. 2025), e veja as medidas necessárias para se prevenir da covid-19. Em seguida, em grupos, elaborem um cartaz informativo com os cuidados que ajudam a se prevenir dessa doença.
+   [Quadro em branco para o cartaz.]
+
+> **SAIBA MAIS**
+> **VÍDEO**
+> **Célula – a menor parte de qualquer organismo**, de O Incrível Pontinho Azul. 2017. Disponível em: https://www.youtube.com/watch?v=-HWiJdlAnMw. Acesso em: 6 fev. 2025.
+> O vídeo fala sobre a célula desde quando ela foi assim nomeada por Robert Hooke.
+
+## Página 80
+
+# MÃOS À OBRA!
+
+1. Leia as duas situações a seguir e responda às questões.
+   (I) Luana vai fazer uma trilha em uma área de mata com sua família.
+   [IMAGEM: família caminhando numa trilha, com montanhas e árvores.]
+   (II) Bruno vai passear no centro de uma grande cidade com seus pais e irmão.
+   [IMAGEM: família caminhando numa cidade, com prédios e sol forte.]
+   a) Quais interações com o ambiente e com outros organismos podem ocorrer em cada uma das situações que precisam de atenção das pessoas para evitar problemas de saúde? Responda no caderno.
+   b) Converse com seus colegas e pense quais conselhos vocês dariam às pessoas que farão os passeios, para que eles ocorram de maneira segura em cada uma das situações?
+
+## Página 81
+
+2. Observe as imagens a seguir e escreva uma legenda para cada uma. Depois, converse com seus colegas e discuta se essas atividades colaboram para a manutenção da saúde.
+   [IMAGENS: crianças lavando as mãos na pia; crianças brincando de correr ao ar livre; menina comendo uma maçã; menino dormindo abraçado ao travesseiro.]
+3. Escreva uma frase usando os termos dos quadros.
+   Quadros: corpo humano · sistema imunitário · ambiente
+
+## Página 82
+
+4. Leia o texto a seguir e depois responda às questões.
+   > **Terras indígenas protegem a floresta**
+   > […]
+   > Os povos indígenas sempre usaram os recursos naturais sem colocar em risco os ecossistemas. Estes povos desenvolveram formas de manejo adequadas e que têm se mostrado muito importantes para a conservação da biodiversidade no Brasil. Esse manejo incluiu a transformação do solo pobre da Amazônia em um tipo muito fértil, a Terra Preta de Índio. Estima-se que pelo menos 12% da superfície total do solo amazônico teve suas características transformadas pelo homem neste processo.
+   >
+   > No sul do Brasil, por exemplo, a TI [Terra Indígena] Mangueirinha ajuda a conservar uma das últimas florestas de araucária nativas do mundo, enquanto no Sul da Bahia, os Pataxó da TI Barra Velha ajudam a proteger uma das áreas remanescentes de maior biodiversidade da Mata Atlântica. Na Amazônia […] enquanto 20% da floresta já foi desmatada nos últimos 40 anos, juntas as Terras Indígenas perderam apenas 2,4% de suas florestas originais.
+   >
+   > Tiago Moreira dos Santos. Terras indígenas protegem as florestas. Instituto Socioambiental (ISA). Disponível em: http://p.p4ed.com/JQYGP. Acesso em: 6 fev. 2025.
+   a) De acordo com o texto, quais alterações o modo de vida dos indígenas promoveu no ambiente em que eles vivem?
+   b) De acordo com o texto, a interação dos indígenas com elementos do ambiente em que vivem promoveu alterações positivas ou negativas? Grife a passagem do texto em que isso fica evidente.
+   c) Por que a preservação do ambiente é essencial para a vida dos seres humanos?
+
+## Página 83
+
+# O QUE EU APRENDI
+
+Para retomar os assuntos desta unidade, um estudante fez anotações com informações importantes, mas se esqueceu de algumas palavras. Complete as lacunas deixadas por ele.
+
+[NOTA escrita em letra cursiva, com desenhos (uma pessoa regando planta, mãos segurando um broto, um mosquito, crianças brincando, uma pessoa dormindo). As lacunas foram preenchidas pela criança e não foram copiadas.]
+
+Os seres vivos, inclusive os humanos, ______ entre si e com os elementos não vivos, compondo o ambiente e modificando-o.
+
+Apesar de depender dos elementos vivos e não vivos, as pessoas podem alterar negativamente o ______. Ao realizarmos atividades que protegem e restauram os ambientes, estamos cuidando do nosso próprio ______.
+
+Outros organismos também podem nos prejudicar. Alguns animais transmitem doenças, mas nosso corpo se protege por meio do ______ que é capaz de identificar e combater organismos invasores.
+
+Dormir bem, ter uma alimentação equilibrada, praticar atividades físicas e se divertir com amigos são atividades fundamentais para nossa ______.
