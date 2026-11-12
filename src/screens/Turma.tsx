@@ -313,7 +313,7 @@ function SemTurma({ titulo, texto }: { titulo: string; texto: ReactNode }) {
 }
 
 /* ---------------- Ranking ---------------- */
-interface Participante { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias?: number; xp_total?: number; cartas_total?: number; vitorias_total?: number; online?: number }
+interface Participante { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias?: number; xp_total?: number; vitorias_total?: number; online?: number }
 
 /** Guarda o último placar e a lista de colegas: ao voltar para a tela, aparecem na hora e atualizam sozinhos. */
 let rankingGuardado: { codigo: string; dados: { eu: string; participantes: Participante[] } } | null = null;
@@ -368,7 +368,7 @@ export function Ranking() {
     <main className="tela">
       <div>
         <div className="eyebrow">{conta.turma}</div>
-        <h1 className="display h1">{periodo === 'semana' ? 'Ranking da semana' : 'Ranking geral'}</h1>
+        <h1 className="display h1">{aba === 'cartas' ? 'Ranking' : periodo === 'semana' ? 'Ranking da semana' : 'Ranking geral'}</h1>
       </div>
       <EscolhaPeriodo periodo={periodo} mudar={setPeriodo} />
       <div className="linha" role="tablist" aria-label="O que contar" style={{ gap: 8 }}>

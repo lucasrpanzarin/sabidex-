@@ -619,7 +619,7 @@ function Conversa({ mensagens, avisadas, acoes }: { mensagens: MsgAdulto[]; avis
   );
 }
 
-interface NaTurma { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias: number; xp_total?: number; cartas_total?: number; vitorias_total?: number; online: number }
+interface NaTurma { id: string; apelido: string; cor: string; xp: number; cartas: number; vitorias: number; xp_total?: number; vitorias_total?: number; online: number }
 
 /** Placar da turma do filho (da semana e desde o começo), igual ao que a criança vê (só leitura). */
 function PlacarDaTurma({ lista, eu, apelido }: { lista: NaTurma[]; eu: string; apelido: string }) {

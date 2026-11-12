@@ -124,7 +124,7 @@ async function sairSessao(c: C) {
 
 interface Crianca {
   id: string; turma_id: string; apelido: string; cor: string; pin_hash: string; pin_sal: string;
-  falhas: number; bloqueado_ate: number; progresso: string; xp_semana: number; semana: string; cartas_base: number | null;
+  falhas: number; bloqueado_ate: number; progresso: string; xp_semana: number; semana: string;
   familia_id: string | null; chat_ok: number; mostrar_online: number; mudo_ate: number; ativo: number;
   sem_novo: number; pacotes_dia: string; pacotes_hoje: number; epicos: number; ultimo_pacote: string;
 }
@@ -488,8 +488,6 @@ app.post('/crianca/sync', async (c) => {
     const delta: Record<string, number> = {};
     const tem = await cartasDe(db, atual.id);
     const semana = semanaDe();
-    // Semana nova (ou nunca anotado): guarda quantas cartas diferentes já tinha, para o "Mais cartas" da semana.
-    const cartasBase = atual.semana === semana && atual.cartas_base != null ? atual.cartas_base : Object.keys(tem).length;
     let cont = contadoresDe(atual);
     for (const id of m.abertos.filter((x) => !antes.abertos.includes(x))) {
       const p = antes.pacotes.find((x) => x.id === id);
@@ -508,9 +506,9 @@ app.post('/crianca/sync', async (c) => {
       ...Object.entries(delta).map(([carta, n]) =>
         db.prepare(`INSERT INTO cartas (crianca_id, carta_id, qtd) SELECT ?, ?, ? WHERE ${trava}
           ON CONFLICT (crianca_id, carta_id) DO UPDATE SET qtd = qtd + excluded.qtd`).bind(atual.id, carta, n, atual.id, atual.progresso)),
-      db.prepare(`UPDATE criancas SET progresso = ?, xp_semana = ?, semana = ?, cartas_base = ?, visto = ?, sem_novo = ?, pacotes_dia = ?, pacotes_hoje = ?, epicos = ?
+      db.prepare(`UPDATE criancas SET progresso = ?, xp_semana = ?, semana = ?, visto = ?, sem_novo = ?, pacotes_dia = ?, pacotes_hoje = ?, epicos = ?
         WHERE id = ? AND progresso = ?`)
-        .bind(novo, xpSemana, semana, cartasBase, Date.now(), cont.semNovo, cont.dia, cont.hoje, cont.epicos, atual.id, atual.progresso),
+        .bind(novo, xpSemana, semana, Date.now(), cont.semNovo, cont.dia, cont.hoje, cont.epicos, atual.id, atual.progresso),
     ]);
     if (res[res.length - 1].meta.changes === 1) return c.json(await respostaConta(db, atual, m));
     const relido = await db.prepare('SELECT * FROM criancas WHERE id = ?').bind(k.id).first<Crianca>();
@@ -626,23 +624,21 @@ app.get('/crianca/colega/:id', async (c) => {
 });
 
 /**
- * Placar da turma: da semana (XP, cartas novas e vitórias desde segunda) e desde o começo (`*_total`),
- * mais quem está estudando agora.
+ * Placar da turma: XP e vitórias da semana (desde segunda) e desde o começo (`*_total`), cartas diferentes
+ * no álbum (essas não zeram) e quem está estudando agora.
  */
 async function rankingDa(db: D1Database, turmaId: string, euId: string) {
   const semana = semanaDe();
   const inicioSemana = Date.parse(`${semana}T03:00:00Z`);
   const venceu = `((d.vencedor = 'de' AND d.de_id = k.id) OR (d.vencedor = 'para' AND d.para_id = k.id))`;
-  const r = await db.prepare(`SELECT id, apelido, cor, xp, xp_total, cartas_total, vitorias, vitorias_total, online,
-    CASE WHEN semana = ?1 AND cartas_base IS NOT NULL THEN MAX(0, cartas_total - cartas_base) ELSE 0 END AS cartas
-    FROM (SELECT k.id, k.apelido, k.cor, k.semana, k.cartas_base,
-      CASE WHEN k.semana = ?1 THEN k.xp_semana ELSE 0 END AS xp,
-      COALESCE(json_extract(k.progresso, '$.xp'), 0) AS xp_total,
-      (SELECT COUNT(*) FROM cartas WHERE crianca_id = k.id AND qtd > 0) AS cartas_total,
-      (SELECT COUNT(*) FROM duelos d WHERE d.turma_id = k.turma_id AND d.status = 'feito' AND d.resolvido >= ?2 AND ${venceu}) AS vitorias,
-      (SELECT COUNT(*) FROM duelos d WHERE d.turma_id = k.turma_id AND d.status = 'feito' AND ${venceu}) AS vitorias_total,
-      ((SELECT mostrar_online FROM turmas WHERE id = k.turma_id) = 1 AND k.mostrar_online = 1 AND k.ativo > ?3 AND k.id != ?4) AS online
-      FROM criancas k WHERE k.turma_id = ?5)`).bind(semana, inicioSemana, Date.now() - ONLINE_MS, euId, turmaId).all();
+  const r = await db.prepare(`SELECT k.id, k.apelido, k.cor,
+    CASE WHEN k.semana = ?1 THEN k.xp_semana ELSE 0 END AS xp,
+    COALESCE(json_extract(k.progresso, '$.xp'), 0) AS xp_total,
+    (SELECT COUNT(*) FROM cartas WHERE crianca_id = k.id AND qtd > 0) AS cartas,
+    (SELECT COUNT(*) FROM duelos d WHERE d.turma_id = k.turma_id AND d.status = 'feito' AND d.resolvido >= ?2 AND ${venceu}) AS vitorias,
+    (SELECT COUNT(*) FROM duelos d WHERE d.turma_id = k.turma_id AND d.status = 'feito' AND ${venceu}) AS vitorias_total,
+    ((SELECT mostrar_online FROM turmas WHERE id = k.turma_id) = 1 AND k.mostrar_online = 1 AND k.ativo > ?3 AND k.id != ?4) AS online
+    FROM criancas k WHERE k.turma_id = ?5`).bind(semana, inicioSemana, Date.now() - ONLINE_MS, euId, turmaId).all();
   return { eu: euId, semana, participantes: r.results };
 }
 

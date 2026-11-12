@@ -1,20 +1,22 @@
 // Ranking da turma: escolher entre o placar da semana (zera na segunda) e o geral (desde o começo).
 // Usado pela criança (aba Turma) e pelo responsável (área dos adultos).
 
-export interface NumerosDoPlacar { xp: number; cartas: number; vitorias?: number; xp_total?: number; cartas_total?: number; vitorias_total?: number }
+export interface NumerosDoPlacar { xp: number; cartas: number; vitorias?: number; xp_total?: number; vitorias_total?: number }
 
 export type Aba = 'xp' | 'cartas' | 'vitorias';
 export type Periodo = 'semana' | 'geral';
 
-/** O número de cada aba: da semana (zera na segunda) ou desde o começo. */
+/** O número de cada aba: XP e duelos da semana (zera na segunda) ou desde o começo; cartas é sempre o álbum todo. */
 export function numeroDoPlacar(p: NumerosDoPlacar, aba: Aba, periodo: Periodo) {
-  if (periodo === 'geral') return (aba === 'xp' ? p.xp_total : aba === 'cartas' ? p.cartas_total : p.vitorias_total) ?? 0;
-  return (aba === 'xp' ? p.xp : aba === 'cartas' ? p.cartas : p.vitorias) ?? 0;
+  if (aba === 'cartas') return p.cartas; // "Mais cartas" é sempre o álbum inteiro (Lucas, 12/11/2026)
+  if (periodo === 'geral') return (aba === 'xp' ? p.xp_total : p.vitorias_total) ?? 0;
+  return (aba === 'xp' ? p.xp : p.vitorias) ?? 0;
 }
 
 export function legendaDoPlacar(aba: Aba, periodo: Periodo) {
-  if (periodo === 'geral') return { xp: 'Todo o XP desde o começo.', cartas: 'Cartas diferentes no álbum.', vitorias: 'Vitórias no Duelo do Saber desde o começo.' }[aba] + ' Este placar não zera.';
-  return { xp: 'XP ganho nesta semana.', cartas: 'Cartas novas no álbum nesta semana.', vitorias: 'Vitórias no Duelo do Saber nesta semana.' }[aba] + ' Zera toda segunda-feira.';
+  if (aba === 'cartas') return 'Cartas diferentes no álbum. Este placar não zera.';
+  if (periodo === 'geral') return { xp: 'Todo o XP desde o começo.', vitorias: 'Vitórias no Duelo do Saber desde o começo.' }[aba] + ' Este placar não zera.';
+  return { xp: 'XP ganho nesta semana.', vitorias: 'Vitórias no Duelo do Saber nesta semana.' }[aba] + ' Zera toda segunda-feira.';
 }
 
 /** "Esta semana" ou "Desde o começo". */
