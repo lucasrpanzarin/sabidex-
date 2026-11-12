@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Ara } from '../components/Ara';
 import { Icone } from '../components/Icone';
 import { api, marcarChatVisto, useConta } from '../lib/conta';
-import { ir } from '../lib/rota';
+import { voltarTela } from '../lib/rota';
 import { conferirMensagem, MAX_TEXTO, MOTIVO } from '../shared/chat';
 
 interface Msg { id: string; de: string; apelido: string; cor: string; texto: string; criado: number; minha: boolean }
@@ -76,7 +76,7 @@ export function Chat() {
     if (r.erro) setErro(r.erro); else setAvisados((s) => new Set(s).add(id));
   };
 
-  const voltar = <button className="voltar voltar-topo" onClick={() => ir('trocas')}><Icone nome="voltar" tamanho={18} espessura={3} />Turma</button>;
+  const voltar = <button className="voltar voltar-topo" onClick={() => voltarTela('trocas')}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>;
 
   if (!conta?.codigo) {
     return (

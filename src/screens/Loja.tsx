@@ -95,7 +95,7 @@ export function Loja({ sabimonId }: { sabimonId?: string }) {
     return (
       <main className="tela">
         <div className="linha" style={{ justifyContent: 'space-between' }}>
-          <button className="voltar voltar-topo" onClick={() => { setPasso('itens'); setErro(''); }}><Icone nome="voltar" tamanho={18} espessura={3} />Lojinha</button>
+          <button className="voltar voltar-topo" onClick={() => { setPasso('itens'); setErro(''); }}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
           <Saldo valor={tem} />
         </div>
         <h1 className="display h2">Em qual Sabimon?</h1>

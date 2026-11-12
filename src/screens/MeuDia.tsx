@@ -8,7 +8,7 @@ import { Icone } from '../components/Icone';
 import { Pacote } from '../components/Pacote';
 import { sequenciaInfo } from '../lib/jogo';
 import { MARCOS, MISSOES, destinoMissao, missaoFeita, missoesDeHoje, proximoMarco, quantasFeitas, type MissaoId } from '../lib/missoes';
-import { ir } from '../lib/rota';
+import { ir, voltarTela } from '../lib/rota';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import { Chama, jogar } from './Inicio';
 
@@ -35,7 +35,7 @@ export function MeuDia() {
   return (
     <main className="tela">
       <div className="coluna" style={{ gap: 2 }}>
-        <button className="voltar voltar-topo" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Início</button>
+        <button className="voltar voltar-topo" onClick={() => voltarTela()}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         <h1 className="display h1">Meu dia</h1>
       </div>
 

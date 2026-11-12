@@ -4,7 +4,7 @@ import { capituloPorId } from '../data';
 import { EXTRA_INFO, FASES, FASE_INFO, chave, chaveExtra, estrelasDe, estrelasDoMundo, extrasDo, extrasLiberados, hoje, infoFase, liberada } from '../lib/jogo';
 import { useConta, useEstudo } from '../lib/conta';
 import { diaMes, ordenarCapitulos, situacao } from '../lib/provas';
-import { ir } from '../lib/rota';
+import { ir, voltarTela } from '../lib/rota';
 import { useEstado } from '../lib/store';
 import type { Capitulo } from '../data/tipos';
 import { SeloProva } from './Inicio';
@@ -43,7 +43,7 @@ export function Mundos({ materia }: { materia?: string }) {
   return (
     <main className="tela">
       {/* Aberta por uma matéria do Início: botão grande para voltar (sugestão de uma mãe, 12/11/2026). */}
-      {materia && <button className="voltar voltar-topo" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Início</button>}
+      {materia && <button className="voltar voltar-topo" onClick={() => voltarTela()}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>}
       <div>
         <div className="eyebrow">{titulo}</div>
         <h1 className="display h1">Escolha a unidade</h1>
@@ -86,7 +86,7 @@ export function Mundo({ id }: { id: string }) {
   return (
     <main className="tela">
       <div className="coluna" style={{ gap: 2 }}>
-        <button className="voltar voltar-topo" onClick={() => ir('mundos', cap.materia)}><Icone nome="voltar" tamanho={18} espessura={3} />{cap.materia}</button>
+        <button className="voltar voltar-topo" onClick={() => voltarTela('mundos', cap.materia)}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         <div className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
           <div className="eyebrow">Unidade {cap.numero}</div>
           <SeloProva s={situacao(conta?.provas, cap.id, hoje())} />

@@ -7,7 +7,7 @@ import { aplicarMissoes } from '../lib/missoes';
 import { AvisoMissao, MOTIVO } from './Fases';
 import { concluirRevisao, paraHoje, proximaData, registrarResposta, type ItemRevisao } from '../lib/revisao';
 import { Moeda } from '../components/Loja';
-import { ir } from '../lib/rota';
+import { ir, voltarTela } from '../lib/rota';
 import { getEstado, setEstado } from '../lib/store';
 import { Pergunta, TextoMat } from './Contas';
 
@@ -90,7 +90,7 @@ export function Revisao() {
     <main className="tela">
       <div className="coluna" style={{ gap: 2 }}>
         <div className="linha" style={{ justifyContent: 'space-between' }}>
-          <button className="voltar voltar-topo" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Início</button>
+          <button className="voltar voltar-topo" onClick={() => voltarTela()}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
           <span className="pilula">{i + 1}/{itens.length}</span>
         </div>
         <h1 className="display h2">Revisão do Ará</h1>

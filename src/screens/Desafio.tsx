@@ -11,7 +11,7 @@ import { concluirDesafio, continuarDe, marcaDoDesafio, montarDesafio, situacaoDe
 import { hoje, nivel, notaDe, type Resultado } from '../lib/jogo';
 import { aplicarMissoes } from '../lib/missoes';
 import { registrarResposta } from '../lib/revisao';
-import { ir } from '../lib/rota';
+import { ir, voltarTela } from '../lib/rota';
 import { getEstado, setEstado } from '../lib/store';
 import { Pergunta, TextoMat } from './Contas';
 import { AvisoMissao, MOTIVO, Placar } from './Fases';
@@ -134,7 +134,7 @@ export function Desafio({ materia }: { materia: string }) {
     <main className="tela">
       <div className="coluna" style={{ gap: 2 }}>
         <div className="linha" style={{ justifyContent: 'space-between' }}>
-          <button className="voltar voltar-topo" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Início</button>
+          <button className="voltar voltar-topo" onClick={() => voltarTela()}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
           <span className="pilula">{i + 1}/{itens.length}</span>
         </div>
         <h1 className="display h2">Desafio do dia · {materia}</h1>

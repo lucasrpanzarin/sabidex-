@@ -11,7 +11,7 @@ import { ESPACOS, PRECO_EVOLUCAO, evoluir, itensDe, podeEvoluir, saldo, visualDe
 import { FIGURINHAS, figurinhaPorId, idCarta, proxima, type Figurinha } from '../lib/figurinhas';
 import { CARTAS_PARA_EVOLUIR, type Forma } from '../lib/sabimon';
 import { useConta, evoluirNaConta, abrirPacoteNaConta } from '../lib/conta';
-import { ir } from '../lib/rota';
+import { ir, voltarTela } from '../lib/rota';
 import { jogar } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import { PACOTE_BOAS_VINDAS } from '../shared/sync';
@@ -96,7 +96,7 @@ export function AbrirPacote() {
   return (
     <main className="tela tela-pacote" style={{ alignItems: 'center', textAlign: 'center', ['--luz' as string]: luz }}>
       <div className="linha" style={{ alignSelf: 'stretch', justifyContent: 'space-between', visibility: fase === 'fechado' ? 'visible' : 'hidden' }}>
-        <button className="voltar voltar-topo" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
+        <button className="voltar voltar-topo" onClick={() => voltarTela()}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
         <span className="eyebrow">{e.pacotes.length > 1 ? `${e.pacotes.length} pacotes` : 'Pacote'}</span>
       </div>
 
@@ -201,7 +201,7 @@ function Detalhe({ f }: { f: Figurinha }) {
   const p = podeEvoluir(e, f.id);
   const alvo = proxima(f);
   const anterior = f.forma > 1 ? figurinhaPorId.get(idCarta(s.id, (f.forma - 1) as Forma)) : undefined;
-  const voltar = <button className="voltar voltar-topo" onClick={() => ir('album')}><Icone nome="voltar" tamanho={18} espessura={3} />Álbum</button>;
+  const voltar = <button className="voltar voltar-topo" onClick={() => voltarTela('album')}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>;
 
   const evoluirAgora = async () => {
     if (!alvo) return;

@@ -6,7 +6,7 @@ import { Pin } from '../components/Pin';
 import { FIGURINHAS, figurinhaPorId, type Figurinha } from '../lib/figurinhas';
 import { api, entrarNaConta, type SituacaoEstudo, entrarNoPerfil, ultimoCodigo, entrarNaTurmaComConta, sair, sincronizar, useConta, verPropostas, type ResumoChat } from '../lib/conta';
 import { EscolherPerfil } from '../components/Perfis';
-import { ir } from '../lib/rota';
+import { ir, voltarTela } from '../lib/rota';
 import { paraTrocar, protegido, saldo } from '../lib/loja';
 import { useEstado } from '../lib/store';
 import { Chama, CORES } from './Inicio';
@@ -708,7 +708,7 @@ export function MinhaConta() {
   };
   return (
     <main className="tela">
-      <button className="voltar voltar-topo" onClick={() => ir()}><Icone nome="voltar" tamanho={18} espessura={3} />Início</button>
+      <button className="voltar voltar-topo" onClick={() => voltarTela()}><Icone nome="voltar" tamanho={18} espessura={3} />Voltar</button>
 
       <div className="painel-destaque coluna" style={{ alignItems: 'center', textAlign: 'center', gap: 8 }}>
         <Avatar nome={e.perfil?.nome ?? '?'} cor={e.perfil?.cor ?? CORES[0]} tamanho={84} />
