@@ -15,7 +15,7 @@ import { getEstado, useEstado } from '../lib/store';
 import { estudoDa, getConta, useConta } from '../lib/conta';
 import { PrecisaTurma } from './Turma';
 import type { Capitulo } from '../data/tipos';
-import { ordenarCapitulos, situacao, textoProva, type DatasProva } from '../lib/provas';
+import { ordenarCapitulos, provasPerto, situacao, textoProva, type DatasProva } from '../lib/provas';
 import { Moeda, Saldo } from '../components/Loja';
 import { FIGURINHAS } from '../lib/figurinhas';
 import { podeEvoluir, saldo } from '../lib/loja';
@@ -72,14 +72,24 @@ let unidadeAtual: string | null = null;
 export const lembrarUnidade = (id: string) => { unidadeAtual = id; };
 
 /**
- * Próxima fase a fazer: primeiro termina a unidade que a criança está jogando; depois, a primeira
- * não concluída na ordem do livro (as que já tiveram prova, por último).
+ * Próxima fase a fazer: primeiro as unidades com prova hoje ou amanhã (Lucas, 13/11/2026); depois termina
+ * a unidade que a criança está jogando; depois, a primeira não concluída na ordem do livro (as que já
+ * tiveram prova, por último).
  */
 export function proximaFase(feitas: Record<string, true>, provas: DatasProva | undefined = getConta()?.provas, caps: Capitulo[] = estudoDa().caps, atual: string | null = unidadeAtual) {
-  const ordem = ordenarCapitulos(caps, provas, hoje());
+  const dia = hoje();
+  const urgentes = provasPerto(caps, provas, dia);
+  const ordem = ordenarCapitulos(caps, provas, dia);
+  const atualUrgente = urgentes.find((c) => c.id === atual);
   const daAtual = ordem.find((c) => c.id === atual);
-  for (const c of daAtual ? [daAtual, ...ordem] : ordem) for (const f of FASES) if (!feitas[chave(c.id, f)]) return { cap: c, fase: f };
+  const fila = [...(atualUrgente ? [atualUrgente] : []), ...urgentes, ...(daAtual ? [daAtual] : []), ...ordem];
+  for (const c of fila) for (const f of FASES) if (!feitas[chave(c.id, f)]) return { cap: c, fase: f };
   return null;
+}
+
+/** Unidade com prova hoje ou amanhã que a criança já terminou: o Início convida para revisar. */
+export function revisarParaProva(feitas: Record<string, true>, provas: DatasProva | undefined, caps: Capitulo[]) {
+  return provasPerto(caps, provas, hoje()).find((c) => FASES.every((f) => feitas[chave(c.id, f)])) ?? null;
 }
 
 /** Leva para a próxima fase a fazer (ou para a lista de mundos, se tudo já foi feito; sem turma, o aviso para entrar nela). */
@@ -127,6 +137,9 @@ export function Inicio() {
   const { caps: capitulos, materias, situacao: estudo } = estudoDa(conta);
   const semJogo = estudo !== 'ok';
   const prox = proximaFase(e.feitas, conta?.provas, capitulos);
+  // Prova hoje/amanhã numa unidade já terminada (e nenhuma outra com prova perto por fazer): convite para revisar.
+  const paraRevisar = prox && provasPerto(capitulos, conta?.provas, hoje()).some((c) => c.id === prox.cap.id) ? null : revisarParaProva(e.feitas, conta?.provas, capitulos);
+  const provaRevisar = paraRevisar ? situacao(conta?.provas, paraRevisar.id, hoje()) : null;
   const provaProx = prox ? situacao(conta?.provas, prox.cap.id, hoje()) : null;
   const feitasCap = prox ? FASES.filter((f) => e.feitas[chave(prox.cap.id, f)]).length : 5;
   const faltamPacote = prox ? (['memoria', 'quiz', 'prova'] as const).find((f) => !e.feitas[chave(prox.cap.id, f)]) : undefined;
@@ -294,7 +307,19 @@ export function Inicio() {
         <button className="btn btn-verde btn-bloco" onClick={() => ir('album', evolui.id)}>Evoluir {evolui.s.formas[evolui.forma - 1].nome}</button>
       )}
 
-      {prox && (
+      {paraRevisar && provaRevisar ? (
+        <button className="painel-destaque" onClick={() => ir('mundo', paraRevisar.id)} style={{ textAlign: 'left', color: 'inherit' }}>
+          <span className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
+            <span className="eyebrow" style={{ color: 'var(--t-coral)' }}>Revisar · {paraRevisar.materia}</span>
+            <SeloProva s={provaRevisar} />
+          </span>
+          <span className="display" style={{ fontSize: 26, display: 'block', marginTop: 4 }}>Unidade {paraRevisar.numero} · {paraRevisar.titulo}</span>
+          <span className="muted small" style={{ display: 'block' }}>Você já fez as 5 fases. Jogue de novo para chegar bem na prova!</span>
+          <span className="linha" style={{ marginTop: 12, justifyContent: 'flex-end' }}>
+            <span className={`btn btn-amarelo${brilhoContinuar ? ' chamar' : ''}`} style={{ minHeight: 44, padding: '8px 20px' }}>Revisar</span>
+          </span>
+        </button>
+      ) : prox && (
         <button className="painel-destaque" onClick={() => ir('mundo', prox.cap.id)} style={{ textAlign: 'left', color: 'inherit' }}>
           <span className="linha" style={{ justifyContent: 'space-between', gap: 8 }}>
             <span className="eyebrow" style={{ color: 'var(--t-yellow)' }}>Continuar · {prox.cap.materia}</span>

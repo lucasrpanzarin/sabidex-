@@ -47,5 +47,16 @@ export function ordenarCapitulos<T extends { id: string }>(caps: T[], datas: Dat
   return caps.map((c, i) => ({ c, i, p: peso(c) })).sort((a, b) => a.p - b.p || a.i - b.i).map((x) => x.c);
 }
 
+/**
+ * Unidades com prova hoje ou amanhã (Lucas, 13/11/2026: no dia da prova de Ciências o "Continuar"
+ * mostrava Matemática). Elas passam na frente no "Continuar"; a mais perto primeiro, depois a ordem do livro.
+ * A lista das unidades (mapa) continua na ordem do livro.
+ */
+export function provasPerto<T extends { id: string }>(caps: T[], datas: DatasProva | undefined, hoje: string): T[] {
+  const dias = (c: T) => { const s = situacao(datas, c.id, hoje); return s.tipo === 'chegando' && s.dias <= 1 ? s.dias : null; };
+  return caps.map((c, i) => ({ c, i, d: dias(c) })).filter((x) => x.d !== null)
+    .sort((a, b) => a.d! - b.d! || a.i - b.i).map((x) => x.c);
+}
+
 /** "12/11" para mostrar a data ao adulto e à criança. */
 export const diaMes = (data: string) => `${data.slice(8, 10)}/${data.slice(5, 7)}`;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dataValida, diasAte, ordenarCapitulos, situacao, textoProva } from './provas';
+import { dataValida, diasAte, ordenarCapitulos, provasPerto, situacao, textoProva } from './provas';
 
 describe('datas das provas', () => {
   it('confere a data', () => {
@@ -32,5 +32,12 @@ describe('datas das provas', () => {
     const datas = { a: '2026-10-01', c: '2026-11-20', d: '2026-11-06' };
     expect(ordenarCapitulos(caps, datas, '2026-11-04').map((c) => c.id)).toEqual(['b', 'c', 'd', 'a']);
     expect(ordenarCapitulos(caps, undefined, '2026-11-04').map((c) => c.id)).toEqual(['a', 'b', 'c', 'd']);
+  });
+
+  it('acha as unidades com prova hoje ou amanhã, a mais perto primeiro', () => {
+    const caps = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }, { id: 'e' }];
+    const datas = { a: '2026-11-14', b: '2026-11-13', c: '2026-11-15', d: '2026-11-12', e: '2026-11-14' };
+    expect(provasPerto(caps, datas, '2026-11-13').map((c) => c.id)).toEqual(['b', 'a', 'e']);
+    expect(provasPerto(caps, undefined, '2026-11-13')).toEqual([]);
   });
 });
