@@ -231,6 +231,7 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências (unidad
 
 ## 7. Registro de mudanças
 
+- **13/11/2026** · **Sem aviso de troca no estudo:** o Lucas contou que a mãe falava dos estudos normais, não do duelo. Dentro da fase o menu já sumia; o aviso aparecia **no mapa da unidade**, para onde a criança volta entre uma fase e outra (e na lista de unidades). Agora, nessas telas, a aba Turma fica sem o número de trocas e duelos e sem a bolinha do chat. No Início, no Álbum e na própria Turma, o número continua (Lucas).
 - **13/11/2026** · **Foco no jogo:** uma mãe contou que, no meio do quiz, as crianças viam o aviso de troca de carta e largavam o jogo para trocar. As fases, a Revisão e o Desafio do dia já abriam sem o menu de baixo; o Duelo do Saber não. Agora o menu (com o número de trocas) some enquanto joga o duelo e volta quando termina. A troca não fica bloqueada no servidor: só some da frente durante o jogo (Lucas).
 - **12/11/2026** · Aviso do chat corrigido: o número no botão "Conversa da turma" mostrava o total de mensagens, não só as novas (o "já vi" ficava só no aparelho e começava do zero em aparelho novo, e às vezes voltava logo depois de abrir o chat). Agora o servidor guarda até onde a criança leu e o número só conta o que chegou depois (Lucas avisou).
 
