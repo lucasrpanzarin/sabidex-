@@ -154,7 +154,8 @@ export function Inicio() {
       : <>As matérias da sua turma ainda estão chegando. Quando ficarem prontas, os jogos aparecem aqui!</>)
     : desafiosNovos > 0
     ? <>{quemChamou(desafiantes)} {desafiantes.length > 1 ? 'chamaram' : 'chamou'} você para um <strong>Duelo do Saber</strong>!</>
-    : propostasNovas > 0
+    // Estudo primeiro (Lucas, 13/11/2026, feedback de uma mãe): o Ará só fala das trocas depois das missões do dia.
+    : propostasNovas > 0 && misFaltam === 0
     ? <>Você tem <strong>{propostasNovas} {propostasNovas > 1 ? 'propostas' : 'proposta'} de troca</strong>! Veja em Turma.</>
     : e.pacotes.some((p) => p.id === PACOTE_BOAS_VINDAS)
     ? <>Oi! Eu sou o Ará. Tenho um <strong>presente de boas-vindas</strong> para você: um pacote com seu primeiro Sabimon. Vamos abrir?</>
