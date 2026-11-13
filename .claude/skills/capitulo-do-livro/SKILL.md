@@ -18,12 +18,26 @@ Escreva `livro/<capitulo>/paginas.md`. Para cada foto:
 
 - Comece com `## Página N` (número impresso na página; `?` se não aparecer).
 - Copie o texto **exatamente** como está, na ordem de leitura: títulos (`#`, `##`), parágrafos, boxes (`> `), legendas.
-- Imagem, mapa, gráfico ou ilustração: `[IMAGEM: o que mostra, em 1–2 frases]` + a legenda.
+- Imagem, mapa, gráfico ou ilustração: `[IMAGEM: ...]` + a legenda. A professora faz pergunta sobre imagem, então
+  descreva **tudo o que dá para perguntar**, não só o assunto:
+  - **mapa:** título, a legenda inteira (cada cor ou símbolo e o que quer dizer), onde fica cada cor ou região
+    ("verde perto do litoral e ao longo dos rios do Norte; marrom no Sudeste"), os nomes escritos e a rosa dos ventos;
+  - **ilustração com setas ou etapas:** cada item, na ordem, e para onde aponta cada seta;
+  - **foto:** o que aparece e o lugar da legenda (as perguntas "qual foto é do campo?" dependem disso);
+  - **gráfico:** cada barra ou fatia com o seu número.
+  Só o que você **vê** de fato; se não der para ver a cor ou o número, escreva `[ILEGÍVEL]` naquele pedaço.
+- História em quadrinhos ou tirinha: cada balão, na ordem, com quem fala (`João: "..."`), e o que cada quadrinho mostra.
 - Linhas do tempo e tabelas: todas as datas e valores, em lista ou tabela.
-- Exercícios do livro: em `### Atividades do livro` (mostram o que a professora vai cobrar).
+- Boxes de canto (glossário, "Sabia?", "Ampliando", "Família e escola", "+ Ação", indicação de livro ou site): copie
+  inteiros. São fáceis de pular porque ficam na margem: olhe os quatro cantos de cada foto antes de passar para a próxima.
+- Exercícios do livro: em `### Atividades do livro`, copiados inteiros, com o número, as letras (a, b, c...) e as opções.
+  Mostram o que a professora vai cobrar.
 - Borrado, cortado ou ilegível: `[ILEGÍVEL]`. **Nunca complete com o que "deveria" estar escrito.**
   Diga ao Lucas qual foto refazer (mais luz, de cima, sem tremer).
 - Não resuma, não corrija, não comente.
+
+No fim de cada lote, confira e diga ao Lucas em uma linha: as páginas que chegaram, **alguma página pulada na
+numeração** e alguma foto para refazer. Só passe para a Etapa 2 com a unidade inteira copiada.
 
 Não guarde as fotos no repositório (o livro tem direitos autorais, e foto pesa). Só a transcrição.
 
@@ -51,11 +65,17 @@ Formato (uma tabela; a coluna "Onde no app" é preenchida enquanto você cria e 
 | 69 | Cor de cada cidade no mapa da Paraíba | FORA | depende de ver a cor na foto |
 ```
 
+Cada pedaço de `### Atividades do livro` (cada letra a, b, c...) é **uma linha** do mapa, e cada item do "O que eu aprendi" também.
+
 Situação: `COBERTO` = **algum jogo pergunta** (quiz, prova, pares, lacunas, quem sou eu, grupos, causas ou linha);
 estar só no texto dos temas **não conta**. `PARCIAL` = aparece, mas nenhum jogo pergunta. `FALTA` = não aparece.
-`FORA` = de propósito, com o motivo (só três motivos valem: depende de ler cor/posição num mapa ou foto que a
-transcrição não descreve; pergunta sobre a cidade ou o estado da própria criança; passatempo como caça-palavras
-ou quebra-cabeça, cujo conteúdo precisa estar coberto de outro jeito). Conte ao Lucas tudo o que ficou `FORA`.
+`FORA` = de propósito, com o motivo. Só quatro motivos valem:
+- a foto não deixou ver a cor, o número ou o nome (`[ILEGÍVEL]` na transcrição; antes, peça a foto de novo);
+- pergunta sobre a cidade, o estado ou a vida da própria criança ("Como é o relevo onde você mora?");
+- opinião ou conversa sem resposta certa no livro ("O que você acha?", "Converse com os colegas");
+- passatempo (caça-palavras, quebra-cabeça, desenhar): o **conteúdo** dele precisa estar coberto de outro jeito.
+Pergunta de mapa ou imagem **não** é motivo: se a transcrição descreve o mapa, vira pergunta com a descrição
+("No mapa do relevo, onde ficam as terras mais baixas?"). Conte ao Lucas tudo o que ficou `FORA`.
 
 ## Etapa 3 — Criar (só com o que está em paginas.md)
 
@@ -67,7 +87,7 @@ um jogo). O "O que eu aprendi" inteiro tem que estar na prova ou no quiz.
 
 Crie `src/data/<materia><numero>.ts` no formato de `src/data/tipos.ts` (veja `historia9.ts` como modelo):
 
-1. **temas**: um por subtítulo, na ordem do livro, **quantos o livro tiver** (sem limite; páginas sem subtítulo, como uma história em quadrinhos, também ganham tema). 3 a 6 `pontos` cada, frases curtas, palavras-chave em `**negrito**`.
+1. **temas**: um por subtítulo, na ordem do livro, **quantos o livro tiver** (sem limite; páginas sem subtítulo, como uma história em quadrinhos, também ganham tema; subtítulo com muita coisa vira dois temas). 3 a 6 `pontos` cada, frases curtas, palavras-chave em `**negrito**`.
    Eles viram narração: precisam soar bem em voz alta. `audio`: `audio/c<numero>-<índice>.mp3`.
 2. **pares** (no mínimo 8; um para cada palavra em negrito e cada definição do livro): palavra-chave + significado de até 10 palavras. O jogo sorteia 6 por vez, então lista grande é bom: cada partida é diferente.
 3. **linha** (6 a 10): fatos com data. `ordem` numérica (a.C. negativo; século 16 → 1550). Sem datas no capítulo:
@@ -116,13 +136,19 @@ Veja `src/data/matematica9.ts` como modelo:
 
 1. `npm run conferir -- <capitulo> --espalhar` (espalha as respostas certas entre A–D e mostra os problemas).
    Corrija todo `ERRO` e o máximo de `AVISO`.
-2. **Conferência de cobertura**, com um revisor que não escreveu o conteúdo (um agente separado): ele lê `paginas.md`
-   página por página e o capítulo inteiro, e preenche a coluna "Onde no app" do `cobertura.md`. Tudo o que vier
-   `PARCIAL` ou `FALTA` vira pergunta, e confere de novo. `npm run conferir` conta as linhas e dá ERRO se sobrar alguma.
+2. **Conferência de cobertura**, com um revisor que não escreveu o conteúdo (um agente separado, sem acesso à sua
+   conversa). Mande para ele, mais ou menos assim:
+   > Só leia, não edite. Compare `livro/<capitulo>/paginas.md` com `src/data/<arquivo>.ts` (formato em `src/data/tipos.ts`).
+   > Página por página, liste tudo o que uma professora pode cobrar (negrito, definição, exemplo com nome, número,
+   > cada letra de cada atividade, "O que eu aprendi", boxes, perguntas de mapa, imagem e quadrinhos). Marque
+   > COBERTO (diga o jogo e o número do item), PARCIAL (só no texto dos temas ou só como alternativa errada) ou FALTA.
+   > Seja rigoroso. Depois compare com `livro/<capitulo>/cobertura.md` e aponte o que ele esqueceu ou marcou errado.
+   Tudo o que vier `PARCIAL` ou `FALTA` vira pergunta (ou `FORA`, com um dos quatro motivos), e o revisor confere de
+   novo até não sobrar nada. `npm run conferir` conta as linhas e dá ERRO se sobrar alguma.
 3. Releia cada item contra `paginas.md`, como um revisor que não escreveu o conteúdo:
    fato fora do livro? resposta certa errada? duas opções certas? verdadeiro/falso ambíguo? frase difícil para a idade?
    distrator óbvio? Corrija.
 4. Coloque o capítulo em `src/data/index.ts`, **dentro do conteúdo da turma que usa esse livro** (`conteudos`; hoje só `educativa-4b`). Cada turma só vê os capítulos do conteúdo dela. Livro de outra turma/escola = conteúdo novo, e o Lucas liga na turma pelo Painel do dono (aba Turmas).
 5. `npm test` e `npm run build` precisam passar.
 6. Commit e push. Explique ao Lucas, em português simples, o que entrou, **o que ficou `FORA` e por quê**, e o que ele deve conferir no livro
-   (as datas e nomes principais). Lembre que as narrações são pedidas à parte (`vozes/pedido.json`). Em Matemática, os passos do "Ver como se faz" são narrados só com Nina e Otto: pedido `{"acao": "matematica", "capitulos": ["<id>"], "vozes": [nina, otto]}`; confira a fala com `falaDaConta` (`src/lib/falaMat.ts`).
+   (as datas e nomes principais). Diga a cobertura que o `npm run conferir` mostrou ("Cobertura do livro: 74 de 74 itens"). Lembre que as narrações são pedidas à parte (`vozes/pedido.json`) e diga quantos temas há, porque mais temas é mais narração. Em Matemática, os passos do "Ver como se faz" são narrados só com Nina e Otto: pedido `{"acao": "matematica", "capitulos": ["<id>"], "vozes": [nina, otto]}`; confira a fala com `falaDaConta` (`src/lib/falaMat.ts`).

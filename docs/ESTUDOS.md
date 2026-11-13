@@ -172,8 +172,10 @@ era treinada, e uma mãe contou que caíram na prova coisas que o app não tinha
 o Claude faz o **mapa de cobertura** (`livro/<capitulo>/cobertura.md`): uma linha para cada coisa que a professora pode
 cobrar, página por página (negrito, definição, exemplo com nome, número, cada atividade do livro, "O que eu aprendi",
 boxes). Cada linha precisa estar num **jogo** (estar só no texto do tema não conta). Os jogos extras e o jogo da
-memória sorteiam alguns itens por partida, então as listas podem ser grandes. Só fica de fora, com o motivo dito ao
-Lucas, o que depende de ler a cor de um mapa na foto, o que pergunta sobre a cidade da própria criança e passatempos.
+memória sorteiam alguns itens por partida, então as listas podem ser grandes. Na leitura, mapas (legenda e onde fica
+cada cor), setas, fotos, gráficos e quadrinhos (cada balão) são descritos por inteiro, para virarem pergunta também.
+Só fica de fora, com o motivo dito ao Lucas: o que a foto não deixou ler, o que pergunta sobre a cidade da própria
+criança, opinião sem resposta certa e passatempos (com o conteúdo coberto de outro jeito).
 
 **3. Como escrever para cada idade.** As regras mudam com o ano escolar (`perfilDoAno` em `src/lib/conteudo.ts`):
 
