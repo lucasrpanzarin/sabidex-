@@ -7,7 +7,7 @@ O Claude lê este arquivo no começo de cada conversa (está pedido no `CLAUDE.m
 - Quando o Lucas der uma ideia nova, o Claude confere aqui antes e avisa: "isso já existe", "isso já foi testado e trocado por X" ou "isso vai contra a regra Y".
 - Ao terminar qualquer mudança, o Claude atualiza este caderno (o que mudou, a data e quem decidiu).
 
-Última revisão geral: **04/11/2026**. Última mudança: **12/11/2026** (botão "Voltar" coral, que volta para a tela anterior).
+Última revisão geral: **04/11/2026**. Última mudança: **13/11/2026** (receita nova: tudo o que o livro cobra entra no app, com mapa de cobertura).
 
 ---
 
@@ -65,6 +65,7 @@ App de estudo gamificado para crianças de 9 a 11 anos (4º ano). A criança est
 - **Data da prova da escola**: o professor (turma) ou o adulto (família) marca. Depois da data o capítulo vai para "Já teve prova na escola" (continua valendo tudo).
 - **Ordem das unidades** (Lucas, 06/11/2026; `ordenarCapitulos` em `src/lib/provas.ts`): sempre a ordem do livro (8, 9, 10); a data da prova só aparece no selo. O "Próxima fase"/"Continuar" termina primeiro a unidade que a criança está jogando e só depois vai para a próxima (`proximaFase` em `src/screens/Inicio.tsx`).
 - Capítulo novo: o Lucas manda fotos do livro na conversa e o Claude segue a skill **capitulo-do-livro**. Regras pedagógicas em `docs/ESTUDOS.md`. Conferência automática: `npm run conferir -- historia-9`.
+- **Tudo o que o livro cobra entra no app** (Lucas, 13/11/2026): antes de criar as perguntas, o Claude faz o mapa de cobertura (`livro/<capitulo>/cobertura.md`), uma linha por coisa que a professora pode cobrar, página por página, e cada uma tem que estar num jogo. Sem limite de temas; quiz de 12 a 20; listas grandes nos jogos extras (o jogo sorteia). A prova continua com 10, de preferência com as atividades do livro. `npm run conferir` dá ERRO se sobrar algo de fora.
 
 ### Prêmios e números do jogo
 | Regra | Valor | Arquivo |
@@ -230,6 +231,8 @@ Ainda pendente: `sabidex.com` não está ligado na Cloudflare; Ciências (unidad
 - **Ideias de segurança não escolhidas**: data de nascimento no cadastro do adulto (barrar menores de 18) e "PIN do adulto" no lugar da conta de multiplicar. O Lucas escolheu só o e-mail confirmado e a conta mais fácil.
 
 ## 7. Registro de mudanças
+
+- **13/11/2026** · **Receita nova: tudo o que o livro cobra entra no app.** Uma mãe contou que o filho estudou a prova de Geografia só pelo app e caíram duas coisas que não estavam lá, e que o resumo da professora particular de História tinha matéria que o app não tem. A conferência página por página confirmou: a Geografia 9 tinha ~58% treinada em jogo (a p. 53, história do João e do Alexandre, ficou toda de fora; faltavam a pesquisa do IBGE e as regiões da soja) e a Geografia 10 ~57% (bacia hidrográfica, leito, margem e rio principal nunca eram perguntados). A causa era a receita, que limitava o tamanho (até 7 temas, 10 perguntas). Agora a skill capitulo-do-livro manda fazer o **mapa de cobertura** antes das perguntas, tirou os limites e transforma cada atividade do livro em pergunta; o `npm run conferir` lê esse mapa. História 9 e 10 foram feitas antes da cópia das páginas, por isso não dá para conferir sem as fotos. Ainda não foram completadas as unidades antigas: o Lucas pediu primeiro a receita para as próximas matérias (Lucas).
 
 - **12/11/2026** · Aviso do chat corrigido: o número no botão "Conversa da turma" mostrava o total de mensagens, não só as novas (o "já vi" ficava só no aparelho e começava do zero em aparelho novo, e às vezes voltava logo depois de abrir o chat). Agora o servidor guarda até onde a criança leu e o número só conta o que chegou depois (Lucas avisou).
 
