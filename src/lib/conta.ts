@@ -249,8 +249,11 @@ export async function verPropostas() {
   const meus = d.erro ? null : d.duelos.filter((x) => x.para_id === d.eu && x.status === 'esperando');
   const nd = meus ? meus.length : desafiosNovos;
   const nomes = meus ? [...new Set(meus.map((x) => x.de_apelido))] : desafiantes;
-  const ch = await api<ResumoChat>(`/crianca/chat/resumo?depois=${chatVisto()}`);
-  const novoChat = ch.erro ? chat : { liberado: ch.liberado, motivo: ch.motivo, horario: ch.horario, novas: ch.novas };
+  const visto = chatVisto();
+  const ch = await api<ResumoChat>(`/crianca/chat/resumo?depois=${visto}`);
+  // Se a criança abriu o chat enquanto a resposta vinha, o número já ficou velho: não volta a aparecer.
+  const novas = chatVisto() > visto ? 0 : ch.novas;
+  const novoChat = ch.erro ? chat : { liberado: ch.liberado, motivo: ch.motivo, horario: ch.horario, novas };
   if (n !== propostasNovas || nd !== desafiosNovos || nomes.join('|') !== desafiantes.join('|') || JSON.stringify(novoChat) !== JSON.stringify(chat)) {
     propostasNovas = n; desafiosNovos = nd; desafiantes = nomes; chat = novoChat; mudou();
   }
