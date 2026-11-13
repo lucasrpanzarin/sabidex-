@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Ara } from '../components/Ara';
 import { CartaView } from '../components/CartaView';
 import { Icone } from '../components/Icone';
+import { useSemMenu } from '../components/Nav';
 import { Moeda } from '../components/Loja';
 import { capituloPorId, capitulos, materiasDe } from '../data';
 import { api, sincronizar, useConta, verPropostas } from '../lib/conta';
@@ -417,6 +418,8 @@ function JogarDuelo({ d, eu, carta, aoSair, aoRevanche }: { d: DueloApi; eu: str
   const [erro, setErro] = useState<string | null>(null);
   const [fim, setFim] = useState<{ d: DueloApi; acertos: number; xp: number; subiu: boolean; pacotes: number } | null>(null);
   const contra = d.de_id === eu ? d.para_apelido : d.de_apelido;
+  // Sem menu (e sem os avisos de troca) enquanto joga; volta na tela do resultado.
+  useSemMenu(!fim);
 
   if (perguntas.length !== d.perguntas.length) {
     return <main className="tela"><Erro texto="Esse duelo tem perguntas que não existem mais. Cancele e faça outro." /><button className="btn btn-escuro btn-bloco" onClick={aoSair}>Voltar</button></main>;
