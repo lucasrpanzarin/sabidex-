@@ -93,7 +93,8 @@ export function Chat() {
 
   return (
     <main className="tela chat-tela">
-      <div className="linha" style={{ justifyContent: 'space-between' }}>
+      {/* Fica preso no topo: com a conversa comprida, o "Voltar" continua à vista sem subir tudo (Lucas, 13/11/2026). */}
+      <div className="linha chat-topo" style={{ justifyContent: 'space-between' }}>
         {voltar}
         <span className="eyebrow">{conta.turma}</span>
       </div>
