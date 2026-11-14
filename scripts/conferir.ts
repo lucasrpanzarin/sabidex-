@@ -29,6 +29,25 @@ if (args.includes('--espalhar')) {
 }
 
 const problemas = validarCapitulo(cap, ano);
+
+// Mapa de cobertura (livro/<capitulo>/cobertura.md): tudo o que o livro cobra tem que estar num jogo do app.
+const mapa = `livro/${id}/cobertura.md`;
+if (!existsSync(mapa)) {
+  problemas.push(`AVISO: falta o mapa de cobertura ${mapa} (veja a Etapa 2 da skill capitulo-do-livro)`);
+} else {
+  const linhas = readFileSync(mapa, 'utf8').split('\n').filter((l) => /^\|\s*[\d?]/.test(l));
+  const conta: Record<string, number> = { COBERTO: 0, PARCIAL: 0, FALTA: 0, FORA: 0 };
+  for (const l of linhas) {
+    const sit = l.split('|')[3]?.trim().toUpperCase() ?? '';
+    if (sit in conta) conta[sit]++;
+    else problemas.push(`ERRO: cobertura.md, linha sem situação válida: ${l.trim()}`);
+    if (sit === 'PARCIAL' || sit === 'FALTA') problemas.push(`ERRO: ainda ${sit} no livro: p. ${l.split('|')[1].trim()} · ${l.split('|')[2].trim()}`);
+    if (sit === 'COBERTO' && !(l.split('|')[4] ?? '').trim()) problemas.push(`AVISO: cobertura.md diz COBERTO sem dizer onde: ${l.trim()}`);
+  }
+  const total = linhas.length;
+  const pct = total ? Math.round((100 * conta.COBERTO) / Math.max(1, total - conta.FORA)) : 0;
+  console.log(`\nCobertura do livro: ${conta.COBERTO} de ${total - conta.FORA} itens num jogo (${pct}%), ${conta.FORA} fora de propósito.`);
+}
 console.log(`\n${cap.titulo} (${id}, regras do ${ano}º ano)`);
 if (!problemas.length) console.log('Tudo dentro das regras.');
 for (const p of problemas) console.log(' - ' + p);

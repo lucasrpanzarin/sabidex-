@@ -166,8 +166,16 @@ datas das linhas do tempo e as atividades do livro. Cada imagem do livro vira um
 O que está borrado ou cortado vira `[ILEGÍVEL]`, e ele pede outra foto em vez de adivinhar. Separar "ler" de
 "criar" é o que impede de inventar: o capítulo é feito só com o que foi copiado do livro.
 
-**2. Como escolher o que é mais importante.** O livro já mostra o que importa: palavras em **negrito**, boxes,
-o que se repete, as atividades do fim do capítulo e o resumo. E todos os subtítulos entram, não só o começo.
+**2. Tudo o que o livro cobra entra no app** (Lucas, 13/11/2026). Antes, a receita limitava o tamanho (até 7 temas,
+10 perguntas) e o Claude escolhia "o mais importante": a conferência de 13/11 mostrou que só ~58% da Geografia
+era treinada, e uma mãe contou que caíram na prova coisas que o app não tinha. Agora, antes de escrever as perguntas,
+o Claude faz o **mapa de cobertura** (`livro/<capitulo>/cobertura.md`): uma linha para cada coisa que a professora pode
+cobrar, página por página (negrito, definição, exemplo com nome, número, cada atividade do livro, "O que eu aprendi",
+boxes). Cada linha precisa estar num **jogo** (estar só no texto do tema não conta). Os jogos extras e o jogo da
+memória sorteiam alguns itens por partida, então as listas podem ser grandes. Na leitura, mapas (legenda e onde fica
+cada cor), setas, fotos, gráficos e quadrinhos (cada balão) são descritos por inteiro, para virarem pergunta também.
+Só fica de fora, com o motivo dito ao Lucas: o que a foto não deixou ler, o que pergunta sobre a cidade da própria
+criança, opinião sem resposta certa e passatempos (com o conteúdo coberto de outro jeito).
 
 **3. Como escrever para cada idade.** As regras mudam com o ano escolar (`perfilDoAno` em `src/lib/conteudo.ts`):
 
@@ -181,8 +189,9 @@ o que se repete, as atividades do fim do capítulo e o resumo. E todos os subtí
 mistura de níveis na prova, erradas plausíveis, quiz com metade verdadeira e o material dos jogos extras.
 (Os capítulos não têm mais cartas próprias: os pacotes trazem Sabimons.)
 
-**5. Como é conferido.** `npm run conferir -- <capitulo> --espalhar` espalha as respostas certas entre A, B, C e D
-e aponta tamanhos, quantidades e pegadinhas. Depois o Claude relê cada item contra o livro como revisor.
+**5. Como é conferido.** `npm run conferir -- <capitulo> --espalhar` espalha as respostas certas entre A, B, C e D,
+aponta tamanhos, quantidades e pegadinhas, e lê o mapa de cobertura (dá ERRO se sobrar item `PARCIAL` ou `FALTA`
+e mostra a porcentagem coberta). Um revisor separado confere a cobertura página por página. Depois o Claude relê cada item contra o livro como revisor.
 Por último, o Lucas confere datas e nomes principais no livro (`fontes.md` diz a página).
 
 ## 6. Próximos passos sugeridos
