@@ -10,6 +10,7 @@ import { FASES, chave, hoje, infoFase, nivel, sequencia } from '../lib/jogo';
 import { quantasHoje, MAX_POR_REVISAO } from '../lib/revisao';
 import { missoesDeHoje, quantasFeitas } from '../lib/missoes';
 import { materiasDoDesafio, situacaoDesafio } from '../lib/desafio';
+import { resumoMaterias, type ResumoMateria } from '../lib/materias';
 import { ir } from '../lib/rota';
 import { getEstado, useEstado } from '../lib/store';
 import { estudoDa, getConta, useConta } from '../lib/conta';
@@ -154,7 +155,8 @@ export function Inicio() {
       : <>As matérias da sua turma ainda estão chegando. Quando ficarem prontas, os jogos aparecem aqui!</>)
     : desafiosNovos > 0
     ? <>{quemChamou(desafiantes)} {desafiantes.length > 1 ? 'chamaram' : 'chamou'} você para um <strong>Duelo do Saber</strong>!</>
-    : propostasNovas > 0
+    // Estudo primeiro (Lucas, 13/11/2026, feedback de uma mãe): o Ará só fala das trocas depois das missões do dia.
+    : propostasNovas > 0 && misFaltam === 0
     ? <>Você tem <strong>{propostasNovas} {propostasNovas > 1 ? 'propostas' : 'proposta'} de troca</strong>! Veja em Turma.</>
     : e.pacotes.some((p) => p.id === PACOTE_BOAS_VINDAS)
     ? <>Oi! Eu sou o Ará. Tenho um <strong>presente de boas-vindas</strong> para você: um pacote com seu primeiro Sabimon. Vamos abrir?</>
@@ -224,6 +226,8 @@ export function Inicio() {
 
       {semJogo && <PrecisaTurma situacao={estudo} />}
 
+      {!semJogo && <Materias resumo={resumoMaterias(e, capitulos, materias, desafios)} cores={materias} brilhoDesafio={brilhoDesafio} />}
+
       {revisar > 0 && (
         <button className="painel-destaque linha" onClick={() => ir('revisao')} style={{ textAlign: 'left', color: 'inherit', borderColor: 'var(--pink)' }}>
           <span style={{ flex: 1 }}>
@@ -259,37 +263,6 @@ export function Inicio() {
         </button>
       )}
 
-      {desafios.some((d) => d.pode) && (
-        <section className="painel coluna" aria-label="Desafios do dia" style={{ gap: 10, borderColor: desafiosFaltam ? 'var(--cyan)' : 'var(--green)' }}>
-          <span className="linha" style={{ gap: 10 }}>
-            <Pacote tamanho="mini" />
-            <span style={{ flex: 1 }}>
-              <span className="display" style={{ fontSize: 20, display: 'block' }}>Desafios do dia</span>
-              <span className="small" style={{ fontWeight: 800, color: desafiosFaltam ? 'var(--t-cyan)' : 'var(--t-green)' }}>
-                {desafiosFaltam === 0 ? (desafios.some((d) => !d.pode) ? 'Feito! Comece outra matéria e ganhe mais pacotes.' : 'Todos feitos! Amanhã tem mais.') : `1 pacote por matéria · ${desafiosFaltam === 1 ? 'falta 1' : `faltam ${desafiosFaltam}`}`}
-              </span>
-            </span>
-            {brilhoDesafio && <span className="selo-agora">Faça agora</span>}
-          </span>
-          <div className="grade-2">
-            {desafios.map((d, i) => {
-              const primeiro = brilhoDesafio && desafios.findIndex((x) => x.pode && !x.feito) === i;
-              return (
-                <button key={d.materia} className="painel" disabled={!d.pode} onClick={() => ir('desafio', d.materia)}
-                  style={{ textAlign: 'center', padding: 10, color: d.pode ? 'inherit' : 'var(--muted)', borderColor: COR_MATERIA[i % COR_MATERIA.length], opacity: d.pode ? 1 : 0.7 }}>
-                  <span className="display" style={{ fontSize: 17, display: 'block' }}>{d.materia}</span>
-                  {d.feito
-                    ? <span className="small linha" style={{ fontWeight: 800, color: 'var(--t-green)', justifyContent: 'center', gap: 4 }}><Icone nome="check" tamanho={14} espessura={3.5} />Feito</span>
-                    : d.pode
-                      ? <span className={`btn btn-amarelo${primeiro ? ' chamar' : ''}`} style={{ minHeight: 36, padding: '4px 14px', fontSize: 15, marginTop: 6 }}>Jogar</span>
-                      : <span className="small" style={{ fontWeight: 700 }}>Comece uma unidade</span>}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
       {evolui && (
         <button className="btn btn-verde btn-bloco" onClick={() => ir('album', evolui.id)}>Evoluir {evolui.s.formas[evolui.forma - 1].nome}</button>
       )}
@@ -319,27 +292,61 @@ export function Inicio() {
         </button>
       )}
 
-      {!semJogo && <section aria-label="Matérias">
-        <h2 className="display h3" style={{ marginBottom: 8 }}>Matérias</h2>
-        <div className="grade-2">
-          {materias.map((m, i) => {
-            const n = capitulos.filter((c) => c.materia === m).length;
-            return (
-              <button key={m} className="painel" onClick={() => ir('mundos', m)} style={{ textAlign: 'center', borderColor: COR_MATERIA[i % COR_MATERIA.length], padding: 12, color: 'inherit' }}>
-                <span className="display" style={{ fontSize: 17, display: 'block' }}>{m}</span>
-                <span className="muted small">{n} {n === 1 ? 'unidade' : 'unidades'}</span>
-              </button>
-            );
-          })}
-          {['Ciências', 'Geografia'].filter((m) => !materias.includes(m)).map((m) => (
-            <div key={m} className="painel painel-breve" style={{ textAlign: 'center', padding: 12, color: 'var(--muted)' }}>
-              <span className="display" style={{ fontSize: 17, display: 'block' }}>{m}</span>
-              <span className="small" style={{ fontWeight: 700 }}>Em breve</span>
-            </div>
-          ))}
-        </div>
-      </section>}
       <button className="voltar" style={{ alignSelf: 'center', marginTop: 8 }} onClick={() => ir('adulto')}>Área dos pais e professores</button>
     </main>
+  );
+}
+
+/**
+ * Matérias no alto do Início (Lucas, 12/11/2026): o que a criança ainda não fez e tem prêmio vem primeiro
+ * (matéria nova, unidade nova, fases que faltam, Desafio do dia); o que já terminou vai para o fim.
+ * Juntou a grade "Desafios do dia", que repetia as mesmas matérias.
+ */
+function Materias({ resumo, cores, brilhoDesafio }: { resumo: ResumoMateria[]; cores: string[]; brilhoDesafio: boolean }) {
+  const primeiroDesafio = resumo.findIndex((r) => r.desafioPendente);
+  return (
+    <section aria-label="Matérias" className="coluna" style={{ gap: 10 }}>
+      <h2 className="display h3" style={{ margin: 0 }}>Matérias</h2>
+      {resumo.map((r, i) => {
+        const cor = COR_MATERIA[cores.indexOf(r.materia) % COR_MATERIA.length];
+        const novo = r.situacao === 'nova' || r.situacao === 'unidade-nova';
+        const terminou = r.faltam === 0;
+        const texto = r.situacao === 'nova'
+          ? `${r.unidades} ${r.unidades === 1 ? 'unidade' : 'unidades'} para começar`
+          : r.situacao === 'unidade-nova' && r.unidadeNova
+            ? `Chegou a Unidade ${r.unidadeNova.numero}!`
+            : !terminou ? `Falta${r.faltam > 1 ? 'm' : ''} ${r.faltam} ${r.faltam > 1 ? 'fases' : 'fase'}` : 'Todas as fases feitas';
+        return (
+          <div key={r.materia} className="painel coluna" style={{ gap: 8, padding: 12, borderColor: cor, ...(r.situacao === 'feito' ? { boxShadow: 'none' } : {}) }}>
+            <button className="linha" onClick={() => ir('mundos', r.materia)}
+              style={{ textAlign: 'left', color: 'inherit', background: 'none', border: 0, padding: 0, font: 'inherit', width: '100%', minHeight: 44, gap: 10, cursor: 'pointer' }}>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span className="display" style={{ fontSize: 20, display: 'block' }}>{r.materia}</span>
+                <span className="small linha" style={{ fontWeight: 800, gap: 4, color: novo ? 'var(--t-coral)' : terminou ? 'var(--t-green)' : 'var(--muted)' }}>
+                  {terminou && <Icone nome="check" tamanho={14} espessura={3.5} />}{texto}
+                </span>
+              </span>
+              {novo && <span className="pilula" style={{ flex: 'none', background: 'var(--yellow)', color: 'var(--ink)', borderColor: 'var(--ink)', fontSize: 14, padding: '2px 10px' }}>Novo!</span>}
+              <Icone nome="seguir" espessura={3} />
+            </button>
+            {(r.desafioPendente || r.desafioFeito) && (
+              r.desafioPendente ? (
+                <button className="linha" onClick={() => ir('desafio', r.materia)}
+                  style={{ textAlign: 'left', color: 'inherit', background: 'var(--bg)', border: '2px dashed var(--line)', borderRadius: 12, padding: '6px 8px', font: 'inherit', width: '100%', gap: 8, cursor: 'pointer' }}>
+                  <Pacote tamanho="mini" />
+                  <span style={{ flex: 1 }}>
+                    <span style={{ fontWeight: 800, display: 'block' }}>Desafio do dia</span>
+                    <span className="small" style={{ fontWeight: 800, color: 'var(--t-cyan)' }}>Vale 1 pacote hoje</span>
+                  </span>
+                  <span className={`btn btn-amarelo${brilhoDesafio && i === primeiroDesafio ? ' chamar' : ''}`} style={{ minHeight: 36, padding: '4px 14px', fontSize: 15 }}>Jogar</span>
+                </button>
+              ) : (
+                <span className="small linha" style={{ fontWeight: 800, color: 'var(--t-green)', gap: 4 }}><Icone nome="check" tamanho={14} espessura={3.5} />Desafio de hoje feito. Amanhã tem outro!</span>
+              )
+            )}
+          </div>
+        );
+      })}
+    </section>
   );
 }
