@@ -3,6 +3,24 @@ import { ir } from '../lib/rota';
 import { useEstado } from '../lib/store';
 import { useConta } from '../lib/conta';
 import { jogar } from '../screens/Inicio';
+import { useEffect, useSyncExternalStore } from 'react';
+
+// Foco no jogo (feedback de uma mãe, Lucas 13/11/2026): durante um jogo que fica numa tela com menu
+// (o Duelo do Saber), o menu de baixo some, para o número de trocas e duelos não tirar a atenção.
+// Volta quando o jogo termina. As fases, a revisão e o Desafio do dia já abrem sem menu.
+let semMenu = 0;
+const ouvintes = new Set<() => void>();
+const avisar = () => ouvintes.forEach((f) => f());
+const ouvir = (f: () => void) => { ouvintes.add(f); return () => { ouvintes.delete(f); }; };
+
+/** Esconde o menu de baixo enquanto `ligado` for verdade e a tela estiver aberta. */
+export function useSemMenu(ligado: boolean) {
+  useEffect(() => {
+    if (!ligado) return;
+    semMenu++; avisar();
+    return () => { semMenu--; avisar(); };
+  }, [ligado]);
+}
 
 // Menu de baixo no jeito "álbum de figurinhas" (Lucas, 05/11/2026): cada aba tem um desenho colorido
 // com contorno escuro, e a aba aberta vira um adesivo colado (torto, com sombra). Sem animação.
@@ -55,7 +73,13 @@ const itens: { id: string; rotulo: string; aba: Aba | 'jogar' }[] = [
 export function Nav({ ativo }: { ativo: string }) {
   const e = useEstado();
   const { propostasNovas, desafiosNovos, chat } = useConta();
-  const avisosTurma = propostasNovas + desafiosNovos;
+  // Nas telas de estudo (lista de unidades e mapa da unidade, para onde a criança volta entre uma fase e outra),
+  // a aba Turma fica sem número e sem bolinha, para a troca não tirar o foco do estudo (Lucas, 13/11/2026).
+  const estudando = ativo === 'mundos';
+  const avisosTurma = estudando ? 0 : propostasNovas + desafiosNovos;
+  const chatNovo = !estudando && !!chat?.novas;
+  const escondido = useSyncExternalStore(ouvir, () => semMenu > 0);
+  if (escondido) return null;
   return (
     <nav className="nav" aria-label="Menu principal">
       {itens.map((i) => i.aba === 'jogar' ? (
@@ -70,7 +94,7 @@ export function Nav({ ativo }: { ativo: string }) {
           {i.id === 'album' && e.pacotes.length > 0 && <span className="badge" aria-label={`${e.pacotes.length} pacotes`}>{e.pacotes.length}</span>}
           {i.id === 'trocas' && avisosTurma > 0 && <span className="badge" aria-label={`${avisosTurma} ${avisosTurma > 1 ? 'avisos' : 'aviso'} de trocas e duelos`}>{avisosTurma}</span>}
           {/* Só mensagem nova no chat: uma bolinha sem número (trocas e duelos vêm antes). */}
-          {i.id === 'trocas' && avisosTurma === 0 && !!chat?.novas && <span className="badge badge-ponto" aria-label="Mensagens novas na conversa da turma" />}
+          {i.id === 'trocas' && avisosTurma === 0 && chatNovo && <span className="badge badge-ponto" aria-label="Mensagens novas na conversa da turma" />}
         </button>
       ))}
     </nav>
