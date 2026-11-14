@@ -33,6 +33,39 @@ export function Chat() {
   const [avisados, setAvisados] = useState<Set<string>>(new Set());
   const fim = useRef<HTMLDivElement>(null);
   const ultimo = useRef('');
+  const tela = useRef<HTMLElement>(null);
+  const rolar = useRef<HTMLDivElement>(null);
+
+  // A tela do chat ocupa só o pedaço do celular que está à vista (sem o teclado), e só as mensagens rolam.
+  // No iPhone, com a página inteira rolando, o teclado deixava o "Voltar" sumido em cima e a caixa de
+  // escrever no meio das mensagens, mesmo depois de fechar o teclado (Lucas, 14/11/2026).
+  useEffect(() => {
+    const vv = window.visualViewport;
+    const raiz = document.documentElement;
+    raiz.classList.add('chat-aberto');
+    const ajustar = () => {
+      const el = tela.current; const lista = rolar.current;
+      if (!el) return;
+      const noFim = lista ? lista.scrollHeight - lista.scrollTop - lista.clientHeight < 80 : false;
+      el.style.setProperty('--vv-alt', `${vv ? vv.height : window.innerHeight}px`);
+      el.style.setProperty('--vv-topo', `${vv ? vv.offsetTop : 0}px`);
+      if (lista && noFim) lista.scrollTop = lista.scrollHeight;
+    };
+    // Quando o teclado fecha, o iPhone às vezes deixa a página fora do lugar: volta para o começo.
+    const fechouTeclado = () => { window.setTimeout(() => { window.scrollTo(0, 0); ajustar(); }, 60); };
+    ajustar();
+    vv?.addEventListener('resize', ajustar);
+    vv?.addEventListener('scroll', ajustar);
+    window.addEventListener('resize', ajustar);
+    document.addEventListener('focusout', fechouTeclado);
+    return () => {
+      raiz.classList.remove('chat-aberto');
+      vv?.removeEventListener('resize', ajustar);
+      vv?.removeEventListener('scroll', ajustar);
+      window.removeEventListener('resize', ajustar);
+      document.removeEventListener('focusout', fechouTeclado);
+    };
+  }, []);
 
   const carregar = async () => {
     const r = await api<Estado>('/crianca/chat');
@@ -53,7 +86,7 @@ export function Chat() {
   const criadoUltima = dados?.mensagens.at(-1)?.criado ?? 0;
   useEffect(() => { if (criadoUltima) marcarChatVisto(criadoUltima); }, [criadoUltima]);
   useEffect(() => {
-    if (idUltima && idUltima !== ultimo.current) { ultimo.current = idUltima; fim.current?.scrollIntoView({ block: 'end' }); }
+    if (idUltima && idUltima !== ultimo.current) { ultimo.current = idUltima; const l = rolar.current; if (l) l.scrollTop = l.scrollHeight; }
   }, [idUltima]);
 
   const conf = texto.trim() ? conferirMensagem(texto) : null;
@@ -92,12 +125,13 @@ export function Chat() {
   let diaAnterior = '';
 
   return (
-    <main className="tela chat-tela">
-      {/* Fica preso no topo: com a conversa comprida, o "Voltar" continua à vista sem subir tudo (Lucas, 13/11/2026). */}
+    <main className="chat-tela" ref={tela}>
+      {/* Fica sempre no topo: com a conversa comprida, o "Voltar" continua à vista sem subir tudo (Lucas, 13/11/2026). */}
       <div className="linha chat-topo" style={{ justifyContent: 'space-between' }}>
         {voltar}
         <span className="eyebrow">{conta.turma}</span>
       </div>
+      <div className="chat-rolar" ref={rolar}>
       <h1 className="display h2" style={{ margin: 0 }}>Conversa da turma</h1>
 
       <div className="chat-vigia" role="note">
@@ -161,6 +195,7 @@ export function Chat() {
       )}
 
       {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
+      </div>
 
       {dados && !fechado && (dados.liberado ? (
         <form className="chat-escrever" onSubmit={(ev) => { ev.preventDefault(); void enviar(); }}>
@@ -177,7 +212,7 @@ export function Chat() {
           <div className="small muted" style={{ textAlign: 'right' }}>{texto.length}/{MAX_TEXTO}</div>
         </form>
       ) : (
-        <div className="balao small">{dados.aviso}</div>
+        <div className="chat-escrever"><div className="balao small">{dados.aviso}</div></div>
       ))}
     </main>
   );
