@@ -11,6 +11,7 @@ import { ir, voltarTela } from '../lib/rota';
 import { jogar, lembrarUnidade, proximaFase } from './Inicio';
 import { getEstado, setEstado, useEstado } from '../lib/store';
 import { audioDaVoz, setVoz, useVoz, vozesDaMateria, vozParaMateria } from '../lib/voz';
+import { falarIngles, podeFalar } from '../lib/ingles';
 import { FaseContas, TextoMat, VerComoSeFaz } from './Contas';
 
 /** Transforma **negrito** em <strong>. */
@@ -242,6 +243,20 @@ function Ouvir({ cap }: { cap: Capitulo }) {
                 <ul style={{ margin: '10px 0 0', paddingLeft: 20, display: 'grid', gap: 6, fontWeight: 600 }}>
                   {t.pontos.map((p, j) => <li key={j}><Texto t={p} /></li>)}
                 </ul>
+                {!!t.falar?.length && podeFalar() && (
+                  <div style={{ marginTop: 10 }}>
+                    <p className="muted small" style={{ margin: '0 0 6px', fontWeight: 800 }}>Toque para ouvir em inglês:</p>
+                    <div className="linha" style={{ flexWrap: 'wrap', gap: 8 }}>
+                      {t.falar.map((f) => (
+                        <button key={f} onClick={() => { audio.current?.pause(); falarIngles(f); }} aria-label={`Ouvir "${f}" em inglês`}
+                          style={{ minHeight: 44, borderRadius: 14, padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 800,
+                            background: 'var(--surface)', border: '3px solid var(--ink)', boxShadow: '0 3px 0 var(--ink)', color: 'var(--ink)' }}>
+                          <Icone nome="som" espessura={2.5} />{f}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {/* Só aparece se o tema ainda não tem áudio: com narração, a criança precisa ouvir. */}
                 {!t.audio && !ouvidos.has(i) && (
                   <button className="btn btn-escuro" style={{ minHeight: 44, padding: '6px 16px', fontSize: 15, marginTop: 10 }}
@@ -297,7 +312,7 @@ function Memoria({ cap }: { cap: Capitulo }) {
           {palavras.map((p) => {
             const ok = certos.has(p.palavra), perdeu = perdidos.has(p.palavra);
             return (
-              <button key={p.palavra} disabled={ok || perdeu} onClick={() => setSel(p.palavra)} aria-pressed={sel === p.palavra}
+              <button key={p.palavra} disabled={ok || perdeu} onClick={() => { setSel(p.palavra); if (cap.materia === 'Inglês') falarIngles(p.palavra); }} aria-pressed={sel === p.palavra}
                 className={`btn ${ok ? 'btn-verde' : perdeu ? 'btn-vermelho' : sel === p.palavra ? 'btn-amarelo' : 'btn-escuro'}`}
                 style={{ fontSize: 16, minHeight: 64, padding: '8px 10px', opacity: ok || perdeu ? 0.55 : 1 }}>{p.palavra}</button>
             );

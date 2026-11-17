@@ -22,7 +22,12 @@ export const ingles8: Capitulo = {
         "**Tired** é cansado. Os olhos ficam quase fechados e a boca, aberta e torta.",
         "**Bored** é entediado, sem nada de legal para fazer. Os olhos ficam meio fechados."
       ],
-      "audio": "audio/ingles-8-0.mp3"
+      "falar": [
+        "happy",
+        "sad",
+        "tired",
+        "bored"
+      ]
     },
     {
       "titulo": "Emoções (parte 2) e a música",
@@ -33,7 +38,13 @@ export const ingles8: Capitulo = {
         "Na música **In Your Dreams**, uma menina dorme e sonha que segura uma boneca.",
         "A música pergunta: \"**Last night, in your dreams, were you happy? Were you tired?**\". Isto é: \"Ontem à noite, nos seus sonhos, você estava feliz? Estava cansado?\"."
       ],
-      "audio": "audio/ingles-8-1.mp3"
+      "falar": [
+        "excited",
+        "scared",
+        "mad",
+        "Last night, in your dreams, were you happy? Were you tired?",
+        "Were you big? Were you small?"
+      ]
     },
     {
       "titulo": "Were e weren't: o passado",
@@ -44,7 +55,13 @@ export const ingles8: Capitulo = {
         "\"**They weren't at the beach.**\" quer dizer \"Eles não estavam na praia\".",
         "\"**We were at school yesterday.**\" quer dizer \"Nós estávamos na escola ontem\"."
       ],
-      "audio": "audio/ingles-8-2.mp3"
+      "falar": [
+        "were",
+        "weren't",
+        "They were at the park.",
+        "They weren't at the beach.",
+        "We were at school yesterday."
+      ]
     },
     {
       "titulo": "Perguntas com were",
@@ -55,7 +72,13 @@ export const ingles8: Capitulo = {
         "\"**Were you in class yesterday?**\" quer dizer \"Você estava na aula ontem?\". E \"**Were the boys at the movie theater?**\" é \"Os meninos estavam no cinema?\".",
         "Para responder: \"**Yes, they were.**\" (sim, estavam) ou \"**No, they weren't.**\" (não, não estavam)."
       ],
-      "audio": "audio/ingles-8-3.mp3"
+      "falar": [
+        "Were they at the supermarket?",
+        "Were you in class yesterday?",
+        "Were the boys at the movie theater?",
+        "Yes, they were.",
+        "No, they weren't."
+      ]
     }
   ],
   "pares": [

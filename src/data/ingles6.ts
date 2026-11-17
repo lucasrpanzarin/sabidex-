@@ -22,7 +22,13 @@ export const ingles6: Capitulo = {
         "**Supermarket** é o supermercado. Na foto, uma mulher de avental verde arruma os produtos.",
         "**Library** é a biblioteca, o lugar com estantes cheias de livros. Cuidado: library não é livraria!"
       ],
-      "audio": "audio/ingles-6-0.mp3"
+      "falar": [
+        "places",
+        "hospital",
+        "café",
+        "supermarket",
+        "library"
+      ]
     },
     {
       "titulo": "Places: lugares (parte 2)",
@@ -32,7 +38,12 @@ export const ingles6: Capitulo = {
         "**Airport** é o aeroporto. Na foto, um senhor lê um livro sentado, com as malas ao lado.",
         "**Farm** é a fazenda. Na foto, um homem de chapéu mexe nas plantas. Cuidado: farm não é farmácia!"
       ],
-      "audio": "audio/ingles-6-1.mp3"
+      "falar": [
+        "museum",
+        "movie theater",
+        "airport",
+        "farm"
+      ]
     },
     {
       "titulo": "She's at the... / They're at the...",
@@ -42,7 +53,12 @@ export const ingles6: Capitulo = {
         "**He's at the** fala de um homem ou menino: \"He's at the café\" é \"Ele está na cafeteria\".",
         "**They're at the** fala de várias pessoas: \"They're at the museum\" é \"Eles estão no museu\"."
       ],
-      "audio": "audio/ingles-6-2.mp3"
+      "falar": [
+        "at the hospital",
+        "She's at the hospital.",
+        "He's at the café.",
+        "They're at the museum."
+      ]
     },
     {
       "titulo": "Is there a... in your neighborhood?",
@@ -53,7 +69,12 @@ export const ingles6: Capitulo = {
         "A resposta do livro é **Yes, there is.**, isto é, \"Sim, tem\".",
         "Depois, a criança do livro pergunta de volta: \"Is there a museum in your neighborhood?\"."
       ],
-      "audio": "audio/ingles-6-3.mp3"
+      "falar": [
+        "neighborhood",
+        "Is there a supermarket in your neighborhood?",
+        "Yes, there is.",
+        "Is there a museum in your neighborhood?"
+      ]
     }
   ],
   "pares": [

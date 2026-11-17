@@ -10,6 +10,8 @@ export interface Tema {
   pontos: string[];
   /** caminho do áudio de narração em public/, ex.: "audio/c9-0.mp3" */
   audio?: string;
+  /** Só em Inglês: palavras e frases em inglês do tema; cada uma vira um botão que fala a pronúncia (src/lib/ingles.ts). */
+  falar?: string[];
 }
 
 export interface Par {

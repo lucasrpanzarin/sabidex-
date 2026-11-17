@@ -22,7 +22,12 @@ export const ingles7: Capitulo = {
         "**Pilot** é o piloto. Na foto, ele usa uniforme escuro e quepe.",
         "**Writer** é a escritora. Na foto, ela está sentada com um notebook no colo."
       ],
-      "audio": "audio/ingles-7-0.mp3"
+      "falar": [
+        "fisherman",
+        "nurse",
+        "pilot",
+        "writer"
+      ]
     },
     {
       "titulo": "Profissões (parte 2)",
@@ -33,7 +38,14 @@ export const ingles7: Capitulo = {
         "**Police officer** é a policial. Na foto, ela usa uniforme azul-escuro e quepe.",
         "No jogo de adivinhar do livro, a menina diz \"He's a wrestler.\" e o menino soletra: **W-r-e-s-t-l-e-r**."
       ],
-      "audio": "audio/ingles-7-1.mp3"
+      "falar": [
+        "wrestler",
+        "vet",
+        "firefighter",
+        "police officer",
+        "He's a wrestler.",
+        "W-r-e-s-t-l-e-r"
+      ]
     },
     {
       "titulo": "Read and complete: quem é quem?",
@@ -45,7 +57,16 @@ export const ingles7: Capitulo = {
         "\"She likes animals. She works in an animal hospital.\" Ela gosta de animais: é a **vet**.",
         "\"He's brave and he helps people.\" Ele é corajoso e ajuda as pessoas: é o **firefighter**. \"She wears a uniform... she is very responsible.\" Ela usa uniforme e é muito responsável: é a **police officer**."
       ],
-      "audio": "audio/ingles-7-2.mp3"
+      "falar": [
+        "He likes flying. He works in an airport.",
+        "She likes writing. She likes books.",
+        "He's athletic and very strong. He works in a stadium.",
+        "She works in a hospital.",
+        "He likes the ocean. He works on a boat.",
+        "She likes animals. She works in an animal hospital.",
+        "He's brave and he helps people.",
+        "She wears a uniform. She works with people and she is very responsible."
+      ]
     },
     {
       "titulo": "Going to: o futuro próximo",
@@ -56,7 +77,13 @@ export const ingles7: Capitulo = {
         "Com uma pessoa (she, he), usamos **is going to**. Com várias (they), usamos **are going to**.",
         "Para perguntar, o **Is** ou o **Are** vem no começo. \"**Is the boy going to the hospital or the library?**\": \"O menino vai para o hospital ou para a biblioteca?\". E \"**Are they going to Brazil or the USA?**\" é \"Eles vão para o Brasil ou os EUA?\"."
       ],
-      "audio": "audio/ingles-7-3.mp3"
+      "falar": [
+        "going to",
+        "She is going to the supermarket.",
+        "They are going to travel to the USA.",
+        "Is the boy going to the hospital or the library?",
+        "Are they going to Brazil or the USA?"
+      ]
     }
   ],
   "pares": [
