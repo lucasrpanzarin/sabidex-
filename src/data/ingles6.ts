@@ -99,7 +99,7 @@ export const ingles6: Capitulo = {
     },
     {
       "palavra": "They're at the...",
-      "significado": "Eles estão no / na..."
+      "significado": "Eles / Elas estão no / na..."
     },
     {
       "palavra": "Yes, there is.",
@@ -208,6 +208,16 @@ export const ingles6: Capitulo = {
       "frase": "\"She's at the hospital\" quer dizer \"Ele está no hospital\".",
       "verdadeira": false,
       "explicacao": "She's é \"ela está\": \"Ela está no hospital\"."
+    },
+    {
+      "frase": "Na foto do supermarket, a mulher usa avental verde e arruma os produtos.",
+      "verdadeira": true,
+      "explicacao": "Certo! Supermarket é o supermercado."
+    },
+    {
+      "frase": "Na foto do café, o homem mexe nas plantas.",
+      "verdadeira": false,
+      "explicacao": "No café, o homem bebe numa xícara e usa o notebook. Quem mexe nas plantas está na farm."
     }
   ],
   "prova": [
@@ -302,7 +312,7 @@ export const ingles6: Capitulo = {
     {
       "pergunta": "Como perguntar \"Tem um supermercado no seu bairro?\"",
       "opcoes": [
-        "There is a supermarket in your neighborhood?",
+        "Is there supermarket a in your neighborhood?",
         "Is there a supermarket in your neighborhood?",
         "Is a there supermarket in your neighborhood?",
         "Is there your neighborhood in a supermarket?"
@@ -314,9 +324,9 @@ export const ingles6: Capitulo = {
       "pergunta": "Perguntaram: \"Is there a museum in your neighborhood?\". No seu bairro tem museu. O que você responde?",
       "opcoes": [
         "Yes, there is.",
-        "Is there a museum.",
+        "Yes, it is.",
         "Yes, he is.",
-        "Yes, she's at."
+        "Yes, they are."
       ],
       "certa": 0,
       "explicacao": "Como no livro: \"Yes, there is.\", isto é, \"Sim, tem\"."
@@ -390,7 +400,7 @@ export const ingles6: Capitulo = {
       "frase": "Yes, there ___.",
       "resposta": "is",
       "distratores": [
-        "are",
+        "it",
         "at",
         "the"
       ]
@@ -419,6 +429,15 @@ export const ingles6: Capitulo = {
       "distratores": [
         "supermarket",
         "library",
+        "airport"
+      ]
+    },
+    {
+      "frase": "He's at the ___. (ele bebe numa xícara e usa o notebook)",
+      "resposta": "café",
+      "distratores": [
+        "farm",
+        "museum",
         "airport"
       ]
     }
@@ -501,6 +520,19 @@ export const ingles6: Capitulo = {
         "museum",
         "farm"
       ]
+    },
+    {
+      "resposta": "museum",
+      "pistas": [
+        "Na foto, sou uma sala escura.",
+        "Tenho uma vitrine iluminada.",
+        "Em português, sou o museu."
+      ],
+      "distratores": [
+        "movie theater",
+        "library",
+        "café"
+      ]
     }
   ],
   "classificar": [
@@ -525,21 +557,21 @@ export const ingles6: Capitulo = {
       ]
     },
     {
-      "pergunta": "He's (ele) ou She's (ela)?",
+      "pergunta": "Na foto do livro: He's (ele) ou She's (ela)?",
       "grupos": [
         {
-          "nome": "Ele: He's",
+          "nome": "He's at the...",
           "itens": [
-            "He's at the airport.",
-            "He's at the library.",
-            "He's at the café."
+            "o homem com a xícara (café)",
+            "o homem entre as estantes (library)",
+            "o senhor com as malas (airport)"
           ]
         },
         {
-          "nome": "Ela: She's",
+          "nome": "She's at the...",
           "itens": [
-            "She's at the hospital.",
-            "She's at the supermarket."
+            "a mulher de touca e máscara (hospital)",
+            "a mulher de avental verde (supermarket)"
           ]
         }
       ]

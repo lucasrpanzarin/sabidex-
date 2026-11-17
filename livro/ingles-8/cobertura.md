@@ -9,7 +9,8 @@
 | 96 | excited (sorriso grande) | COBERTO | pares 5, quiz 7, prova 3, quem sou 1 |
 | 96 | scared (olhos arregalados) | COBERTO | pares 6, quiz 4 e 15, prova 1, quem sou 2 |
 | 96 | mad (sobrancelhas franzidas, dentes apertados) | COBERTO | pares 7, quiz 5, prova 4, lacunas 8, quem sou 4 |
-| 96 | Música In Your Dreams: Last night, in your dreams, were you...? | COBERTO | fase 3 (monte a pergunta), lacunas 7, quiz 14 |
+| 96 | Música In Your Dreams: Last night, in your dreams, were you...? | COBERTO | fase 3 (monte a pergunta), lacunas 7, quiz 14, pares 11 e 12 |
+| 96 | Música: big e small (Were you big? Were you small?) | COBERTO | pares 13 e 14, lacunas 11, quiz 17 |
 | 96 | Música: lacunas da letra (respostas só no áudio 71) | FORA | a resposta não está impressa, vem do áudio; as emoções estão cobertas acima |
 | 96 | Ex. 1 e 2 Listen / Listen and act | FORA | precisa do áudio e de atuar; o conteúdo está coberto acima |
 | ? | Folha da revisão: Were / weren't falam do passado | COBERTO | quiz 8, prova 10, grupos 1 |

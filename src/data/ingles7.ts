@@ -66,7 +66,7 @@ export const ingles7: Capitulo = {
     },
     {
       "palavra": "nurse",
-      "significado": "enfermeira (trabalha num hospital)"
+      "significado": "enfermeira / enfermeiro (trabalha num hospital)"
     },
     {
       "palavra": "pilot",
@@ -74,7 +74,7 @@ export const ingles7: Capitulo = {
     },
     {
       "palavra": "writer",
-      "significado": "escritora (gosta de escrever)"
+      "significado": "escritora / escritor (gosta de escrever)"
     },
     {
       "palavra": "wrestler",
@@ -82,7 +82,7 @@ export const ingles7: Capitulo = {
     },
     {
       "palavra": "vet",
-      "significado": "veterinária (cuida de animais)"
+      "significado": "veterinária / veterinário (cuida de animais)"
     },
     {
       "palavra": "firefighter",
@@ -107,6 +107,18 @@ export const ingles7: Capitulo = {
     {
       "palavra": "ocean",
       "significado": "oceano"
+    },
+    {
+      "palavra": "athletic",
+      "significado": "atlético"
+    },
+    {
+      "palavra": "uniform",
+      "significado": "uniforme"
+    },
+    {
+      "palavra": "responsible",
+      "significado": "responsável"
     }
   ],
   "linha": [
@@ -158,7 +170,7 @@ export const ingles7: Capitulo = {
       "explicacao": "Certo! \"She likes animals. She works in an animal hospital.\""
     },
     {
-      "frase": "O writer é quem gosta de escrever e de livros.",
+      "frase": "A writer é quem gosta de escrever e de livros.",
       "verdadeira": true,
       "explicacao": "Isso! \"She likes writing. She likes books.\""
     },
@@ -221,6 +233,16 @@ export const ingles7: Capitulo = {
       "frase": "Com they, usamos \"are going to\": \"They are going to travel\".",
       "verdadeira": true,
       "explicacao": "Isso! Com she ou he é \"is going to\"; com they é \"are going to\"."
+    },
+    {
+      "frase": "\"Is the boy going to the hospital or the library?\" quer dizer \"O menino vai para o hospital ou para a biblioteca?\".",
+      "verdadeira": true,
+      "explicacao": "Certo! É uma pergunta sobre um plano: going to."
+    },
+    {
+      "frase": "\"Are they going to Brazil or the USA?\" quer dizer \"Eles foram para o Brasil ou os EUA?\".",
+      "verdadeira": false,
+      "explicacao": "Going to é futuro: \"Eles vão para o Brasil ou os EUA?\"."
     }
   ],
   "prova": [
@@ -317,7 +339,7 @@ export const ingles7: Capitulo = {
       "opcoes": [
         "is",
         "are",
-        "were",
+        "am",
         "he's"
       ],
       "certa": 1,
@@ -364,7 +386,7 @@ export const ingles7: Capitulo = {
       ]
     },
     {
-      "frase": "She wears a uniform. She is very responsible. She's a ___.",
+      "frase": "She wears a uniform. She works with people and she is very responsible. She's a ___.",
       "resposta": "police officer",
       "distratores": [
         "writer",
@@ -395,7 +417,7 @@ export const ingles7: Capitulo = {
       "resposta": "Are",
       "distratores": [
         "Is",
-        "Were",
+        "Am",
         "She"
       ]
     },
@@ -421,7 +443,7 @@ export const ingles7: Capitulo = {
       "frase": "Brave quer dizer ___.",
       "resposta": "corajoso",
       "distratores": [
-        "bravo",
+        "zangado",
         "forte",
         "cansado"
       ]
@@ -505,28 +527,51 @@ export const ingles7: Capitulo = {
         "wrestler",
         "fisherman"
       ]
+    },
+    {
+      "resposta": "nurse",
+      "pistas": [
+        "I work with people.",
+        "I work in a hospital.",
+        "Na foto, uso roupa azul de hospital."
+      ],
+      "distratores": [
+        "vet",
+        "writer",
+        "pilot"
+      ]
+    },
+    {
+      "resposta": "police officer",
+      "pistas": [
+        "I'm very responsible.",
+        "I wear a uniform and work with people.",
+        "Na foto, uso quepe e uniforme azul-escuro."
+      ],
+      "distratores": [
+        "firefighter",
+        "nurse",
+        "fisherman"
+      ]
     }
   ],
   "classificar": [
     {
-      "pergunta": "No livro: He's a... ou She's a...?",
+      "pergunta": "Onde trabalha?",
       "grupos": [
         {
-          "nome": "He's a...",
+          "nome": "Num hospital",
           "itens": [
-            "pilot",
-            "wrestler",
-            "fisherman",
-            "firefighter"
+            "nurse",
+            "vet"
           ]
         },
         {
-          "nome": "She's a...",
+          "nome": "Num aeroporto, estádio ou barco",
           "itens": [
-            "writer",
-            "nurse",
-            "vet",
-            "police officer"
+            "pilot",
+            "wrestler",
+            "fisherman"
           ]
         }
       ]

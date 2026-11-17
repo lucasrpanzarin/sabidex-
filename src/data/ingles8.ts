@@ -106,6 +106,22 @@ export const ingles8: Capitulo = {
     {
       "palavra": "dreams",
       "significado": "sonhos"
+    },
+    {
+      "palavra": "big",
+      "significado": "grande"
+    },
+    {
+      "palavra": "small",
+      "significado": "pequeno"
+    },
+    {
+      "palavra": "park",
+      "significado": "parque"
+    },
+    {
+      "palavra": "beach",
+      "significado": "praia"
     }
   ],
   "linha": [
@@ -220,6 +236,26 @@ export const ingles8: Capitulo = {
       "frase": "\"We were at school yesterday.\" fala de amanhã.",
       "verdadeira": false,
       "explicacao": "Yesterday é ontem: \"Nós estávamos na escola ontem\"."
+    },
+    {
+      "frase": "Na música, \"Were you big? Were you small?\" pergunta se você estava grande ou pequeno.",
+      "verdadeira": true,
+      "explicacao": "Isso! Big é grande e small é pequeno."
+    },
+    {
+      "frase": "\"Were you in class yesterday?\" quer dizer \"Você está na aula hoje?\".",
+      "verdadeira": false,
+      "explicacao": "Were é passado e yesterday é ontem: \"Você estava na aula ontem?\"."
+    },
+    {
+      "frase": "\"Were the boys at the movie theater?\" quer dizer \"Os meninos estavam no cinema?\".",
+      "verdadeira": true,
+      "explicacao": "Certo! Movie theater é o cinema."
+    },
+    {
+      "frase": "\"They were happy.\" quer dizer \"Eles vão ficar felizes\".",
+      "verdadeira": false,
+      "explicacao": "Were é passado: \"Eles estavam felizes\"."
     }
   ],
   "prova": [
@@ -390,7 +426,7 @@ export const ingles8: Capitulo = {
       ]
     },
     {
-      "frase": "Last night, in your ___, were you big?",
+      "frase": "Last night, in your ___ (sonhos), were you big?",
       "resposta": "dreams",
       "distratores": [
         "school",
@@ -424,6 +460,15 @@ export const ingles8: Capitulo = {
         "meio",
         "lugar"
       ]
+    },
+    {
+      "frase": "Were you big? Were you ___? (pequeno)",
+      "resposta": "small",
+      "distratores": [
+        "tired",
+        "happy",
+        "mad"
+      ]
     }
   ],
   "quemSou": [
@@ -432,7 +477,7 @@ export const ingles8: Capitulo = {
       "pistas": [
         "Meus olhos estão bem abertos.",
         "Minha boca abre num sorriso grande.",
-        "Em português, sou animado."
+        "Em português, quero dizer animado."
       ],
       "distratores": [
         "happy",
@@ -445,7 +490,7 @@ export const ingles8: Capitulo = {
       "pistas": [
         "Meus olhos estão arregalados.",
         "Minha boca está aberta, sem sorriso.",
-        "Em português, sou com medo."
+        "Em português, quero dizer com medo."
       ],
       "distratores": [
         "excited",
@@ -458,7 +503,7 @@ export const ingles8: Capitulo = {
       "pistas": [
         "Meus olhos estão quase fechados.",
         "Minha boca está aberta e torta.",
-        "Em português, sou cansado."
+        "Em português, quero dizer cansado."
       ],
       "distratores": [
         "bored",
@@ -471,7 +516,7 @@ export const ingles8: Capitulo = {
       "pistas": [
         "Minhas sobrancelhas estão franzidas.",
         "Mostro os dentes apertados.",
-        "Em português, sou bravo."
+        "Em português, quero dizer bravo."
       ],
       "distratores": [
         "sad",
@@ -484,7 +529,7 @@ export const ingles8: Capitulo = {
       "pistas": [
         "Meus olhos estão abertos.",
         "Minha boca está virada para baixo.",
-        "Em português, sou triste."
+        "Em português, quero dizer triste."
       ],
       "distratores": [
         "bored",
@@ -497,7 +542,7 @@ export const ingles8: Capitulo = {
       "pistas": [
         "Falo do passado.",
         "Sou o contrário de were.",
-        "Em português, sou \"não estavam\"."
+        "Em português, quero dizer \"não estavam\"."
       ],
       "distratores": [
         "were",
