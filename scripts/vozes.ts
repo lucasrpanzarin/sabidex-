@@ -4,15 +4,21 @@
 //  - "gerar":   grava os temas com cada voz em public/audio/<voz>/ (pula os que já existem, a não ser com "refazer": true)
 //  - "ingles": grava as palavras e frases em inglês (botões de ouvir) em public/audio/<voz>/en/, falando em inglês
 //  - "matematica": grava os passos do "Ver como se faz" (só os capítulos com exemplos) em public/audio/<voz>/
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync, mkdtempSync } from 'node:fs';
+import { join } from 'node:path';
 import { capitulos } from '../src/data/index';
 import { audiosDoExemplo } from '../src/lib/falaMat';
-import { arquivoIngles, falasDoCapitulo } from '../src/lib/falaIngles';
+import { arquivoIngles, falasDoCapitulo, partesIngles } from '../src/lib/falaIngles';
+import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import type { Capitulo, Tema } from '../src/data/tipos';
 
 const KEY = process.env.ELEVENLABS_API_KEY;
 const API = 'https://api.elevenlabs.io';
 interface Voz { nome: string; id?: string; dono?: string; busca?: string; modelo?: string }
-interface Pedido { acao: 'listar' | 'minhas' | 'amostra' | 'gerar' | 'matematica' | 'ingles'; refazer?: boolean; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[];
+interface Pedido { acao: 'listar' | 'minhas' | 'amostra' | 'gerar' | 'matematica' | 'ingles' | 'amostra-ingles';
+  /** Inglês: "aviso" = a voz recebe um aviso para falar a palavra com sotaque americano; "emendar" = grava pedaços em português e em inglês e emenda */
+  modoIngles?: 'aviso' | 'emendar'; capitulo?: string; tema?: number; refazer?: boolean; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[];
   /** língua da fala: 'pt' (padrão), 'en', ou 'auto' (a voz percebe sozinha; para o Inglês, que mistura as duas) */
   lingua?: string }
 
@@ -60,6 +66,32 @@ async function adicionarSeCompartilhada(v: Voz) {
   } catch (e) { if (!String(e).includes('already')) console.log('aviso ao adicionar voz:', String(e).slice(0, 200)); }
 }
 
+const soletrar = (t: string) => (/^[A-Za-z](-[A-Za-z])+$/.test(t.trim()) ? t.trim().split('-').join(', ') : t);
+
+/** Narração de um tema de Inglês: português com as palavras em inglês pronunciadas em inglês. */
+async function narracaoIngles(v: Voz, cap: Capitulo, t: Tema, modelo: string, modo: 'aviso' | 'emendar') {
+  const partes = partesIngles((/[?!.]$/.test(t.titulo) ? t.titulo : t.titulo + '.') + ' ' + t.pontos.join(' '), falasDoCapitulo(cap));
+  if (modo === 'aviso') {
+    const frase = partes.map((p) => (p.ingles ? ` [American English accent] ${soletrar(p.texto.trim())} [Brazilian Portuguese accent] ` : p.texto)).join('').replace(/\s+/g, ' ').trim();
+    return { audio: await falar(v, frase, modelo, 'auto'), caracteres: frase.length };
+  }
+  const dir = mkdtempSync(join(tmpdir(), 'ingles-'));
+  const arquivos: string[] = [];
+  let caracteres = 0;
+  for (const [k, p] of partes.entries()) {
+    const fala = p.ingles ? soletrar(p.texto.trim()) : p.texto.trim();
+    if (!/[\p{L}\d]/u.test(fala)) continue;
+    caracteres += fala.length;
+    const f = join(dir, `${k}.mp3`);
+    writeFileSync(f, await falar(v, fala, modelo, p.ingles ? 'en' : 'pt'));
+    arquivos.push(f);
+  }
+  writeFileSync(join(dir, 'lista.txt'), arquivos.map((f) => `file '${f}'`).join('\n'));
+  const saida = join(dir, 'tudo.mp3');
+  execFileSync('ffmpeg', ['-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', join(dir, 'lista.txt'), '-c:a', 'libmp3lame', '-b:a', '64k', '-ar', '44100', saida]);
+  return { audio: readFileSync(saida), caracteres };
+}
+
 async function main() {
   const p: Pedido = JSON.parse(readFileSync('vozes/pedido.json', 'utf8'));
   resultado.acao = p.acao;
@@ -89,7 +121,7 @@ async function main() {
     }
   }
 
-  if (p.acao === 'amostra' || p.acao === 'gerar' || p.acao === 'matematica' || p.acao === 'ingles') {
+  if (p.acao === 'amostra' || p.acao === 'gerar' || p.acao === 'matematica' || p.acao === 'ingles' || p.acao === 'amostra-ingles') {
     for (const v of p.vozes ?? []) { await resolver(v); await adicionarSeCompartilhada(v); }
   }
 
@@ -115,6 +147,12 @@ async function main() {
           const destino = `public/audio/${v.nome}/${arquivo}`;
           // Áudio já gravado não é gravado de novo (gastaria créditos), a não ser com "refazer": true.
           if (!p.refazer && existsSync(destino)) continue;
+          if (cap.materia === 'Inglês' && p.modoIngles) {
+            const r = await narracaoIngles(v, cap, t, v.modelo ?? modelo, p.modoIngles);
+            caracteres += r.caracteres;
+            writeFileSync(destino, r.audio);
+            continue;
+          }
           const frase = texto(t);
           caracteres += frase.length;
           writeFileSync(destino, await falar(v, frase, v.modelo ?? modelo, p.lingua ?? 'pt'));
@@ -143,6 +181,21 @@ async function main() {
     }
     resultado.caracteres = caracteres;
   }
+  if (p.acao === 'amostra-ingles') {
+    mkdirSync('vozes/amostras', { recursive: true });
+    const cap = capitulos.find((c) => c.id === (p.capitulo ?? 'ingles-6'))!;
+    const t = cap.temas[p.tema ?? 0];
+    let caracteres = 0;
+    for (const v of p.vozes ?? []) {
+      for (const [modo, letra] of [['aviso', 'a'], ['emendar', 'b']] as const) {
+        const r = await narracaoIngles(v, cap, t, v.modelo ?? modelo, modo);
+        writeFileSync(`vozes/amostras/${v.nome}-${letra}-${modo}.mp3`, r.audio);
+        caracteres += r.caracteres;
+      }
+    }
+    resultado.caracteres = caracteres;
+  }
+
   if (p.acao === 'ingles') {
     let caracteres = 0;
     const caps = capitulos.filter((c) => !p.capitulos || p.capitulos.includes(c.id));

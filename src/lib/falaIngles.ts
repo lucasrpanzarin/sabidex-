@@ -19,3 +19,57 @@ export function falasDoCapitulo(cap: Capitulo): string[] {
   if (cap.materia !== 'Inglês') return [];
   return [...new Set([...cap.temas.flatMap((t) => t.falar ?? []), ...cap.pares.map((p) => p.palavra)])];
 }
+
+export interface Parte { texto: string; ingles: boolean }
+
+/**
+ * Separa o texto de um tema em pedaços em português e em inglês (para a narração pronunciar o inglês com sotaque de inglês).
+ * É inglês: o que está em **negrito** ou "entre aspas" e aparece nas falas do capítulo (`falasDoCapitulo`).
+ */
+export function partesIngles(texto: string, falas: string[]): Parte[] {
+  const conhecidas = falas.map((f) => f.toLowerCase());
+  const limpa = (s: string) => s.toLowerCase().replace(/\.{3}$/, '').replace(/[?!.,:]+$/, '').trim();
+  const ehIngles = (s: string) => { const l = limpa(s); return l.length > 0 && /^[a-z0-9' ,.?!-]+$/i.test(s.normalize('NFD').replace(/[̀-ͯ]/g, '')) && conhecidas.some((f) => f.includes(l)); };
+  const partes: Parte[] = [];
+  const junta = (t: string, ingles: boolean) => {
+    if (!t) return;
+    const ult = partes[partes.length - 1];
+    if (ult && ult.ingles === ingles) ult.texto += t; else partes.push({ texto: t, ingles });
+  };
+  // pedaços marcados: **...** ou "..."
+  const re = /\*\*(.+?)\*\*|"([^"]+)"/g;
+  let i = 0;
+  for (const m of texto.matchAll(re)) {
+    junta(texto.slice(i, m.index), false);
+    const dentro = m[1] ?? m[2];
+    if (m[2] !== undefined && dentro.startsWith('**') && dentro.endsWith('**')) { const d = dentro.slice(2, -2); junta(d, ehIngles(d)); }
+    else if (m[2] !== undefined && !ehIngles(dentro)) { junta(dentro, false); }
+    else if (m[1] !== undefined && dentro.includes('"')) { for (const p of partesIngles(dentro, falas)) junta(p.texto, p.ingles); }
+    else junta(dentro, ehIngles(dentro));
+    i = m.index! + m[0].length;
+  }
+  junta(texto.slice(i), false);
+  // Palavras em inglês soltas no texto (sem negrito nem aspas), como "library" em "library não é livraria".
+  // Ficam de fora as que também são palavras em português (hospital, café...).
+  const PORTUGUES = new Set(['hospital', 'café', 'cafe']);
+  const soltas = [...new Set(falas.flatMap((f) => [f, ...f.split(/[\s,.?!]+/)]).map(limpa))]
+    .filter((f) => f.length >= 4 && !PORTUGUES.has(f)).sort((a, b) => b.length - a.length);
+  const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const reSoltas = soltas.length ? new RegExp(`(?<![\\p{L}'])(${soltas.map(esc).join('|')})(?![\\p{L}'])(\\.\\.\\.)?`, 'giu') : null;
+  const final: Parte[] = [];
+  const poe = (t: string, ingles: boolean) => { if (!t) return; const u = final[final.length - 1]; if (u && u.ingles === ingles) u.texto += t; else final.push({ texto: t, ingles }); };
+  for (const p of partes) {
+    if (p.ingles || !reSoltas) { poe(p.texto, p.ingles); continue; }
+    let k = 0;
+    for (const m of p.texto.matchAll(reSoltas)) { poe(p.texto.slice(k, m.index), false); poe(m[0], true); k = m.index! + m[0].length; }
+    poe(p.texto.slice(k), false);
+  }
+  // "your" + " " + "neighborhood" viram um pedaço só em inglês.
+  for (let j = final.length - 2; j > 0; j--) {
+    if (!final[j].ingles && !final[j].texto.trim() && final[j - 1].ingles && final[j + 1].ingles) {
+      final.splice(j - 1, 3, { texto: final[j - 1].texto + final[j].texto + final[j + 1].texto, ingles: true });
+    }
+  }
+  partes.splice(0, partes.length, ...final);
+  return partes.map((p) => ({ ...p, texto: p.texto.replace(/\*\*/g, '') })).filter((p) => p.texto.trim());
+}
