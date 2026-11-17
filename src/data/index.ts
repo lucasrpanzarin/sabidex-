@@ -8,6 +8,9 @@ import { geografia9 } from './geografia9';
 import { geografia10 } from './geografia10';
 import { ciencias9 } from './ciencias9';
 import { ciencias10 } from './ciencias10';
+import { ingles6 } from './ingles6';
+import { ingles7 } from './ingles7';
+import { ingles8 } from './ingles8';
 
 /**
  * Matérias de cada turma (Lucas, 05/11/2026): cada turma estuda o livro dela.
@@ -18,7 +21,7 @@ import { ciencias10 } from './ciencias10';
 export interface Conteudo { id: string; nome: string; capitulos: Capitulo[] }
 
 export const conteudos: Conteudo[] = [
-  { id: 'educativa-4b', nome: 'Educativa · 4º ano B', capitulos: [historia9, historia10, matematica8, matematica9, matematica10, geografia9, geografia10, ciencias9, ciencias10] },
+  { id: 'educativa-4b', nome: 'Educativa · 4º ano B', capitulos: [historia9, historia10, matematica8, matematica9, matematica10, geografia9, geografia10, ciencias9, ciencias10, ingles6, ingles7, ingles8] },
 ];
 
 /** Todos os capítulos que existem (para conferências e para o servidor validar o progresso). */
