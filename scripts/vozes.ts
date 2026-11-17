@@ -12,7 +12,9 @@ import { arquivoIngles, falasDoCapitulo } from '../src/lib/falaIngles';
 const KEY = process.env.ELEVENLABS_API_KEY;
 const API = 'https://api.elevenlabs.io';
 interface Voz { nome: string; id?: string; dono?: string; busca?: string; modelo?: string }
-interface Pedido { acao: 'listar' | 'minhas' | 'amostra' | 'gerar' | 'matematica' | 'ingles'; refazer?: boolean; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[] }
+interface Pedido { acao: 'listar' | 'minhas' | 'amostra' | 'gerar' | 'matematica' | 'ingles'; refazer?: boolean; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[];
+  /** língua da fala: 'pt' (padrão), 'en', ou 'auto' (a voz percebe sozinha; para o Inglês, que mistura as duas) */
+  lingua?: string }
 
 const resultado: Record<string, unknown> = { quando: new Date().toISOString() };
 const salvarResultado = () => writeFileSync('vozes/resultado.json', JSON.stringify(resultado, null, 2) + '\n');
@@ -35,7 +37,7 @@ async function falar(voz: Voz, frase: string, modelo: string, lingua = 'pt') {
   const r = await api(`/v1/text-to-speech/${voz.id!}?output_format=mp3_44100_64`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text: frase, model_id: modelo, language_code: lingua, voice_settings: { stability: 0.45, similarity_boost: 0.8, style: 0.35, use_speaker_boost: true } }),
+    body: JSON.stringify({ text: frase, model_id: modelo, ...(lingua === 'auto' ? {} : { language_code: lingua }), voice_settings: { stability: 0.45, similarity_boost: 0.8, style: 0.35, use_speaker_boost: true } }),
   });
   return Buffer.from(await r.arrayBuffer());
 }
@@ -96,7 +98,7 @@ async function main() {
     const frase = p.frase ?? 'Oi! Eu sou o Ará. Hoje vamos aprender sobre os khoi-khoi e os san, os povos mais antigos da África. Eles não escreviam: deixaram pinturas rupestres nas rochas!';
     const feitos: string[] = [];
     for (const v of p.vozes ?? []) {
-      writeFileSync(`vozes/amostras/${v.nome}.mp3`, await falar(v, frase, v.modelo ?? modelo));
+      writeFileSync(`vozes/amostras/${v.nome}.mp3`, await falar(v, frase, v.modelo ?? modelo, p.lingua ?? 'pt'));
       feitos.push(v.nome);
     }
     resultado.amostras = feitos;
@@ -115,7 +117,7 @@ async function main() {
           if (!p.refazer && existsSync(destino)) continue;
           const frase = texto(t);
           caracteres += frase.length;
-          writeFileSync(destino, await falar(v, frase, v.modelo ?? modelo));
+          writeFileSync(destino, await falar(v, frase, v.modelo ?? modelo, p.lingua ?? 'pt'));
         }
       }
     }

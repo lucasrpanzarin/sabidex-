@@ -1,10 +1,7 @@
 {
- "acao": "ingles",
- "capitulos": [
-  "ingles-6",
-  "ingles-7",
-  "ingles-8"
- ],
+ "acao": "amostra",
+ "lingua": "auto",
+ "frase": "Places: lugares (parte 1). Em inglês, places são os lugares. O livro mostra 8 lugares com fotos. Hospital é o hospital. Na foto, uma mulher de touca e máscara azul trabalha numa sala de cirurgia. Café é a cafeteria. Na foto, um homem bebe numa xícara na frente do notebook. Supermarket é o supermercado. Na foto, uma mulher de avental verde arruma os produtos. Library é a biblioteca, o lugar com estantes cheias de livros. Cuidado: library não é livraria!",
  "vozes": [
   {
    "nome": "nina",
