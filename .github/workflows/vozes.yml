@@ -18,6 +18,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
+      - name: Instalar ffmpeg (emenda os pedaços da narração de Inglês)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - name: Gerar
         env:
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}

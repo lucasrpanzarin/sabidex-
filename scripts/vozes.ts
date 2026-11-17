@@ -188,8 +188,10 @@ async function main() {
     let caracteres = 0;
     for (const v of p.vozes ?? []) {
       for (const [modo, letra] of [['aviso', 'a'], ['emendar', 'b']] as const) {
+        const destino = `vozes/amostras/${v.nome}-${letra}-${modo}.mp3`;
+        if (existsSync(destino)) continue; // já gravada: não gasta crédito de novo
         const r = await narracaoIngles(v, cap, t, v.modelo ?? modelo, modo);
-        writeFileSync(`vozes/amostras/${v.nome}-${letra}-${modo}.mp3`, r.audio);
+        writeFileSync(destino, r.audio);
         caracteres += r.caracteres;
       }
     }
