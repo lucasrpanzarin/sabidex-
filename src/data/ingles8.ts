@@ -395,7 +395,7 @@ export const ingles8: Capitulo = {
   ],
   "lacunas": [
     {
-      "frase": "Were you ___? (feliz)",
+      "frase": "Feliz: Were you ___?",
       "resposta": "happy",
       "distratores": [
         "sad",
@@ -404,7 +404,7 @@ export const ingles8: Capitulo = {
       ]
     },
     {
-      "frase": "Were you ___? (cansado)",
+      "frase": "Cansado: Were you ___?",
       "resposta": "tired",
       "distratores": [
         "scared",
@@ -413,7 +413,7 @@ export const ingles8: Capitulo = {
       ]
     },
     {
-      "frase": "They ___ at the park. (estavam)",
+      "frase": "Estavam: They ___ at the park.",
       "resposta": "were",
       "distratores": [
         "weren't",
@@ -422,7 +422,7 @@ export const ingles8: Capitulo = {
       ]
     },
     {
-      "frase": "They ___ at the beach. (não estavam)",
+      "frase": "Não estavam: They ___ at the beach.",
       "resposta": "weren't",
       "distratores": [
         "were",
@@ -431,7 +431,7 @@ export const ingles8: Capitulo = {
       ]
     },
     {
-      "frase": "___ they at the supermarket? (Eles estavam...?)",
+      "frase": "\"Eles estavam no supermercado?\" Em inglês: ___ they at the supermarket?",
       "resposta": "Were",
       "distratores": [
         "Is",
@@ -485,7 +485,7 @@ export const ingles8: Capitulo = {
       ]
     },
     {
-      "frase": "Were you big? Were you ___? (pequeno)",
+      "frase": "Pequeno: Were you big? Were you ___?",
       "resposta": "small",
       "distratores": [
         "tired",

@@ -364,7 +364,7 @@ export const ingles6: Capitulo = {
       ]
     },
     {
-      "frase": "He's at the ___. (ele pega livros entre as estantes)",
+      "frase": "Ele pega livros entre as estantes: He's at the ___.",
       "resposta": "library",
       "distratores": [
         "museum",
@@ -373,7 +373,7 @@ export const ingles6: Capitulo = {
       ]
     },
     {
-      "frase": "She's at the ___. (ela arruma os produtos, de avental verde)",
+      "frase": "Ela arruma os produtos, de avental verde: She's at the ___.",
       "resposta": "supermarket",
       "distratores": [
         "hospital",
@@ -382,7 +382,7 @@ export const ingles6: Capitulo = {
       ]
     },
     {
-      "frase": "They're at the ___. (eles comem pipoca e veem um filme)",
+      "frase": "Eles comem pipoca e veem um filme: They're at the ___.",
       "resposta": "movie theater",
       "distratores": [
         "museum",
@@ -391,7 +391,7 @@ export const ingles6: Capitulo = {
       ]
     },
     {
-      "frase": "He's at the ___. (ele mexe nas plantas, de chapéu)",
+      "frase": "Ele mexe nas plantas, de chapéu: He's at the ___.",
       "resposta": "farm",
       "distratores": [
         "café",
@@ -400,7 +400,7 @@ export const ingles6: Capitulo = {
       ]
     },
     {
-      "frase": "He's at the ___. (ele lê um livro, com as malas ao lado)",
+      "frase": "Ele lê um livro, com as malas ao lado: He's at the ___.",
       "resposta": "airport",
       "distratores": [
         "farm",
@@ -436,7 +436,7 @@ export const ingles6: Capitulo = {
       ]
     },
     {
-      "frase": "They're at the ___. (o grupo olha uma vitrine iluminada)",
+      "frase": "O grupo olha uma vitrine iluminada: They're at the ___.",
       "resposta": "museum",
       "distratores": [
         "café",
@@ -445,7 +445,7 @@ export const ingles6: Capitulo = {
       ]
     },
     {
-      "frase": "She's at the ___. (ela usa touca e máscara azul)",
+      "frase": "Ela usa touca e máscara azul: She's at the ___.",
       "resposta": "hospital",
       "distratores": [
         "supermarket",
@@ -454,7 +454,7 @@ export const ingles6: Capitulo = {
       ]
     },
     {
-      "frase": "He's at the ___. (ele bebe numa xícara e usa o notebook)",
+      "frase": "Ele bebe numa xícara e usa o notebook: He's at the ___.",
       "resposta": "café",
       "distratores": [
         "farm",

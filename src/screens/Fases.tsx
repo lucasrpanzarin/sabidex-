@@ -380,7 +380,7 @@ function Linha({ cap }: { cap: Capitulo }) {
       <Topo cap={cap} fase="linha" />
       <div className="aviso" style={{ background: 'var(--surface)', border: '3px solid var(--ink)' }}>
         {cap.nomeLinha
-          ? <>Toque nas etapas <strong>na ordem</strong>, da <strong>primeira</strong> para a <strong>última</strong>. Cada lugar tem uma chance só!</>
+          ? <>Toque {cap.materia === 'Inglês' ? 'nas partes da frase' : 'nas etapas'} <strong>na ordem</strong>, da <strong>primeira</strong> para a <strong>última</strong>. Cada lugar tem uma chance só!</>
           : <>Toque nos fatos do <strong>mais antigo</strong> para o <strong>mais novo</strong>. Cada lugar tem uma chance só!</>}
       </div>
       <ol style={{ listStyle: 'none', margin: 0, padding: '0 0 0 22px', borderLeft: '4px solid var(--line)', display: 'grid', gap: 8 }}>
@@ -400,11 +400,11 @@ function Linha({ cap }: { cap: Capitulo }) {
           <button key={ev.fato} onClick={() => tocar(ev)} className={errado === ev.fato ? 'treme' : ''}
             style={{ minHeight: 56, borderRadius: 16, padding: '10px 14px', textAlign: 'left', fontWeight: 800, background: errado === ev.fato ? '#FFE4E6' : 'var(--surface)', border: `3px solid ${errado === ev.fato ? 'var(--red)' : 'var(--line-2)'}` }}>
             {ev.fato}
-            {errado === ev.fato && <span style={{ display: 'block', fontSize: 13, color: 'var(--t-red)' }}>{cap.nomeLinha ? 'Não! Tinha uma etapa antes.' : 'Não! Tinha um fato mais antigo.'}</span>}
+            {errado === ev.fato && <span style={{ display: 'block', fontSize: 13, color: 'var(--t-red)' }}>{cap.nomeLinha ? (cap.materia === 'Inglês' ? 'Não! Tinha uma parte antes.' : 'Não! Tinha uma etapa antes.') : 'Não! Tinha um fato mais antigo.'}</span>}
           </button>
         ))}
       </div>
-      <p className="muted small" style={{ margin: 0 }}>{cap.nomeLinha ? 'Dica: o número da etapa aparece quando você acerta.' : 'Dica: os anos aparecem quando você acerta.'}</p>
+      <p className="muted small" style={{ margin: 0 }}>{cap.nomeLinha ? (cap.materia === 'Inglês' ? 'Dica: o lugar de cada parte aparece quando você acerta.' : 'Dica: o número da etapa aparece quando você acerta.') : 'Dica: os anos aparecem quando você acerta.'}</p>
       <ContaErros erros={erros} />
     </main>
   );
