@@ -1,6 +1,9 @@
 {
-  "quando": "2026-11-17T13:33:06.173Z",
-  "acao": "ingles",
-  "caracteres": 2606,
+  "quando": "2026-11-17T13:45:13.406Z",
+  "acao": "amostra",
+  "amostras": [
+    "nina",
+    "otto"
+  ],
   "ok": true
 }
