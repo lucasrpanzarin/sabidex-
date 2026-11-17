@@ -248,7 +248,7 @@ function Ouvir({ cap }: { cap: Capitulo }) {
                     <p className="muted small" style={{ margin: '0 0 6px', fontWeight: 800 }}>Toque para ouvir em inglês:</p>
                     <div className="linha" style={{ flexWrap: 'wrap', gap: 8 }}>
                       {t.falar.map((f) => (
-                        <button key={f} onClick={() => { audio.current?.pause(); falarIngles(f); }} aria-label={`Ouvir "${f}" em inglês`}
+                        <button key={f} onClick={() => { audio.current?.pause(); falarIngles(f, voz === 'otto' ? 'homem' : 'mulher'); }} aria-label={`Ouvir "${f}" em inglês`}
                           style={{ minHeight: 44, borderRadius: 14, padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 800,
                             background: 'var(--surface)', border: '3px solid var(--ink)', boxShadow: '0 3px 0 var(--ink)', color: 'var(--ink)' }}>
                           <Icone nome="som" espessura={2.5} />{f}
@@ -279,6 +279,8 @@ function Ouvir({ cap }: { cap: Capitulo }) {
 /* ---------- Fase 2: jogo da memória (ligar pares) ---------- */
 function Memoria({ cap }: { cap: Capitulo }) {
   const { res, finalizar, limpar } = useFinalizar(cap, 'memoria');
+  // Inglês: a palavra é falada com voz de mulher (Nina) ou de homem (Otto), como escolhido na fase 1.
+  const vozIngles = vozParaMateria(useVoz(), cap.materia) === 'otto' ? 'homem' : 'mulher';
   const [rodada, setRodada] = useState(0);
   const pares = useMemo(() => embaralhar(cap.pares).slice(0, 6), [cap, rodada]);
   const palavras = useMemo(() => embaralhar(pares), [pares]);
@@ -312,7 +314,7 @@ function Memoria({ cap }: { cap: Capitulo }) {
           {palavras.map((p) => {
             const ok = certos.has(p.palavra), perdeu = perdidos.has(p.palavra);
             return (
-              <button key={p.palavra} disabled={ok || perdeu} onClick={() => { setSel(p.palavra); if (cap.materia === 'Inglês') falarIngles(p.palavra); }} aria-pressed={sel === p.palavra}
+              <button key={p.palavra} disabled={ok || perdeu} onClick={() => { setSel(p.palavra); if (cap.materia === 'Inglês') falarIngles(p.palavra, vozIngles); }} aria-pressed={sel === p.palavra}
                 className={`btn ${ok ? 'btn-verde' : perdeu ? 'btn-vermelho' : sel === p.palavra ? 'btn-amarelo' : 'btn-escuro'}`}
                 style={{ fontSize: 16, minHeight: 64, padding: '8px 10px', opacity: ok || perdeu ? 0.55 : 1 }}>{p.palavra}</button>
             );
