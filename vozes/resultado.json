@@ -1,9 +1,6 @@
 {
-  "quando": "2026-11-17T13:45:13.406Z",
-  "acao": "amostra",
-  "amostras": [
-    "nina",
-    "otto"
-  ],
-  "ok": true
+  "quando": "2026-11-17T14:01:25.192Z",
+  "acao": "amostra-ingles",
+  "ok": false,
+  "erro": "Error: spawnSync ffmpeg ENOENT"
 }
