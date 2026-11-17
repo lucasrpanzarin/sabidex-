@@ -1,8 +1,9 @@
 {
- "acao": "gerar",
+ "acao": "ingles",
  "capitulos": [
-  "ciencias-9",
-  "ciencias-10"
+  "ingles-6",
+  "ingles-7",
+  "ingles-8"
  ],
  "vozes": [
   {

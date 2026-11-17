@@ -2,15 +2,17 @@
 //  - "listar":  salva em vozes/lista.json as vozes brasileiras disponíveis
 //  - "amostra": grava uma frase de teste com cada voz em vozes/amostras/
 //  - "gerar":   grava os temas com cada voz em public/audio/<voz>/ (pula os que já existem, a não ser com "refazer": true)
+//  - "ingles": grava as palavras e frases em inglês (botões de ouvir) em public/audio/<voz>/en/, falando em inglês
 //  - "matematica": grava os passos do "Ver como se faz" (só os capítulos com exemplos) em public/audio/<voz>/
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { capitulos } from '../src/data/index';
 import { audiosDoExemplo } from '../src/lib/falaMat';
+import { arquivoIngles, falasDoCapitulo } from '../src/lib/falaIngles';
 
 const KEY = process.env.ELEVENLABS_API_KEY;
 const API = 'https://api.elevenlabs.io';
 interface Voz { nome: string; id?: string; dono?: string; busca?: string; modelo?: string }
-interface Pedido { acao: 'listar' | 'minhas' | 'amostra' | 'gerar' | 'matematica'; refazer?: boolean; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[] }
+interface Pedido { acao: 'listar' | 'minhas' | 'amostra' | 'gerar' | 'matematica' | 'ingles'; refazer?: boolean; modelo?: string; vozes?: Voz[]; frase?: string; capitulos?: string[] }
 
 const resultado: Record<string, unknown> = { quando: new Date().toISOString() };
 const salvarResultado = () => writeFileSync('vozes/resultado.json', JSON.stringify(resultado, null, 2) + '\n');
@@ -29,11 +31,11 @@ function texto(t: { titulo: string; pontos: string[] }) {
     .replace(/\s+\+\s+/g, ' mais ').replace(/\s+=\s+/g, ' é igual a ').replace(/_{3}/g, 'um número');
 }
 
-async function falar(voz: Voz, frase: string, modelo: string) {
+async function falar(voz: Voz, frase: string, modelo: string, lingua = 'pt') {
   const r = await api(`/v1/text-to-speech/${voz.id!}?output_format=mp3_44100_64`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text: frase, model_id: modelo, language_code: 'pt', voice_settings: { stability: 0.45, similarity_boost: 0.8, style: 0.35, use_speaker_boost: true } }),
+    body: JSON.stringify({ text: frase, model_id: modelo, language_code: lingua, voice_settings: { stability: 0.45, similarity_boost: 0.8, style: 0.35, use_speaker_boost: true } }),
   });
   return Buffer.from(await r.arrayBuffer());
 }
@@ -85,7 +87,7 @@ async function main() {
     }
   }
 
-  if (p.acao === 'amostra' || p.acao === 'gerar' || p.acao === 'matematica') {
+  if (p.acao === 'amostra' || p.acao === 'gerar' || p.acao === 'matematica' || p.acao === 'ingles') {
     for (const v of p.vozes ?? []) { await resolver(v); await adicionarSeCompartilhada(v); }
   }
 
@@ -135,6 +137,23 @@ async function main() {
             writeFileSync(destino, await falar(v, a.texto, v.modelo ?? modelo));
           }
         }
+      }
+    }
+    resultado.caracteres = caracteres;
+  }
+  if (p.acao === 'ingles') {
+    let caracteres = 0;
+    const caps = capitulos.filter((c) => !p.capitulos || p.capitulos.includes(c.id));
+    for (const v of p.vozes ?? []) {
+      mkdirSync(`public/audio/${v.nome}/en`, { recursive: true });
+      for (const frase of [...new Set(caps.flatMap(falasDoCapitulo))]) {
+        const destino = `public/${arquivoIngles(frase).replace(/^audio\//, `audio/${v.nome}/`)}`;
+        // Áudio já gravado não é gravado de novo (gastaria créditos), a não ser com "refazer": true.
+        if (!p.refazer && existsSync(destino)) continue;
+        // "W-r-e-s-t-l-e-r" vira letras separadas, para a voz soletrar.
+        const fala = /^[A-Za-z](-[A-Za-z])+$/.test(frase) ? frase.split('-').join(', ') : frase;
+        caracteres += fala.length;
+        writeFileSync(destino, await falar(v, fala, v.modelo ?? modelo, 'en'));
       }
     }
     resultado.caracteres = caracteres;

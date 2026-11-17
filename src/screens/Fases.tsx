@@ -229,10 +229,11 @@ function Ouvir({ cap }: { cap: Capitulo }) {
         {cap.temas.map((t, i) => (
           <article key={i} className="painel" style={{ padding: 14, borderColor: tocando === i ? 'var(--yellow)' : ouvidos.has(i) ? '#22C55E' : undefined }}>
             <div className="linha">
-              <button onClick={() => tocar(i)} aria-label={tocando === i ? `Pausar ${t.titulo}` : carregando === i ? `Carregando ${t.titulo}` : `Ouvir ${t.titulo}`} aria-busy={carregando === i}
+              {/* Sem narração gravada (ex.: Inglês, por enquanto), o botão de tocar não aparece: não faria nada. */}
+              {t.audio && <button onClick={() => tocar(i)} aria-label={tocando === i ? `Pausar ${t.titulo}` : carregando === i ? `Carregando ${t.titulo}` : `Ouvir ${t.titulo}`} aria-busy={carregando === i}
                 className={`btn ${tocando === i ? 'btn-amarelo' : ouvidos.has(i) ? 'btn-verde' : 'btn-ciano'}`} style={{ width: 52, height: 52, padding: 0, borderRadius: '50%', flex: 'none' }}>
                 <Icone nome={tocando === i ? 'pause' : carregando === i ? 'relogio' : ouvidos.has(i) ? 'check' : 'play'} cheio={!ouvidos.has(i) || tocando === i} espessura={3} />
-              </button>
+              </button>}
               <button onClick={() => setAberto(aberto === i ? null : i)} style={{ flex: 1, background: 'none', border: 0, textAlign: 'left', padding: 0 }} aria-expanded={aberto === i}>
                 <span className="eyebrow" style={{ color: 'var(--muted)' }}>Tema {i + 1}</span>
                 <span className="display" style={{ display: 'block', fontSize: 19 }}>{t.titulo}</span>
